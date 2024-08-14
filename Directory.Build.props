@@ -1,0 +1,24 @@
+﻿<Project>
+  <PropertyGroup>
+    <DotNetVersion>net8.0</DotNetVersion>
+    <AssemblyName>$(MSBuildProjectName.Replace(" ", "_"))</AssemblyName>
+    <RootNamespace>$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
+    <LangVersion Condition="'$(MSBuildProjectExtension)'=='.csproj'">latest</LangVersion>
+    <LangVersion Condition="'$(MSBuildProjectExtension)'=='.fsproj'">latest</LangVersion>
+    <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <!--
+    All features: https://platform.uno/docs/articles/features/using-the-uno-sdk.html?tabs=uno-packages#uno-platform-features
+  -->
+  <PropertyGroup>
+    <UnoExtensionsVersion>4.3.0-dev.12</UnoExtensionsVersion> <!-- https://www.nuget.org/packages/Uno.Extensions.Core -->
+    <UnoLoggingVersion>4.1.1</UnoLoggingVersion> <!-- https://www.nuget.org/packages/Uno.Core.Extensions.Logging -->
+    <UnoCoreLoggingSingletonVersion>4.1.1</UnoCoreLoggingSingletonVersion> <!-- https://www.nuget.org/packages/Uno.Core.Extensions.Logging.Singleton -->
+    <UnoResizetizerVersion>1.5.2</UnoResizetizerVersion> <!-- https://www.nuget.org/packages/Uno.Resizetizer -->
+    <UnoToolkitVersion>6.1.8</UnoToolkitVersion> <!-- https://www.nuget.org/packages/Uno.Toolkit -->
+    <UnoThemesVersion>5.1.7</UnoThemesVersion> <!-- https://www.nuget.org/packages/Uno.Themes -->
+    <UnoUniversalImageLoaderVersion>1.9.37</UnoUniversalImageLoaderVersion> <!-- https://www.nuget.org/packages/Uno.UniversalImageLoader -->
+    <UnoWasmBootstrapVersion>9.0.0-dev.104</UnoWasmBootstrapVersion> <!-- https://www.nuget.org/packages/Uno.Wasm.Bootstrap -->
+  </PropertyGroup>
+</Project>

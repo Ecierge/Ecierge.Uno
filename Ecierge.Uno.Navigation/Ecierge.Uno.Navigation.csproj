@@ -1,21 +1,20 @@
 ﻿<Project Sdk="Uno.Sdk">
-
   <PropertyGroup>
     <TargetFrameworks>
-      $(DotNetVersion)-android;
+      $(DotNetVersion);
       $(DotNetVersion)-ios;
       $(DotNetVersion)-maccatalyst;
+      $(DotNetVersion)-android;
       $(DotNetVersion)-windows10.0.22621;
-      $(DotNetVersion)
+      $(DotNetVersion)-browserwasm;
+      $(DotNetVersion)-desktop
     </TargetFrameworks>
-
     <UnoSingleProject>true</UnoSingleProject>
     <OutputType>Library</OutputType>
     <!-- Ensures the .xr.xml files are generated in a proper layout folder -->
     <GenerateLibraryLayout>true</GenerateLibraryLayout>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
 
     <!--
       UnoFeatures let's you quickly add and manage implicit package references based on the features you want to use.
@@ -23,22 +22,15 @@
     -->
 
     <UnoFeatures>
+      Configuration;
+      Localization;
+      Logging;
+      Serialization;
       Storage;
+      Toolkit;
     </UnoFeatures>
 
   </PropertyGroup>
-
-  <ItemGroup>
-    <Using Include="OpenIddict.Abstractions" />
-    <Using Include="OpenIddict.Abstractions.OpenIddictConstants" Static="true" />
-    <Using Include="OpenIddict.Abstractions.OpenIddictResources" Alias="SR" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
-    <PackageReference Include="OpenIddict.Client" />
-    <PackageReference Include="OpenIddict.Core" />
-  </ItemGroup>
 
   <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
     <!--
@@ -53,6 +45,35 @@
     -->
     <!-- <FrameworkReference Update="Microsoft.Windows.SDK.NET.Ref" RuntimeFrameworkVersion="10.0.22621.28" />
     <FrameworkReference Update="Microsoft.Windows.SDK.NET.Ref" TargetingPackVersion="10.0.22621.28" /> -->
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="NavigationFlyout.xaml" />
+    <None Remove="UI\ModalFlyout.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authorization" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="NavigationFlyout.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="UI\NavigationFlyout.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="UI\ModalFlyout.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="UI\ModalFlyout.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
 </Project>
