@@ -1,13 +1,13 @@
-﻿<Project Sdk="Uno.Sdk">
+<Project Sdk="Uno.Sdk">
   <PropertyGroup>
     <TargetFrameworks>
-      $(DotNetVersion);
+      $(DotNetVersion)-android;
       $(DotNetVersion)-ios;
       $(DotNetVersion)-maccatalyst;
-      $(DotNetVersion)-android;
       $(DotNetVersion)-windows10.0.22621;
       $(DotNetVersion)-browserwasm;
-      $(DotNetVersion)-desktop
+      $(DotNetVersion)-desktop;
+      $(DotNetVersion)
     </TargetFrameworks>
     <UnoSingleProject>true</UnoSingleProject>
     <OutputType>Library</OutputType>
@@ -48,32 +48,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="NavigationFlyout.xaml" />
-    <None Remove="UI\ModalFlyout.xaml" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authorization" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <UpToDateCheckInput Remove="NavigationFlyout.xaml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Page Update="UI\NavigationFlyout.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-
-  <ItemGroup>
-    <UpToDateCheckInput Remove="UI\ModalFlyout.xaml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Page Update="UI\ModalFlyout.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,14 @@
+﻿<Flyout x:Class="Ecierge.Uno.Navigation.UI.Controls.NavigationFlyout"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:uen="using:Ecierge.Uno.Navigation.UI"
+        Placement="Full">
+    <Grid>
+        <!--<Frame uen:Region.Attached="True"-->
+        <Frame HorizontalAlignment="Stretch"
+               VerticalAlignment="Stretch"
+               HorizontalContentAlignment="Stretch"
+               VerticalContentAlignment="Stretch" />
+    </Grid>
+</Flyout>
