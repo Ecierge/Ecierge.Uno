@@ -1,0 +1,10 @@
+{
+  "background_color": "#ffffff",
+  "description": "Ecierge.Uno.App",
+  "display": "standalone",
+  "name": "Ecierge.Uno.App",
+  "short_name": "Ecierge.Uno.App",
+  "start_url": "/index.html",
+  "theme_color": "#ffffff",
+  "scope": "/"
+}

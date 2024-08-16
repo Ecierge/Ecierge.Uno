@@ -1,4 +1,4 @@
-﻿<Project>
+<Project>
   <PropertyGroup>
     <DotNetVersion>net8.0</DotNetVersion>
     <AssemblyName>$(MSBuildProjectName.Replace(" ", "_"))</AssemblyName>
@@ -6,19 +6,27 @@
     <LangVersion Condition="'$(MSBuildProjectExtension)'=='.csproj'">latest</LangVersion>
     <LangVersion Condition="'$(MSBuildProjectExtension)'=='.fsproj'">latest</LangVersion>
     <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+    <Nullable>enable</Nullable>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <!--
     All features: https://platform.uno/docs/articles/features/using-the-uno-sdk.html?tabs=uno-packages#uno-platform-features
   -->
   <PropertyGroup>
-    <UnoExtensionsVersion>4.3.0-dev.12</UnoExtensionsVersion> <!-- https://www.nuget.org/packages/Uno.Extensions.Core -->
-    <UnoLoggingVersion>4.1.1</UnoLoggingVersion> <!-- https://www.nuget.org/packages/Uno.Core.Extensions.Logging -->
+    <UnoExtensionsVersion>4.2.2</UnoExtensionsVersion> <!-- https://www.nuget.org/packages/Uno.Extensions.Core -->
+    <UnoLoggingVersion>1.7.0</UnoLoggingVersion> <!-- https://www.nuget.org/packages/Uno.Core.Extensions.Logging -->
     <UnoCoreLoggingSingletonVersion>4.1.1</UnoCoreLoggingSingletonVersion> <!-- https://www.nuget.org/packages/Uno.Core.Extensions.Logging.Singleton -->
     <UnoResizetizerVersion>1.5.2</UnoResizetizerVersion> <!-- https://www.nuget.org/packages/Uno.Resizetizer -->
     <UnoToolkitVersion>6.1.8</UnoToolkitVersion> <!-- https://www.nuget.org/packages/Uno.Toolkit -->
     <UnoThemesVersion>5.1.7</UnoThemesVersion> <!-- https://www.nuget.org/packages/Uno.Themes -->
     <UnoUniversalImageLoaderVersion>1.9.37</UnoUniversalImageLoaderVersion> <!-- https://www.nuget.org/packages/Uno.UniversalImageLoader -->
     <UnoWasmBootstrapVersion>9.0.0-dev.104</UnoWasmBootstrapVersion> <!-- https://www.nuget.org/packages/Uno.Wasm.Bootstrap -->
+    <!--
+      Adding NoWarn to remove build warnings
+      NU1507: Warning when there are multiple package sources when using CPM with no source mapping
+      NETSDK1201: Warning that specifying RID won't create self containing app
+      PRI257: Ignore default language (en) not being one of the included resources (eg en-us, en-uk)
+    -->
+    <NoWarn>$(NoWarn);NU1507;NETSDK1201;PRI257</NoWarn>
   </PropertyGroup>
 </Project>
