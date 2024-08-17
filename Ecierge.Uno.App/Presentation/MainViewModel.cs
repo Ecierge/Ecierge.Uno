@@ -7,7 +7,7 @@ using Ecierge.Uno.Navigation;
 
 public partial class MainViewModel : ObservableObject
 {
-    private Navigator _navigator;
+    private Navigator navigator;
 
     [ObservableProperty]
     private string? name;
@@ -17,7 +17,7 @@ public partial class MainViewModel : ObservableObject
         IOptions<AppConfig> appInfo,
         Navigator navigator)
     {
-        _navigator = navigator;
+        this.navigator = navigator;
         Title = "Main";
         Title += $" - {localizer["ApplicationName"]}";
         Title += $" - {appInfo?.Value?.Environment}";
@@ -29,7 +29,7 @@ public partial class MainViewModel : ObservableObject
 
     private async Task GoToSecondView()
     {
-        //await _navigator.NavigateViewModelAsync<SecondViewModel>(this, data: new Entity(Name!));
+        await navigator.NavigateLocalAsync(this, "Second");
     }
 
 }

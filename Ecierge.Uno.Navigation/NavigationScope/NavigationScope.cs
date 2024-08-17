@@ -2,11 +2,15 @@ namespace Ecierge.Uno.Navigation;
 
 using System;
 
+using Ecierge.Uno.Navigation.Navigation;
+
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml.Controls;
 
-public sealed class NavigationScope : IServiceScope
+public sealed class NavigationScope : IServiceScope, IDisposable
 {
     private static readonly Type WindowType = typeof(Window);
     private static readonly Type DispatcherType = typeof(DispatcherQueue);
@@ -35,7 +39,28 @@ public sealed class NavigationScope : IServiceScope
         serviceProvider.AddScopedInstance(NavigatorType, GetNavigator(element.GetType(), parentNavigator));
     }
 
-    public void Dispose() => serviceScope.Dispose();
+    ~NavigationScope() => Dispose(false);
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    private void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            var navigator = ServiceProvider.GetService<Navigator>();
+            Navigator? parentNavigator = navigator!.Parent;
+            if (parentNavigator is not null && parentNavigator.Child == navigator)
+            {
+                parentNavigator.Child = null;
+            }
+
+            serviceScope.Dispose();
+        }
+    }
 
     public NavigationScope CreateScope(NameSegment segment, FrameworkElement element, Navigator parentNavigator)
      => new NavigationScope(
@@ -53,6 +78,7 @@ public sealed class NavigationScope : IServiceScope
         {
             var navigator = (Navigator)this.ServiceProvider.GetRequiredService(navigatorType);
             navigator.Parent = parent;
+            if (parent is not null) parent.Child = navigator;
             return navigator;
         }
         throw new InvalidOperationException($"No navigator found for {controlType.Name}");

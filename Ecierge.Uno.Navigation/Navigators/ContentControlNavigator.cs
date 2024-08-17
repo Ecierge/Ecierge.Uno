@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 public class ContentControlNavigator : Navigator
 {
-    public override async Task<NavigationResponse> NavigateAsync(NavigationRequest request)
+    public override async ValueTask<NavigationResponse> NavigateAsync(NavigationRequest request)
     {
         var viewMap = request.NameSegment.View!;
         var view = (FrameworkElement)ServiceProvider.GetRequiredService(viewMap.View);

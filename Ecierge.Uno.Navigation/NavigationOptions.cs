@@ -32,8 +32,6 @@ public record NavigationOptions
         {
             return true;
         }
-        var key1 = Navigators.Keys.Where(k => k.IsAssignableTo(controlType)).ToArray();
-        var key2 = Navigators.Keys.Where(k => k.IsAssignableFrom(controlType)).ToArray();
 
         var key =
             Navigators.Keys

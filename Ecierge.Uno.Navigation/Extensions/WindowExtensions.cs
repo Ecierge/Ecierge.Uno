@@ -64,7 +64,7 @@ public static class WindowExtensions
         }
         else
         {
-            await navigator.NavigateDefaultAsync(rootSegment);
+            await navigator.NavigateDefaultAsync(Application.Current, rootSegment);
         }
     }
 }
