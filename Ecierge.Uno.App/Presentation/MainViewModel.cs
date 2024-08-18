@@ -29,7 +29,8 @@ public partial class MainViewModel : ObservableObject
 
     private async Task GoToSecondView()
     {
-        await navigator.NavigateLocalAsync(this, "Second");
+        if (string.IsNullOrWhiteSpace(Name)) return;
+        await navigator.NavigateLocalSegmentAsync(this, "Second", new Entity(Name));
     }
 
 }

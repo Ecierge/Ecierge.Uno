@@ -1,5 +1,7 @@
 namespace Ecierge.Uno.App.Presentation;
 
-public partial record SecondViewModel(Entity Entity)
+public class SecondViewModel(Entity name)
 {
+    public string Name { get; } = name.Name;
+    public string Title { get; } = "Second";
 }

@@ -1,7 +1,9 @@
+using Ecierge.Uno.Navigation.Navigation;
+
 namespace Ecierge.Uno.Navigation;
 
 [ImplicitKeys(IsEnabled = false)]
-public abstract partial record NavigationRequest(object Sender, IReadOnlyDictionary<string, object>? QueryParameters)
+public abstract partial record NavigationRequest(object Sender, INavigationData? NavigationData)
 {
     public Guid Id { get; } = Guid.NewGuid();
 
@@ -11,8 +13,8 @@ public abstract partial record NavigationRequest(object Sender, IReadOnlyDiction
 public record NameSegmentNavigationRequest(
       object Sender
     , NameSegment Segment
-    , IReadOnlyDictionary<string, object>? QueryParameters = null)
-    : NavigationRequest(Sender, QueryParameters)
+    , INavigationData? NavigationData = null)
+    : NavigationRequest(Sender, NavigationData)
 {
     public override NameSegment NameSegment => Segment;
 
@@ -22,8 +24,8 @@ public record DataSegmentNavigationRequest<TRouteData>(
       object Sender
     , DataSegment Segment
     , TRouteData? RouteData
-    , IReadOnlyDictionary<string, object>? QueryParameters = null)
-    : NavigationRequest(Sender, QueryParameters)
+    , INavigationData? NavigationData = null)
+    : NavigationRequest(Sender, NavigationData)
 {
     public override NameSegment NameSegment => Segment.ParentNameSegment;
 }

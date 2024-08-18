@@ -2,10 +2,7 @@ namespace Ecierge.Uno.Navigation;
 
 using System.Collections.Immutable;
 
-public abstract record RouteSegment(
-      string Name
-    , ViewMap? View = null
-    )
+public abstract record RouteSegment(string Name)
 {
     internal RouteSegment ParentSegment { get; set; } = null!;
     internal NameSegment ParentNameSegment
@@ -26,11 +23,15 @@ public abstract record RouteSegment(
 public record NameSegment : RouteSegment
 {
     public bool IsDefault { get; init; } = false;
+    public bool HasData => Data is not null;
+    public bool HasMandatoryData => Data is not null && Data.IsMandatory;
+    public ViewMap? View { get; set; }
     public DataSegment? Data { get; private init; }
     public override ImmutableArray<NameSegment> Nested { get; protected init; } = ImmutableArray<NameSegment>.Empty;
 
-    public NameSegment(string name, ViewMap? view, DataSegment data) : base(name, view)
+    public NameSegment(string name, ViewMap view, DataSegment data) : base(name)
     {
+        View = view ?? throw new ArgumentNullException(nameof(view));
         data = data ?? throw new ArgumentNullException(nameof(data));
         IsDefault = false;
         if (data is not null)
@@ -40,8 +41,9 @@ public record NameSegment : RouteSegment
         }
     }
 
-    public NameSegment(string name, ViewMap? view, bool isDefault = false, ImmutableArray<NameSegment> nested = default) : base(name, view)
+    public NameSegment(string name, ViewMap? view, bool isDefault = false, ImmutableArray<NameSegment> nested = default) : base(name)
     {
+        View = view;
         IsDefault = isDefault;
         if (!nested.IsDefaultOrEmpty)
         {
@@ -53,9 +55,12 @@ public record NameSegment : RouteSegment
 
 public record DataSegment : RouteSegment
 {
+    public bool IsMandatory { get; init; } = true;
+    public IViewDataMap? Data { get; private init; }
     public override ImmutableArray<NameSegment> Nested { get; protected init; }
-    public DataSegment(string name, ViewMap? view, params NameSegment[] nested) : base(name, view)
+    public DataSegment(string name, IViewDataMap? data, bool isMandatory = true, params NameSegment[] nested) : base(name)
     {
+        IsMandatory = isMandatory;
         if (nested is not null)
         {
             Nested = nested.ToImmutableArray();

@@ -12,6 +12,14 @@ public interface IViewRegistry : IRegistry<ViewMap>
     ViewMap this[Type view] { get; }
 }
 
+public sealed class ViewMapNotFoundException : KeyNotFoundException
+{
+    private ViewMapNotFoundException() { }
+    public ViewMapNotFoundException(Type view) : base($"View '{view}' not found in the registry.") { }
+    private ViewMapNotFoundException(string message) : base(message) { }
+    private ViewMapNotFoundException(string message, Exception innerException) : base(message, innerException) { }
+}
+
 public class ViewRegistry(IEnumerable<ViewMap> items) : IViewRegistry
 {
     private readonly ImmutableArray<ViewMap> items = items.ToImmutableArray();
@@ -20,7 +28,16 @@ public class ViewRegistry(IEnumerable<ViewMap> items) : IViewRegistry
     ImmutableArray<ViewMap> IRegistry<ViewMap>.Items => items;
 #pragma warning restore CA1033 // Interface methods should be callable by child types
 #pragma warning disable CA1043 // Use Integral Or String Argument For Indexers
-    public ViewMap this[Type view] => Views[view];
+    public ViewMap this[Type view]
+    {
+        get
+        {
+            if (Views.TryGetValue(view, out var viewMap))
+                return viewMap;
+            else
+                throw new ViewMapNotFoundException(view);
+        }
+    }
 #pragma warning restore CA1043 // Use Integral Or String Argument For Indexers
 }
 

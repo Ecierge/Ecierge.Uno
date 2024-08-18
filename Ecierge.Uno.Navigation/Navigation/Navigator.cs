@@ -1,7 +1,6 @@
 namespace Ecierge.Uno.Navigation;
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
@@ -11,8 +10,6 @@ using System.Threading.Tasks;
 using Ecierge.Uno.Navigation.Navigation;
 using Ecierge.Uno.Navigation.Regions;
 using Ecierge.Uno.Navigation.Routing;
-
-using Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
 /// Implementation of navigation for a specific region type
@@ -70,23 +67,30 @@ public static class NavigatorExtensions
         }
     }
 
-    public static ValueTask<NavigationResponse> NavigateSegmentAsync([NotNull] this Navigator navigator, object initiator, NameSegment segment, IReadOnlyDictionary<string, object>? queryParameters = null)
+    public static ValueTask<NavigationResponse> NavigateSegmentAsync([NotNull] this Navigator navigator, object initiator, NameSegment segment, object? data = null)
     {
-        if (segment.Data is DataSegment dataSegment && dataSegment.IsMandatory)
+        NavigationData? navigationData;
+        if (segment.Data is DataSegment dataSegment)
         {
-            if (queryParameters is null || !queryParameters.ContainsKey(dataSegment.Name))
-            {
+            if (dataSegment.IsMandatory && data is null)
                 throw new InvalidOperationException($"No data segment value found with name '{dataSegment.Name}'");
-            }
+            else
+                navigationData = new NavigationData([
+                    new (dataSegment.Name, data!)
+                ]);
         }
-        return navigator.NavigateAsync(new NameSegmentNavigationRequest(initiator, segment, queryParameters));
+        else
+        {
+            navigationData = null;
+        }
+        return navigator.NavigateAsync(new NameSegmentNavigationRequest(initiator, segment, navigationData));
     }
 
-    public static ValueTask<NavigationResponse> NavigateNestedSegmentAsync<TRouteData>([NotNull] this Navigator navigator, object initiator, DataSegment segment, TRouteData? routeData, IReadOnlyDictionary<string, object>? QueryParameters = null)
-     => navigator.NavigateAsync(new DataSegmentNavigationRequest<TRouteData>(initiator, segment, routeData, QueryParameters));
+    public static ValueTask<NavigationResponse> NavigateNestedSegmentAsync<TRouteData>([NotNull] this Navigator navigator, object initiator, DataSegment segment, TRouteData? routeData)
+     => navigator.NavigateAsync(new DataSegmentNavigationRequest<TRouteData>(initiator, segment, routeData));
 
 
-    public static ValueTask<NavigationResponse> NavigateDefaultAsync([NotNull] this Navigator navigator, object initiator, RouteSegment segment, IReadOnlyDictionary<string, object>? queryParameters = null)
+    public static ValueTask<NavigationResponse> NavigateDefaultAsync([NotNull] this Navigator navigator, object initiator, RouteSegment segment)
     {
         var defaultSegment = segment.Nested.SingleOrDefault(x => x.IsDefault);
         if (defaultSegment is not null)
@@ -99,7 +103,7 @@ public static class NavigatorExtensions
         }
     }
 
-    public static ValueTask<NavigationResponse> NavigateNestedAsync([NotNull] this Navigator navigator, object initiator, string segmentName, IReadOnlyDictionary<string, object>? queryParameters = null)
+    public static ValueTask<NavigationResponse> NavigateNestedSegmentAsync([NotNull] this Navigator navigator, object initiator, string segmentName, object? data = null)
     {
         var childNavigator = navigator.Child;
         if (childNavigator is null)
@@ -107,12 +111,12 @@ public static class NavigatorExtensions
             throw new InvalidOperationException("No child navigator found");
         }
         var nestedSegment = childNavigator.FindNestedSegmentToNavigate(segmentName);
-        return childNavigator.NavigateSegmentAsync(initiator, nestedSegment, queryParameters);
+        return childNavigator.NavigateSegmentAsync(initiator, nestedSegment, data);
     }
 
-    public static ValueTask<NavigationResponse> NavigateLocalAsync([NotNull] this Navigator navigator, object initiator, string segmentName, IReadOnlyDictionary<string, object>? queryParameters = null)
+    public static ValueTask<NavigationResponse> NavigateLocalSegmentAsync([NotNull] this Navigator navigator, object initiator, string segmentName, object? data = null)
     {
         var nestedSegment = navigator.FindNestedSegmentToNavigate(segmentName);
-        return navigator.NavigateSegmentAsync(initiator, nestedSegment, queryParameters);
+        return navigator.NavigateSegmentAsync(initiator, nestedSegment, data);
     }
 }

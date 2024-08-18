@@ -1,26 +1,55 @@
-﻿namespace Ecierge.Uno.Navigation;
+namespace Ecierge.Uno.Navigation;
 
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
+using System.Collections.Immutable;
 
-[DebuggerDisplay("{Qualifier}{Path}")]
-public record Route(string Qualifier = Qualifiers.None, string? Path = null, IDictionary<string, object>? Data = null, bool Refresh = false)
+using Ecierge.Uno.Navigation.Navigation;
+
+public abstract record RouteSegmentInstance();
+public record NameSegmentInstance(NameSegment NameSegment) : RouteSegmentInstance;
+public record DataSegmentInstance(DataSegment DataSegment, string primitive, Task<object>? data) : RouteSegmentInstance;
+public record DialogSegmentInstance() : RouteSegmentInstance;
+
+public record Route(ImmutableArray<RouteSegmentInstance> Segments, INavigationData? Data = null, bool Refresh = false)
 {
-    public static readonly DependencyProperty SegmentProperty = DependencyProperty.RegisterAttached("Segment", typeof(string), typeof(Route), new PropertyMetadata(null, new PropertyChangedCallback(OnSegmentChanged)));
-
-    public static string? GetSegment([NotNull] Control control) => (string?)control.GetValue(SegmentProperty);
-
-    public static void SetSegment([NotNull] Control control, string value) => control.SetValue(SegmentProperty, value);
-
-    private static void OnSegmentChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
+    public Route GoBack()
     {
-        OnSegmentChanged(o, (string)e.OldValue, (string)e.NewValue);
+        var lastSegment = Segments.LastOrDefault();
+        if (lastSegment is null) return this;
+        switch (lastSegment)
+        {
+            case NameSegmentInstance _:
+                return new(Segments.RemoveAt(Segments.Length - 1), Data, Refresh);
+            case DataSegmentInstance dataSegment:
+                var data = Data!.Remove(dataSegment.DataSegment.Name);
+                return new(Segments.RemoveAt(Segments.Length - 2), Data, Refresh);
+            case DialogSegmentInstance _:
+                throw new NotSupportedException("Dialog segments must not be last.");
+            default:
+                throw new NotSupportedException("Unknown segment type.");
+        }
     }
 
-    private static void OnSegmentChanged(DependencyObject o, string oldValue, string newValue)
+    public Route Remove(int count)
     {
-        // TODO: Add your property changed side-effects. Descendants can override as well.
+        var dataToRemove =
+            Segments[^count..]
+                .Where(x => x is DataSegmentInstance)
+                .Select(x => ((DataSegmentInstance)x).DataSegment.Name);
+        var data = Data!.RemoveRange(dataToRemove);
+        return new(Segments[..^count], Data, Refresh);
     }
 
+    public Route Add(NameSegment segment)
+    {
+        return new(Segments.Add(new NameSegmentInstance(segment)), Data, Refresh);
+    }
+
+    public Route Add(DataSegment segment, string primitive, Task<object>? data)
+    {
+        var segments = Segments.AddRange(
+                new NameSegmentInstance(segment.ParentNameSegment),
+                new DataSegmentInstance(segment, primitive, data)
+            );
+        return new(segments, Data, Refresh);
+    }
 }

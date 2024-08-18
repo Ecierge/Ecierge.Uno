@@ -83,4 +83,37 @@ public sealed class NavigationScope : IServiceScope, IDisposable
         }
         throw new InvalidOperationException($"No navigator found for {controlType.Name}");
     }
+
+    public object? CreateViewModel(Type viewModelType, INavigationData? navigationData)
+    {
+        var data = navigationData ?? NavigationData.Empty;
+
+        var viewModel = data.GetData(viewModelType);
+        if (viewModel is not null) return viewModel;
+
+        try
+        {
+            viewModel = ServiceProvider.GetService(viewModelType);
+        }
+        catch (InvalidOperationException) {}
+        if (viewModel is not null) return viewModel;
+
+        if (navigationData is null) return default;
+
+        var ctor = viewModelType.GetNavigationConstructor(ServiceProvider, navigationData, out var args);
+        if (ctor is not null)
+        {
+            try
+            {
+                return ctor.Invoke(args);
+            }
+            catch
+            {
+                ServiceProvider.GetRequiredService<ILogger<NavigationScope>>().LogInformation("Failed to create view model of type {ViewModelType} using route data and service provider", viewModelType);
+            }
+        }
+        return default;
+    }
+    //public Task<TViewModel> CreateViewModel<TViewModel>(TViewModel viewModel)
+
 }

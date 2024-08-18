@@ -113,7 +113,8 @@ public partial class App : Application
         views.Register(
             new ViewMap<Shell, ShellViewModel>(),
             new ViewMap<MainPage, MainViewModel>(),
-            new DataViewMap<SecondPage, SecondViewModel, Entity>()
+            new ViewMap<SecondPage, SecondViewModel>()
+            //new DataViewMap<SecondPage, SecondViewModel, Entity>()
         );
 
         routes.Register(views => [
@@ -121,7 +122,7 @@ public partial class App : Application
             //    nested:
             //    [
                     new ("Main", views[typeof(MainPage)], isDefault:true),
-                    new ("Second", views[typeof(SecondPage)]),
+                    new ("Second", views[typeof(SecondPage)], new DataSegment("name", new EntityViewDataMap())),
             //    ]
             //)
             ]

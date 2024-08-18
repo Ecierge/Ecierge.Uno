@@ -16,7 +16,7 @@ public class ContentControlNavigator : Navigator
         var view = (FrameworkElement)ServiceProvider.GetRequiredService(viewMap.View);
         if (viewMap.ViewModel is Type viewModelType)
         {
-            var viewModel = ServiceProvider.GetRequiredService(viewModelType);
+            var viewModel = Scope.CreateViewModel(viewModelType, request.NavigationData);
             view.DataContext = viewModel;
         }
         ((ContentControl)Region!.Target!).Content = view;
