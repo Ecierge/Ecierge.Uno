@@ -6,26 +6,6 @@ using System.Collections.Immutable;
 using System.Data;
 using System.Text;
 
-public class RouteValues : Dictionary<string, object> { }
-
-public interface IViewDataMap
-{
-    ValueTask<object> FromRoute(Route route, string name);
-    void ToRoute(RouteValues routeValues, string name, object data);
-}
-
-//public record ViewDataMap<TData>() : IViewDataMap
-//{
-//    public virtual Task<TData> FromRoute(Route route) => throw new NotSupportedException();
-//    public virtual Task ToRoute(RouteValues routeValues, TData data) => throw new NotSupportedException();
-//    async ValueTask<object> IViewDataMap.FromRoute(Route route)
-//    {
-//        route = route ?? throw new ArgumentNullException(nameof(route));
-//        return await FromRoute(route)!;
-//    }
-//    void IViewDataMap.ToRoute(RouteValues routeValues, object data) => ToRoute(routeValues, (TData)data);
-//}
-
 public record ViewMap(
         Type View
     ,   Type? ViewModel = null

@@ -14,6 +14,7 @@ public record NavigationRegion
     public Navigator Navigator => Scope.ServiceProvider.GetRequiredService<Navigator>();
     public NavigationRegion? Parent { get; internal set; }
     public FrameworkElement? Target { get; internal set; }
+    public FrameworkElement? Root { get; internal set; }
 
     public NavigationRegion(NavigationScope scope)
     {
@@ -32,9 +33,28 @@ public static class Region
 
     internal static NavigationRegion? GetNavigationRegion([NotNull] this FrameworkElement element) => (NavigationRegion?)element.GetValue(Region.NavigationInfoProperty);
 
-    public static void SetSegment([NotNull] this FrameworkElement element, string value)
+    internal static NavigationRegion FindNavigationRegion([NotNull] this FrameworkElement element)
     {
-        var parentNavigationRegion = element.FindParentNavigationRegion() ?? throw new RootNavigationRegionMissingException();
+        var regionElement = element;
+        var navigationRegion = element.GetNavigationRegion();
+        while (navigationRegion is null && regionElement.Parent is not null)
+        {
+            regionElement = (FrameworkElement)regionElement.Parent;
+            navigationRegion = regionElement.GetNavigationRegion();
+        }
+        if (navigationRegion is null)
+        {
+            throw new RootNavigationRegionMissingException();
+        }
+        return navigationRegion;
+    }
+
+    public static void SetSegment([NotNull] this FrameworkElement element, string value, FrameworkElement root)
+    {
+        var parentNavigationRegion =
+            root.GetNavigationRegion() ??
+            root.FindParentNavigationRegion() ??
+            throw new RootNavigationRegionMissingException();
         var parentSegment = parentNavigationRegion.Segment;
         ImmutableArray<NameSegment> nestedSegments;
         string parentSegmentName;
@@ -61,68 +81,11 @@ public static class Region
         var navigationRegion = new NavigationRegion(scope)
         {
             Parent = parentNavigationRegion,
-            Target = element.GetNavigationTarget() ?? element
+            Target = element,
+            Root = root
         };
         element.SetNavigationRegion(navigationRegion);
     }
 
     #endregion NavigationInfo
-}
-
-public static class Route
-{
-    #region SegmentName
-
-    /// <summary>
-    /// SegmentName Attached Dependency Property
-    /// </summary>
-    public static readonly DependencyProperty SegmentNameProperty =
-        DependencyProperty.RegisterAttached("SegmentName", typeof(string), typeof(Route),
-            new PropertyMetadata((string?)null,
-                new PropertyChangedCallback(OnSegmentNameChanged)));
-
-    /// <summary>
-    /// Handles changes to the SegmentName property.
-    /// </summary>
-    private static void OnSegmentNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
-        string oldSegmentName = (string)e.OldValue;
-        string newSegmentName = (string)e.NewValue;
-        if (d is FrameworkElement element)
-        {
-            element.Loaded += (e, args) =>
-            {
-                element.SetSegment(newSegmentName);
-                element.Unloaded += (e, args) =>
-                {
-                    element.GetNavigationRegion()!.Scope!.Dispose();
-                    element.SetValue(Region.NavigationInfoProperty, null);
-                };
-            };
-        }
-    }
-
-    #endregion SegmentName
-
-    #region NavigationTarget
-
-    /// <summary>
-    /// NavigationTarget Attached Dependency Property
-    /// </summary>
-    public static readonly DependencyProperty NavigationTargetProperty =
-        DependencyProperty.RegisterAttached("NavigationTarget", typeof(FrameworkElement), typeof(Route), new((FrameworkElement?)null));
-
-    /// <summary>
-    /// Gets the NavigationTarget property. This dependency property
-    /// indicates the navigation target.
-    /// </summary>
-    public static FrameworkElement GetNavigationTarget([NotNull] this FrameworkElement element) => (FrameworkElement)element.GetValue(NavigationTargetProperty);
-
-    /// <summary>
-    /// Sets the NavigationTarget property. This dependency property
-    /// indicates the navigation target.
-    /// </summary>
-    public static void SetNavigationTarget([NotNull] this FrameworkElement element, FrameworkElement value) => element.SetValue(NavigationTargetProperty, value);
-
-    #endregion NavigationTarget
 }

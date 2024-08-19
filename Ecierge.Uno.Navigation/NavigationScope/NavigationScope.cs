@@ -2,7 +2,7 @@ namespace Ecierge.Uno.Navigation;
 
 using System;
 
-using Ecierge.Uno.Navigation.Navigation;
+using Ecierge.Uno.Navigation.Regions;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -13,6 +13,7 @@ using Microsoft.UI.Xaml.Controls;
 public sealed class NavigationScope : IServiceScope, IDisposable
 {
     private static readonly Type WindowType = typeof(Window);
+    private static readonly Type FrameworkElementType = typeof(FrameworkElement);
     private static readonly Type DispatcherType = typeof(DispatcherQueue);
     private static readonly Type NavigationScopeType = typeof(NavigationScope);
     private static readonly Type NameSegmentType = typeof(NameSegment);
@@ -33,10 +34,11 @@ public sealed class NavigationScope : IServiceScope, IDisposable
 
         var serviceProvider = this.ServiceProvider;
         serviceProvider.AddScopedInstance(WindowType, window);
+        serviceProvider.AddScopedInstance(FrameworkElementType, element);
         serviceProvider.AddScopedInstance(DispatcherType, window.DispatcherQueue);
         serviceProvider.AddScopedInstance(NavigationScopeType, this);
         serviceProvider.AddScopedInstance(NameSegmentType, segment);
-        serviceProvider.AddScopedInstance(NavigatorType, GetNavigator(element.GetType(), parentNavigator));
+        serviceProvider.AddScopedInstance(NavigatorType, GetNavigator(element, parentNavigator));
     }
 
     ~NavigationScope() => Dispose(false);
@@ -70,18 +72,20 @@ public sealed class NavigationScope : IServiceScope, IDisposable
          element,
          parentNavigator);
 
-    private Navigator GetNavigator(Type controlType, Navigator? parent)
+    private Navigator GetNavigator(FrameworkElement element, Navigator? parent)
     {
-        controlType = controlType ?? throw new ArgumentNullException(nameof(controlType));
-        var options = this.ServiceProvider.GetRequiredService<IOptions<NavigationOptions>>().Value;
-        if (options.TryGetNavigatorType(controlType, out Type? navigatorType))
+        Type? navigatorType = element.GetNavigatorType();
+        if (navigatorType is null)
         {
-            var navigator = (Navigator)this.ServiceProvider.GetRequiredService(navigatorType);
-            navigator.Parent = parent;
-            if (parent is not null) parent.Child = navigator;
-            return navigator;
+            Type elementType = element.GetType();
+            var options = this.ServiceProvider.GetRequiredService<IOptions<NavigationOptions>>().Value;
+            if (!options.TryGetNavigatorType(elementType, out navigatorType))
+                throw new InvalidOperationException($"No navigator found for {elementType.Name}");
         }
-        throw new InvalidOperationException($"No navigator found for {controlType.Name}");
+        var navigator = (Navigator)this.ServiceProvider.GetRequiredService(navigatorType);
+        navigator.Parent = parent;
+        if (parent is not null) parent.Child = navigator;
+        return navigator;
     }
 
     public object? CreateViewModel(Type viewModelType, INavigationData? navigationData)

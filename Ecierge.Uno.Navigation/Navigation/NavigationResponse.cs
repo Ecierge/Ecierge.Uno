@@ -1,4 +1,4 @@
-﻿namespace Ecierge.Uno.Navigation;
+namespace Ecierge.Uno.Navigation;
 
 public abstract record NavigationResponse
 {
@@ -13,12 +13,12 @@ public record FailedNavigationResponse : NavigationResponse
     public override bool Success => false;
 }
 
-public record SuccessfulNavigationResponse(Route Route, Navigator Navigator) : NavigationResponse
+public record SuccessfulNavigationResponse(Routing.Route Route, Navigator Navigator) : NavigationResponse
 {
     public override bool Success => true;
 }
 
-public record ResultNavigationResponse<TResult>(Route Route, Navigator Navigator, TResult Result) : NavigationResponse
+public record ResultNavigationResponse<TResult>(Routing.Route Route, Navigator Navigator, TResult Result) : NavigationResponse
 {
     public override bool Success => true;
 }

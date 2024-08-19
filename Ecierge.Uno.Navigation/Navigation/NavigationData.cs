@@ -1,4 +1,4 @@
-namespace Ecierge.Uno.Navigation.Navigation;
+namespace Ecierge.Uno.Navigation;
 
 using System;
 using System.Collections;

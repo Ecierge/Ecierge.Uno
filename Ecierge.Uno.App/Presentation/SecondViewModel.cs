@@ -1,7 +1,21 @@
 namespace Ecierge.Uno.App.Presentation;
 
-public class SecondViewModel(Entity name)
+using System.Threading.Tasks;
+
+public partial class SecondViewModel : ObservableObject
 {
-    public string Name { get; } = name.Name;
+    [ObservableProperty]
+    private string name;
     public string Title { get; } = "Second";
+
+    public SecondViewModel(Task<Entity> name)
+    {
+        LoadData(name);
+    }
+
+    private async void LoadData(Task<Entity> entityTask)
+    {
+        var entity = await entityTask;
+        Name = entity.Name;
+    }
 }

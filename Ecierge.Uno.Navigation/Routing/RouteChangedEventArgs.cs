@@ -1,4 +1,4 @@
-﻿using Ecierge.Uno.Navigation.Regions;
+using Ecierge.Uno.Navigation.Regions;
 
 namespace Ecierge.Uno.Navigation;
 
@@ -10,7 +10,7 @@ public class RouteChangedEventArgs : EventArgs
 	/// <summary>
 	/// The root region where the route has changed
 	/// </summary>
-	public NavigationRegion Region { get; }
+	public Regions.NavigationRegion Region { get; }
 
 	/// <summary>
 	/// The navigator where the route changed (leaf region in hierarchy)
@@ -22,7 +22,7 @@ public class RouteChangedEventArgs : EventArgs
 	/// </summary>
 	/// <param name="region">The root region where route was changed</param>
 	/// <param name="navigator">The navigator that changed the route</param>
-	public RouteChangedEventArgs(NavigationRegion region, Navigator? navigator)
+	public RouteChangedEventArgs(Regions.NavigationRegion region, Navigator? navigator)
 	{
 		Region = region;
 		Navigator = navigator;

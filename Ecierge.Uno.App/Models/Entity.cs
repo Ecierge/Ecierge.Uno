@@ -1,17 +1,21 @@
+namespace Ecierge.Uno.App.Models;
+
+using System;
 using System.Threading.Tasks;
 
 using Ecierge.Uno.Navigation;
 
-namespace Ecierge.Uno.App.Models;
-
 public record Entity(string Name);
 
-internal class EntityViewDataMap : IViewDataMap
+internal class EntityViewDataMap : INavigationDataMap
 {
-    public async ValueTask<object> FromRoute(Route route, string name)
+    public Type PrimitiveType { get; } = typeof(string);
+    public Type EntityType { get; } = typeof(Entity);
+
+    public async Task<object> FromNavigationData(INavigationData data, string name)
     {
-        route = route ?? throw new System.ArgumentNullException(nameof(route));
-        return new Entity((route.Data![name] as string)!);
+        data = data ?? throw new System.ArgumentNullException(nameof(data));
+        return new Entity((data[name] as string)!);
     }
 
     public void ToRoute(RouteValues routeValues, string name, object data)

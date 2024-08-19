@@ -61,6 +61,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CommunityToolkit.WinUI.Triggers" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Ecierge.Uno.Navigation\Ecierge.Uno.Navigation.csproj" />
   </ItemGroup>
 

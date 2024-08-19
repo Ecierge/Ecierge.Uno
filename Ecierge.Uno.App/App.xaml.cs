@@ -108,7 +108,7 @@ public partial class App : Application
         shell => shell.ContentControl);
     }
 
-    private static void RegisterRoutes(IViewRegistryBuilder views, IRouteRegistryBuilder routes)
+    private static void RegisterRoutes(IViewRegistryBuilder views, INavigationDataRegistryBuilder data, IRouteRegistryBuilder routes)
     {
         views.Register(
             new ViewMap<Shell, ShellViewModel>(),
@@ -117,12 +117,19 @@ public partial class App : Application
             //new DataViewMap<SecondPage, SecondViewModel, Entity>()
         );
 
-        routes.Register(views => [
+        data.Register(
+                new EntityViewDataMap()
+            );
+
+        routes.Register((views, data) => [
             //new NameSegment("", views[typeof(Shell)],
             //    nested:
             //    [
-                    new ("Main", views[typeof(MainPage)], isDefault:true),
-                    new ("Second", views[typeof(SecondPage)], new DataSegment("name", new EntityViewDataMap())),
+                    new ("Main", views[typeof(MainPage)], isDefault:true, [
+                            new ("Tab1", isDefault: true),
+                            new ("Tab2"),
+                        ]),
+                    new ("Second", views[typeof(SecondPage)], new DataSegment("name", data[typeof(Entity)])),
             //    ]
             //)
             ]

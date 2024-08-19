@@ -1,4 +1,4 @@
-﻿namespace Ecierge.Uno.Navigation;
+namespace Ecierge.Uno.Navigation;
 
 using Ecierge.Uno.Navigation.Regions;
 
@@ -15,9 +15,9 @@ public interface IRouteNotifier
 
 internal interface IRouteUpdater
 {
-    void StartNavigation(Navigator navigator, NavigationRegion region, NavigationRequest request);
+    void StartNavigation(Navigator navigator, Regions.NavigationRegion region, NavigationRequest request);
 
-    void EndNavigation(Navigator navigator, NavigationRegion region, NavigationRequest request, NavigationResponse? response);
+    void EndNavigation(Navigator navigator, Regions.NavigationRegion region, NavigationRequest request, NavigationResponse? response);
 }
 
 internal class RouteNotifier : IRouteNotifier, IRouteUpdater
@@ -31,7 +31,7 @@ internal class RouteNotifier : IRouteNotifier, IRouteUpdater
     private readonly IDictionary<Guid, StringBuilder> navigationSegments = new Dictionary<Guid, StringBuilder>();
     private readonly IDictionary<Guid, int> runningNavigations = new Dictionary<Guid, int>();
 
-    public void StartNavigation(Navigator navigator, NavigationRegion region, NavigationRequest request)
+    public void StartNavigation(Navigator navigator, Regions.NavigationRegion region, NavigationRequest request)
     {
         var id = request.Id;
         if (!runningNavigations.TryGetValue(id, out var count) ||
@@ -51,7 +51,7 @@ internal class RouteNotifier : IRouteNotifier, IRouteUpdater
         }
     }
 
-    public void EndNavigation(Navigator navigator, NavigationRegion region, NavigationRequest request, NavigationResponse? response)
+    public void EndNavigation(Navigator navigator, Regions.NavigationRegion region, NavigationRequest request, NavigationResponse? response)
     {
         var id = request.Id;
         runningNavigations[id] = runningNavigations[id] - 1;

@@ -20,7 +20,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddNavigation(
           this IServiceCollection services
         , Func<NavigationOptions, NavigationOptions>? configure = null
-        , Action<IViewRegistryBuilder, IRouteRegistryBuilder>? routeBuilder = null
+        , Action<IViewRegistryBuilder, INavigationDataRegistryBuilder, IRouteRegistryBuilder>? routeBuilder = null
         , Func<IServiceCollection, IViewRegistryBuilder>? createViewRegistryBuilder = null
         , Func<IServiceCollection, IRouteRegistryBuilder>? createRouteRegistryBuilder = null
         )
@@ -29,26 +29,33 @@ public static class ServiceCollectionExtensions
         navConfig = (configure?.Invoke(navConfig)) ?? navConfig;
 
         IViewRegistryBuilder viewRegistryBuilder = createViewRegistryBuilder?.Invoke(services) ?? new ViewRegistryBuilder(services);
+        INavigationDataRegistryBuilder navigationDataRegistryBuilder = new NavigationDataRegistryBuilder();
         IRouteRegistryBuilder routeRegistryBuilder = createRouteRegistryBuilder?.Invoke(services) ?? new RouteRegistryBuilder();
-        routeBuilder?.Invoke(viewRegistryBuilder, routeRegistryBuilder);
+        routeBuilder?.Invoke(viewRegistryBuilder, navigationDataRegistryBuilder, routeRegistryBuilder);
         var views = viewRegistryBuilder.Build();
-        var routes = routeRegistryBuilder.Build(views);
+        var navigationData = navigationDataRegistryBuilder.Build();
+        var routes = routeRegistryBuilder.Build(views, navigationData);
 
         return
             services
                 .AddSingleton<IPostConfigureOptions<NavigationOptions>, PostConfigureNavigationOptions>()
 
                 .AddSingleton<IViewRegistry>(views)
+                .AddSingleton<INavigationDataRegistry>(navigationData)
                 .AddSingleton<IRouteRegistry>(routes)
 
                 .AddSingleton<ISingletonInstanceRepository, Ecierge.Uno.InstanceRepository>()
                 .AddScoped<IScopedInstanceRepository, Ecierge.Uno.InstanceRepository>()
 
                 .AddScopedInstance<Window>()
+                .AddScopedInstance<FrameworkElement>()
                 .AddScopedInstance<DispatcherQueue>()
                 .AddScopedInstance<NavigationScope>()
                 .AddScopedInstance<Navigator>()
                 .AddScopedInstance<NameSegment>()
+
+                .AddScoped<NavigationData>()
+                .AddTransient<INavigationData>(sp => sp.GetRequiredService<NavigationData>())
 
                 //.AddSingleton<IResponseNavigatorFactory, ResponseNavigatorFactory>()
 
@@ -69,6 +76,7 @@ public static class ServiceCollectionExtensions
                 //.AddNavigator<MessageDialog, MessageDialogNavigator>(true)
                 //.AddNavigator<Flyout, FlyoutNavigator>(true)
                 //.AddNavigator<Popup, PopupNavigator>(true)
+                .AddNavigator<SelectorBar, SelectorBarNavigator>()
 
                 //.AddSingleton<IRequestHandler, TapRequestHandler>()
                 //.AddSingleton<IRequestHandler, ButtonBaseRequestHandler>()
@@ -117,7 +125,7 @@ public static class ServiceCollectionExtensions
         where TNavigator : Navigator
     {
         return services
-            .AddSingleton<TNavigator>()
+            .AddScoped<TNavigator>()
             .AddSingleton(new Tuple<Type, Type>(typeof(TControl), typeof(TNavigator)));
     }
 #pragma warning restore IDE0022 // Use expression body for method

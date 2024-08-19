@@ -3,10 +3,7 @@ namespace Ecierge.Uno.Navigation;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-
-using Microsoft.Extensions.DependencyInjection;
 
 public interface IRouteRegistry : IRegistry<NameSegment>
 {
@@ -28,27 +25,27 @@ public class RouteRegistry : IRouteRegistry
 
 public interface IRouteRegistryBuilder
 {
-    IEnumerable<Func<IViewRegistry, NameSegment[]>> Factories { get; }
-    IRouteRegistryBuilder Register(Func<IViewRegistry, NameSegment[]> createSegments);
-    public IRouteRegistry Build(IViewRegistry viewRegistry);
+    IEnumerable<Func<IViewRegistry, INavigationDataRegistry, NameSegment[]>> Factories { get; }
+    IRouteRegistryBuilder Register(Func<IViewRegistry, INavigationDataRegistry, NameSegment[]> createSegments);
+    public IRouteRegistry Build(IViewRegistry viewRegistry, INavigationDataRegistry navigationDataRegistry);
 }
 
 public class RouteRegistryBuilder : IRouteRegistryBuilder
 {
-    private readonly List<Func<IViewRegistry, NameSegment[]>> factories = new();
+    private readonly List<Func<IViewRegistry, INavigationDataRegistry, NameSegment[]>> factories = new();
 
-    public IEnumerable<Func<IViewRegistry, NameSegment[]>> Factories => factories;
+    public IEnumerable<Func<IViewRegistry, INavigationDataRegistry, NameSegment[]>> Factories => factories;
 
-    public IRouteRegistryBuilder Register(Func<IViewRegistry, NameSegment[]> createSegments)
+    public IRouteRegistryBuilder Register(Func<IViewRegistry, INavigationDataRegistry, NameSegment[]> createSegments)
     {
         createSegments = createSegments ?? throw new ArgumentNullException(nameof(createSegments));
         factories.Add(createSegments);
         return this;
     }
 
-    public IRouteRegistry Build(IViewRegistry viewRegistry)
+    public IRouteRegistry Build(IViewRegistry viewRegistry, INavigationDataRegistry navigationDataRegistry)
     {
-        var segments = factories.SelectMany(factory => factory(viewRegistry));
+        var segments = factories.SelectMany(factory => factory(viewRegistry, navigationDataRegistry));
         return new RouteRegistry(segments);
     }
 }

@@ -12,16 +12,16 @@ public static class FrameworkElementExtensions
     public static IServiceScope AttachRootNavigationRegion([NotNull] this Control control, NavigationScope scope)
     {
         scope = scope ?? throw new ArgumentNullException(nameof(scope));
-        control.SetNavigationRegion(new NavigationRegion(scope) { Target = control });
+        control.SetNavigationRegion(new (scope) { Target = control });
         return scope;
     }
 
-    internal static NavigationRegion? FindParentNavigationRegion([NotNull] this FrameworkElement element)
+    internal static Regions.NavigationRegion? FindParentNavigationRegion([NotNull] this FrameworkElement element)
     {
         var parent = element.Parent as FrameworkElement;
         while (parent is not null)
         {
-            if (parent.GetNavigationRegion() is NavigationRegion navigationRegion)
+            if (parent.GetNavigationRegion() is Regions.NavigationRegion navigationRegion)
             {
                 return navigationRegion;
             }

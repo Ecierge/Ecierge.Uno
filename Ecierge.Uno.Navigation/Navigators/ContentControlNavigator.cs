@@ -6,20 +6,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Microsoft.Extensions.DependencyInjection;
-
-public class ContentControlNavigator : Navigator
+public class ContentControlNavigator : FactoryNavigator
 {
-    public override async ValueTask<NavigationResponse> NavigateAsync(NavigationRequest request)
+    public ContentControlNavigator(IServiceProvider serviceProvider) : base(serviceProvider) { }
+
+    public override async ValueTask<NavigationResponse> NavigateCoreAsync(NavigationRequest request)
     {
-        var viewMap = request.NameSegment.View!;
-        var view = (FrameworkElement)ServiceProvider.GetRequiredService(viewMap.View);
-        if (viewMap.ViewModel is Type viewModelType)
-        {
-            var viewModel = Scope.CreateViewModel(viewModelType, request.NavigationData);
-            view.DataContext = viewModel;
-        }
-        ((ContentControl)Region!.Target!).Content = view;
+        var view = CreateView(request);
+        var contentControl = (ContentControl)Region!.Target!;
+        contentControl.Content = view;
         return new SuccessfulNavigationResponse(null, this);
     }
 }

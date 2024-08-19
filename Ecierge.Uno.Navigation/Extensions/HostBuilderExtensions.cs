@@ -23,7 +23,7 @@ public static class HostBuilderExtensions
     /// <returns>The host builder</returns>
     public static IHostBuilder UseNavigation(
         this IHostBuilder hostBuilder,
-        Action<IViewRegistryBuilder, IRouteRegistryBuilder>? viewRouteBuilder,
+        Action<IViewRegistryBuilder, INavigationDataRegistryBuilder, IRouteRegistryBuilder>? viewRouteBuilder,
         Func<IServiceCollection, IViewRegistryBuilder>? createViewRegistryBuilder,
         Func<IServiceCollection, IRouteRegistryBuilder>? createRouteRegistryBuilder,
         Func<NavigationOptions, NavigationOptions>? configure,
@@ -49,7 +49,7 @@ public static class HostBuilderExtensions
     /// <returns>The host builder</returns>
     public static IHostBuilder UseNavigation(
         this IHostBuilder hostBuilder,
-        Action<IViewRegistryBuilder, IRouteRegistryBuilder>? viewRouteBuilder = null,
+        Action<IViewRegistryBuilder, INavigationDataRegistryBuilder, IRouteRegistryBuilder>? viewRouteBuilder = null,
         Func<IServiceCollection, IViewRegistryBuilder>? createViewRegistryBuilder = null,
         Func<IServiceCollection, IRouteRegistryBuilder>? createRouteRegistryBuilder = null,
         Func<NavigationOptions, NavigationOptions>? configure = null,

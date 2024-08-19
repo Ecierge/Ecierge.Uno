@@ -41,7 +41,7 @@ public record NameSegment : RouteSegment
         }
     }
 
-    public NameSegment(string name, ViewMap? view, bool isDefault = false, ImmutableArray<NameSegment> nested = default) : base(name)
+    public NameSegment(string name, ViewMap? view = null, bool isDefault = false, ImmutableArray<NameSegment> nested = default) : base(name)
     {
         View = view;
         IsDefault = isDefault;
@@ -56,9 +56,9 @@ public record NameSegment : RouteSegment
 public record DataSegment : RouteSegment
 {
     public bool IsMandatory { get; init; } = true;
-    public IViewDataMap? Data { get; private init; }
+    public INavigationDataMap? Data { get; private init; }
     public override ImmutableArray<NameSegment> Nested { get; protected init; }
-    public DataSegment(string name, IViewDataMap? data, bool isMandatory = true, params NameSegment[] nested) : base(name)
+    public DataSegment(string name, INavigationDataMap? data, bool isMandatory = true, params NameSegment[] nested) : base(name)
     {
         IsMandatory = isMandatory;
         if (nested is not null)

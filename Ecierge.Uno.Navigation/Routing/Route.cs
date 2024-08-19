@@ -1,8 +1,6 @@
-namespace Ecierge.Uno.Navigation;
+namespace Ecierge.Uno.Navigation.Routing;
 
 using System.Collections.Immutable;
-
-using Ecierge.Uno.Navigation.Navigation;
 
 public abstract record RouteSegmentInstance();
 public record NameSegmentInstance(NameSegment NameSegment) : RouteSegmentInstance;

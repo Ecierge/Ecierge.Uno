@@ -5,8 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
-
-using Ecierge.Uno.Navigation.Navigation;
+using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -29,20 +28,31 @@ internal static class TypeExtensions
             var paras = ctr.GetParameters();
             var args = new List<object>();
             var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger("Ecierge.Uno.Navigation");
+            var dataRegistry = services.GetRequiredService<INavigationDataRegistry>();
             foreach (var para in paras)
             {
-                if (navigationData.TryGetValue(para.Name!, out var data))
+                // TODO: Improve lookup performance
+                if (dataRegistry.Items.Any(map => para.ParameterType.IsAssignableFrom(map.PrimitiveType)))
                 {
-                    Type navigationDataEntryType = data.GetType();
-                    // TODO: Add entity creation from primitive
-                    if (para.ParameterType.IsAssignableFrom(navigationDataEntryType))
+                    if (navigationData.TryGetValue(para.Name!, out var data))
                     {
                         args.Add(data);
                         continue;
                     }
+                }
+                else if (para.ParameterType.GetGenericTypeDefinition() == typeof(Task<>))
+                {
+                    var entityType = para.ParameterType.GetGenericArguments().First();
+                    var map = dataRegistry.Items.FirstOrDefault(map => entityType.IsAssignableFrom(map.EntityType));
+                    if (map is not null)
+                    {
+                        var task = map.FromNavigationData(navigationData, para.Name!);
+                        args.Add(TaskConverter.Convert(task, entityType));
+                        continue;
+                    }
                     else
                     {
-                        logger.LogWarning("ViewModel constructor parameter '{parameterName}' of type '{type}' mismatch. Navigation data parameter type is '{dataType}'", para.Name, para.ParameterType, navigationDataEntryType);
+                        logger.LogWarning("No data map found for parameter '{parameterName}' of type '{type}'", para.Name, para.ParameterType);
                     }
                 }
                 var arg = services.GetService(para.ParameterType);
@@ -59,4 +69,22 @@ internal static class TypeExtensions
         constructorArguments = new object[] { };
         return null;
     }
+
+    public class TaskConverter
+    {
+        static MethodInfo castMethod = typeof(TaskConverter).GetMethod(nameof(Cast), BindingFlags.NonPublic | BindingFlags.Static)!;
+
+        public static object Convert(Task<object> task, Type targetType)
+        {
+            MethodInfo genericCastMethod = castMethod.MakeGenericMethod(targetType);
+            return genericCastMethod.Invoke(null, new object[] { task })!;
+        }
+
+        private static async Task<T> Cast<T>(Task<object> obj)
+        {
+            var result = await obj;
+            return (T)result;
+        }
+    }
+
 }
