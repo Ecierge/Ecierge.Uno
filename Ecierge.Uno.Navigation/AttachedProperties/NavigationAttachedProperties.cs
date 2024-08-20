@@ -1,39 +1,24 @@
-namespace Ecierge.Uno.Navigation.Regions;
+namespace Ecierge.Uno.Navigation;
 
-using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
-
-using Microsoft.Extensions.DependencyInjection;
 
 using Ecierge.Uno.Navigation.Routing;
 
-public record NavigationRegion
-{
-    public NavigationScope Scope { get; private set; }
-    public NameSegment Segment => Scope.Segment;
-    public Navigator Navigator => Scope.ServiceProvider.GetRequiredService<Navigator>();
-    public NavigationRegion? Parent { get; internal set; }
-    public FrameworkElement? Target { get; internal set; }
-    public FrameworkElement? Root { get; internal set; }
+using System.Collections.Immutable;
 
-    public NavigationRegion(NavigationScope scope)
-    {
-        Scope = scope;
-        Navigator.Region = this;
-    }
-}
+using System.Diagnostics.CodeAnalysis;
 
-public static class Region
+public static class Navigation
 {
     #region NavigationInfo
-    public static readonly DependencyProperty NavigationInfoProperty =
-        DependencyProperty.RegisterAttached("NavigationInfo", typeof(NavigationRegion), typeof(Region), new(null));
 
-    internal static void SetNavigationRegion([NotNull] this FrameworkElement element, NavigationRegion navigationRegion) => element.SetValue(Region.NavigationInfoProperty, navigationRegion);
+    public static readonly DependencyProperty InfoProperty =
+        DependencyProperty.RegisterAttached("Info", typeof(NavigationRegion), typeof(Uno.Navigation.Navigation), new(null));
 
-    internal static NavigationRegion? GetNavigationRegion([NotNull] this FrameworkElement element) => (NavigationRegion?)element.GetValue(Region.NavigationInfoProperty);
+    internal static void SetNavigationRegion([NotNull] this FrameworkElement element, Regions.NavigationRegion navigationRegion) => element.SetValue(InfoProperty, navigationRegion);
 
-    internal static NavigationRegion FindNavigationRegion([NotNull] this FrameworkElement element)
+    internal static Regions.NavigationRegion? GetNavigationRegion([NotNull] this FrameworkElement element) => (Regions.NavigationRegion?)element.GetValue(InfoProperty);
+
+    internal static Regions.NavigationRegion FindNavigationRegion([NotNull] this FrameworkElement element)
     {
         var regionElement = element;
         var navigationRegion = element.GetNavigationRegion();
@@ -78,7 +63,7 @@ public static class Region
 #pragma warning disable CA2000 // Dispose objects before losing scope
         var scope = parentNavigationRegion.Scope.CreateScope(segment, element, parentNavigationRegion.Navigator);
 #pragma warning restore CA2000 // Dispose objects before losing scope
-        var navigationRegion = new NavigationRegion(scope)
+        var navigationRegion = new Regions.NavigationRegion(scope)
         {
             Parent = parentNavigationRegion,
             Target = element,
@@ -88,4 +73,30 @@ public static class Region
     }
 
     #endregion NavigationInfo
+
+    #region RootNavigator
+
+    /// <summary>
+    /// RootNavigator Attached Dependency Property
+    /// </summary>
+    public static readonly DependencyProperty RootNavigatorProperty =
+        DependencyProperty.RegisterAttached("RootNavigator", typeof(Navigator), typeof(Navigation), new ((Navigator?)null));
+
+    /// <summary>
+    /// Gets the RootNavigator property. This dependency property
+    /// indicates the window root navigator.
+    /// </summary>
+    internal static Navigator GetRootNavigator(FrameworkElement element) => (Navigator)element.GetValue(RootNavigatorProperty);
+
+    /// <summary>
+    /// Sets the RootNavigator property. This dependency property
+    /// indicates the window root navigator.
+    /// </summary>
+    internal static void SetRootNavigator(UIElement element, Navigator navigator)
+    {
+        navigator.RootNavigator = navigator;
+        element.SetValue(RootNavigatorProperty, navigator);
+    }
+
+    #endregion
 }

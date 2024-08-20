@@ -55,9 +55,9 @@ public sealed class NavigationScope : IServiceScope, IDisposable
         {
             var navigator = ServiceProvider.GetService<Navigator>();
             Navigator? parentNavigator = navigator!.Parent;
-            if (parentNavigator is not null && parentNavigator.Child == navigator)
+            if (parentNavigator is not null && parentNavigator.ChildNavigator == navigator)
             {
-                parentNavigator.Child = null;
+                parentNavigator.ChildNavigator = null;
             }
 
             serviceScope.Dispose();
@@ -84,7 +84,11 @@ public sealed class NavigationScope : IServiceScope, IDisposable
         }
         var navigator = (Navigator)this.ServiceProvider.GetRequiredService(navigatorType);
         navigator.Parent = parent;
-        if (parent is not null) parent.Child = navigator;
+        if (parent is not null)
+        {
+            parent.ChildNavigator = navigator;
+            navigator.RootNavigator = parent.RootNavigator;
+        }
         return navigator;
     }
 

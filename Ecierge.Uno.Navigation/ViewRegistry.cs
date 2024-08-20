@@ -56,9 +56,9 @@ public class ViewRegistryBuilder(IServiceCollection services) : RegistryBuilder<
     {
         view = view ?? throw new ArgumentNullException(nameof(view));
         items.Add(view);
-        Services.AddScoped(view.View);
+        Services.AddTransient(view.View);
         if (view.ViewModel is not null)
-            Services.AddScoped(view.ViewModel);
+            Services.AddTransient(view.ViewModel);
         return this;
     }
 

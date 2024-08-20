@@ -2,8 +2,6 @@ namespace Ecierge.Uno.Navigation;
 
 using System.Diagnostics.CodeAnalysis;
 
-using Ecierge.Uno.Navigation.Regions;
-
 public static class NavigationRegion
 {
     #region ForSegment
@@ -12,7 +10,7 @@ public static class NavigationRegion
     /// ForSegment Attached Dependency Property
     /// </summary>
     public static readonly DependencyProperty ForSegmentProperty =
-        DependencyProperty.RegisterAttached("ForSegment", typeof(string), typeof(NavigationRegion), new ((string?)null, OnForSegmentChanged));
+        DependencyProperty.RegisterAttached("ForSegment", typeof(string), typeof(NavigationRegion), new(null, OnForSegmentChanged));
 
     /// <summary>
     /// Gets the ForSegment property. This dependency property
@@ -45,16 +43,23 @@ public static class NavigationRegion
 
             root.SetNavigationTarget(element);
 
-            element.Loaded += (e, args) =>
+            element.Loaded += OnLoaded;
+
+            void OnLoaded(object e, RoutedEventArgs args)
             {
+                element.Loaded -= OnLoaded;
                 element.SetSegment(newSegmentName, root);
-                element.Unloaded += (e, args) =>
-                {
-                    root.GetNavigationRegion()!.Scope!.Dispose();
-                    root.SetValue(Region.NavigationInfoProperty, null);
-                };
-            };
+                element.Unloaded += OnUnloaded;
+            }
+
+            void OnUnloaded(object e, RoutedEventArgs args)
+            {
+                element.Unloaded -= OnUnloaded;
+                element.GetNavigationRegion()!.Scope!.Dispose();
+                element.SetValue(Uno.Navigation.Navigation.InfoProperty, null);
+            }
         }
+
     }
 
     #endregion ForSegment
@@ -65,7 +70,7 @@ public static class NavigationRegion
     /// NestedSegmentName Attached Dependency Property
     /// </summary>
     public static readonly DependencyProperty NestedSegmentNameProperty =
-        DependencyProperty.RegisterAttached("NestedSegmentName", typeof(string), typeof(NavigationRegion), new((string?)null));
+        DependencyProperty.RegisterAttached("NestedSegmentName", typeof(string), typeof(NavigationRegion), new(null));
 
     /// <summary>
     /// Gets the NestedSegmentName property. This dependency property
@@ -85,7 +90,7 @@ public static class NavigationRegion
     /// </summary>
     public static void ClearNestedSegmentName([NotNull] this FrameworkElement element) => element.ClearValue(NestedSegmentNameProperty);
 
-    #endregion
+    #endregion NestedSegmentName
 
     #region NavigatorType
 
@@ -93,7 +98,7 @@ public static class NavigationRegion
     /// NavigatorType Attached Dependency Property
     /// </summary>
     public static readonly DependencyProperty NavigatorTypeProperty =
-        DependencyProperty.RegisterAttached("NavigatorType", typeof(Type), typeof(NavigationRegion), new((Type?)null));
+        DependencyProperty.RegisterAttached("NavigatorType", typeof(Type), typeof(NavigationRegion), new(null));
 
     /// <summary>
     /// Gets the NavigatorType property. This dependency property
@@ -108,29 +113,4 @@ public static class NavigationRegion
     internal static void SetNavigatorType([NotNull] this FrameworkElement element, Type value) => element.SetValue(NavigatorTypeProperty, value);
 
     #endregion NavigatorType
-}
-
-public static class Route
-{
-    #region NavigationTarget
-
-    /// <summary>
-    /// NavigationTarget Attached Dependency Property
-    /// </summary>
-    public static readonly DependencyProperty NavigationTargetProperty =
-        DependencyProperty.RegisterAttached("NavigationTarget", typeof(FrameworkElement), typeof(Route), new((FrameworkElement?)null));
-
-    /// <summary>
-    /// Gets the NavigationTarget property. This dependency property
-    /// indicates the navigation target.
-    /// </summary>
-    public static FrameworkElement GetNavigationTarget([NotNull] this FrameworkElement element) => (FrameworkElement)element.GetValue(NavigationTargetProperty);
-
-    /// <summary>
-    /// Sets the NavigationTarget property. This dependency property
-    /// indicates the navigation target.
-    /// </summary>
-    public static void SetNavigationTarget([NotNull] this FrameworkElement element, FrameworkElement value) => element.SetValue(NavigationTargetProperty, value);
-
-    #endregion NavigationTarget
 }

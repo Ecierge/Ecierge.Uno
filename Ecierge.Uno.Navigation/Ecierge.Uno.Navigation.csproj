@@ -50,6 +50,7 @@
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.WinUI.Behaviors" />
     <PackageReference Include="Microsoft.AspNetCore.Authorization" />
+    <PackageReference Include="morelinq" />
   </ItemGroup>
 
 </Project>

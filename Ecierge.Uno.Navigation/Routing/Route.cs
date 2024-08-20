@@ -2,10 +2,24 @@ namespace Ecierge.Uno.Navigation.Routing;
 
 using System.Collections.Immutable;
 
-public abstract record RouteSegmentInstance();
-public record NameSegmentInstance(NameSegment NameSegment) : RouteSegmentInstance;
-public record DataSegmentInstance(DataSegment DataSegment, string primitive, Task<object>? data) : RouteSegmentInstance;
-public record DialogSegmentInstance() : RouteSegmentInstance;
+using MoreLinq;
+
+public abstract record RouteSegmentInstance()
+{
+    public abstract RouteSegment Segment { get; }
+}
+public record NameSegmentInstance(NameSegment NameSegment) : RouteSegmentInstance
+{
+    public override RouteSegment Segment => NameSegment;
+}
+public record DataSegmentInstance(DataSegment DataSegment, string primitive, Task<object>? data) : RouteSegmentInstance
+{
+    public override RouteSegment Segment => DataSegment;
+}
+public record DialogSegmentInstance() : RouteSegmentInstance
+{
+    public override RouteSegment Segment => throw new NotImplementedException("Dialog segments not implemented.");
+}
 
 public record Route(ImmutableArray<RouteSegmentInstance> Segments, INavigationData? Data = null, bool Refresh = false)
 {
@@ -49,5 +63,24 @@ public record Route(ImmutableArray<RouteSegmentInstance> Segments, INavigationDa
                 new DataSegmentInstance(segment, primitive, data)
             );
         return new(segments, Data, Refresh);
+    }
+
+    internal ImmutableArray<RouteSegmentInstance> NavigatableSegments
+    {
+        get
+        {
+            if (Segments.Length < 2) return Segments;
+
+            var last = Segments.Last();
+            return
+                Segments.Pairwise((current, next) =>
+                {
+                    if (next is DataSegmentInstance) return default!;
+                    else return current!;
+                })
+                .Where(s => s is not null)
+                .Append(last)
+                .ToImmutableArray();
+        }
     }
 }

@@ -1,3 +1,5 @@
+using Ecierge.Uno.Navigation;
+
 namespace Ecierge.Uno.Navigation;
 
 using System;
@@ -83,6 +85,7 @@ public partial class NavigateLocalSegmentAction : NavigateSegmentActionBase, IAc
         {
             var navigationRegion = element.FindNavigationRegion();
             if (navigationRegion is null) return NavigationResponse.Failed;
+            // TODO: COnsider not using this condition
             if (!navigationRegion.Segment.Nested.Any(s => s.Name == SegmentName) && navigationRegion.Parent is not null)
                 navigationRegion = navigationRegion.Parent!;
             return navigationRegion.Navigator.NavigateLocalSegmentAsync(sender, SegmentName!, SegmentData);

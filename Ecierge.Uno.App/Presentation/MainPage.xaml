@@ -66,6 +66,20 @@
             </ic:EventTriggerBehavior>
           </i:Interaction.Behaviors>
         </Button>
+        <Button Content="Go to Second Page from root">
+          <i:Interaction.Behaviors>
+            <ic:EventTriggerBehavior EventName="Click">
+              <nav:NavigateRootRouteActionBase Route="Second/Data" />
+            </ic:EventTriggerBehavior>
+          </i:Interaction.Behaviors>
+        </Button>
+        <Button Content="Navigate nested to Tab2">
+          <i:Interaction.Behaviors>
+            <ic:EventTriggerBehavior EventName="Click">
+              <nav:NavigateNestedRouteAction Route="Tab2" />
+            </ic:EventTriggerBehavior>
+          </i:Interaction.Behaviors>
+        </Button>
         <!-- Route.NestedSegmentName -->
         <SelectorBar x:Name="SelectorBar" nav:NavigationRegion.ForSegment="Main">
           <SelectorBarItem x:Name="SelectorBarItem1" Text="Tab1" />

@@ -58,6 +58,7 @@ public static class WindowExtensions
         hostLifetime.ApplicationStarted.Register(() => window.Activate());
 
         var navigator = navigationScope.ServiceProvider.GetRequiredService<Navigator>();
+        Navigation.SetRootNavigator(window.Content!, navigator);
         if (initialNavigate is not null)
         {
             await initialNavigate.Invoke(serviceProvider, navigator).ConfigureAwait(true);

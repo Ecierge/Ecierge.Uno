@@ -18,6 +18,11 @@ public record SuccessfulNavigationResponse(Routing.Route Route, Navigator Naviga
     public override bool Success => true;
 }
 
+public record NoDefaultSegmentNavigationResponse(Routing.Route Route, Navigator Navigator) : NavigationResponse
+{
+    public override bool Success => true;
+}
+
 public record ResultNavigationResponse<TResult>(Routing.Route Route, Navigator Navigator, TResult Result) : NavigationResponse
 {
     public override bool Success => true;
