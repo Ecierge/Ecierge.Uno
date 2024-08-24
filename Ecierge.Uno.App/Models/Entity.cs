@@ -12,15 +12,21 @@ internal class EntityViewDataMap : INavigationDataMap
     public Type PrimitiveType { get; } = typeof(string);
     public Type EntityType { get; } = typeof(Entity);
 
-    public async Task<object> FromNavigationData(INavigationData data, string name)
+    public Task<object> FromNavigationData(INavigationData data, string name)
     {
         data = data ?? throw new System.ArgumentNullException(nameof(data));
-        return new Entity((data[name] as string)!);
+        var value = data[name] switch
+        {
+            string s => new Entity(s),
+            Entity entity => entity,
+            _ => throw new System.InvalidOperationException()
+        };
+        return Task.FromResult<object>(value);
     }
 
-    public void ToRoute(RouteValues routeValues, string name, object data)
+    public RouteData ToNavigationData(INavigationData? data, string name, object value)
     {
-        routeValues = routeValues ?? throw new System.ArgumentNullException(nameof(routeValues));
-        routeValues[name] = data;
+        data = data ?? NavigationData.Empty;
+        return new RouteData((value as Entity)!.Name, data.Add(name, value));
     }
 }

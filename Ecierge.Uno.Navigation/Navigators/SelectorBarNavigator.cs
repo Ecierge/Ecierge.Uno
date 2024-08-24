@@ -2,6 +2,8 @@ namespace Ecierge.Uno.Navigation.Navigators;
 
 using System.Linq;
 
+using Ecierge.Uno.Navigation;
+
 using Microsoft.Extensions.Logging;
 
 internal class SelectorBarNavigator : SelectorNavigator
@@ -37,10 +39,9 @@ internal class SelectorBarNavigator : SelectorNavigator
         };
     }
 
-    public override NavigationResponse SelectItem(NavigationRequest request)
+    protected override NavigationResult SelectItem(NavigationRequest request)
     {
-        // TODO: Change to already navigated
-        if (navigatedName == request.NameSegment.Name) return new SuccessfulNavigationResponse(null, this);
+        if (navigatedName == request.NameSegment.Name) return new NavigationResult(request.RouteSegment);
 
         var selectorBar = (SelectorBar)Region!.Target!;
         var item = selectorBar.Items.FirstOrDefault(i => i.Name == request.NameSegment.Name);
@@ -48,9 +49,14 @@ internal class SelectorBarNavigator : SelectorNavigator
         {
             item = selectorBar.Items.FirstOrDefault(i => i.Text == request.NameSegment.Name);
         }
+        if (item is null)
+        {
+            Logger.LogWarning("No SelectorBarItem item found with name or text '{segmentName}'", request.NameSegment.Name);
+            return new NavigationResult($"No SelectorBarItem item found with name or text '{request.NameSegment.Name}'");
+        }
         navigatedName = request.NameSegment.Name;
         navigatedItem = item;
         selectorBar.SelectedItem = item;
-        return new SuccessfulNavigationResponse(null, this);
+        return new NavigationResult(request.RouteSegment);
     }
 }

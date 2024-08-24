@@ -15,4 +15,31 @@ public record struct NavigationResult
     }
 
     public NavigationResult(params string[] args) => Errors = args ?? throw new ArgumentNullException(nameof(args));
+    public NavigationResult(IReadOnlyList<string> args) => Errors = args ?? throw new ArgumentNullException(nameof(args));
+}
+
+public record struct NavigationResult<T>
+{
+    public RouteSegment? SegmentNavigated { get; private set; }
+    public T? Result { get; private set; }
+    public IReadOnlyList<string> Errors { get; private set; }
+    public bool Success => SegmentNavigated is not null;
+
+    public NavigationResult(RouteSegment segmentNavigated, T? result = default)
+    {
+        SegmentNavigated = segmentNavigated ?? throw new ArgumentNullException(nameof(segmentNavigated));
+        Result = result;
+        Errors = Array.Empty<string>();
+    }
+
+    public NavigationResult(params string[] args) => Errors = args ?? throw new ArgumentNullException(nameof(args));
+    public NavigationResult(IReadOnlyList<string> args) => Errors = args ?? throw new ArgumentNullException(nameof(args));
+
+    public static implicit operator NavigationResult(NavigationResult<T> result)
+    {
+        if (result.Success)
+            return new(result.SegmentNavigated!, result.Result);
+        else
+            return new(result.Errors);
+    }
 }

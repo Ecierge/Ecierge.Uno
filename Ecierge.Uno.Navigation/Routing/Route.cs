@@ -12,7 +12,7 @@ public record NameSegmentInstance(NameSegment NameSegment) : RouteSegmentInstanc
 {
     public override RouteSegment Segment => NameSegment;
 }
-public record DataSegmentInstance(DataSegment DataSegment, string primitive, Task<object>? data) : RouteSegmentInstance
+public record DataSegmentInstance(DataSegment DataSegment, string Primitive, object? Data) : RouteSegmentInstance
 {
     public override RouteSegment Segment => DataSegment;
 }

@@ -2,6 +2,7 @@ namespace Ecierge.Uno.Navigation;
 
 using System;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
@@ -42,10 +43,51 @@ public abstract class Navigator
         logger = new(() => serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger(this.GetType()));
     }
 
+    private void SetRoute(NavigationRequest request)
+    {
+        var parentRoute =
+            Parent?.Route
+            ?? new Routing.Route(ImmutableArray<RouteSegmentInstance>.Empty, request.NavigationData);
+
+        Routing.Route route;
+        switch (request)
+        {
+            case NameSegmentNavigationRequest nameRequest:
+                route = parentRoute.Add(nameRequest.Segment);
+                break;
+            case DataSegmentNavigationRequest dataRequest:
+                DataSegment segment = dataRequest.Segment;
+                if (segment.Data is not null)
+                {
+                    if (dataRequest.RouteData is not null)
+                    {
+                        var routeData = segment.Data.ToNavigationData(dataRequest.NavigationData, segment.Name, dataRequest.RouteData);
+                        route = parentRoute.Add(segment, routeData.Primitive, dataRequest.RouteData) with { Data = routeData.NavigationData };
+                    }
+                    else
+                    {
+                        Debugger.Break();
+                        // TODO: Implement default value case or allow the last element to be null
+                        route = parentRoute.Add(segment, segment.Name, null);
+                    }
+                }
+                else
+                {
+                    route = parentRoute.Add(segment, dataRequest.RouteData as string, dataRequest.RouteData);
+                }
+                break;
+            // TODO: Implement dialog segment
+            default:
+                throw new NotSupportedException("Unsupported request type");
+        }
+
+        this.Route = route;
+    }
+
     /// <summary>
     /// Gets the current route of the navigator
     /// </summary>
-    public Routing.Route? Route => throw new NotImplementedException();
+    public Routing.Route Route { get; private set; } = new Routing.Route();
 
     /// <summary>
     /// Determines whether the navigator can navigate to the specified route
@@ -59,28 +101,22 @@ public abstract class Navigator
     /// </summary>
     /// <param name="request">The request to navigate to</param>
     /// <returns>The navigation response (awaitable)</returns>
-    public async ValueTask<NavigationResponse> NavigateAsync(NavigationRequest request)
+    public async ValueTask<NavigationResult> NavigateAsync(NavigationRequest request)
     {
         var result = await NavigateCoreAsync(request);
         FrameworkElement target = Region!.Target!;
         target.SetNestedSegmentName(request.NameSegment.Name);
         if (result.Success)
         {
-            TaskCompletionSource tcs = new();
-            var dispatcher = Region.Scope.ServiceProvider.GetRequiredService<DispatcherQueue>();
-            void Loaded(object? s, object? e)
-            {
-                dispatcher.TryEnqueue(DispatcherQueuePriority.Low, () => tcs.SetResult());
-                //tcs.SetResult();
-                target.Loaded -= Loaded;
-            }
-            target.Loaded += Loaded;
-            await tcs.Task;
+            SetRoute(request);
+            await WaitForVisualTree();
         }
         return result;
     }
 
-    public abstract ValueTask<NavigationResponse> NavigateCoreAsync(NavigationRequest request);
+    protected abstract ValueTask<NavigationResult> NavigateCoreAsync(NavigationRequest request);
+
+    protected virtual ValueTask WaitForVisualTree() => ValueTask.CompletedTask;
 }
 
 public static class NavigatorExtensions
@@ -142,33 +178,45 @@ public static class NavigatorExtensions
 
     public static async ValueTask<NavigationResponse> NavigateRouteAsync([NotNull] this Navigator navigator, object initiator, string route, INavigationData? navigationData = null)
     {
-        var currentNavigator = navigator;
-        var parsedRoute = currentNavigator.ParseRoute(route, navigationData);
+        var parsedRoute = navigator.ParseRoute(route, navigationData);
         if (parsedRoute.Segments.Length < 1)
             // TODO: Consider another response
-            return new SuccessfulNavigationResponse(parsedRoute, navigator);
+            return new NavigationSuccessfulResponse(parsedRoute, navigator);
 
-        NavigationResponse response = null!;
-        foreach (var segment in parsedRoute.NavigatableSegments)
+        return await NavigateRouteAsync(navigator, initiator, parsedRoute);
+    }
+
+    public static async ValueTask<NavigationResponse> NavigateRouteAsync(Navigator navigator, object initiator, Routing.Route route)
+    {
+        var currentNavigator = navigator;
+        NavigationResult result = default;
+        foreach (var segment in route.NavigatableSegments)
         {
-            response = null!;
             switch (segment)
             {
                 case NameSegmentInstance nameSegmentInstance:
-                    response = await currentNavigator.NavigateAsync(new NameSegmentNavigationRequest(initiator, nameSegmentInstance.NameSegment, navigationData));
+                    result = await currentNavigator.NavigateAsync(new NameSegmentNavigationRequest(initiator, nameSegmentInstance.NameSegment, route.Data));
                     break;
                 case DataSegmentInstance dataSegmentInstance:
-                    response = await currentNavigator.NavigateAsync(new DataSegmentNavigationRequest<object>(initiator, dataSegmentInstance.DataSegment, dataSegmentInstance.data));
+                    object data = (object?)dataSegmentInstance.Data ?? dataSegmentInstance.Primitive;
+                    result = await currentNavigator.NavigateAsync(new DataSegmentNavigationRequest(initiator, dataSegmentInstance.DataSegment, data));
                     break;
                 case DialogSegmentInstance _:
                     throw new NotImplementedException("Dialog segments are not implemented");
                 default:
                     throw new NotSupportedException("Unknown segment type.");
             }
-            if (!response.Success) return response;
+            if (!result.Success)
+            {
+                var effectiveRoute = route.TrimTill(segment);
+                var parentRoute = currentNavigator.Parent?.Route ?? new Routing.Route();
+                var fullRoute = parentRoute.Join(effectiveRoute);
+                return new NavigationFailedResponse(fullRoute, navigator);
+            }
+
             currentNavigator = navigator.ChildNavigator!;
         }
-        return response;
+        return new NavigationSuccessfulResponse(route, navigator);
     }
 
     public static NameSegment FindNestedSegmentToNavigate([NotNull] this Navigator navigator, string segmentName)
@@ -181,14 +229,8 @@ public static class NavigatorExtensions
             nested = segment.Nested;
 
         var nestedSegment = nested.FirstOrDefault(x => x.Name == segmentName);
-        if (nestedSegment is not null)
-        {
-            return nestedSegment;
-        }
-        else
-        {
-            throw new NestedSegmentMissingException(segment.Name, segmentName);
-        }
+        if (nestedSegment is not null) return nestedSegment;
+        else throw new NestedSegmentMissingException(segment.Name, segmentName);
     }
 
     public static async ValueTask<NavigationResponse> NavigateSegmentAsync([NotNull] this Navigator navigator, object initiator, NameSegment segment, object? data = null)
@@ -208,15 +250,26 @@ public static class NavigatorExtensions
             navigationData = null;
         }
         var result = await navigator.NavigateAsync(new NameSegmentNavigationRequest(initiator, segment, navigationData));
-        if (result.Success) await navigator.NavigateNestedDefaultAsync(initiator, segment);
-        return result;
+        var route = navigator.Route.ReplaceLast(segment);
+        if (result.Success)
+        {
+            await navigator.NavigateNestedDefaultAsync(initiator, segment);
+            return new NavigationSuccessfulResponse(route, navigator);
+        }
+        else return new NavigationFailedResponse(route, navigator);
     }
 
     public static async ValueTask<NavigationResponse> NavigateNestedSegmentAsync<TRouteData>([NotNull] this Navigator navigator, object initiator, DataSegment segment, TRouteData? routeData)
     {
-        var result = await navigator.NavigateAsync(new DataSegmentNavigationRequest<TRouteData>(initiator, segment, routeData));
-        if (result.Success) await navigator.NavigateNestedDefaultAsync(initiator, segment);
-        return result;
+        var result = await navigator.NavigateAsync(new DataSegmentNavigationRequest(initiator, segment, routeData));
+        var data = routeData is null ? null : Task.FromResult<object>(routeData);
+        var route = navigator.Route.ReplaceLast(segment, segment.Name, data);
+        if (result.Success)
+        {
+            await navigator.NavigateNestedDefaultAsync(initiator, segment);
+            return new NavigationSuccessfulResponse(route, navigator);
+        }
+        else return new NavigationFailedResponse(route, navigator);
     }
 
 
@@ -229,7 +282,7 @@ public static class NavigatorExtensions
         }
         else
         {
-            return new NoDefaultSegmentNavigationResponse(null, navigator);
+            return new NoDefaultSegmentNavigationResponse(navigator.Route, navigator);
         }
     }
 

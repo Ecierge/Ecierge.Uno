@@ -22,6 +22,8 @@ internal static class TypeExtensions
 
     public static ConstructorInfo? GetNavigationConstructor([NotNull] this Type type, IServiceProvider services, INavigationData navigationData, out object[] constructorArguments)
     {
+        navigationData = navigationData ?? throw new ArgumentNullException(nameof(navigationData));
+
         var ctr = type.GetConstructors().FirstOrDefault();
         if (ctr is not null)
         {

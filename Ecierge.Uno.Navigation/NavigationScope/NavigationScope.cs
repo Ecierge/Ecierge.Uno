@@ -2,13 +2,12 @@ namespace Ecierge.Uno.Navigation;
 
 using System;
 
-using Ecierge.Uno.Navigation.Regions;
+using Ecierge.Uno.Navigation;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.UI.Dispatching;
-using Microsoft.UI.Xaml.Controls;
 
 public sealed class NavigationScope : IServiceScope, IDisposable
 {
@@ -92,36 +91,43 @@ public sealed class NavigationScope : IServiceScope, IDisposable
         return navigator;
     }
 
-    public object? CreateViewModel(Type viewModelType, INavigationData? navigationData)
+    public NavigationResult CreateViewModel(NavigationRequest request, INavigationData? navigationData)
     {
         var data = navigationData ?? NavigationData.Empty;
 
+        var nameSegment = request.NameSegment;
+        var viewModelType = nameSegment.View!.ViewModel!;
+
         var viewModel = data.GetData(viewModelType);
-        if (viewModel is not null) return viewModel;
+        if (viewModel is not null) return new NavigationResult(nameSegment, viewModel);
 
-        try
+        if (request is not DataSegmentNavigationRequest)
         {
-            viewModel = ServiceProvider.GetService(viewModelType);
+            try
+            {
+                viewModel = ServiceProvider.GetService(viewModelType);
+            }
+            catch (InvalidOperationException) { }
+            if (viewModel is not null) return new NavigationResult(nameSegment, viewModel);
         }
-        catch (InvalidOperationException) {}
-        if (viewModel is not null) return viewModel;
+        if (request is DataSegmentNavigationRequest dataRequest && dataRequest.RouteData is not null)
+        {
+            navigationData = (navigationData ?? NavigationData.Empty).Add(dataRequest.Segment.Name, dataRequest.RouteData);
+        }
 
-        if (navigationData is null) return default;
-
-        var ctor = viewModelType.GetNavigationConstructor(ServiceProvider, navigationData, out var args);
+        var ctor = viewModelType.GetNavigationConstructor(ServiceProvider, navigationData ?? NavigationData.Empty, out var args);
         if (ctor is not null)
         {
             try
             {
-                return ctor.Invoke(args);
+                return new NavigationResult(nameSegment, ctor.Invoke(args));
             }
             catch
             {
                 ServiceProvider.GetRequiredService<ILogger<NavigationScope>>().LogInformation("Failed to create view model of type {ViewModelType} using route data and service provider", viewModelType);
+                return new NavigationResult($"Failed to create view model of type {viewModelType} using route data and service provider");
             }
         }
-        return default;
+        return new NavigationResult($"Constructor for {viewModelType} not found");
     }
-    //public Task<TViewModel> CreateViewModel<TViewModel>(TViewModel viewModel)
-
 }
