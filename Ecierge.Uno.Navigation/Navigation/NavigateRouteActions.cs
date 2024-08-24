@@ -49,15 +49,15 @@ public abstract partial class NavigateRouteActionBase : DependencyObject
 
 public partial class NavigateRootRouteActionBase : NavigateRouteActionBase, IAction
 {
-    public object Execute(object sender, object parameter)
+    public object? Execute(object sender, object parameter)
     {
         if (sender is FrameworkElement element)
         {
             var navigationRegion = element.FindNavigationRegion();
-            if (navigationRegion is null) return NavigationResponse.Failed;
+            if (navigationRegion is null) throw new NavigationRegionMissingException(element);
             return navigationRegion.Navigator.RootNavigator.NavigateRouteAsync(sender, Route!, NavigationData);
         }
-        return NavigationResponse.Failed;
+        return null;
     }
 }
 
@@ -86,31 +86,31 @@ public abstract partial class NavigateTargetRouteActionBase : NavigateRouteActio
 
 public partial class NavigateLocalRouteAction : NavigateTargetRouteActionBase, IAction
 {
-    public object Execute(object sender, object parameter)
+    public object? Execute(object sender, object parameter)
     {
         var target = Target ?? sender;
 
         if (target is FrameworkElement element)
         {
             var navigationRegion = element.FindNavigationRegion();
-            if (navigationRegion is null) return NavigationResponse.Failed;
+            if (navigationRegion is null) throw new NavigationRegionMissingException(element);
             return navigationRegion.Navigator.RootNavigator.NavigateRouteAsync(sender, Route!, NavigationData);
         }
-        return NavigationResponse.Failed;
+        return null;
     }
 }
 
 public partial class NavigateNestedRouteAction : NavigateTargetRouteActionBase, IAction
 {
-    public object Execute(object sender, object parameter)
+    public object? Execute(object sender, object parameter)
     {
         var target = Target ?? sender;
         if (target is FrameworkElement element)
         {
             var navigationRegion = element.FindNavigationRegion();
-            if (navigationRegion is null) return NavigationResponse.Failed;
+            if (navigationRegion is null) throw new NavigationRegionMissingException(element);
             return navigationRegion.Navigator.ChildNavigator!.NavigateRouteAsync(sender, Route!, NavigationData);
         }
-        return NavigationResponse.Failed;
+        return null;
     }
 }

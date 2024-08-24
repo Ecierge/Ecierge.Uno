@@ -1,14 +1,6 @@
-using Ecierge.Uno.Navigation;
-
 namespace Ecierge.Uno.Navigation;
 
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Ecierge.Uno.Navigation.Regions;
 
 using Microsoft.Xaml.Interactivity;
 
@@ -40,7 +32,7 @@ public abstract partial class NavigateSegmentActionBase : DependencyObject
     /// SegmentName Dependency Property
     /// </summary>
     public static readonly DependencyProperty SegmentNameProperty =
-        DependencyProperty.Register(nameof(SegmentName), typeof(string), typeof(NavigateSegmentActionBase), new ((string?)null));
+        DependencyProperty.Register(nameof(SegmentName), typeof(string), typeof(NavigateSegmentActionBase), new((string?)null));
 
     /// <summary>
     /// Gets or sets the SegmentName property. This dependency property
@@ -60,7 +52,7 @@ public abstract partial class NavigateSegmentActionBase : DependencyObject
     /// SegmentData Dependency Property
     /// </summary>
     public static readonly DependencyProperty SegmentDataProperty =
-        DependencyProperty.Register(nameof(SegmentData), typeof(object), typeof(NavigateSegmentActionBase), new ((object?)null));
+        DependencyProperty.Register(nameof(SegmentData), typeof(object), typeof(NavigateSegmentActionBase), new((object?)null));
 
     /// <summary>
     /// Gets or sets the SegmentData property. This dependency property
@@ -77,34 +69,34 @@ public abstract partial class NavigateSegmentActionBase : DependencyObject
 
 public partial class NavigateLocalSegmentAction : NavigateSegmentActionBase, IAction
 {
-    public object Execute(object sender, object parameter)
+    public object? Execute(object sender, object parameter)
     {
         var target = Target ?? sender;
 
         if (target is FrameworkElement element)
         {
             var navigationRegion = element.FindNavigationRegion();
-            if (navigationRegion is null) return NavigationResponse.Failed;
+            if (navigationRegion is null) throw new NavigationRegionMissingException(element);
             // TODO: COnsider not using this condition
             if (!navigationRegion.Segment.Nested.Any(s => s.Name == SegmentName) && navigationRegion.Parent is not null)
                 navigationRegion = navigationRegion.Parent!;
             return navigationRegion.Navigator.NavigateLocalSegmentAsync(sender, SegmentName!, SegmentData);
         }
-        return NavigationResponse.Failed;
+        return null;
     }
 }
 
 public partial class NavigateNestedSegmentAction : NavigateSegmentActionBase, IAction
 {
-    public object Execute(object sender, object parameter)
+    public object? Execute(object sender, object parameter)
     {
         var target = Target ?? sender;
         if (target is FrameworkElement element)
         {
             var navigationRegion = element.FindNavigationRegion();
-            if (navigationRegion is null) return NavigationResponse.Failed;
+            if (navigationRegion is null) throw new NavigationRegionMissingException(element);
             return navigationRegion.Navigator.NavigateNestedSegmentAsync(sender, SegmentName!, SegmentData);
         }
-        return NavigationResponse.Failed;
+        return null;
     }
 }
