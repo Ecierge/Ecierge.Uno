@@ -21,8 +21,10 @@ public record DialogSegmentInstance() : RouteSegmentInstance
     public override RouteSegment Segment => throw new NotImplementedException("Dialog segments not implemented.");
 }
 
-public record Route(ImmutableArray<RouteSegmentInstance> Segments, INavigationData? Data = null, bool Refresh = false)
+public record struct Route(ImmutableArray<RouteSegmentInstance> Segments, INavigationData? Data = null, bool Refresh = false)
 {
+    public Route() : this(ImmutableArray<RouteSegmentInstance>.Empty) { }
+
     public Route GoBack()
     {
         var lastSegment = Segments.LastOrDefault();
@@ -51,18 +53,59 @@ public record Route(ImmutableArray<RouteSegmentInstance> Segments, INavigationDa
         return new(Segments[..^count], Data, Refresh);
     }
 
+    public Route TrimTill(RouteSegmentInstance segment)
+    {
+        var index = Segments.LastIndexOf(segment);
+        if (index == -1) return this;
+        var segments = Segments.Take(index + 1).ToImmutableArray();
+        return new(segments, Data, Refresh);
+    }
+
     public Route Add(NameSegment segment)
     {
+        bool isNested = Segments.LastOrDefault()?.Segment.Nested.Contains(segment) ?? true;
+        if (!isNested) throw new InvalidOperationException("Segment is not nested.");
         return new(Segments.Add(new NameSegmentInstance(segment)), Data, Refresh);
     }
 
-    public Route Add(DataSegment segment, string primitive, Task<object>? data)
+    public Route Add(DataSegment segment, string primitive, object? data)
     {
+        bool isNested = Segments.LastOrDefault()?.Segment.Nested.Contains(segment.ParentNameSegment) ?? true;
+        if (!isNested) throw new InvalidOperationException("Segment is not nested.");
+
         var segments = Segments.AddRange(
                 new NameSegmentInstance(segment.ParentNameSegment),
                 new DataSegmentInstance(segment, primitive, data)
             );
         return new(segments, Data, Refresh);
+    }
+
+    public Route Join(Route route)
+    {
+        bool isNested = Segments.LastOrDefault()?.Segment.Nested.Contains(route.Segments.FirstOrDefault()?.Segment) ?? true;
+        if (!isNested) throw new InvalidOperationException("Segment is not nested.");
+        return new(Segments.AddRange(route.Segments), Data?.Union(route.Data) ?? route.Data, Refresh);
+    }
+
+
+    public Route ReplaceLast(NameSegment segment)
+    {
+        var baseSegments = Segments.SkipLast(1).ToList();
+        bool isNested = baseSegments.LastOrDefault()?.Segment.Nested.Contains(segment) ?? true;
+        if (!isNested) throw new InvalidOperationException("Segment is not nested.");
+        baseSegments.Add(new NameSegmentInstance(segment));
+        return new(baseSegments.ToImmutableArray(), Data, Refresh);
+    }
+
+    public Route ReplaceLast(DataSegment segment, string primitive, Task<object>? data)
+    {
+        var baseSegments = Segments.SkipLast(1).ToList();
+        bool isNested = baseSegments.LastOrDefault()?.Segment.Nested.Contains(segment.ParentNameSegment) ?? true;
+        if (!isNested) throw new InvalidOperationException("Segment is not nested.");
+
+        baseSegments.Add(new NameSegmentInstance(segment.ParentNameSegment));
+        baseSegments.Add(new DataSegmentInstance(segment, primitive, data));
+        return new(baseSegments.ToImmutableArray(), Data, Refresh);
     }
 
     internal ImmutableArray<RouteSegmentInstance> NavigatableSegments
@@ -82,5 +125,13 @@ public record Route(ImmutableArray<RouteSegmentInstance> Segments, INavigationDa
                 .Append(last)
                 .ToImmutableArray();
         }
+    }
+
+    public Route ReplaceData(DataSegment segment, string primitive, Task<object>? data)
+    {
+        var instance = Segments.FirstOrDefault(s => s.Segment == segment);
+        if (instance is null) throw new InvalidOperationException("Segment not found.");
+        var segments = Segments.Replace(instance, new DataSegmentInstance(segment, primitive, data));
+        return new(segments, Data, true);
     }
 }
