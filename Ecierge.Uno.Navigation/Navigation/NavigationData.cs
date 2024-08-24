@@ -12,13 +12,18 @@ public interface INavigationData : IImmutableDictionary<string, object>
         where TData : class;
 
     object? GetData(Type dataType);
+
+    new INavigationData Add(string key, object value);
+
+    INavigationData Union(INavigationData? other);
 }
 
-internal class NavigationData : INavigationData
+public class NavigationData : INavigationData
 {
     private readonly ImmutableDictionary<string, object> data;
 
     private NavigationData() => data = ImmutableDictionary<string, object>.Empty;
+    protected NavigationData(ImmutableDictionary<string, object> data) => this.data = data;
     public static NavigationData Empty { get; } = new NavigationData();
 
     public NavigationData(IEnumerable<KeyValuePair<string, object>> data) => this.data = data.ToImmutableDictionary();
@@ -31,20 +36,17 @@ internal class NavigationData : INavigationData
 
     public int Count => data.Count;
 
-    public IImmutableDictionary<string, object> Add(string key, object value)
-    {
-        return ((IImmutableDictionary<string, object>)data).Add(key, value);
-    }
+    public INavigationData Add(string key, object value) => new NavigationData(data.Add(key, value));
+    IImmutableDictionary<string, object> IImmutableDictionary<string, object>.Add(string key, object value) => Add(key, value);
 
-    public IImmutableDictionary<string, object> AddRange(IEnumerable<KeyValuePair<string, object>> pairs)
+    public INavigationData AddRange(IEnumerable<KeyValuePair<string, object>> pairs)
     {
-        return ((IImmutableDictionary<string, object>)data).AddRange(pairs);
+        return new NavigationData((IImmutableDictionary<string, object>)data.AddRange(pairs));
     }
+    IImmutableDictionary<string, object> IImmutableDictionary<string, object>.AddRange(IEnumerable<KeyValuePair<string, object>> pairs) => AddRange(pairs);
 
-    public IImmutableDictionary<string, object> Clear()
-    {
-        return ((IImmutableDictionary<string, object>)data).Clear();
-    }
+    public INavigationData Clear() => new NavigationData(data.Clear());
+    IImmutableDictionary<string, object> IImmutableDictionary<string, object>.Clear() => Clear();
 
     public bool Contains(KeyValuePair<string, object> pair) => data.Contains(pair);
 
@@ -62,34 +64,35 @@ internal class NavigationData : INavigationData
             (data.GetType() == dataType || data.GetType().IsSubclassOf(dataType)) ? data : default;
     }
 
-    public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
-    {
-        return ((IEnumerable<KeyValuePair<string, object>>)data).GetEnumerator();
-    }
+    public IEnumerator<KeyValuePair<string, object>> GetEnumerator() => data.GetEnumerator();
 
-    public IImmutableDictionary<string, object> Remove(string key)
-    {
-        return ((IImmutableDictionary<string, object>)data).Remove(key);
-    }
+    public INavigationData Remove(string key) => new NavigationData(data.Remove(key));
+    IImmutableDictionary<string, object> IImmutableDictionary<string, object>.Remove(string key) => Remove(key);
 
-    public IImmutableDictionary<string, object> RemoveRange(IEnumerable<string> keys)
-    {
-        return ((IImmutableDictionary<string, object>)data).RemoveRange(keys);
-    }
+    public INavigationData RemoveRange(IEnumerable<string> keys) => new NavigationData(data.RemoveRange(keys));
+    IImmutableDictionary<string, object> IImmutableDictionary<string, object>.RemoveRange(IEnumerable<string> keys) => RemoveRange(keys);
 
-    public IImmutableDictionary<string, object> SetItem(string key, object value)
-    {
-        return ((IImmutableDictionary<string, object>)data).SetItem(key, value);
-    }
+    public INavigationData SetItem(string key, object value) => new NavigationData(data.SetItem(key, value));
+    IImmutableDictionary<string, object> IImmutableDictionary<string, object>.SetItem(string key, object value) => SetItem(key, value);
 
-    public IImmutableDictionary<string, object> SetItems(IEnumerable<KeyValuePair<string, object>> items)
-    {
-        return ((IImmutableDictionary<string, object>)data).SetItems(items);
-    }
+    public INavigationData SetItems(IEnumerable<KeyValuePair<string, object>> items) => new NavigationData(data.SetItems(items));
+    IImmutableDictionary<string, object> IImmutableDictionary<string, object>.SetItems(IEnumerable<KeyValuePair<string, object>> items) => SetItems(items);
 
     public bool TryGetKey(string equalKey, out string actualKey) => data.TryGetKey(equalKey, out actualKey);
 
     public bool TryGetValue(string key, [MaybeNullWhen(false)] out object value) => data.TryGetValue(key, out value);
+
+    public INavigationData Union(INavigationData? other)
+    {
+        if (other is null) return this;
+
+        var dictionary = new Dictionary<string, object>(data);
+        foreach (var pair in other)
+        {
+            dictionary[pair.Key] = pair.Value;
+        }
+        return new NavigationData(dictionary);
+    }
 
     IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)data).GetEnumerator();
 }
