@@ -89,5 +89,4 @@ public class ContentDialogNavigator : DialogNavigator<ContentDialogResult>
         var showTask = dialog.ShowAsync();
         return new NavigationResult<IAsyncOperation<ContentDialogResult>>(request.RouteSegment, showTask);
     }
-
 }

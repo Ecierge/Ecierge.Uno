@@ -140,7 +140,7 @@ public sealed class NavigationScope : IServiceScope, IDisposable
         var data = navigationData ?? NavigationData.Empty;
 
         var nameSegment = request.NameSegment;
-        var viewModelType = nameSegment.View!.ViewModel!;
+        var viewModelType = request.View!.ViewModel!;
 
         var viewModel = data.GetData(viewModelType);
         if (viewModel is not null) return new NavigationResult(nameSegment, viewModel);

@@ -131,13 +131,13 @@ public partial class App : Application
                             new DialogSegment("Dialog", views[typeof(MainPage)], nested:[
                                     new ("Tab1", isDefault: true),
                                     new ("Tab2"),
-                                ]),
-                            new DialogSegment("ContentDialog", views[typeof(MainContentDialog)], nested:[
-                                    new ("Tab1", isDefault: true),
-                                    new ("Tab2"),
                                 ])
                         ]),
                     new ("Second", views[typeof(SecondPage)], new DataSegment("name", data[typeof(Entity)])),
+                    new DialogSegment("ContentDialog", views[typeof(MainContentDialog)], nested:[
+                            new ("Tab1", isDefault: true),
+                            new ("Tab2"),
+                        ])
             //    ]
             //)
             ]

@@ -75,6 +75,13 @@
             </ic:EventTriggerBehavior>
           </i:Interaction.Behaviors>
         </Button>
+        <Button Content="Go to Second Page from root with dialog">
+          <i:Interaction.Behaviors>
+            <ic:EventTriggerBehavior EventName="Click">
+              <nav:NavigateRootRouteActionBase Route="Second/Data/!ContentDialog" />
+            </ic:EventTriggerBehavior>
+          </i:Interaction.Behaviors>
+        </Button>
         <Button Content="Navigate nested to Tab2">
           <i:Interaction.Behaviors>
             <ic:EventTriggerBehavior EventName="Click">

@@ -42,21 +42,13 @@ public record DialogSegmentNavigationRequest : NavigationRequest
     public DialogSegmentNavigationRequest(
       object sender
     , DialogSegment segment
-    , NameSegment parentSegment
+    , RouteSegment parentSegment
     , INavigationData? NavigationData = null) : base(sender, NavigationData)
     {
+        if (parentSegment is DialogSegment)
+            throw new ArgumentException("Dialogs must not be nested.", nameof(parentSegment));
         Segment = segment;
         ParentSegment = parentSegment;
-    }
-
-    public DialogSegmentNavigationRequest(
-      object sender
-    , DialogSegment segment
-    , DataSegment parentSegments
-    , INavigationData? NavigationData = null) : base(sender, NavigationData)
-    {
-        Segment = segment;
-        ParentSegment = parentSegments;
     }
 
     public override NameSegment NameSegment => ParentSegment switch

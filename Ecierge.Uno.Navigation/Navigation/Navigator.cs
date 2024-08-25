@@ -116,13 +116,22 @@ public abstract class Navigator
         if (request is DialogSegmentNavigationRequest dialogRequest && !dialogRequest.Handle)
             return await NavigateDialogAsync(dialogRequest);
 
+        var oldChildNavigator = ChildNavigator;
+        // When the same level navigation happened, the child navigator should be null
+        // if no nested navigation happened
+        ChildNavigator = null;
         var result = await NavigateCoreAsync(request);
         FrameworkElement target = Region!.Target!;
-        target.SetNestedSegmentName(request.NameSegment.Name);
         if (result.Success)
         {
+            target.SetNestedSegmentName(request.NameSegment.Name);
             SetRoute(request);
             await WaitForVisualTree();
+        }
+        else
+        {
+            // Restore child navigator
+            ChildNavigator = oldChildNavigator;
         }
         return result;
     }
@@ -189,6 +198,7 @@ public static class NavigatorExtensions
             RouteSegment? nextSegment = segment switch
             {
                 NameSegment nameSegment when nameSegment.Data is DataSegment nestedDataSegment => nestedDataSegment,
+                RouteSegment routeSegment when segmentName.StartsWith('!') => navigator.FindDialogSegmentToNavigate(segmentName[1..]),
                 RouteSegment routeSegment => routeSegment.Nested.FirstOrDefault(s => s.Name == segmentName),
                 _ => throw new NotSupportedException("Not supported route segment")
             };
@@ -196,6 +206,7 @@ public static class NavigatorExtensions
             {
                 // Wrong route
                 null => throw new NestedSegmentNotFoundException(segment, segmentName),
+                DialogSegment dialogSegment => new DialogSegmentInstance(dialogSegment),
                 NameSegment nameSegment => new NameSegmentInstance(nameSegment),
                 DataSegment dataSegment => CreateDataSegment(dataSegment, segmentName),
                 _ => throw new NotSupportedException("Not supported route segment")
@@ -219,8 +230,9 @@ public static class NavigatorExtensions
     {
         var currentNavigator = navigator;
         NavigationResult result = default;
-        foreach (var segment in route.NavigatableSegments)
+        for (int i = 0; i < route.NavigatableSegments.Length; i++)
         {
+            var segment = route.NavigatableSegments[i];
             switch (segment)
             {
                 case NameSegmentInstance nameSegmentInstance:
@@ -230,8 +242,12 @@ public static class NavigatorExtensions
                     object data = (object?)dataSegmentInstance.Data ?? dataSegmentInstance.Primitive;
                     result = await currentNavigator.NavigateAsync(new DataSegmentNavigationRequest(initiator, dataSegmentInstance.DataSegment, data));
                     break;
-                case DialogSegmentInstance _:
-                    throw new NotImplementedException("Dialog segments are not implemented");
+                case DialogSegmentInstance dialogSegmentInstance:
+                    var parentSegment = route.NavigatableSegments[i - 1].Segment;
+                    result = await currentNavigator.NavigateAsync(new DialogSegmentNavigationRequest(initiator, dialogSegmentInstance.DialogSegment, parentSegment, route.Data));
+                    // The next navigator must be inside the dialog instead of ContentDialogNavigator
+                    currentNavigator = currentNavigator.ChildNavigator!;
+                    break;
                 default:
                     throw new NotSupportedException("Unknown segment type.");
             }
@@ -243,7 +259,8 @@ public static class NavigatorExtensions
                 return new NavigationFailedResponse(fullRoute, navigator);
             }
 
-            currentNavigator = navigator.ChildNavigator!;
+            if (currentNavigator.ChildNavigator is not null)
+                currentNavigator = currentNavigator.ChildNavigator;
         }
         return new NavigationSuccessfulResponse(route, navigator);
     }
