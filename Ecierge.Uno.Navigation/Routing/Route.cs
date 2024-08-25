@@ -16,14 +16,27 @@ public record DataSegmentInstance(DataSegment DataSegment, string Primitive, obj
 {
     public override RouteSegment Segment => DataSegment;
 }
-public record DialogSegmentInstance() : RouteSegmentInstance
+public record DialogSegmentInstance(DialogSegment DialogSegment) : RouteSegmentInstance
 {
     public override RouteSegment Segment => throw new NotImplementedException("Dialog segments not implemented.");
 }
 
-public record struct Route(ImmutableArray<RouteSegmentInstance> Segments, INavigationData? Data = null, bool Refresh = false)
+public record struct Route
 {
+    public ImmutableArray<RouteSegmentInstance> Segments { get; init; }
+    public INavigationData? Data { get; init; }
+    public bool Refresh { get; init; }
+
     public Route() : this(ImmutableArray<RouteSegmentInstance>.Empty) { }
+
+    public Route(ImmutableArray<RouteSegmentInstance> segments, INavigationData? data = null, bool refresh = false)
+    {
+        if (segments.Count(s => s is DialogSegmentInstance) > 1)
+            throw new InvalidOperationException("Dialog segment cannot be nested.");
+        Segments = segments;
+        Data = data;
+        Refresh = refresh;
+    }
 
     public Route GoBack()
     {
