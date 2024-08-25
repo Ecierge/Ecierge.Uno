@@ -17,6 +17,8 @@
           <VisualState.StateTriggers>
             <ct:IsEqualStateTrigger Value="{Binding Path=(nav:NavigationRegion.NestedSegmentName), ElementName=SelectorBar}"
                                     To="{x:Bind SelectorBarItem1.Text}" />
+            <!--<nav:SegmentNameTrigger TargetNavigationRegion="{x:Bind SelectorBar}"
+                                    SegmentName="{x:Bind SelectorBarItem1.Text}" />-->
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="Tab1Content.Visibility" Value="Visible" />
@@ -77,6 +79,20 @@
           <i:Interaction.Behaviors>
             <ic:EventTriggerBehavior EventName="Click">
               <nav:NavigateNestedRouteAction Route="Tab2" />
+            </ic:EventTriggerBehavior>
+          </i:Interaction.Behaviors>
+        </Button>
+        <Button Content="Open dialog">
+          <i:Interaction.Behaviors>
+            <ic:EventTriggerBehavior EventName="Click">
+              <nav:NavigateDialogSegmentAction SegmentName="Dialog" />
+            </ic:EventTriggerBehavior>
+          </i:Interaction.Behaviors>
+        </Button>
+        <Button Content="Open custom dialog">
+          <i:Interaction.Behaviors>
+            <ic:EventTriggerBehavior EventName="Click">
+              <nav:NavigateDialogSegmentAction SegmentName="ContentDialog" />
             </ic:EventTriggerBehavior>
           </i:Interaction.Behaviors>
         </Button>

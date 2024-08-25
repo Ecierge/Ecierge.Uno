@@ -63,7 +63,7 @@ public record struct Route(ImmutableArray<RouteSegmentInstance> Segments, INavig
 
     public Route Add(NameSegment segment)
     {
-        bool isNested = Segments.LastOrDefault()?.Segment.Nested.Contains(segment) ?? true;
+        bool isNested = (segment is DialogSegment) || (Segments.LastOrDefault()?.Segment.Nested.Contains(segment) ?? true);
         if (!isNested) throw new InvalidOperationException("Segment is not nested.");
         return new(Segments.Add(new NameSegmentInstance(segment)), Data, Refresh);
     }
@@ -97,7 +97,7 @@ public record struct Route(ImmutableArray<RouteSegmentInstance> Segments, INavig
         return new(baseSegments.ToImmutableArray(), Data, Refresh);
     }
 
-    public Route ReplaceLast(DataSegment segment, string primitive, Task<object>? data)
+    public Route ReplaceLast(DataSegment segment, string primitive, object? data)
     {
         var baseSegments = Segments.SkipLast(1).ToList();
         bool isNested = baseSegments.LastOrDefault()?.Segment.Nested.Contains(segment.ParentNameSegment) ?? true;

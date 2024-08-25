@@ -100,3 +100,18 @@ public partial class NavigateNestedSegmentAction : NavigateSegmentActionBase, IA
         return null;
     }
 }
+
+public partial class NavigateDialogSegmentAction : NavigateSegmentActionBase, IAction
+{
+    public object? Execute(object sender, object parameter)
+    {
+        var target = Target ?? sender;
+        if (target is FrameworkElement element)
+        {
+            var navigationRegion = element.FindNavigationRegion();
+            if (navigationRegion is null) throw new NavigationRegionMissingException(element);
+            return navigationRegion.Navigator.NavigateDialogSegmentAsync(sender, SegmentName!, SegmentData);
+        }
+        return null;
+    }
+}

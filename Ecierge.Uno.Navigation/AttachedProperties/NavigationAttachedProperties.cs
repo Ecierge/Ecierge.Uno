@@ -54,21 +54,28 @@ public static class Navigation
             nestedSegments = parentSegment.Nested;
         }
 
-        var segment = nestedSegments.FirstOrDefault(s => s.Name == value);
-        if (segment is null)
+        Regions.NavigationRegion navigationRegion;
+        if (parentSegment is DialogSegment && parentNavigationRegion.Target!.GetType().IsAssignableTo(typeof(ContentDialog)))
         {
-            throw new NestedSegmentMissingException(value, parentSegmentName);
+            parentNavigationRegion.Target = element;
+            navigationRegion = parentNavigationRegion;
+        }
+        else
+        {
+            var nestedSegment = nestedSegments.FirstOrDefault(s => s.Name == value);
+            if (nestedSegment is null) throw new NestedSegmentMissingException(value, parentSegmentName);
+#pragma warning disable CA2000 // Dispose objects before losing scope
+            var scope = parentNavigationRegion.Scope.CreateScope(nestedSegment, element, parentNavigationRegion.Navigator);
+#pragma warning restore CA2000 // Dispose objects before losing scope
+            navigationRegion = new Regions.NavigationRegion(scope)
+            {
+                Parent = parentNavigationRegion,
+                Target = element,
+                Root = root
+            };
+
         }
 
-#pragma warning disable CA2000 // Dispose objects before losing scope
-        var scope = parentNavigationRegion.Scope.CreateScope(segment, element, parentNavigationRegion.Navigator);
-#pragma warning restore CA2000 // Dispose objects before losing scope
-        var navigationRegion = new Regions.NavigationRegion(scope)
-        {
-            Parent = parentNavigationRegion,
-            Target = element,
-            Root = root
-        };
         element.SetNavigationRegion(navigationRegion);
     }
 

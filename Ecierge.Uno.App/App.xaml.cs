@@ -113,8 +113,8 @@ public partial class App : Application
         views.Register(
             new ViewMap<Shell, ShellViewModel>(),
             new ViewMap<MainPage, MainViewModel>(),
+            new ViewMap<MainContentDialog, MainViewModel>(),
             new ViewMap<SecondPage, SecondViewModel>()
-            //new DataViewMap<SecondPage, SecondViewModel, Entity>()
         );
 
         data.Register(
@@ -128,6 +128,14 @@ public partial class App : Application
                     new ("Main", views[typeof(MainPage)], isDefault:true, [
                             new ("Tab1", isDefault: true),
                             new ("Tab2"),
+                            new DialogSegment("Dialog", views[typeof(MainPage)], nested:[
+                                    new ("Tab1", isDefault: true),
+                                    new ("Tab2"),
+                                ]),
+                            new DialogSegment("ContentDialog", views[typeof(MainContentDialog)], nested:[
+                                    new ("Tab1", isDefault: true),
+                                    new ("Tab2"),
+                                ])
                         ]),
                     new ("Second", views[typeof(SecondPage)], new DataSegment("name", data[typeof(Entity)])),
             //    ]

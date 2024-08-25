@@ -68,3 +68,9 @@ public record DataSegment : RouteSegment
         }
     }
 }
+
+public record DialogSegment : NameSegment
+{
+    public DialogSegment(string name, ViewMap view, DataSegment data) : base(name, view, data) { }
+    public DialogSegment(string name, ViewMap? view = null, ImmutableArray<NameSegment> nested = default) : base(name, view, false, nested) { }
+}

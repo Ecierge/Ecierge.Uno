@@ -13,6 +13,7 @@ public sealed class NavigationScope : IServiceScope, IDisposable
 {
     private static readonly Type WindowType = typeof(Window);
     private static readonly Type FrameworkElementType = typeof(FrameworkElement);
+    private static readonly Type ContentDialogType = typeof(ContentDialog);
     private static readonly Type DispatcherType = typeof(DispatcherQueue);
     private static readonly Type NavigationScopeType = typeof(NavigationScope);
     private static readonly Type NameSegmentType = typeof(NameSegment);
@@ -24,21 +25,30 @@ public sealed class NavigationScope : IServiceScope, IDisposable
 
     public IServiceProvider ServiceProvider => serviceScope.ServiceProvider;
 
-    public NavigationScope(IServiceScope serviceScope, Window window, NameSegment segment, FrameworkElement element, Navigator? parentNavigator)
+    private NavigationScope(IServiceScope serviceScope, Window window, NameSegment segment, Navigator? parentNavigator)
     {
         this.serviceScope = serviceScope ?? throw new ArgumentNullException(nameof(serviceScope));
         window = window ?? throw new ArgumentNullException(nameof(window));
         this.Segment = segment ?? throw new ArgumentNullException(nameof(segment));
-        element = element ?? throw new ArgumentNullException(nameof(element));
 
         var serviceProvider = this.ServiceProvider;
         serviceProvider.AddScopedInstance(WindowType, window);
-        serviceProvider.AddScopedInstance(FrameworkElementType, element);
         serviceProvider.AddScopedInstance(DispatcherType, window.DispatcherQueue);
         serviceProvider.AddScopedInstance(NavigationScopeType, this);
         serviceProvider.AddScopedInstance(NameSegmentType, segment);
+    }
+
+    public NavigationScope(IServiceScope serviceScope, Window window, NameSegment segment, FrameworkElement element, Navigator? parentNavigator)
+        : this(serviceScope, window, segment, parentNavigator)
+    {
+        element = element ?? throw new ArgumentNullException(nameof(element));
+
+        var serviceProvider = this.ServiceProvider;
+        serviceProvider.AddScopedInstance(FrameworkElementType, element);
         serviceProvider.AddScopedInstance(NavigatorType, GetNavigator(element, parentNavigator));
     }
+
+    private bool isDisposed;
 
     ~NavigationScope() => Dispose(false);
 
@@ -52,13 +62,6 @@ public sealed class NavigationScope : IServiceScope, IDisposable
     {
         if (disposing)
         {
-            var navigator = ServiceProvider.GetService<Navigator>();
-            Navigator? parentNavigator = navigator!.Parent;
-            if (parentNavigator is not null && parentNavigator.ChildNavigator == navigator)
-            {
-                parentNavigator.ChildNavigator = null;
-            }
-
             serviceScope.Dispose();
         }
     }
@@ -71,6 +74,42 @@ public sealed class NavigationScope : IServiceScope, IDisposable
          element,
          parentNavigator);
 
+    public NavigationScope CreateDialogScope(DialogSegment segment, Navigator parentNavigator)
+    {
+        var lastNavigator = parentNavigator;
+        while (lastNavigator.ChildNavigator is not null)
+        {
+            lastNavigator = lastNavigator.ChildNavigator;
+        }
+
+        var serviceProvider = lastNavigator.Region.Scope.ServiceProvider;
+        var navigationScope = new NavigationScope(
+            serviceProvider.CreateScope(),
+            serviceProvider.GetRequiredService<Window>(),
+            segment,
+            lastNavigator);
+        serviceProvider = navigationScope.ServiceProvider;
+
+        var options = serviceProvider.GetRequiredService<IOptions<NavigationOptions>>().Value;
+        Type viewType = segment.View!.View;
+        Type navigatorType;
+        if (ContentDialogType.IsAssignableFrom(viewType))
+        {
+            if (!options.TryGetNavigatorType(viewType, out navigatorType!))
+                throw new InvalidOperationException($"No navigator found for {viewType.Name}");
+        }
+        else
+        {
+            if (!options.TryGetNavigatorType(ContentDialogType, out navigatorType!))
+                throw new InvalidOperationException($"No navigator found for {viewType.Name}");
+        }
+        Navigator navigator = (Navigator)serviceProvider.GetRequiredService(navigatorType);
+        AssginNavigators(lastNavigator, navigator);
+        serviceProvider.AddScopedInstance(NavigatorType, navigator);
+        lastNavigator.ChildNavigator = navigator;
+        return navigationScope;
+    }
+
     private Navigator GetNavigator(FrameworkElement element, Navigator? parent)
     {
         Type? navigatorType = element.GetNavigatorType();
@@ -82,13 +121,18 @@ public sealed class NavigationScope : IServiceScope, IDisposable
                 throw new InvalidOperationException($"No navigator found for {elementType.Name}");
         }
         var navigator = (Navigator)this.ServiceProvider.GetRequiredService(navigatorType);
+        AssginNavigators(parent, navigator);
+        return navigator;
+    }
+
+    private void AssginNavigators(Navigator? parent, Navigator navigator)
+    {
         navigator.Parent = parent;
         if (parent is not null)
         {
             parent.ChildNavigator = navigator;
             navigator.RootNavigator = parent.RootNavigator;
         }
-        return navigator;
     }
 
     public NavigationResult CreateViewModel(NavigationRequest request, INavigationData? navigationData)

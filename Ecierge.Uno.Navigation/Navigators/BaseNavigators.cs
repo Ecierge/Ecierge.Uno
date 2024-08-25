@@ -14,7 +14,7 @@ public abstract class FactoryNavigator : Navigator
 
     public NavigationResult CreateView(NavigationRequest request)
     {
-        var viewMap = request.NameSegment.View!;
+        var viewMap = request.View!;
         var view = (FrameworkElement)ServiceProvider.GetRequiredService(viewMap.View);
         if (viewMap.ViewModel is Type viewModelType)
         {
