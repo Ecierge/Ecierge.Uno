@@ -12,7 +12,6 @@ using Ecierge.Uno.Navigation.Routing;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.UI.Dispatching;
 
 using MoreLinq;
 
@@ -40,10 +39,25 @@ public abstract class Navigator
         internal set => child.SetTarget(value);
     }
 
+    public Navigator LeafNavigator
+    {
+        get
+        {
+            Navigator leafNavigator = this;
+            while (leafNavigator.ChildNavigator is not null)
+            {
+                leafNavigator = leafNavigator.ChildNavigator;
+            }
+            return leafNavigator;
+        }
+    }
+
     /// <summary>
     /// Gets the current route of the navigator
     /// </summary>
     public Routing.Route Route { get; private set; } = new Routing.Route();
+
+    public Routing.Route ActualRoute => LeafNavigator.Route;
 
     private Stack<NavigationRequest> navigationStack { get; } = new();
     public IReadOnlyCollection<NavigationRequest> NavigationHistory => navigationStack;
@@ -153,7 +167,7 @@ public abstract class Navigator
         if (navigationStack.TryPop(out var request))
             return NavigateAsync(request);
         else
-            return new (new NavigationResult("Navigation history is empty"));
+            return new(new NavigationResult("Navigation history is empty"));
     }
 }
 
@@ -317,41 +331,39 @@ public static class NavigatorExtensions
             navigationData = null;
         }
         NavigationResult result;
-        Routing.Route route;
         if (segment is DialogSegment dialogSegment)
         {
             result = await navigator.NavigateAsync(new DialogSegmentNavigationRequest(initiator, dialogSegment, navigator.Region.Segment, navigationData));
-            // TODO: Get route from last navigator
-            route = navigator.Route.Add(dialogSegment);
             if (result.Success)
             {
-                // TODO: Implement nested navigation
-                return new NavigationSuccessfulResponse(route, navigator);
+                await navigator.LeafNavigator.NavigateDefaultAsync(initiator, segment);
+                return new NavigationSuccessfulResponse(navigator.ActualRoute, navigator);
             }
         }
         else
         {
             result = await navigator.NavigateAsync(new NameSegmentNavigationRequest(initiator, segment, navigationData));
-            route = navigator.Route.ReplaceLast(segment);
             if (result.Success)
             {
                 await navigator.NavigateNestedDefaultAsync(initiator, segment);
-                return new NavigationSuccessfulResponse(route, navigator);
+                return new NavigationSuccessfulResponse(navigator.ActualRoute, navigator);
             }
         }
-        return new NavigationFailedResponse(route, navigator);
+        return new NavigationFailedResponse(navigator.ActualRoute, navigator);
     }
 
     public static async ValueTask<NavigationResponse> NavigateSegmentAsync<TRouteData>([NotNull] this Navigator navigator, object initiator, DataSegment segment, TRouteData? routeData)
     {
         var result = await navigator.NavigateAsync(new DataSegmentNavigationRequest(initiator, segment, routeData));
-        var route = navigator.Route.ReplaceLast(segment, segment.Name, routeData);
         if (result.Success)
         {
             await navigator.NavigateNestedDefaultAsync(initiator, segment);
-            return new NavigationSuccessfulResponse(route, navigator);
+            return new NavigationSuccessfulResponse(navigator.ActualRoute, navigator);
         }
-        else return new NavigationFailedResponse(route, navigator);
+        else
+        {
+            return new NavigationFailedResponse(navigator.ActualRoute, navigator);
+        }
     }
 
     public static async ValueTask<NavigationResponse> NavigateDefaultAsync([NotNull] this Navigator navigator, object initiator, RouteSegment segment)
