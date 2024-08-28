@@ -27,7 +27,7 @@ public record struct Route
     public INavigationData? Data { get; init; }
     public bool Refresh { get; init; }
 
-    public Route() : this(ImmutableArray<RouteSegmentInstance>.Empty) { }
+    public static Route Empty => new Route(ImmutableArray<RouteSegmentInstance>.Empty);
 
     public Route(ImmutableArray<RouteSegmentInstance> segments, INavigationData? data = null, bool refresh = false)
     {
