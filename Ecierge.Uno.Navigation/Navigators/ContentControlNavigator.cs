@@ -3,7 +3,7 @@ namespace Ecierge.Uno.Navigation.Navigators;
 using System;
 using System.Threading.Tasks;
 
-public class ContentControlNavigator : FactoryNavigator
+public class ContentControlNavigator : FactoryNavigator<ContentControl>
 {
     public ContentControlNavigator(IServiceProvider serviceProvider) : base(serviceProvider) { }
 
@@ -13,7 +13,7 @@ public class ContentControlNavigator : FactoryNavigator
         if (!result.Success) return result;
 
         var view = (FrameworkElement)result.Result!;
-        var contentControl = (ContentControl)Region!.Target!;
+        var contentControl = Target!;
         contentControl.Content = view;
         return new NavigationResult(request.RouteSegment);
     }

@@ -9,7 +9,8 @@ using Windows.Foundation;
 
 using static System.Formats.Asn1.AsnWriter;
 
-public abstract class DialogNavigator<TResult> : FactoryNavigator
+public abstract class DialogNavigator<TTarget, TResult> : FactoryNavigator<TTarget>
+    where TTarget : FrameworkElement
 {
     protected IAsyncOperation<TResult>? showTask;
 
@@ -39,7 +40,7 @@ public abstract class DialogNavigator<TResult> : FactoryNavigator
         return Task.CompletedTask;
     }
 
-    public override ValueTask<NavigationResult> NavigateBack()
+    public override ValueTask<NavigationResult> NavigateBackAsync(object initiator)
     {
         CloseDialog();
         Parent!.ChildNavigator = null;
@@ -47,7 +48,7 @@ public abstract class DialogNavigator<TResult> : FactoryNavigator
     }
 }
 
-public class ContentDialogNavigator : DialogNavigator<ContentDialogResult>
+public class ContentDialogNavigator : DialogNavigator<ContentDialog, ContentDialogResult>
 {
     private static readonly Type ContentDialogType = typeof(ContentDialog);
 
@@ -82,7 +83,7 @@ public class ContentDialogNavigator : DialogNavigator<ContentDialogResult>
         void DialogClosed(ContentDialog s, ContentDialogClosedEventArgs e)
         {
             dialog.Closed -= DialogClosed;
-            this.NavigateBack();
+            this.NavigateBackAsync(s);
         }
         dialog.Closed += DialogClosed;
 

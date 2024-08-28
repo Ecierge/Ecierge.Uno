@@ -21,7 +21,7 @@ using MoreLinq;
 public abstract class Navigator
 {
     // Region is always set immediately after construction in the NavigationRegion constructor
-    internal Regions.NavigationRegion Region { get; set; } = default!;
+    protected internal Regions.NavigationRegion Region { get; set; } = default!;
     public Navigator RootNavigator { get; internal set; } = default!;
 
     protected IServiceProvider ServiceProvider { get; }
@@ -162,10 +162,10 @@ public abstract class Navigator
 
     protected virtual ValueTask WaitForVisualTree() => ValueTask.CompletedTask;
 
-    public virtual ValueTask<NavigationResult> NavigateBack()
+    public virtual ValueTask<NavigationResult> NavigateBackAsync(object initator)
     {
         if (navigationStack.TryPop(out var request))
-            return NavigateAsync(request);
+            return NavigateAsync(request with { Sender = initator });
         else
             return new(new NavigationResult("Navigation history is empty"));
     }

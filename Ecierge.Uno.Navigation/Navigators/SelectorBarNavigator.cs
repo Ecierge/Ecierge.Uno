@@ -6,9 +6,8 @@ using Ecierge.Uno.Navigation;
 
 using Microsoft.Extensions.Logging;
 
-internal class SelectorBarNavigator : SelectorNavigator
+internal class SelectorBarNavigator : SelectorNavigator<SelectorBar>
 {
-    protected new SelectorBar Target => (SelectorBar)base.Target!;
     protected string navigatedName = string.Empty;
     protected SelectorBarItem? navigatedItem = null;
 

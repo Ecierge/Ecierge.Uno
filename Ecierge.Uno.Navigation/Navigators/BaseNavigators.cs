@@ -8,7 +8,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Dispatching;
 
-public abstract class FactoryNavigator : Navigator
+public abstract class Navigator<TTarget>(IServiceProvider serviceProvider) : Navigator(serviceProvider)
+    where TTarget : FrameworkElement
+{
+    new public TTarget Target => (TTarget)base.Target;
+}
+
+public abstract class FactoryNavigator<TTarget> : Navigator<TTarget>
+    where TTarget : FrameworkElement
 {
     public FactoryNavigator(IServiceProvider serviceProvider) : base(serviceProvider) { }
 
@@ -45,7 +52,8 @@ public abstract class FactoryNavigator : Navigator
     }
 }
 
-public abstract class SelectorNavigator : Navigator
+public abstract class SelectorNavigator<TTarget> : Navigator<TTarget>
+    where TTarget : FrameworkElement
 {
     protected abstract string SelectedName { get; }
 
