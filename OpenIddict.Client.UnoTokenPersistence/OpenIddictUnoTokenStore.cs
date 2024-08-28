@@ -599,9 +599,6 @@ public class OpenIddictUnoTokenStore<TToken> : IOpenIddictTokenStore<TToken>
         return result;
     }
 
-    async ValueTask IOpenIddictTokenStore<TToken>.PruneAsync(DateTimeOffset threshold, CancellationToken cancellationToken)
-        => await PruneAsync(threshold, cancellationToken);
-
     /// <inheritdoc/>
     public virtual async ValueTask<long> RevokeByAuthorizationIdAsync(string identifier, CancellationToken cancellationToken)
     {
