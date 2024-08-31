@@ -7,10 +7,10 @@ using Ecierge.Uno.Navigation;
 
 public record Entity(string Name);
 
-internal class EntityViewDataMap : INavigationDataMap
+internal class EntityNavigationDataMap : INavigationDataMap
 {
-    public Type PrimitiveType { get; } = typeof(string);
-    public Type EntityType { get; } = typeof(Entity);
+    public static Type PrimitiveType { get; } = typeof(string);
+    public static Type EntityType { get; } = typeof(Entity);
 
     public Task<object> FromNavigationData(INavigationData data, string name)
     {

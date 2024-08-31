@@ -1,8 +1,8 @@
+namespace Ecierge.Uno.Navigation;
+
 using System.Diagnostics.CodeAnalysis;
 
 using Microsoft.Extensions.Options;
-
-namespace Ecierge.Uno.Navigation;
 
 /// <summary>
 /// Options to adjust the behaviour of Navigation

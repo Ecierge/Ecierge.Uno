@@ -4,8 +4,8 @@ public class RouteValues : Dictionary<string, object> { }
 
 public interface INavigationDataMap
 {
-    Type PrimitiveType { get; }
-    Type EntityType { get; }
+    static abstract Type PrimitiveType { get; }
+    static abstract Type EntityType { get; }
     Task<object> FromNavigationData(INavigationData data, string name);
     RouteData ToNavigationData(INavigationData? data, string name, object value);
 }

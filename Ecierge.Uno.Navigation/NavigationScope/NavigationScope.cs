@@ -91,7 +91,7 @@ public sealed class NavigationScope : IServiceScope, IDisposable
         serviceProvider = navigationScope.ServiceProvider;
 
         var options = serviceProvider.GetRequiredService<IOptions<NavigationOptions>>().Value;
-        Type viewType = segment.View!.View;
+        Type viewType = segment.ViewMap!.View;
         Type navigatorType;
         if (ContentDialogType.IsAssignableFrom(viewType))
         {

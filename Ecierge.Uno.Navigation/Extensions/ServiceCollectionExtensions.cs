@@ -29,7 +29,7 @@ public static class ServiceCollectionExtensions
         navConfig = (configure?.Invoke(navConfig)) ?? navConfig;
 
         IViewRegistryBuilder viewRegistryBuilder = createViewRegistryBuilder?.Invoke(services) ?? new ViewRegistryBuilder(services);
-        INavigationDataRegistryBuilder navigationDataRegistryBuilder = new NavigationDataRegistryBuilder();
+        INavigationDataRegistryBuilder navigationDataRegistryBuilder = new NavigationDataRegistryBuilder(services);
         IRouteRegistryBuilder routeRegistryBuilder = createRouteRegistryBuilder?.Invoke(services) ?? new RouteRegistryBuilder();
         routeBuilder?.Invoke(viewRegistryBuilder, navigationDataRegistryBuilder, routeRegistryBuilder);
         var views = viewRegistryBuilder.Build();
@@ -71,6 +71,8 @@ public static class ServiceCollectionExtensions
                 //.AddNavigator<Frame, FrameNavigator>()
                 .AddNavigator<ContentDialog, ContentDialogNavigator>()
                 .AddNavigator<ContentControl, ContentControlNavigator>()
+                .AddNavigator<NavigationView, NavigationViewNavigator>()
+                .AddScoped<NavigationViewContentNavigator>()
                 //.AddNavigator<Panel, PanelVisiblityNavigator>(name: PanelVisiblityNavigator.NavigatorName)
                 //.AddNavigator<Microsoft.UI.Xaml.Controls.NavigationView, NavigationViewNavigator>()
                 //.AddNavigator<ContentDialog, ContentDialogNavigator>(true)
@@ -78,6 +80,8 @@ public static class ServiceCollectionExtensions
                 //.AddNavigator<Flyout, FlyoutNavigator>(true)
                 //.AddNavigator<Popup, PopupNavigator>(true)
                 .AddNavigator<SelectorBar, SelectorBarNavigator>()
+
+                .AddScoped<ByNameNavigationViewItemSelector>()
 
                 //.AddSingleton<IRequestHandler, TapRequestHandler>()
                 //.AddSingleton<IRequestHandler, ButtonBaseRequestHandler>()

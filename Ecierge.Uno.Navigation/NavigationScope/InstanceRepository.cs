@@ -16,3 +16,14 @@ public class InstanceRepository : IInstanceRepository, ISingletonInstanceReposit
 internal interface IScopedInstanceRepository : IInstanceRepository { }
 
 internal interface ISingletonInstanceRepository : IInstanceRepository { }
+
+public class ScopedInstanceRepositoryOptions
+{
+    public List<Type> TypesToClone { get; } = new List<Type>();
+
+    public ScopedInstanceRepositoryOptions AddTypeToClone<T>()
+    {
+        TypesToClone.Add(typeof(T));
+        return this;
+    }
+}

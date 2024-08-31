@@ -5,9 +5,15 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 
-public interface INavigationDataRegistry : IRegistry<INavigationDataMap>
+using Microsoft.Extensions.DependencyInjection;
+
+public interface INavigationDataRegistry : IRegistry<Type>
 {
-    INavigationDataMap this[Type entity] { get; }
+    ImmutableDictionary<Type, Type> EntityMap { get; }
+    ImmutableHashSet<Type> Primitives { get; }
+    Type this[Type entity] { get; }
+    bool HasAssignablePrimitive(Type primitive);
+    bool TryGetForAssignableEntity(Type entity, [NotNullWhen(true)] out Type? data);
 }
 
 public sealed class NavigationDataMapNotFoundException : KeyNotFoundException
@@ -18,19 +24,19 @@ public sealed class NavigationDataMapNotFoundException : KeyNotFoundException
     private NavigationDataMapNotFoundException(string message, Exception innerException) : base(message, innerException) { }
 }
 
-public class NavigationDataRegistry(IEnumerable<INavigationDataMap> items) : INavigationDataRegistry
+public class NavigationDataRegistry(IReadOnlyDictionary<Type, Type> entityMap, IReadOnlySet<Type> primitives) : INavigationDataRegistry
 {
-    private readonly ImmutableArray<INavigationDataMap> items = items.ToImmutableArray();
-    public ImmutableDictionary<Type, INavigationDataMap> Data { get; } = items.ToImmutableDictionary(x => x.EntityType, x => x);
+    public ImmutableDictionary<Type, Type> EntityMap { get; } = entityMap.ToImmutableDictionary();
+    public ImmutableHashSet<Type> Primitives { get; } = primitives.ToImmutableHashSet();
 #pragma warning disable CA1033 // Interface methods should be callable by child types
-    ImmutableArray<INavigationDataMap> IRegistry<INavigationDataMap>.Items => items;
+    ImmutableArray<Type> IRegistry<Type>.Items => entityMap.Values.ToImmutableArray();
 #pragma warning restore CA1033 // Interface methods should be callable by child types
 #pragma warning disable CA1043 // Use Integral Or String Argument For Indexers
-    public INavigationDataMap this[Type entity]
+    public Type this[Type entity]
     {
         get
         {
-            if (Data.TryGetValue(entity, out var dataMap))
+            if (EntityMap.TryGetValue(entity, out var dataMap))
                 return dataMap;
             else
                 throw new NavigationDataMapNotFoundException(entity);
@@ -38,25 +44,60 @@ public class NavigationDataRegistry(IEnumerable<INavigationDataMap> items) : INa
     }
 #pragma warning restore CA1043 // Use Integral Or String Argument For Indexers
 
+    // TODO: Improve lookup performance
+    public bool HasAssignablePrimitive(Type primitive)
+    {
+        if (Primitives.Contains(primitive))
+            return true;
+        foreach (var p in Primitives)
+        {
+            if (p.IsAssignableTo(primitive))
+                return true;
+        }
+        return false;
+    }
+
+    public bool TryGetForAssignableEntity(Type entity, [NotNullWhen(true)] out Type? data)
+    {
+        foreach (var kvp in EntityMap)
+        {
+            if (kvp.Key.IsAssignableTo(entity))
+            {
+                data = kvp.Value;
+                return true;
+            }
+        }
+        data = default;
+        return false;
+    }
 }
 
 public interface INavigationDataRegistryBuilder
 {
-    IEnumerable<INavigationDataMap> Items { get; }
-    INavigationDataRegistryBuilder Register(INavigationDataMap navigationdata);
-    INavigationDataRegistryBuilder Register([NotNull] params INavigationDataMap[] navigationdatas);
+    IReadOnlyDictionary<Type, Type> EntityMap { get; }
+    IReadOnlySet<Type> Primitives { get; }
+    INavigationDataRegistryBuilder Register<T>() where T : class, INavigationDataMap;
     public INavigationDataRegistry Build();
 }
 
 public class NavigationDataRegistryBuilder : INavigationDataRegistryBuilder
 {
-    private readonly List<INavigationDataMap> items = new();
-    public IEnumerable<INavigationDataMap> Items => items;
+    private readonly IServiceCollection services;
+    private readonly Dictionary<Type, Type> entityMap = new();
+    private readonly HashSet<Type> primitives = new();
+    public IReadOnlyDictionary<Type, Type> EntityMap => entityMap;
+    public IReadOnlySet<Type> Primitives => primitives;
 
-    public INavigationDataRegistryBuilder Register(INavigationDataMap map)
+    public NavigationDataRegistryBuilder(IServiceCollection services)
     {
-        map = map ?? throw new ArgumentNullException(nameof(map));
-        items.Add(map);
+        this.services = services ?? throw new ArgumentNullException(nameof(services));
+    }
+
+    public INavigationDataRegistryBuilder Register<T>() where T : class, INavigationDataMap
+    {
+        services.AddScoped<T>();
+        entityMap.Add(T.EntityType, typeof(T));
+        primitives.Add(T.PrimitiveType);
         return this;
     }
 
@@ -66,5 +107,5 @@ public class NavigationDataRegistryBuilder : INavigationDataRegistryBuilder
         return this;
     }
 
-    public INavigationDataRegistry Build() => new NavigationDataRegistry(items);
+    public INavigationDataRegistry Build() => new NavigationDataRegistry(entityMap, primitives);
 }

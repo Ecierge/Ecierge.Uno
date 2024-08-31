@@ -18,7 +18,7 @@ public record NameSegmentNavigationRequest(
 {
     public override NameSegment NameSegment => Segment;
     public override RouteSegment RouteSegment => Segment;
-    internal override ViewMap? View => Segment.View;
+    internal override ViewMap? View => Segment.ViewMap;
 }
 
 public record DataSegmentNavigationRequest(
@@ -30,7 +30,7 @@ public record DataSegmentNavigationRequest(
 {
     public override NameSegment NameSegment => Segment.ParentNameSegment;
     public override RouteSegment RouteSegment => Segment;
-    internal override ViewMap? View => Segment.ParentNameSegment.View;
+    internal override ViewMap? View => Segment.ParentNameSegment.ViewMap;
 }
 
 public record DialogSegmentNavigationRequest : NavigationRequest
@@ -58,5 +58,5 @@ public record DialogSegmentNavigationRequest : NavigationRequest
         _ => throw new NotSupportedException("Not supported segment type.")
     };
     public override RouteSegment RouteSegment => Segment;
-    internal override ViewMap? View => Segment.View;
+    internal override ViewMap? View => Segment.ViewMap;
 }

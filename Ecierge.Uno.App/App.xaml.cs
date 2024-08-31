@@ -117,9 +117,7 @@ public partial class App : Application
             new ViewMap<SecondPage, SecondViewModel>()
         );
 
-        data.Register(
-                new EntityViewDataMap()
-            );
+        data.Register<EntityNavigationDataMap>();
 
         routes.Register((views, data) => [
             //new NameSegment("", views[typeof(Shell)],
