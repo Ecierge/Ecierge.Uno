@@ -2,6 +2,8 @@ namespace Ecierge.Uno.Navigation;
 
 using System.Collections.Immutable;
 
+using Ecierge.Uno.Navigation.Routing;
+
 public abstract record RouteSegment(string Name)
 {
     internal RouteSegment ParentSegment { get; set; } = null!;
@@ -18,6 +20,16 @@ public abstract record RouteSegment(string Name)
     }
 
     public abstract ImmutableArray<NameSegment> Nested { get; protected init; }
+
+    public NameSegment this[string name]
+    {
+        get
+        {
+            var segment = Nested.FirstOrDefault(s => s.Name == name);
+            if (segment is not null) return segment;
+            throw new NestedSegmentNotFoundException(this, name);
+        }
+    }
 }
 
 public record NameSegment : RouteSegment
