@@ -105,8 +105,8 @@
         </Button>
         <!-- Route.NestedSegmentName -->
         <SelectorBar x:Name="SelectorBar" nav:NavigationRegion.ForSegment="Main">
-          <SelectorBarItem x:Name="SelectorBarItem1" Text="Tab1" />
-          <SelectorBarItem x:Name="SelectorBarItem2" Text="Tab2" />
+          <SelectorBarItem x:Name="SelectorBarItem1" nav:Route.SegmentName="Tab1" Text="Tab1" />
+          <SelectorBarItem x:Name="SelectorBarItem2" nav:Route.SegmentName="Tab2" Text="Tab2" />
         </SelectorBar>
         <Grid>
           <TextBlock x:Name="Tab1Content" Visibility="Collapsed">Tab1 Content</TextBlock>

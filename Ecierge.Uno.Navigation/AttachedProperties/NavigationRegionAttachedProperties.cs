@@ -104,13 +104,13 @@ public static class NavigationRegion
     /// Gets the NavigatorType property. This dependency property
     /// indicates the navigator type used.
     /// </summary>
-    internal static Type? GetNavigatorType([NotNull] this FrameworkElement element) => (Type)element.GetValue(NavigatorTypeProperty);
+    public static Type? GetNavigatorType([NotNull] this FrameworkElement element) => (Type)element.GetValue(NavigatorTypeProperty);
 
     /// <summary>
     /// Sets the NavigatorType property. This dependency property
     /// indicates the navigator type used.
     /// </summary>
-    internal static void SetNavigatorType([NotNull] this FrameworkElement element, Type value) => element.SetValue(NavigatorTypeProperty, value);
+    public static void SetNavigatorType([NotNull] this FrameworkElement element, Type value) => element.SetValue(NavigatorTypeProperty, value);
 
     #endregion NavigatorType
 }

@@ -33,8 +33,7 @@ internal static class TypeExtensions
             var dataRegistry = services.GetRequiredService<INavigationDataRegistry>();
             foreach (var para in paras)
             {
-                // TODO: Improve lookup performance
-                if (dataRegistry.Items.Any(map => para.ParameterType.IsAssignableFrom(map.PrimitiveType)))
+                if (dataRegistry.HasAssignablePrimitive(para.ParameterType))
                 {
                     if (navigationData.TryGetValue(para.Name!, out var data))
                     {
@@ -45,9 +44,9 @@ internal static class TypeExtensions
                 else if (para.ParameterType.GetGenericTypeDefinition() == typeof(Task<>))
                 {
                     var entityType = para.ParameterType.GetGenericArguments().First();
-                    var map = dataRegistry.Items.FirstOrDefault(map => entityType.IsAssignableFrom(map.EntityType));
-                    if (map is not null)
+                    if (dataRegistry.TryGetForAssignableEntity(entityType, out var dataMapType))
                     {
+                        var map = (INavigationDataMap)services.GetRequiredService(dataMapType);
                         var task = map.FromNavigationData(navigationData, para.Name!);
                         args.Add(TaskConverter.Convert(task, entityType));
                         continue;
@@ -89,4 +88,21 @@ internal static class TypeExtensions
         }
     }
 
+    internal static IEnumerable<Type> GetBaseTypes(this Type type)
+    {
+        var previousType = type;
+        while (true)
+        {
+            var baseType = previousType.BaseType;
+            if (baseType is null || baseType.FullName == previousType.FullName)
+            {
+                yield break;
+            }
+            else
+            {
+                yield return baseType;
+                previousType = baseType;
+            }
+        }
+    }
 }

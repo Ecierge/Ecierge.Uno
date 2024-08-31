@@ -16,11 +16,10 @@ public static class WindowExtensions
     public static async Task NavigateAsync<TShell>(
         [NotNull] this Window window,
         IServiceProvider serviceProvider,
-        Func<IServiceProvider, Navigator, Task>? initialNavigate,
+        Func<IServiceProvider, Navigator, Task>? initialNavigate = null,
         Func<TShell, ContentControl>? getNavigationRoot = null)
     where TShell : Control
     {
-        window = window ?? throw new ArgumentNullException(nameof(window));
         serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 
         var appRoot = serviceProvider.GetRequiredService<TShell>();
@@ -46,7 +45,7 @@ public static class WindowExtensions
         var rootSegment = serviceProvider.GetRequiredService<IRouteRegistry>().RootSegment;
         rootSegment = new NameSegment(Qualifiers.Root, viewMap, isDefault: true, nested: rootSegment.Nested);
 #pragma warning disable CA2000 // Dispose objects before losing scope
-        var navigationScope = new NavigationScope(serviceProvider.CreateScope(), window, rootSegment, navRoot, null);
+        var navigationScope = new NavigationScope(serviceProvider.CreateScope(), window, rootSegment, navRoot);
 #pragma warning restore CA2000 // Dispose objects before losing scope
         navRoot.AttachRootNavigationRegion(navigationScope);
 
@@ -67,5 +66,10 @@ public static class WindowExtensions
         {
             await navigator.NavigateDefaultAsync(Application.Current, rootSegment);
         }
+    }
+
+    public static Navigator GetRootNavigator([NotNull] this Window window)
+    {
+        return Navigation.GetRootNavigator((FrameworkElement)window.Content!);
     }
 }

@@ -25,28 +25,52 @@ public sealed class NavigationScope : IServiceScope, IDisposable
 
     public IServiceProvider ServiceProvider => serviceScope.ServiceProvider;
 
-    private NavigationScope(IServiceScope serviceScope, Window window, NameSegment segment, Navigator? parentNavigator)
+    public NavigationScope(IServiceScope serviceScope, Window window, NameSegment segment, FrameworkElement element)
     {
         this.serviceScope = serviceScope ?? throw new ArgumentNullException(nameof(serviceScope));
         window = window ?? throw new ArgumentNullException(nameof(window));
         this.Segment = segment ?? throw new ArgumentNullException(nameof(segment));
+        element = element ?? throw new ArgumentNullException(nameof(element));
 
         var serviceProvider = this.ServiceProvider;
         serviceProvider.AddScopedInstance(WindowType, window);
         serviceProvider.AddScopedInstance(DispatcherType, window.DispatcherQueue);
         serviceProvider.AddScopedInstance(NavigationScopeType, this);
         serviceProvider.AddScopedInstance(NameSegmentType, segment);
+        serviceProvider.AddScopedInstance(FrameworkElementType, element);
+        serviceProvider.AddScopedInstance(NavigatorType, GetNavigator(element, null));
     }
 
-    public NavigationScope(IServiceScope serviceScope, Window window, NameSegment segment, FrameworkElement element, Navigator? parentNavigator)
-        : this(serviceScope, window, segment, parentNavigator)
+    private NavigationScope(Navigator parentNavigator, NameSegment segment)
+    {
+        parentNavigator = parentNavigator ?? throw new ArgumentNullException(nameof(parentNavigator));
+        Segment = segment ?? throw new ArgumentNullException(nameof(segment));
+
+        serviceScope = parentNavigator.ServiceProvider.CreateScope();
+        var serviceProvider = this.ServiceProvider;
+        serviceProvider.CloneScopedInstance<Window>(parentNavigator.ServiceProvider);
+        serviceProvider.CloneScopedInstance<DispatcherQueue>(parentNavigator.ServiceProvider);
+        serviceProvider.AddScopedInstance(NavigationScopeType, this);
+        serviceProvider.AddScopedInstance(NameSegmentType, segment);
+        var scopedInstanceOptions = serviceProvider.GetService<IOptions<ScopedInstanceRepositoryOptions>>()?.Value;
+        if (scopedInstanceOptions is not null)
+        {
+            foreach (var type in scopedInstanceOptions.TypesToClone)
+            {
+                serviceProvider.TryCloneScopedInstance(type, parentNavigator.ServiceProvider);
+            }
+        }
+    }
+
+    public NavigationScope(Navigator parentNavigator, NameSegment segment, FrameworkElement element)
+        : this(parentNavigator, segment)
     {
         element = element ?? throw new ArgumentNullException(nameof(element));
-
         var serviceProvider = this.ServiceProvider;
         serviceProvider.AddScopedInstance(FrameworkElementType, element);
         serviceProvider.AddScopedInstance(NavigatorType, GetNavigator(element, parentNavigator));
     }
+
 
     private bool isDisposed;
 
@@ -66,13 +90,8 @@ public sealed class NavigationScope : IServiceScope, IDisposable
         }
     }
 
-    public NavigationScope CreateScope(NameSegment segment, FrameworkElement element, Navigator parentNavigator)
-     => new NavigationScope(
-         this.ServiceProvider.CreateScope(),
-         this.ServiceProvider.GetRequiredService<Window>(),
-         segment,
-         element,
-         parentNavigator);
+    public NavigationScope CreateScope(Navigator parentNavigator, NameSegment segment, FrameworkElement element)
+     => new NavigationScope(parentNavigator, segment, element);
 
     public NavigationScope CreateDialogScope(DialogSegment segment, Navigator parentNavigator)
     {
@@ -83,11 +102,7 @@ public sealed class NavigationScope : IServiceScope, IDisposable
         }
 
         var serviceProvider = lastNavigator.Region.Scope.ServiceProvider;
-        var navigationScope = new NavigationScope(
-            serviceProvider.CreateScope(),
-            serviceProvider.GetRequiredService<Window>(),
-            segment,
-            lastNavigator);
+        var navigationScope = new NavigationScope(lastNavigator, segment);
         serviceProvider = navigationScope.ServiceProvider;
 
         var options = serviceProvider.GetRequiredService<IOptions<NavigationOptions>>().Value;

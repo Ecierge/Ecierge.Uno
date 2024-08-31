@@ -14,8 +14,8 @@ public record struct NavigationResult
         Errors = Array.Empty<string>();
     }
 
-    public NavigationResult(params string[] args) => Errors = args ?? throw new ArgumentNullException(nameof(args));
-    public NavigationResult(IReadOnlyList<string> args) => Errors = args ?? throw new ArgumentNullException(nameof(args));
+    public NavigationResult(params string[] errors) => Errors = errors ?? throw new ArgumentNullException(nameof(errors));
+    public NavigationResult(IReadOnlyList<string> erros) => Errors = erros ?? throw new ArgumentNullException(nameof(erros));
 }
 
 public record struct NavigationResult<T>

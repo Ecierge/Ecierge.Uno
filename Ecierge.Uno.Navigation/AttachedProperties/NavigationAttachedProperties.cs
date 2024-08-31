@@ -1,6 +1,6 @@
 namespace Ecierge.Uno.Navigation;
 
-
+using Ecierge.Uno.Navigation.Navigators;
 using Ecierge.Uno.Navigation.Routing;
 
 using System.Collections.Immutable;
@@ -66,7 +66,7 @@ public static class Navigation
 
         if (nestedSegment is null) throw new NestedSegmentMissingException(value, parentSegmentName);
 #pragma warning disable CA2000 // Dispose objects before losing scope
-        var scope = parentNavigationRegion.Scope.CreateScope(nestedSegment, element, parentNavigationRegion.Navigator);
+        var scope = parentNavigationRegion.Scope.CreateScope(parentNavigationRegion.Navigator, nestedSegment, element);
 #pragma warning restore CA2000 // Dispose objects before losing scope
         var navigationRegion = new Regions.NavigationRegion(scope)
         {

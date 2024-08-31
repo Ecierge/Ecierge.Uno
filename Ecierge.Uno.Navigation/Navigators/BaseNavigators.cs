@@ -40,11 +40,10 @@ public abstract class FactoryNavigator<TTarget> : Navigator<TTarget>
     {
         FrameworkElement target = Region!.Target!;
         TaskCompletionSource tcs = new();
-        var dispatcher = Region.Scope.ServiceProvider.GetRequiredService<DispatcherQueue>();
+        var dispatcher = ServiceProvider.GetRequiredService<DispatcherQueue>();
         void Loaded(object? s, object? e)
         {
             dispatcher.TryEnqueue(DispatcherQueuePriority.Low, () => tcs.SetResult());
-            //tcs.SetResult();
             target.Loaded -= Loaded;
         }
         target.Loaded += Loaded;
