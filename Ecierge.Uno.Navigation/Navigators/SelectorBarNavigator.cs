@@ -6,6 +6,8 @@ using Ecierge.Uno.Navigation;
 
 using Microsoft.Extensions.Logging;
 
+using RouteProperties = Uno.Navigation.Route;
+
 internal class SelectorBarNavigator : SelectorNavigator<SelectorBar>
 {
     protected string navigatedName = string.Empty;
@@ -20,7 +22,7 @@ internal class SelectorBarNavigator : SelectorNavigator<SelectorBar>
             var selectedItem = Target.SelectedItem;
             if (selectedItem == navigatedItem) return;
 
-            var segmentName = selectedItem.Name ?? selectedItem.Text;
+            var segmentName = RouteProperties.GetSegmentName(selectedItem);
             var segment = Region.Segment.Nested.FirstOrDefault(s => s.Name == segmentName);
             if (segment is null)
             {
@@ -43,15 +45,18 @@ internal class SelectorBarNavigator : SelectorNavigator<SelectorBar>
         if (navigatedName == request.NameSegment.Name) return new NavigationResult(request.RouteSegment);
 
         var selectorBar = (SelectorBar)Region!.Target!;
-        var item = selectorBar.Items.FirstOrDefault(i => i.Name == request.NameSegment.Name);
+        var item =
+            selectorBar.Items.FirstOrDefault(
+                i => RouteProperties.GetSegmentName(i) == request.NameSegment.Name
+            );
         if (item is null)
         {
             item = selectorBar.Items.FirstOrDefault(i => i.Text == request.NameSegment.Name);
         }
         if (item is null)
         {
-            Logger.LogWarning("No SelectorBarItem item found with name or text '{segmentName}'", request.NameSegment.Name);
-            return new NavigationResult($"No SelectorBarItem item found with name or text '{request.NameSegment.Name}'");
+            Logger.LogWarning("No SelectorBarItem item found with Route.SegmentName or Name '{segmentName}'", request.NameSegment.Name);
+            return new NavigationResult($"No SelectorBarItem item found with Route.SegmentName or Name '{request.NameSegment.Name}'");
         }
         navigatedName = request.NameSegment.Name;
         navigatedItem = item;

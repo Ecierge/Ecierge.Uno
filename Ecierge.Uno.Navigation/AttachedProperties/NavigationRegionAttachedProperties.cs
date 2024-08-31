@@ -113,4 +113,26 @@ public static class NavigationRegion
     public static void SetNavigatorType([NotNull] this FrameworkElement element, Type value) => element.SetValue(NavigatorTypeProperty, value);
 
     #endregion NavigatorType
+
+    #region ItemSelectorType
+
+    /// <summary>
+    /// ItemSelectorType Attached Dependency Property
+    /// </summary>
+    public static readonly DependencyProperty ItemSelectorTypeProperty =
+        DependencyProperty.RegisterAttached("ItemSelectorType", typeof(Type), typeof(NavigationRegion), new((Type?)null));
+
+    /// <summary>
+    /// Gets the ItemSelectorType property. This dependency property
+    /// indicates the item selector type used to select an item if navigated from code.
+    /// </summary>
+    public static Type? GetItemSelectorType(DependencyObject d) => (Type?)d.GetValue(ItemSelectorTypeProperty);
+
+    /// <summary>
+    /// Sets the ItemSelectorType property. This dependency property
+    /// indicates the item selector type used to select an item if navigated from code.
+    /// </summary>
+    public static void SetItemSelectorType(DependencyObject d, Type value) => d.SetValue(ItemSelectorTypeProperty, value);
+
+    #endregion ItemSelectorType
 }
