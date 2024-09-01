@@ -33,6 +33,8 @@ internal class SelectorBarNavigator : SelectorNavigator<SelectorBar>
                     Logger.LogWarning($"No segment found with name '{segmentName}'");
                     return;
                 }
+                navigatedName = segmentName;
+                navigatedItem = selectedItem;
             }
 
             var request = new NameSegmentNavigationRequest(s, segment);

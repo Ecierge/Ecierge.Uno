@@ -12,5 +12,5 @@ public abstract class ItemSelector<TTarget> where TTarget : FrameworkElement
     protected TTarget Target => (TTarget)Navigator.Target;
     protected ILogger Logger => Navigator.ServiceProvider.GetRequiredService<ILogger<ItemSelector<TTarget>>>();
 
-    public abstract NavigationResult SelectItem();
+    public abstract NavigationResult SelectItem(NavigationRequest request);
 }

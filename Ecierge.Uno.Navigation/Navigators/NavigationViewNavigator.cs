@@ -12,12 +12,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Dispatching;
 
+using RouteProperties = Ecierge.Uno.Navigation.Route;
+
 public class ByNameNavigationViewItemSelector : ItemSelector<NavigationView>
 {
-    public override NavigationResult SelectItem()
+    public override NavigationResult SelectItem(NavigationRequest request)
     {
-        var selectedItem = Target.SelectedItem;
-
         // TODO: Make lazy
         List<NavigationViewItem> allContainers = new();
         void AddItems(object item)
@@ -43,17 +43,18 @@ public class ByNameNavigationViewItemSelector : ItemSelector<NavigationView>
         //var menuItemContainers = Target.MenuItems.Select(i => (NavigationViewItem)Target.ContainerFromMenuItem(i));
         //var footerItemsContainers = Target.FooterMenuItems.Select(i => (NavigationViewItem)Target.ContainerFromMenuItem(i));
         //var allContainers = menuItemContainers.Concat(footerItemsContainers);
-        NameSegment segment = Navigator.Region.Segment;
+        NameSegment segment = request.NameSegment;
         var segmentName = segment.Name;
-        var containerToSelect = allContainers.FirstOrDefault(c => c.Name == segmentName);
+        var containerToSelect = allContainers.FirstOrDefault(c => RouteProperties.GetSegmentName(c) == segmentName);
         if (containerToSelect != default)
         {
             var itemToSelect = Target.MenuItemFromContainer(containerToSelect);
             Target.SelectedItem = itemToSelect;
-            return new NavigationResult(segment);
+            return new NavigationResult(request.RouteSegment);
         }
         else
         {
+            Target.SelectedItem = null;
             Logger.LogWarning("No NavigationViewItem item found with name or text '{segmentName}'", segmentName);
             return new NavigationResult($"No NavigationViewItem item found with name or text '{segmentName}'");
         }
@@ -73,28 +74,38 @@ public class NavigationViewNavigator : SelectorNavigator<NavigationView>
     {
         Type itemSelectorType = NavigationRegion.GetItemSelectorType(Target) ?? typeof(ByNameNavigationViewItemSelector);
         itemSelector = (ItemSelector<NavigationView>)ServiceProvider.GetRequiredService(itemSelectorType);
+        itemSelector.Navigator = this;
         Target.SelectionChanged += async (s, e) =>
         {
             var selectedItem = Target.SelectedItem;
             if (selectedItem == navigatedItem) return;
             navigatedItem = selectedItem;
             var selectedContainer = (NavigationViewItem)Target.ContainerFromMenuItem(selectedItem);
-            var itemName = selectedContainer.Name ?? Target.SelectedItem as string;
-            if (itemName is null) return;
+            var segmentName = RouteProperties.GetSegmentName(selectedContainer);
+            if (segmentName is null) return;
 
-            var segment = Region.Segment.Nested.FirstOrDefault(s => s.Name == itemName);
+            var segment = Region.Segment.Nested.FirstOrDefault(s => s.Name == segmentName);
             if (segment is null)
             {
-                Logger.LogWarning($"No segment found with name '{itemName}'");
+                Logger.LogWarning($"No segment found with name '{segmentName}'");
                 return;
             }
+            navigatedName = segmentName;
+            navigatedItem = selectedItem;
 
             var request = new NameSegmentNavigationRequest(s, segment);
             await NavigateAsync(request);
         };
     }
 
-    protected override NavigationResult SelectItem(NavigationRequest request) => itemSelector.SelectItem();
+    protected override NavigationResult SelectItem(NavigationRequest request)
+    {
+        var result = itemSelector.SelectItem(request);
+        if (!result.Success) return result;
+        navigatedItem = Target.SelectedItem;
+        navigatedName = request.NameSegment.Name;
+        return result;
+    }
 }
 
 public class NavigationViewContentNavigator : FactoryNavigator<NavigationView>
@@ -121,13 +132,13 @@ public class NavigationViewContentNavigator : FactoryNavigator<NavigationView>
         if (!result.Success) return result;
 
         navigatedName = request.NameSegment.Name;
+        navigatedItem = Target.SelectedItem;
         var view = result.Result;
         Target.Content = view;
 
-        var dispatcher = ServiceProvider.GetRequiredService<DispatcherQueue>();
-        dispatcher.TryEnqueue(DispatcherQueuePriority.Low, () =>
+        Target.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, () =>
         {
-            itemSelector.SelectItem();
+            itemSelector.SelectItem(request);
         });
 
         return new NavigationResult(request.RouteSegment, view);
