@@ -28,7 +28,7 @@ internal static class TypeExtensions
         if (ctr is not null)
         {
             var paras = ctr.GetParameters();
-            var args = new List<object>();
+            var args = new List<object?>();
             var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger("Ecierge.Uno.Navigation");
             var dataRegistry = services.GetRequiredService<INavigationDataRegistry>();
             foreach (var para in paras)
@@ -41,14 +41,29 @@ internal static class TypeExtensions
                         continue;
                     }
                 }
-                else if (para.ParameterType.GetGenericTypeDefinition() == typeof(Task<>))
+                else if (para.ParameterType.IsGenericType && para.ParameterType.GetGenericTypeDefinition() == typeof(Task<>))
                 {
                     var entityType = para.ParameterType.GetGenericArguments().First();
                     if (dataRegistry.TryGetForAssignableEntity(entityType, out var dataMapType))
                     {
                         var map = (INavigationDataMap)services.GetRequiredService(dataMapType);
-                        var task = map.FromNavigationData(navigationData, para.Name!);
-                        args.Add(TaskConverter.Convert(task, entityType));
+                        if (map.HasValue(navigationData, para.Name!))
+                        {
+                            var task = map.FromNavigationData(navigationData, para.Name!);
+                            args.Add(TaskConverter.Convert(task, entityType));
+                        }
+                        else if (para.IsOptional && para.DefaultValue is not Missing)
+                        {
+                            args.Add(para.DefaultValue);
+                        }
+                        else
+                        {
+                            logger.LogWarning("No data found for parameter '{parameterName}' of type '{type}'", para.Name, para.ParameterType);
+                            if (para.ParameterType.IsValueType)
+                                args.Add(Activator.CreateInstance(para.ParameterType));
+                            else
+                                args.Add(null);
+                        }
                         continue;
                     }
                     else

@@ -6,6 +6,7 @@ public interface INavigationDataMap
 {
     static abstract Type PrimitiveType { get; }
     static abstract Type EntityType { get; }
+    bool HasValue(INavigationData data, string name);
     Task<object> FromNavigationData(INavigationData data, string name);
     RouteData ToNavigationData(INavigationData? data, string name, object value);
 }
