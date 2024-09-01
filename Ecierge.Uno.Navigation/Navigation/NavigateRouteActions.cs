@@ -4,6 +4,8 @@ using Microsoft.Xaml.Interactivity;
 
 public abstract partial class NavigateRouteActionBase : DependencyObject
 {
+    protected Regions.NavigationRegion? navigationRegion;
+
     #region Route
 
     /// <summary>
@@ -51,10 +53,13 @@ public partial class NavigateRootRouteActionBase : NavigateRouteActionBase, IAct
 {
     public object? Execute(object sender, object parameter)
     {
-        if (sender is FrameworkElement element)
+        if (navigationRegion is null && sender is FrameworkElement element)
         {
-            var navigationRegion = element.FindNavigationRegion();
+            navigationRegion = element.FindNavigationRegion();
             if (navigationRegion is null) throw new NavigationRegionMissingException(element);
+        }
+        if (navigationRegion is not null)
+        {
             return navigationRegion.Navigator.RootNavigator.NavigateRouteAsync(sender, Route!, NavigationData);
         }
         return null;
@@ -90,11 +95,14 @@ public partial class NavigateLocalRouteAction : NavigateTargetRouteActionBase, I
     {
         var target = Target ?? sender;
 
-        if (target is FrameworkElement element)
+        if (navigationRegion is null && target is FrameworkElement element)
         {
-            var navigationRegion = element.FindNavigationRegion();
+            navigationRegion = element.FindNavigationRegion();
             if (navigationRegion is null) throw new NavigationRegionMissingException(element);
-            return navigationRegion.Navigator.RootNavigator.NavigateRouteAsync(sender, Route!, NavigationData);
+        }
+        if (navigationRegion is not null)
+        {
+            return navigationRegion.Navigator.NavigateRouteAsync(sender, Route!, NavigationData);
         }
         return null;
     }
@@ -105,10 +113,13 @@ public partial class NavigateNestedRouteAction : NavigateTargetRouteActionBase, 
     public object? Execute(object sender, object parameter)
     {
         var target = Target ?? sender;
-        if (target is FrameworkElement element)
+        if (navigationRegion is null && target is FrameworkElement element)
         {
-            var navigationRegion = element.FindNavigationRegion();
+            navigationRegion = element.FindNavigationRegion();
             if (navigationRegion is null) throw new NavigationRegionMissingException(element);
+        }
+        if (navigationRegion is not null)
+        {
             return navigationRegion.Navigator.ChildNavigator!.NavigateRouteAsync(sender, Route!, NavigationData);
         }
         return null;
