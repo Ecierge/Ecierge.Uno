@@ -4,8 +4,9 @@ using Ecierge.Uno.Navigation.Navigators;
 using Ecierge.Uno.Navigation.Routing;
 
 using System.Collections.Immutable;
-
 using System.Diagnostics.CodeAnalysis;
+
+using CommunityToolkit.WinUI;
 
 public static class Navigation
 {
@@ -20,12 +21,17 @@ public static class Navigation
 
     internal static Regions.NavigationRegion FindNavigationRegion([NotNull] this FrameworkElement element)
     {
-        var regionElement = element;
         var navigationRegion = element.GetNavigationRegion();
-        while (navigationRegion is null && regionElement.Parent is not null)
+        if (navigationRegion is not null) return navigationRegion;
+
+        foreach (FrameworkElement parent in element.FindAscendants().OfType<FrameworkElement>())
         {
-            regionElement = (FrameworkElement)regionElement.Parent;
-            navigationRegion = regionElement.GetNavigationRegion();
+            navigationRegion = parent.GetNavigationRegion();
+            if (navigationRegion is not null)
+            {
+                element.SetNavigationRegion(navigationRegion);
+                break;
+            }
         }
         if (navigationRegion is null)
         {
