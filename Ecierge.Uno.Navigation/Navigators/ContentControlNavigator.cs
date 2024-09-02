@@ -3,7 +3,13 @@ namespace Ecierge.Uno.Navigation.Navigators;
 using System;
 using System.Threading.Tasks;
 
-public class ContentControlNavigator : FactoryNavigator<ContentControl>
+public abstract class ContentControlNavigatorBase<TContentControl>(IServiceProvider serviceProvider) : FactoryNavigator<TContentControl>(serviceProvider)
+    where TContentControl : ContentControl
+{
+    protected override FrameworkElement? WaitForVisualTreeTarget => Target.Content as FrameworkElement;
+}
+
+public class ContentControlNavigator : ContentControlNavigatorBase<ContentControl>
 {
     public ContentControlNavigator(IServiceProvider serviceProvider) : base(serviceProvider) { }
 

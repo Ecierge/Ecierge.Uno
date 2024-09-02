@@ -34,21 +34,19 @@ public static class NavigationRegion
 
         if (d is FrameworkElement element)
         {
-            FrameworkElement root = element;
-            while (root!.Parent is not null)
+            if (!element.IsLoaded)
             {
-                if (root.GetNavigationRegion() is not null) break;
-                root = (FrameworkElement)root.Parent!;
+                element.Loaded += OnLoaded;
             }
-
-            root.SetNavigationTarget(element);
-
-            element.Loaded += OnLoaded;
+            else
+            {
+                element.SetSegment(newSegmentName);
+            }
 
             void OnLoaded(object e, RoutedEventArgs args)
             {
                 element.Loaded -= OnLoaded;
-                element.SetSegment(newSegmentName, root);
+                element.SetSegment(newSegmentName);
                 element.Unloaded += OnUnloaded;
             }
 
@@ -63,6 +61,28 @@ public static class NavigationRegion
     }
 
     #endregion ForSegment
+
+    #region IsBoundary
+
+    /// <summary>
+    /// IsBoundary Attached Dependency Property
+    /// </summary>
+    public static readonly DependencyProperty IsBoundaryProperty =
+        DependencyProperty.RegisterAttached("IsBoundary", typeof(bool), typeof(NavigationRegion), new ((bool)false));
+
+    /// <summary>
+    /// Gets the IsBoundary property. This dependency property
+    /// indicates if current element is navigation boundary.
+    /// </summary>
+    public static bool GetIsBoundary(DependencyObject d) => (bool)d.GetValue(IsBoundaryProperty);
+
+    /// <summary>
+    /// Sets the IsBoundary property. This dependency property
+    /// indicates if current element is navigation boundary.
+    /// </summary>
+    public static void SetIsBoundary(DependencyObject d, bool value) => d.SetValue(IsBoundaryProperty, value);
+
+    #endregion
 
     #region NestedSegmentName
 

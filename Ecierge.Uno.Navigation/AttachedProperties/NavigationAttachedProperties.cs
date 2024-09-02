@@ -40,12 +40,14 @@ public static class Navigation
         return navigationRegion;
     }
 
-    public static void SetSegment([NotNull] this FrameworkElement element, string value, FrameworkElement root)
+    public static void SetSegment([NotNull] this FrameworkElement element, string value)
     {
         var parentNavigationRegion =
-            root.GetNavigationRegion() ??
-            root.FindParentNavigationRegion() ??
+            element.FindParentNavigationRegion() ??
             throw new RootNavigationRegionMissingException();
+
+        var navigationBoundary = element.FindNavigationBoundary();
+
         var parentSegment = parentNavigationRegion.Segment;
         ImmutableArray<NameSegment> nestedSegments;
         string parentSegmentName;
@@ -78,10 +80,18 @@ public static class Navigation
         {
             Parent = parentNavigationRegion,
             Target = element,
-            Root = root
+            Root = navigationBoundary
         };
 
         element.SetNavigationRegion(navigationRegion);
+        if (navigationBoundary is not null)
+        {
+            FrameworkElement? parent = element;
+            while ((parent = parent!.Parent as FrameworkElement) is not null && parent != navigationBoundary)
+            {
+                parent.SetNavigationRegion(navigationRegion);
+            }
+        }
     }
 
     #endregion NavigationInfo

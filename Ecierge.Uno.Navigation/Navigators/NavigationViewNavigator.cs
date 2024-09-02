@@ -108,7 +108,7 @@ public class NavigationViewNavigator : SelectorNavigator<NavigationView>
     }
 }
 
-public class NavigationViewContentNavigator : FactoryNavigator<NavigationView>
+public class NavigationViewContentNavigator : ContentControlNavigatorBase<NavigationView>
 {
     protected string navigatedName = string.Empty;
     protected object? navigatedItem = null;

@@ -12,6 +12,7 @@ using Ecierge.Uno.Navigation.Routing;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.UI.Dispatching;
 
 using MoreLinq;
 
@@ -275,6 +276,13 @@ public static class NavigatorExtensions
                 return new NavigationFailedResponse(fullRoute, navigator);
             }
 
+            if (currentNavigator.ChildNavigator is null)
+            {
+                // Wait for the visual tree to be loaded
+                var tcs = new TaskCompletionSource();
+                currentNavigator.Target.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, () => tcs.SetResult());
+                await tcs.Task;
+            }
             if (currentNavigator.ChildNavigator is not null)
                 currentNavigator = currentNavigator.ChildNavigator;
         }

@@ -71,9 +71,6 @@ public sealed class NavigationScope : IServiceScope, IDisposable
         serviceProvider.AddScopedInstance(NavigatorType, GetNavigator(element, parentNavigator));
     }
 
-
-    private bool isDisposed;
-
     ~NavigationScope() => Dispose(false);
 
     public void Dispose()

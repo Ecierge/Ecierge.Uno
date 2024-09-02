@@ -62,6 +62,7 @@ internal class SelectorBarNavigator : SelectorNavigator<SelectorBar>
         }
         navigatedName = request.NameSegment.Name;
         navigatedItem = item;
+        // TODO: Rewrite to item selector and set index
         selectorBar.SelectedItem = item;
         return new NavigationResult(request.RouteSegment);
     }

@@ -2,6 +2,8 @@ namespace Ecierge.Uno.Navigation.Navigators;
 
 using System.Threading.Tasks;
 
+using CommunityToolkit.WinUI;
+
 using Ecierge.Uno.Navigation;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -36,18 +38,23 @@ public abstract class FactoryNavigator<TTarget> : Navigator<TTarget>
         return new NavigationResult(request.RouteSegment, view);
     }
 
+    protected virtual FrameworkElement? WaitForVisualTreeTarget => Target;
+
     protected override async ValueTask WaitForVisualTree()
     {
-        FrameworkElement target = Region!.Target!;
-        TaskCompletionSource tcs = new();
-        var dispatcher = ServiceProvider.GetRequiredService<DispatcherQueue>();
-        void Loaded(object? s, object? e)
+        FrameworkElement? target = WaitForVisualTreeTarget;
+        if (target is null) return;
+        if (!target.IsLoaded)
         {
-            dispatcher.TryEnqueue(DispatcherQueuePriority.Low, () => tcs.SetResult());
-            target.Loaded -= Loaded;
+            TaskCompletionSource tcs = new();
+            void Loaded(object? s, RoutedEventArgs? e)
+            {
+                target.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, () => tcs.SetResult());
+                target.Loaded -= Loaded;
+            }
+            target.Loaded += Loaded;
+            await tcs.Task;
         }
-        target.Loaded += Loaded;
-        await tcs.Task;
     }
 }
 

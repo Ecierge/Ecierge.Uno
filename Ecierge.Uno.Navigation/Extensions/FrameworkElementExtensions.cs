@@ -18,14 +18,26 @@ public static class FrameworkElementExtensions
 
     internal static Regions.NavigationRegion? FindParentNavigationRegion([NotNull] this FrameworkElement element)
     {
-        var parent = element.Parent as FrameworkElement;
-        while (parent is not null)
+        var parent = element as FrameworkElement;
+        while ((parent = parent!.Parent as FrameworkElement) is not null)
         {
             if (parent.GetNavigationRegion() is Regions.NavigationRegion navigationRegion)
             {
                 return navigationRegion;
             }
-            parent = parent.Parent as FrameworkElement;
+        }
+        return null;
+    }
+
+    internal static FrameworkElement? FindNavigationBoundary([NotNull] this FrameworkElement element)
+    {
+        var parent = element;
+        while ((parent = parent!.Parent as FrameworkElement) is not null)
+        {
+            if (NavigationRegion.GetIsBoundary(parent) || parent.GetType().IsAssignableTo(typeof(Page)) || parent.GetNavigationRegion() is not null)
+            {
+                return parent;
+            }
         }
         return null;
     }
