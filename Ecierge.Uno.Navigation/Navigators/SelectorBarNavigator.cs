@@ -10,6 +10,7 @@ using RouteProperties = Uno.Navigation.Route;
 
 internal class SelectorBarNavigator : SelectorNavigator<SelectorBar>
 {
+    private bool isFirstNavigation = true;
     protected string navigatedName = string.Empty;
     protected SelectorBarItem? navigatedItem = null;
 
@@ -37,8 +38,16 @@ internal class SelectorBarNavigator : SelectorNavigator<SelectorBar>
                 navigatedItem = selectedItem;
             }
 
-            var request = new NameSegmentNavigationRequest(s, segment);
-            await NavigateAsync(request);
+            if (isFirstNavigation)
+            {
+                isFirstNavigation = false;
+                _ = this.NavigateSegmentAsync(s, segment);
+            }
+            else
+            {
+                var request = new NameSegmentNavigationRequest(s, segment);
+                await NavigateAsync(request);
+            }
         };
     }
 

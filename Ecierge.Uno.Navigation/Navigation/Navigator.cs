@@ -162,6 +162,13 @@ public abstract class Navigator
 
     protected abstract ValueTask<NavigationResult> NavigateCoreAsync(NavigationRequest request);
 
+    public async Task WaitForVisualTreeAsync()
+    {
+        var tcs = new TaskCompletionSource();
+        this.Target.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, () => tcs.SetResult());
+        await tcs.Task;
+    }
+
     protected virtual ValueTask WaitForVisualTree() => ValueTask.CompletedTask;
 
     public virtual ValueTask<NavigationResult> NavigateBackAsync(object initator)
@@ -279,9 +286,7 @@ public static class NavigatorExtensions
             if (currentNavigator.ChildNavigator is null)
             {
                 // Wait for the visual tree to be loaded
-                var tcs = new TaskCompletionSource();
-                currentNavigator.Target.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, () => tcs.SetResult());
-                await tcs.Task;
+                await currentNavigator.WaitForVisualTreeAsync();
             }
             if (currentNavigator.ChildNavigator is not null)
                 currentNavigator = currentNavigator.ChildNavigator;
@@ -346,6 +351,7 @@ public static class NavigatorExtensions
             result = await navigator.NavigateAsync(new DialogSegmentNavigationRequest(initiator, dialogSegment, navigator.Region.Segment, navigationData));
             if (result.Success)
             {
+                await navigator.WaitForVisualTreeAsync();
                 await navigator.LeafNavigator.NavigateDefaultAsync(initiator, segment);
                 return new NavigationSuccessfulResponse(navigator.ActualRoute, navigator);
             }
@@ -355,6 +361,7 @@ public static class NavigatorExtensions
             result = await navigator.NavigateAsync(new NameSegmentNavigationRequest(initiator, segment, navigationData));
             if (result.Success)
             {
+                await navigator.WaitForVisualTreeAsync();
                 await navigator.NavigateNestedDefaultAsync(initiator, segment);
                 return new NavigationSuccessfulResponse(navigator.ActualRoute, navigator);
             }
@@ -367,6 +374,7 @@ public static class NavigatorExtensions
         var result = await navigator.NavigateAsync(new DataSegmentNavigationRequest(initiator, segment, routeData));
         if (result.Success)
         {
+            await navigator.WaitForVisualTreeAsync();
             await navigator.NavigateNestedDefaultAsync(initiator, segment);
             return new NavigationSuccessfulResponse(navigator.ActualRoute, navigator);
         }
