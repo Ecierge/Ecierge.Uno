@@ -1,7 +1,10 @@
 namespace Ecierge.Uno.Navigation.Regions;
 
+using System.Diagnostics;
+
 using Microsoft.Extensions.DependencyInjection;
 
+[DebuggerDisplay("{Segment.Name}")]
 public record NavigationRegion
 {
     public NavigationScope Scope { get; private set; }

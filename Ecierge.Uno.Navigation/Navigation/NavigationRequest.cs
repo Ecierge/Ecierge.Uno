@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace Ecierge.Uno.Navigation;
 
 [ImplicitKeys(IsEnabled = false)]
@@ -10,6 +12,7 @@ public abstract partial record NavigationRequest(object Sender, INavigationData?
     internal abstract ViewMap? View { get; }
 }
 
+[DebuggerDisplay("{Segment.Name}")]
 public record NameSegmentNavigationRequest(
       object Sender
     , NameSegment Segment
@@ -21,6 +24,7 @@ public record NameSegmentNavigationRequest(
     internal override ViewMap? View => Segment.ViewMap;
 }
 
+[DebuggerDisplay("{NameSegment.Name}/{Segment.Name}")]
 public record DataSegmentNavigationRequest(
       object Sender
     , DataSegment Segment
@@ -33,6 +37,7 @@ public record DataSegmentNavigationRequest(
     internal override ViewMap? View => Segment.ParentNameSegment.ViewMap;
 }
 
+[DebuggerDisplay("!{Segment.Name}")]
 public record DialogSegmentNavigationRequest : NavigationRequest
 {
     internal bool Handle { get; set; } = false;
