@@ -20,6 +20,7 @@ public abstract record RouteSegment(string Name)
     }
 
     public abstract ImmutableArray<NameSegment> Nested { get; protected init; }
+    public abstract ImmutableArray<NameSegment> NestedAfterData { get; }
 
     public NameSegment this[string name]
     {
@@ -40,6 +41,7 @@ public record NameSegment : RouteSegment
     public ViewMap? ViewMap { get; set; }
     public DataSegment? Data { get; private init; }
     public override ImmutableArray<NameSegment> Nested { get; protected init; } = ImmutableArray<NameSegment>.Empty;
+    public override ImmutableArray<NameSegment> NestedAfterData => Data is not null ? Data.Nested : Nested;
 
     public NameSegment(string name, ViewMap view, DataSegment data) : base(name)
     {
@@ -70,6 +72,7 @@ public record DataSegment : RouteSegment
     public bool IsMandatory { get; init; } = true;
     public Type? DataMap { get; private init; }
     public override ImmutableArray<NameSegment> Nested { get; protected init; }
+    public override ImmutableArray<NameSegment> NestedAfterData => Nested;
     public DataSegment(string name, Type? dataMap, bool isMandatory = true, params NameSegment[] nested) : base(name)
     {
         IsMandatory = isMandatory;

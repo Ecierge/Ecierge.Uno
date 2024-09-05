@@ -24,7 +24,7 @@ internal class SelectorBarNavigator : SelectorNavigator<SelectorBar>
             if (selectedItem == navigatedItem) return;
 
             var segmentName = RouteProperties.GetSegmentName(selectedItem);
-            var segment = Region.Segment.Nested.FirstOrDefault(s => s.Name == segmentName);
+            var segment = Region.Segment.NestedAfterData.FirstOrDefault(s => s.Name == segmentName);
             if (segment is null)
             {
                 segmentName = selectedItem.Text;

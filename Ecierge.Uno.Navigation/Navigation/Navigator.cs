@@ -331,39 +331,41 @@ public static class NavigatorExtensions
 
     public static async ValueTask<NavigationResponse> NavigateSegmentAsync([NotNull] this Navigator navigator, object initiator, NameSegment segment, object? data = null)
     {
-        NavigationData? navigationData;
+        NavigationResult result;
         if (segment.Data is DataSegment dataSegment)
         {
             if (dataSegment.IsMandatory && data is null)
                 throw new InvalidOperationException($"No data segment value found with name '{dataSegment.Name}'");
-            else
-                navigationData = new NavigationData([
-                    new (dataSegment.Name, data!)
-                ]);
-        }
-        else
-        {
-            navigationData = null;
-        }
-        NavigationResult result;
-        if (segment is DialogSegment dialogSegment)
-        {
-            result = await navigator.NavigateAsync(new DialogSegmentNavigationRequest(initiator, dialogSegment, navigator.Region.Segment, navigationData));
-            if (result.Success)
-            {
-                await navigator.WaitForVisualTreeAsync();
-                await navigator.LeafNavigator.NavigateDefaultAsync(initiator, segment);
-                return new NavigationSuccessfulResponse(navigator.ActualRoute, navigator);
-            }
-        }
-        else
-        {
-            result = await navigator.NavigateAsync(new NameSegmentNavigationRequest(initiator, segment, navigationData));
+
+            result = await navigator.NavigateAsync(new DataSegmentNavigationRequest(initiator, dataSegment, data));
             if (result.Success)
             {
                 await navigator.WaitForVisualTreeAsync();
                 await navigator.NavigateNestedDefaultAsync(initiator, segment);
                 return new NavigationSuccessfulResponse(navigator.ActualRoute, navigator);
+            }
+        }
+        else
+        {
+            if (segment is DialogSegment dialogSegment)
+            {
+                result = await navigator.NavigateAsync(new DialogSegmentNavigationRequest(initiator, dialogSegment, navigator.Region.Segment));
+                if (result.Success)
+                {
+                    await navigator.WaitForVisualTreeAsync();
+                    await navigator.LeafNavigator.NavigateDefaultAsync(initiator, segment);
+                    return new NavigationSuccessfulResponse(navigator.ActualRoute, navigator);
+                }
+            }
+            else
+            {
+                result = await navigator.NavigateAsync(new NameSegmentNavigationRequest(initiator, segment));
+                if (result.Success)
+                {
+                    await navigator.WaitForVisualTreeAsync();
+                    await navigator.NavigateNestedDefaultAsync(initiator, segment);
+                    return new NavigationSuccessfulResponse(navigator.ActualRoute, navigator);
+                }
             }
         }
         return new NavigationFailedResponse(navigator.ActualRoute, navigator);
@@ -399,13 +401,9 @@ public static class NavigatorExtensions
 
     internal static async ValueTask NavigateNestedDefaultAsync([NotNull] this Navigator navigator, object initiator, RouteSegment segment)
     {
-        ImmutableArray<NameSegment> nested;
-        if (segment is NameSegment nameSegment && nameSegment.Data is DataSegment dataSegment)
-            nested = dataSegment.Nested;
-        else
-            nested = segment.Nested;
+        ImmutableArray<NameSegment> nested = segment.NestedAfterData;
 
-        var defaultSegment = segment.Nested.SingleOrDefault(s => s.IsDefault);
+        var defaultSegment = nested.SingleOrDefault(s => s.IsDefault);
         if (defaultSegment is not null)
         {
             await navigator.ChildNavigator!.NavigateSegmentAsync(initiator, defaultSegment);

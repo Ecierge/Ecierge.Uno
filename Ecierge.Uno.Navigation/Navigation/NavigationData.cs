@@ -22,11 +22,11 @@ public class NavigationData : INavigationData
 {
     private readonly ImmutableDictionary<string, object> data;
 
-    private NavigationData() => data = ImmutableDictionary<string, object>.Empty;
+    private NavigationData() => data = ImmutableDictionary.Create<string, object>(StringComparer.InvariantCultureIgnoreCase);
     protected NavigationData(ImmutableDictionary<string, object> data) => this.data = data;
     public static NavigationData Empty { get; } = new NavigationData();
 
-    public NavigationData(IEnumerable<KeyValuePair<string, object>> data) => this.data = data.ToImmutableDictionary();
+    public NavigationData(IEnumerable<KeyValuePair<string, object>> data) => this.data = data.ToImmutableDictionary(StringComparer.InvariantCultureIgnoreCase);
 
     public object this[string key] => ((IReadOnlyDictionary<string, object>)data)[key];
 
