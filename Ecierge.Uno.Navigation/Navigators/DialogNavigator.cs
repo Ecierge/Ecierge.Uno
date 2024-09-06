@@ -66,6 +66,8 @@ public class ContentDialogNavigator : DialogNavigator<ContentDialog, ContentDial
             FrameworkElement view => new ContentDialog { Content = view },
             _ => throw new InvalidOperationException("Invalid dialog view")
         };
+        ServiceProvider.AddScopedInstance<FrameworkElement>(dialog);
+
 #if WINDOWS
         dialog.XamlRoot = ServiceProvider.GetRequiredService<Window>().Content!.XamlRoot;
 #endif
