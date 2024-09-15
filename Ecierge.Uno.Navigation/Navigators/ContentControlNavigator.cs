@@ -15,6 +15,7 @@ public class ContentControlNavigator : ContentControlNavigatorBase<ContentContro
 
     protected override async ValueTask<NavigationResult> NavigateCoreAsync(NavigationRequest request)
     {
+        // TODO: Check if view is the same as the current view
         var result = CreateView(request);
         if (!result.Success) return result;
 

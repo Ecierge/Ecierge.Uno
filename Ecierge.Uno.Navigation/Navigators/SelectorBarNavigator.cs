@@ -53,7 +53,7 @@ internal class SelectorBarNavigator : SelectorNavigator<SelectorBar>
 
     protected override NavigationResult SelectItem(NavigationRequest request)
     {
-        if (navigatedName == request.NameSegment.Name) return new NavigationResult(request.RouteSegment);
+        if (navigatedName == request.NameSegment.Name) return new NavigationResult(request.RouteSegment, isSkipped: true);
 
         var selectorBar = (SelectorBar)Region!.Target!;
         var item =

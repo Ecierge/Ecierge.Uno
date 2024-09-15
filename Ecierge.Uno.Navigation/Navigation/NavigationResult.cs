@@ -4,13 +4,15 @@ public record struct NavigationResult
 {
     public RouteSegment? SegmentNavigated { get; private set; }
     public object? Result { get; private set; }
+    public bool IsSkipped { get; private set; }
     public IReadOnlyList<string> Errors { get; private set; }
     public bool Success => SegmentNavigated is not null;
 
-    public NavigationResult(RouteSegment segmentNavigated, object? result = null)
+    public NavigationResult(RouteSegment segmentNavigated, object? result = null, bool isSkipped = false)
     {
         SegmentNavigated = segmentNavigated ?? throw new ArgumentNullException(nameof(segmentNavigated));
         Result = result;
+        IsSkipped = isSkipped;
         Errors = Array.Empty<string>();
     }
 

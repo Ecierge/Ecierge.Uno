@@ -126,7 +126,7 @@ public class NavigationViewContentNavigator : ContentControlNavigatorBase<Naviga
 
     protected override async ValueTask<NavigationResult> NavigateCoreAsync(NavigationRequest request)
     {
-        if (navigatedName == request.NameSegment.Name) return new NavigationResult(request.RouteSegment);
+        if (navigatedName == request.NameSegment.Name) return new NavigationResult(request.RouteSegment, isSkipped: true);
 
         var result = CreateView(request);
         if (!result.Success) return result;

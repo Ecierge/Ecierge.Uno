@@ -53,6 +53,7 @@ public static class ServiceCollectionExtensions
                 .AddScopedInstance<NavigationScope>()
                 .AddScopedInstance<Navigator>()
                 .AddScopedInstance<NameSegment>()
+                .AddSingleton<INavigationStatus, NavigationStatus>()
 
                 .AddScoped<NavigationData>()
                 .AddTransient<INavigationData>(sp => sp.GetRequiredService<NavigationData>())
