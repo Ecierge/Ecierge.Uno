@@ -28,7 +28,7 @@ public static class ServiceProviderExtensions
     {
         var service = source.GetService(type);
         if (service is not null)
-            return target.AddScopedInstance(service);
+            return target.AddScopedInstance(type, service);
         else
             return target;
     }
@@ -72,6 +72,33 @@ public static class ServiceProviderExtensions
     private static IInstanceRepository AddInstance(this IInstanceRepository repository, Type serviceType, object instance)
     {
         repository.Instances[serviceType] = instance;
+        return repository;
+    }
+
+    public static IServiceProvider RemoveScopedInstance<T>(this IServiceProvider provider)
+    {
+        return provider.RemoveScopedInstance(typeof(T));
+    }
+
+    public static IServiceProvider RemoveScopedInstance(this IServiceProvider provider, Type serviceType)
+    {
+        return provider.RemoveInstance<IScopedInstanceRepository>(serviceType);
+    }
+
+    public static IServiceProvider RemoveSingletonInstance<T>(this IServiceProvider provider)
+    {
+        return provider.RemoveScopedInstance(typeof(T));
+    }
+
+    private static IServiceProvider RemoveInstance<TRepository>(this IServiceProvider provider, Type serviceType) where TRepository : IInstanceRepository
+    {
+        provider.GetRequiredService<TRepository>().RemoveInstance(serviceType);
+        return provider;
+    }
+
+    private static IInstanceRepository RemoveInstance(this IInstanceRepository repository, Type serviceType)
+    {
+        repository.Instances.Remove(serviceType);
         return repository;
     }
 

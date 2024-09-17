@@ -112,11 +112,22 @@ public static class ServiceCollectionExtensions
                 //.AddTransient<IDictionary<string, object>>(services => services.GetRequiredService<NavigationDataProvider>().Parameters)
     }
 
+    public static IServiceCollection AddInheritedScopedInstance<T>(this IServiceCollection services)
+        where T : class
+    {
+#pragma warning disable CS8603 // Possible null reference return.
+        return services
+            .AddTransient<T>(sp => sp.GetInstance<T>())
+            .Configure<ScopedInstanceRepositoryOptions>(options => options.AddTypeToClone<T>());
+#pragma warning restore CS8603 // Possible null reference return.
+    }
+
     public static IServiceCollection AddScopedInstance<T>(this IServiceCollection services)
         where T : class
     {
 #pragma warning disable CS8603 // Possible null reference return.
-        return services.AddTransient<T>(sp => sp.GetInstance<T>());
+        return services
+            .AddTransient<T>(sp => sp.GetInstance<T>());
 #pragma warning restore CS8603 // Possible null reference return.
     }
 
