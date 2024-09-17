@@ -360,7 +360,7 @@ public static class NavigatorExtensions
             if (segment.Data is DataSegment dataSegment)
             {
                 object? routeData;
-                if (navigationData is null)
+                if (navigationData == default)
                     routeData = data;
                 else
                     routeData = null;
@@ -491,7 +491,7 @@ public static class NavigatorExtensions
         return navigator.NavigateSegmentAsync(initiator, nestedSegment, data);
     }
 
-    public static ValueTask<NavigationResponse> NavigateDialogSegmentAsync<TRouteData>([NotNull] this Navigator navigator, object initiator, string segmentName, TRouteData? routeData)
+    public static ValueTask<NavigationResponse> NavigateDialogSegmentAsync<TRouteData>([NotNull] this Navigator navigator, object initiator, string segmentName, TRouteData? routeData = default)
     {
         var dialogSegment = navigator.FindDialogSegmentToNavigate(segmentName);
         return navigator.NavigateSegmentAsync(initiator, dialogSegment, routeData);
