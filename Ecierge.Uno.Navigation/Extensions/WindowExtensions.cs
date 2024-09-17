@@ -28,12 +28,14 @@ public static class WindowExtensions
         bool requiresDelayedActivation = false;
         // TODO: Implement schema activation check
 #if WINDOWS10_0_17763_0_OR_GREATER
+        requiresDelayedActivation = Activation.IsAppInstanceActivationSupported() && Activation.GetProtocolActivationUriWithWindowsRuntime() is Uri;
 #elif DESKTOP
+        requiresDelayedActivation = Activation.GetProtocolActivationUriFromCommandLineArguments(Environment.GetCommandLineArgs()) is Uri;
 #else
 #endif
-        if (!requiresDelayedActivation) window.Activate();
-
         var hostLifetime = serviceProvider.GetRequiredService<IHostApplicationLifetime>();
+        if (!requiresDelayedActivation) window.Activate();
+        else await Task.Run(() => hostLifetime.ApplicationStarted.WaitHandle.WaitOne());
 
         Control navRoot = default!;
         if (getNavigationRoot is not null)
