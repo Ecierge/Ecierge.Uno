@@ -79,7 +79,7 @@ public abstract class Navigator
         switch (request)
         {
             case NameSegmentNavigationRequest nameRequest:
-                route = parentRoute.Add(nameRequest.Segment);
+                route = parentRoute.Add(nameRequest.Segment, request.NavigationData);
                 break;
             case DataSegmentNavigationRequest dataRequest:
                 DataSegment segment = dataRequest.Segment;
@@ -89,7 +89,7 @@ public abstract class Navigator
                     {
                         var dataMap = (INavigationDataMap)ServiceProvider.GetRequiredService(segment.DataMap);
                         var routeData = dataMap.ToNavigationData(dataRequest.NavigationData, segment.Name, dataRequest.RouteData);
-                        route = parentRoute.Add(segment, routeData.Primitive, dataRequest.RouteData) with { Data = routeData.NavigationData };
+                        route = parentRoute.Add(segment, routeData.Primitive, dataRequest.RouteData, request.NavigationData);
                     }
                     else
                     {
@@ -100,7 +100,7 @@ public abstract class Navigator
                 }
                 else
                 {
-                    route = parentRoute.Add(segment, dataRequest.RouteData as string, dataRequest.RouteData);
+                    route = parentRoute.Add(segment, dataRequest.RouteData as string, dataRequest.RouteData, request.NavigationData);
                 }
                 break;
             case DialogSegmentNavigationRequest dialogRequest:
@@ -136,11 +136,13 @@ public abstract class Navigator
         // When the same level navigation happened, the child navigator should be null
         // if no nested navigation happened
         ChildNavigator = null;
+        request.NavigationData?.ApplyScopedInstanceServices(ServiceProvider);
         var result = await NavigateCoreAsync(request);
         if (result.IsSkipped)
         {
             // Restore child navigator
             ChildNavigator = oldChildNavigator;
+            oldChildNavigator?.Route.Data?.ApplyScopedInstanceServices(ServiceProvider);
         }
         FrameworkElement target = Region!.Target!;
         if (result.Success)
@@ -300,7 +302,7 @@ public static class NavigatorExtensions
                 if (currentNavigator.ChildNavigator is not null)
                     currentNavigator = currentNavigator.ChildNavigator;
             }
-            return new NavigationSuccessfulResponse(route, navigator);
+            return new NavigationSuccessfulResponse(currentNavigator.ActualRoute, navigator);
         }
 
         try

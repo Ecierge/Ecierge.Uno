@@ -6,6 +6,9 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+
 public interface INavigationData : IImmutableDictionary<string, object>
 {
     TData? GetData<TData>()
@@ -14,6 +17,8 @@ public interface INavigationData : IImmutableDictionary<string, object>
     object? GetData(Type dataType);
 
     new INavigationData Add(string key, object value);
+
+    new INavigationData SetItem(string key, object value);
 
     INavigationData Union(INavigationData? other);
 }
@@ -95,4 +100,24 @@ public class NavigationData : INavigationData
     }
 
     IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)data).GetEnumerator();
+}
+
+internal static class NavigationDataExtensions
+{
+    public static void ApplyScopedInstanceServices(this INavigationData navigationData, IServiceProvider serviceProvider)
+    {
+        var scopedInstanceOptions = serviceProvider.GetService<IOptions<ScopedInstanceRepositoryOptions>>()?.Value;
+        if (scopedInstanceOptions is null)
+            return;
+
+        var typesToClone = scopedInstanceOptions.TypesToClone;
+        foreach (var value in navigationData.Values)
+        {
+            Type serviceType = value.GetType();
+            if (typesToClone.Contains(serviceType))
+            {
+                serviceProvider.AddScopedInstance(serviceType, value);
+            }
+        }
+    }
 }

@@ -74,14 +74,15 @@ public record struct Route
         return new(segments, Data, Refresh);
     }
 
-    public Route Add(NameSegment segment)
+    public Route Add(NameSegment segment, INavigationData? navigationData = null)
     {
         bool isNested = (segment is DialogSegment) || (Segments.LastOrDefault()?.Segment.Nested.Contains(segment) ?? true);
         if (!isNested) throw new InvalidOperationException("Segment is not nested.");
-        return new(Segments.Add(new NameSegmentInstance(segment)), Data, Refresh);
+        var data = Data?.Union(navigationData) ?? navigationData;
+        return new(Segments.Add(new NameSegmentInstance(segment)), data, Refresh);
     }
 
-    public Route Add(DataSegment segment, string primitive, object? data)
+    public Route Add(DataSegment segment, string primitive, object? data, INavigationData? navigationData = null)
     {
         bool isNested = Segments.LastOrDefault()?.Segment.Nested.Contains(segment.ParentNameSegment) ?? true;
         if (!isNested) throw new InvalidOperationException("Segment is not nested.");
@@ -90,7 +91,10 @@ public record struct Route
                 new NameSegmentInstance(segment.ParentNameSegment),
                 new DataSegmentInstance(segment, primitive, data)
             );
-        return new(segments, Data, Refresh);
+        navigationData = Data?.Union(navigationData) ?? navigationData;
+        if (data is not null)
+            navigationData = navigationData?.Add(segment.Name, data) ?? NavigationData.Empty.Add(segment.Name, data);
+        return new(segments, navigationData, Refresh);
     }
 
     public Route Join(Route route)

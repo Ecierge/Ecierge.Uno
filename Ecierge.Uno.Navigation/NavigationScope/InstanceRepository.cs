@@ -19,7 +19,7 @@ internal interface ISingletonInstanceRepository : IInstanceRepository { }
 
 public class ScopedInstanceRepositoryOptions
 {
-    public List<Type> TypesToClone { get; } = new List<Type>();
+    public HashSet<Type> TypesToClone { get; } = new HashSet<Type>();
 
     public ScopedInstanceRepositoryOptions AddTypeToClone<T>()
     {
