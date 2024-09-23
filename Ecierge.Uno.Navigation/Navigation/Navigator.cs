@@ -60,6 +60,8 @@ public abstract class Navigator
 
     public Routing.Route ActualRoute => LeafNavigator.Route;
 
+    public Routing.Route TailRoute => LeafNavigator.Route.TrimHead(Route);
+
     private Stack<NavigationRequest> navigationStack { get; } = new();
     public IReadOnlyCollection<NavigationRequest> NavigationHistory => navigationStack;
 

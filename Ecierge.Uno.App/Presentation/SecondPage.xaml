@@ -35,14 +35,14 @@
       <Button Content="Go to Main default from root">
         <i:Interaction.Behaviors>
           <ic:EventTriggerBehavior EventName="Click">
-            <nav:NavigateRootRouteActionBase Route="Main" />
+            <nav:NavigateRootRouteAction Route="Main" />
           </ic:EventTriggerBehavior>
         </i:Interaction.Behaviors>
       </Button>
       <Button Content="Go to Main Tab2 from root">
         <i:Interaction.Behaviors>
           <ic:EventTriggerBehavior EventName="Click">
-            <nav:NavigateRootRouteActionBase Route="Main/Tab2" />
+            <nav:NavigateRootRouteAction Route="Main/Tab2" />
           </ic:EventTriggerBehavior>
         </i:Interaction.Behaviors>
       </Button>

@@ -49,7 +49,7 @@ public abstract partial class NavigateRouteActionBase : DependencyObject
     #endregion
 }
 
-public partial class NavigateRootRouteActionBase : NavigateRouteActionBase, IAction
+public partial class NavigateRootRouteAction : NavigateRouteActionBase, IAction
 {
     public object? Execute(object sender, object parameter)
     {

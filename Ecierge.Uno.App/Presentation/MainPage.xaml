@@ -71,14 +71,14 @@
         <Button Content="Go to Second Page from root">
           <i:Interaction.Behaviors>
             <ic:EventTriggerBehavior EventName="Click">
-              <nav:NavigateRootRouteActionBase Route="Second/Data" />
+              <nav:NavigateRootRouteAction Route="Second/Data" />
             </ic:EventTriggerBehavior>
           </i:Interaction.Behaviors>
         </Button>
         <Button Content="Go to Second Page from root with dialog">
           <i:Interaction.Behaviors>
             <ic:EventTriggerBehavior EventName="Click">
-              <nav:NavigateRootRouteActionBase Route="Second/Data/!ContentDialog" />
+              <nav:NavigateRootRouteAction Route="Second/Data/!ContentDialog" />
             </ic:EventTriggerBehavior>
           </i:Interaction.Behaviors>
         </Button>

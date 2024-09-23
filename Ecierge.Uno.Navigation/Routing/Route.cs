@@ -38,6 +38,12 @@ public record struct Route
         Refresh = refresh;
     }
 
+    public bool IsSubRouteOf(Route route)
+    {
+        if (Segments.Length > route.Segments.Length) return false;
+        return Segments.Zip(route.Segments).All(pair => pair.First == pair.Second);
+    }
+
     public Route GoBack()
     {
         var lastSegment = Segments.LastOrDefault();
@@ -65,6 +71,16 @@ public record struct Route
         var data = Data!.RemoveRange(dataToRemove);
         return new(Segments[..^count], Data, Refresh);
     }
+
+    public Route TrimHead(RouteSegmentInstance segment)
+    {
+        var index = Segments.IndexOf(segment);
+        if (index == -1) return this;
+        var segments = Segments.Skip(index).ToImmutableArray();
+        return new(segments, Data, Refresh);
+    }
+
+    public Route TrimHead(Route route) => TrimHead(route.Segments.Last());
 
     public Route TrimTill(RouteSegmentInstance segment)
     {
@@ -103,7 +119,6 @@ public record struct Route
         if (!isNested) throw new InvalidOperationException("Segment is not nested.");
         return new(Segments.AddRange(route.Segments), Data?.Union(route.Data) ?? route.Data, Refresh);
     }
-
 
     public Route ReplaceLast(NameSegment segment)
     {

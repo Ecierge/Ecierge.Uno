@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
+using Ecierge.Uno.Navigation.Helpers;
+
 public interface IRouteRegistry : IRegistry<NameSegment>
 {
     public NameSegment RootSegment { get; }
@@ -45,7 +47,17 @@ public class RouteRegistryBuilder : IRouteRegistryBuilder
 
     public IRouteRegistry Build(IViewRegistry viewRegistry, INavigationDataRegistry navigationDataRegistry)
     {
-        var segments = factories.SelectMany(factory => factory(viewRegistry, navigationDataRegistry));
+        var segments =
+            Segments.Merge(
+                factories.SelectMany(
+                    factory => factory(viewRegistry, navigationDataRegistry)
+                )
+            );
+        foreach (var segment in segments)
+        {
+            if (segment is NameSegment nameSegment && nameSegment.HasData && nameSegment.ViewMap is null)
+                throw new InvalidOperationException($"Name segment '{nameSegment.Name}' has data but no view map.");
+        }
         return new RouteRegistry(segments);
     }
 }
