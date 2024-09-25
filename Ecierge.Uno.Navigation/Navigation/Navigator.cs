@@ -207,7 +207,12 @@ public static class NavigatorExtensions
         var segmentNames = route.Split('/');
         List<RouteSegmentInstance> parsedRoute = new(segmentNames.Length);
 
-        RouteSegment? nextSegment = navigator.Region.Segment;
+        // Get the last navigatable segment from which nested segments will be searched within
+        RouteSegment? nextSegment = navigator.Region.Segment switch
+        {
+            NameSegment nameSegment when nameSegment.Data is DataSegment nestedDataSegment => nestedDataSegment,
+            RouteSegment routeSegment => routeSegment
+        };
         foreach (var segmentName in segmentNames)
         {
             nextSegment = ProcessSegmentName(nextSegment, segmentName);
@@ -230,8 +235,11 @@ public static class NavigatorExtensions
         {
             RouteSegment? nextSegment = segment switch
             {
+                // The next is data
                 NameSegment nameSegment when nameSegment.Data is DataSegment nestedDataSegment => nestedDataSegment,
+                // The next is dialog
                 RouteSegment routeSegment when segmentName.StartsWith('!') => navigator.FindDialogSegmentToNavigate(segmentName[1..]),
+                // The next is nested
                 RouteSegment routeSegment => routeSegment.Nested.FirstOrDefault(s => s.Name == segmentName),
                 _ => throw new NotSupportedException("Not supported route segment")
             };
