@@ -20,16 +20,29 @@ internal static class TypeExtensions
     private static readonly Type NameSegmentType = typeof(NameSegment);
     private static readonly Type NavigatorType = typeof(Navigator);
 
-    public static ConstructorInfo? GetNavigationConstructor([NotNull] this Type type, IServiceProvider services, INavigationData navigationData, out object[] constructorArguments)
+    public static ConstructorInfo? GetNavigationConstructor([NotNull] this Type type, IServiceProvider services, INavigationData navigationData, out object?[] constructorArguments)
     {
         navigationData = navigationData ?? throw new ArgumentNullException(nameof(navigationData));
 
         var ctr = type.GetConstructors().FirstOrDefault();
         if (ctr is not null)
         {
+            var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger("Ecierge.Uno.Navigation");
+            object? GetDefaultParameterValue(ParameterInfo parameter)
+            {
+                if (parameter.DefaultValue is not Missing)
+                {
+                    return parameter.DefaultValue;
+                }
+                logger.LogWarning("No data found for parameter '{parameterName}' of type '{type}'", parameter.Name, parameter.ParameterType);
+                if (parameter.ParameterType.IsValueType)
+                    return Activator.CreateInstance(parameter.ParameterType);
+                else
+                    return null;
+            }
+
             var paras = ctr.GetParameters();
             var args = new List<object?>();
-            var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger("Ecierge.Uno.Navigation");
             var dataRegistry = services.GetRequiredService<INavigationDataRegistry>();
             foreach (var para in paras)
             {
@@ -52,17 +65,16 @@ internal static class TypeExtensions
                             var task = map.FromNavigationData(navigationData, para.Name!);
                             args.Add(TaskConverter.Convert(task, entityType));
                         }
-                        else if (para.IsOptional && para.DefaultValue is not Missing)
-                        {
-                            args.Add(para.DefaultValue);
-                        }
                         else
                         {
-                            logger.LogWarning("No data found for parameter '{parameterName}' of type '{type}'", para.Name, para.ParameterType);
-                            if (para.ParameterType.IsValueType)
-                                args.Add(Activator.CreateInstance(para.ParameterType));
+                            if (para.IsOptional)
+                                args.Add(GetDefaultParameterValue(para));
                             else
-                                args.Add(null);
+                            {
+                                logger.LogWarning("No navigation data item found for mandatory parameter '{parameterName}' of type '{type}'", para.Name, para.ParameterType);
+                                constructorArguments = Array.Empty<object?>();
+                                return null;
+                            }
                         }
                         continue;
                     }
@@ -71,10 +83,29 @@ internal static class TypeExtensions
                         logger.LogWarning("No data map found for parameter '{parameterName}' of type '{type}'", para.Name, para.ParameterType);
                     }
                 }
-                var arg = services.GetService(para.ParameterType);
+                var key = para.GetCustomAttribute<FromKeyedServicesAttribute>()?.Key;
+                object? arg;
+                if (key is not null)
+                {
+                    arg = services.GetKeyedServices(para.ParameterType, key).FirstOrDefault();
+                }
+                else
+                {
+                    arg = services.GetService(para.ParameterType);
+                }
                 if (arg is null)
                 {
-                    logger.LogWarning("ViewModel constructor parameter '{parameterName}' of type '{type}' not found", para.Name, para.ParameterType);
+                    if (para.IsOptional)
+                    {
+                        args.Add(GetDefaultParameterValue(para));
+                        continue;
+                    }
+                    else
+                    {
+                        logger.LogWarning("No service found for mandatory parameter '{parameterName}' of type '{type}'", para.Name, para.ParameterType);
+                        constructorArguments = Array.Empty<object?>();
+                        return null;
+                    }
                 }
                 args.Add(arg!);
             }
@@ -82,7 +113,7 @@ internal static class TypeExtensions
             return ctr;
         }
 
-        constructorArguments = new object[] { };
+        constructorArguments = Array.Empty<object?>();
         return null;
     }
 
