@@ -29,6 +29,8 @@ public record struct Route
 
     public static Route Empty => new Route(ImmutableArray<RouteSegmentInstance>.Empty);
 
+    public Route() : this(ImmutableArray<RouteSegmentInstance>.Empty) { }
+
     public Route(ImmutableArray<RouteSegmentInstance> segments, INavigationData? data = null, bool refresh = false)
     {
         if (segments.Count(s => s is DialogSegmentInstance) > 1)
