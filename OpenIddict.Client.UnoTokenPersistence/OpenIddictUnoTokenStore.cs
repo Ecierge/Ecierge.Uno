@@ -55,7 +55,7 @@ public class OpenIddictUnoTokenStore<TToken> : IOpenIddictTokenStore<TToken>
     /// <inheritdoc/>
     public virtual async ValueTask<long> CountAsync(CancellationToken cancellationToken)
     {
-        var keys = await KeyValueStorage.GetNormalizedKeysAsync(cancellationToken);
+        var keys = await KeyValueStorage.GetKeysAsync(cancellationToken);
         return keys.LongCount(TokenPrefixPredicate);
     }
 
@@ -68,7 +68,7 @@ public class OpenIddictUnoTokenStore<TToken> : IOpenIddictTokenStore<TToken>
             throw new ArgumentNullException(nameof(query));
         }
 
-        var keys = await KeyValueStorage.GetNormalizedKeysAsync(cancellationToken);
+        var keys = await KeyValueStorage.GetKeysAsync(cancellationToken);
         var tokens = await
             Task.WhenAll(keys.Where(TokenPrefixPredicate).Select(key => KeyValueStorage.GetAsync<TToken>(key, cancellationToken).AsTask()));
         var querable = tokens.Where(token => token is not null).Select(token => token!).AsQueryable();
@@ -108,7 +108,7 @@ public class OpenIddictUnoTokenStore<TToken> : IOpenIddictTokenStore<TToken>
 
         async IAsyncEnumerable<TToken> ExecuteAsync([EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            var keys = await KeyValueStorage.GetNormalizedKeysAsync(cancellationToken);
+            var keys = await KeyValueStorage.GetKeysAsync(cancellationToken);
             keys = keys.Where(TokenPrefixPredicate).ToArray();
             foreach (var key in keys)
             {
@@ -145,7 +145,7 @@ public class OpenIddictUnoTokenStore<TToken> : IOpenIddictTokenStore<TToken>
 
         async IAsyncEnumerable<TToken> ExecuteAsync([EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            var keys = await KeyValueStorage.GetNormalizedKeysAsync(cancellationToken);
+            var keys = await KeyValueStorage.GetKeysAsync(cancellationToken);
             keys = keys.Where(TokenPrefixPredicate).ToArray();
             foreach (var key in keys)
             {
@@ -187,7 +187,7 @@ public class OpenIddictUnoTokenStore<TToken> : IOpenIddictTokenStore<TToken>
 
         async IAsyncEnumerable<TToken> ExecuteAsync([EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            var keys = await KeyValueStorage.GetNormalizedKeysAsync(cancellationToken);
+            var keys = await KeyValueStorage.GetKeysAsync(cancellationToken);
             keys = keys.Where(TokenPrefixPredicate).ToArray();
             foreach (var key in keys)
             {
@@ -212,7 +212,7 @@ public class OpenIddictUnoTokenStore<TToken> : IOpenIddictTokenStore<TToken>
 
         async IAsyncEnumerable<TToken> ExecuteAsync([EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            var keys = await KeyValueStorage.GetNormalizedKeysAsync(cancellationToken);
+            var keys = await KeyValueStorage.GetKeysAsync(cancellationToken);
             keys = keys.Where(TokenPrefixPredicate).ToArray();
             foreach (var key in keys)
             {
@@ -237,7 +237,7 @@ public class OpenIddictUnoTokenStore<TToken> : IOpenIddictTokenStore<TToken>
 
         async IAsyncEnumerable<TToken> ExecuteAsync([EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            var keys = await KeyValueStorage.GetNormalizedKeysAsync(cancellationToken);
+            var keys = await KeyValueStorage.GetKeysAsync(cancellationToken);
             keys = keys.Where(TokenPrefixPredicate).ToArray();
             foreach (var key in keys)
             {
@@ -269,7 +269,7 @@ public class OpenIddictUnoTokenStore<TToken> : IOpenIddictTokenStore<TToken>
             throw new ArgumentException(SR.GetResourceString(SR.ID0195), nameof(identifier));
         }
 
-        var keys = await KeyValueStorage.GetNormalizedKeysAsync(cancellationToken);
+        var keys = await KeyValueStorage.GetKeysAsync(cancellationToken);
         keys = keys.Where(TokenPrefixPredicate).ToArray();
         foreach (var key in keys)
         {
@@ -294,7 +294,7 @@ public class OpenIddictUnoTokenStore<TToken> : IOpenIddictTokenStore<TToken>
 
         async IAsyncEnumerable<TToken> ExecuteAsync([EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            var keys = await KeyValueStorage.GetNormalizedKeysAsync(cancellationToken);
+            var keys = await KeyValueStorage.GetKeysAsync(cancellationToken);
             keys = keys.Where(TokenPrefixPredicate).ToArray();
             foreach (var key in keys)
             {
@@ -333,7 +333,7 @@ public class OpenIddictUnoTokenStore<TToken> : IOpenIddictTokenStore<TToken>
             throw new ArgumentNullException(nameof(query));
         }
 
-        var keys = await KeyValueStorage.GetNormalizedKeysAsync(cancellationToken);
+        var keys = await KeyValueStorage.GetKeysAsync(cancellationToken);
         keys = keys.Where(TokenPrefixPredicate).ToArray();
         foreach (var key in keys)
         {
@@ -515,7 +515,7 @@ public class OpenIddictUnoTokenStore<TToken> : IOpenIddictTokenStore<TToken>
     public virtual async IAsyncEnumerable<TToken> ListAsync(
         int? count, int? offset, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        var keys = await KeyValueStorage.GetNormalizedKeysAsync(cancellationToken);
+        var keys = await KeyValueStorage.GetKeysAsync(cancellationToken);
         var query = keys.Where(TokenPrefixPredicate);
 
         if (offset.HasValue)
@@ -554,7 +554,7 @@ public class OpenIddictUnoTokenStore<TToken> : IOpenIddictTokenStore<TToken>
 
         async IAsyncEnumerable<TResult> ExecuteAsync([EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            var keys = await KeyValueStorage.GetNormalizedKeysAsync(cancellationToken);
+            var keys = await KeyValueStorage.GetKeysAsync(cancellationToken);
             keys = keys.Where(TokenPrefixPredicate).ToArray();
 
             foreach (var key in keys)
@@ -581,7 +581,7 @@ public class OpenIddictUnoTokenStore<TToken> : IOpenIddictTokenStore<TToken>
         // To work around this limitation, the token identifiers are stored in an intermediate list
         // and delete requests are sent to remove the documents corresponding to these identifiers.
 
-        var keys = await KeyValueStorage.GetNormalizedKeysAsync(cancellationToken);
+        var keys = await KeyValueStorage.GetKeysAsync(cancellationToken);
         keys = keys.Where(TokenPrefixPredicate).ToArray();
         foreach (var key in keys)
         {
@@ -607,7 +607,7 @@ public class OpenIddictUnoTokenStore<TToken> : IOpenIddictTokenStore<TToken>
             throw new ArgumentException(SR.GetResourceString(SR.ID0195), nameof(identifier));
         }
 
-        var keys = await KeyValueStorage.GetNormalizedKeysAsync(cancellationToken);
+        var keys = await KeyValueStorage.GetKeysAsync(cancellationToken);
         keys = keys.Where(TokenPrefixPredicate).ToArray();
         long count = 0L;
         foreach (var key in keys)
