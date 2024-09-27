@@ -270,6 +270,8 @@ public static class NavigatorExtensions
     public static async ValueTask<NavigationResponse> NavigateRouteAsync(Navigator navigator, object initiator, Routing.Route route)
     {
         navigator.RaiseNavigationStarted(() => route);
+        // TODO: Ensure that navigation item mapping resolution happens only once
+        route = route with { Data = (navigator.Route.Data ?? NavigationData.Empty).Union(route.Data) };
         NavigationResponse? response = null;
         var currentNavigator = navigator;
         NavigationResult result = default;

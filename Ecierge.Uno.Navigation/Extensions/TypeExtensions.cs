@@ -59,6 +59,7 @@ internal static class TypeExtensions
                     var entityType = para.ParameterType.GetGenericArguments().First();
                     if (dataRegistry.TryGetForAssignableEntity(entityType, out var dataMapType))
                     {
+                        // TODO: Ensure that navigation item mapping resolution happens only once
                         var map = (INavigationDataMap)services.GetRequiredService(dataMapType);
                         if (map.HasValue(navigationData, para.Name!))
                         {
