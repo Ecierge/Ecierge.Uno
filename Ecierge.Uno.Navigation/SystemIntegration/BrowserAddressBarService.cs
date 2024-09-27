@@ -23,7 +23,7 @@ internal class BrowserAddressBarService : IHostedService
         this.logger = logger;
         this.notifier = notifier;
         addressbarHost = host;
-        this.config = config.Value;
+        this.config = config?.Value;
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
