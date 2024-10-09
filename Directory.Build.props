@@ -13,14 +13,15 @@
     All features: https://platform.uno/docs/articles/features/using-the-uno-sdk.html?tabs=uno-packages#uno-platform-features
   -->
   <PropertyGroup>
-    <UnoExtensionsVersion>4.3.0-dev.34</UnoExtensionsVersion> <!-- https://www.nuget.org/packages/Uno.Extensions.Core -->
+    <WindowsSdkPackageVersion>10.0.22621.48</WindowsSdkPackageVersion>
+    <UnoExtensionsVersion>5.0.2</UnoExtensionsVersion> <!-- https://www.nuget.org/packages/Uno.Extensions.Core -->
     <UnoLoggingVersion>1.7.0</UnoLoggingVersion> <!-- https://www.nuget.org/packages/Uno.Core.Extensions.Logging -->
     <UnoCoreLoggingSingletonVersion>4.1.1</UnoCoreLoggingSingletonVersion> <!-- https://www.nuget.org/packages/Uno.Core.Extensions.Logging.Singleton -->
-    <UnoResizetizerVersion>1.5.2</UnoResizetizerVersion> <!-- https://www.nuget.org/packages/Uno.Resizetizer -->
-    <UnoToolkitVersion>6.1.8</UnoToolkitVersion> <!-- https://www.nuget.org/packages/Uno.Toolkit -->
-    <UnoThemesVersion>5.1.7</UnoThemesVersion> <!-- https://www.nuget.org/packages/Uno.Themes -->
+    <UnoResizetizerVersion>1.6.0</UnoResizetizerVersion> <!-- https://www.nuget.org/packages/Uno.Resizetizer -->
+    <UnoToolkitVersion>6.2.6</UnoToolkitVersion> <!-- https://www.nuget.org/packages/Uno.Toolkit -->
+    <UnoThemesVersion>5.2.5</UnoThemesVersion> <!-- https://www.nuget.org/packages/Uno.Themes -->
     <UnoUniversalImageLoaderVersion>1.9.37</UnoUniversalImageLoaderVersion> <!-- https://www.nuget.org/packages/Uno.UniversalImageLoader -->
-    <UnoWasmBootstrapVersion>9.0.0-dev.104</UnoWasmBootstrapVersion> <!-- https://www.nuget.org/packages/Uno.Wasm.Bootstrap -->
+    <UnoWasmBootstrapVersion>9.0.0-dev.122</UnoWasmBootstrapVersion> <!-- https://www.nuget.org/packages/Uno.Wasm.Bootstrap -->
     <!--
       Adding NoWarn to remove build warnings
       NU1507: Warning when there are multiple package sources when using CPM with no source mapping
