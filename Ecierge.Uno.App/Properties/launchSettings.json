@@ -32,9 +32,19 @@
       "commandName": "Project",
       "compatibleTargetFramework": "windows"
     },
+    "Ecierge.Uno.App (WinAppSDK Unpackaged native dbg)": {
+      "commandName": "Project",
+      "compatibleTargetFramework": "windows",
+      "nativeDebugging": true
+    },
     "Ecierge.Uno.App (WinAppSDK Packaged)": {
       "commandName": "MsixPackage",
       "compatibleTargetFramework": "windows"
+    },
+    "Ecierge.Uno.App (WinAppSDK Packaged native dbg)": {
+      "commandName": "MsixPackage",
+      "compatibleTargetFramework": "windows",
+      "nativeDebugging": true
     },
     "Ecierge.Uno.App (Desktop)": {
       "commandName": "Project",
