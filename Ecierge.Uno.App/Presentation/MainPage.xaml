@@ -5,9 +5,11 @@
       xmlns:ic="using:Microsoft.Xaml.Interactions.Core"
       xmlns:local="using:Ecierge.Uno.App.Presentation"
       xmlns:ct="using:CommunityToolkit.WinUI"
+      xmlns:ctrl="using:Ecierge.Uno.Controls"
       xmlns:nav="using:Ecierge.Uno.Navigation"
       xmlns:utu="using:Uno.Toolkit.UI"
       xmlns:um="using:Uno.Material"
+      xmlns:developerTools="using:CommunityToolkit.WinUI.DeveloperTools"
       NavigationCacheMode="Required"
       Background="{ThemeResource BackgroundBrush}">
   <ScrollViewer>
@@ -46,9 +48,37 @@
       <utu:NavigationBar Content="{Binding Title}" />
 
       <StackPanel Grid.Row="1"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            Spacing="16">
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center"
+                  Spacing="16">
+        <ctrl:InlineEdit x:Name="InlineEdit" Content="{Binding}">
+          <ctrl:InlineEdit.ViewContentTemplate>
+            <DataTemplate>
+              <HyperlinkButton Content="{Binding Name}">
+                <i:Interaction.Behaviors>
+                  <ic:EventTriggerBehavior EventName="Click">
+                    <ic:ChangePropertyAction TargetObject="{Binding ElementName=InlineEdit}" PropertyName="IsEditing" Value="True" />
+                  </ic:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
+              </HyperlinkButton>
+            </DataTemplate>
+          </ctrl:InlineEdit.ViewContentTemplate>
+          <ctrl:InlineEdit.ViewCommand>
+            <XamlUICommand IconSource="{ct:SymbolIconSource Symbol=Edit}" />
+          </ctrl:InlineEdit.ViewCommand>
+          <ctrl:InlineEdit.EditContentTemplate>
+            <DataTemplate>
+              <TextBox Text="{Binding Name, Mode=TwoWay}" />
+            </DataTemplate>
+          </ctrl:InlineEdit.EditContentTemplate>
+          <ctrl:InlineEdit.PrimaryEditCommand>
+            <XamlUICommand IconSource="{ct:SymbolIconSource Symbol=Accept}" />
+          </ctrl:InlineEdit.PrimaryEditCommand>
+          <ctrl:InlineEdit.SecondaryEditCommand>
+            <XamlUICommand IconSource="{ct:SymbolIconSource Symbol=Cancel}" />
+          </ctrl:InlineEdit.SecondaryEditCommand>
+        </ctrl:InlineEdit>
+        <developerTools:FocusTracker IsActive="True" />
         <TextBox Text="{Binding Name, Mode=TwoWay}"
             PlaceholderText="Enter your name:" />
         <Button Content="Go to Second Page"

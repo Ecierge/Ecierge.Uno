@@ -1,23 +1,14 @@
 namespace Ecierge.Uno.Controls;
 
-using System;
-
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
 
-#if WINDOWS
-#endif
-
-using Windows.Foundation.Collections;
-
-[TemplatePart(Name = PART_ItemsControl, Type = typeof(ItemsControl))]
-public sealed partial class InlineEdit : ComboBox
+[TemplatePart(Name = PART_EditContentPresenter, Type = typeof(ContentPresenter))]
+public sealed partial class InlineEdit : Control
 {
-#pragma warning disable CA1707 // Identifiers should not contain underscores
-    public const string PART_ItemsControl = "PART_ItemsControl";
-#pragma warning restore CA1707 // Identifiers should not contain underscores
-
-    bool skipLostFocus = false;
+    private const string PART_EditContentPresenter = "PART_EditContentPresenter";
 
     #region IsEditing
 
@@ -57,9 +48,19 @@ public sealed partial class InlineEdit : ComboBox
     {
         if (newIsEditing)
         {
-            skipLostFocus = true;
-            if (GetTemplateChild(PART_ItemsControl) is ComboBox comboBox)
-                comboBox.Focus(FocusState.Programmatic);
+            if (GetTemplateChild(PART_EditContentPresenter) is ContentPresenter presenter)
+            {
+                DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, () =>
+                {
+                    if (VisualTreeHelper.GetChildrenCount(presenter) > 0)
+                    {
+                        var child = VisualTreeHelper.GetChild(presenter, 0);
+                        (child as Control)?.Focus(FocusState.Programmatic);
+                    }
+                    else
+                        presenter.Focus(FocusState.Programmatic);
+                });
+            }
             else
                 this.Focus(FocusState.Programmatic);
         }
@@ -67,151 +68,158 @@ public sealed partial class InlineEdit : ComboBox
 
     #endregion
 
-    #region CommitCommand
+    #region ViewCommand
 
     /// <summary>
-    /// CommitCommand Dependency Property
+    /// ViewCommand Dependency Property
     /// </summary>
-    public static readonly DependencyProperty CommitCommandProperty =
-        DependencyProperty.Register(nameof(CommitCommand), typeof(ICommand), typeof(InlineEdit),
-            new PropertyMetadata((ICommand?)null));
+    public static readonly DependencyProperty ViewCommandProperty =
+        DependencyProperty.Register(nameof(ViewCommand), typeof(XamlUICommand), typeof(InlineEdit), new((XamlUICommand?)null));
 
     /// <summary>
-    /// Gets or sets the CommitCommand property. This dependency property
-    /// indicates the command executed when change committed.
+    /// Gets or sets the ViewCommand property. This dependency property
+    /// indicates the command visible in view mode.
     /// </summary>
-    public ICommand? CommitCommand
+    public XamlUICommand? ViewCommand
     {
-        get => (ICommand?)GetValue(CommitCommandProperty);
-        set => SetValue(CommitCommandProperty, value);
+        get => (XamlUICommand?)GetValue(ViewCommandProperty);
+        set => SetValue(ViewCommandProperty, value);
     }
 
-    #endregion
+    #endregion ViewCommand
 
-    #region CancelCommand
-
-    /// <summary>
-    /// CancelCommand Dependency Property
-    /// </summary>
-    public static readonly DependencyProperty CancelCommandProperty =
-        DependencyProperty.Register(nameof(CancelCommand), typeof(ICommand), typeof(InlineEdit),
-            new PropertyMetadata((ICommand?)null));
+    #region PrimaryEditCommand
 
     /// <summary>
-    /// Gets or sets the CancelCommand property. This dependency property
-    /// indicates the command executed when change cancelled.
+    /// PrimaryEditCommand Dependency Property
     /// </summary>
-    public ICommand? CancelCommand
+    public static readonly DependencyProperty PrimaryEditCommandProperty =
+        DependencyProperty.Register(nameof(PrimaryEditCommand), typeof(XamlUICommand), typeof(InlineEdit), new((XamlUICommand?)null));
+
+    /// <summary>
+    /// Gets or sets the PrimaryEditCommand property. This dependency property
+    /// indicates the primary command visible in edit mode.
+    /// </summary>
+    public XamlUICommand? PrimaryEditCommand
     {
-        get => (ICommand?)GetValue(CancelCommandProperty);
-        set => SetValue(CancelCommandProperty, value);
+        get => (XamlUICommand?)GetValue(PrimaryEditCommandProperty);
+        set => SetValue(PrimaryEditCommandProperty, value);
     }
 
-    #endregion
+    #endregion PrimaryEditCommand
 
-    #region DeleteCommand
-
-    /// <summary>
-    /// DeleteCommand Dependency Property
-    /// </summary>
-    public static readonly DependencyProperty DeleteCommandProperty =
-        DependencyProperty.Register(nameof(DeleteCommand), typeof(ICommand), typeof(InlineEdit),
-            new PropertyMetadata((ICommand?)null));
+    #region SecondaryEditCommand
 
     /// <summary>
-    /// Gets or sets the DeleteCommand property. This dependency property
-    /// indicates the command to invoke when delete requested.
+    /// SecondaryEditCommand Dependency Property
     /// </summary>
-    public ICommand? DeleteCommand
+    public static readonly DependencyProperty SecondaryEditCommandProperty =
+        DependencyProperty.Register(nameof(SecondaryEditCommand), typeof(XamlUICommand), typeof(InlineEdit), new((XamlUICommand?)null));
+
+    /// <summary>
+    /// Gets or sets the SecondaryEditCommand property. This dependency property
+    /// indicates the secondary command visible in edit mode.
+    /// </summary>
+    public XamlUICommand? SecondaryEditCommand
     {
-        get => (ICommand?)GetValue(DeleteCommandProperty);
-        set => SetValue(DeleteCommandProperty, value);
+        get => (XamlUICommand?)GetValue(SecondaryEditCommandProperty);
+        set => SetValue(SecondaryEditCommandProperty, value);
     }
 
-    #endregion
+    #endregion SecondaryEditCommand
+
+    #region Content
+
+    /// <summary>
+    /// Identifies the Content dependency property.
+    /// </summary>
+    public static readonly DependencyProperty ContentProperty =
+        DependencyProperty.Register(nameof(Content), typeof(object), typeof(InlineEdit), new(null));
+
+    /// <summary>
+    /// Gets or sets the content of a ContentControl.
+    /// </summary>
+    public object Content
+    {
+        get => (object)GetValue(ContentProperty);
+        set { SetValue(ContentProperty, value); }
+    }
+
+    #endregion Content
+
+    #region ViewContentTemplate
+
+    /// <summary>
+    /// Identifies the ViewContentTemplate dependency property
+    /// </summary>
+    public static readonly DependencyProperty ViewContentTemplateProperty =
+        DependencyProperty.Register(nameof(ViewContentTemplate), typeof(DataTemplate), typeof(InlineEdit), new((DataTemplate?)null));
+
+    /// <summary>
+    /// Gets or sets the data template that is used to display the content of the ContentControl.
+    /// </summary>
+    public DataTemplate? ViewContentTemplate
+    {
+        get => (DataTemplate?)GetValue(ViewContentTemplateProperty);
+        set => SetValue(ViewContentTemplateProperty, value);
+    }
+
+    #endregion ViewContentTemplate
+
+    #region EditContentTemplate
+
+    /// <summary>
+    /// Identifies the EditContentTemplate dependency property
+    /// </summary>
+    public static readonly DependencyProperty EditContentTemplateProperty =
+        DependencyProperty.Register(nameof(EditContentTemplate), typeof(DataTemplate), typeof(InlineEdit), new((DataTemplate?)null));
+
+    /// <summary>
+    /// Gets or sets the data template that is used to edit the content of the ContentControl.
+    /// </summary>
+    public DataTemplate? EditContentTemplate
+    {
+        get => (DataTemplate?)GetValue(EditContentTemplateProperty);
+        set => SetValue(EditContentTemplateProperty, value);
+    }
+
+    #endregion EditContentTemplate
 
     public InlineEdit()
     {
         this.DefaultStyleKey = typeof(InlineEdit);
-        this.GroupStyle.VectorChanged += OnGroupStyleVectorChanged;
     }
 
     protected override void OnLostFocus(RoutedEventArgs e)
     {
         base.OnLostFocus(e);
-        if (skipLostFocus)
+
+        DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, () =>
         {
-            skipLostFocus = false;
-            return;
-        }
-        if (!IsDropDownOpen)
-        {
+            var focusedElement = FocusManager.GetFocusedElement(this.XamlRoot!) as DependencyObject;
+            if (focusedElement is null || IsAnyChildFocused(this, focusedElement))
+                return;
             IsEditing = false;
-            CommitCommand?.Execute(null);
-        }
-        //DispatcherQueue.TryEnqueue(() =>
-        //{
-        //});
-    }
+            PrimaryEditCommand?.Execute(null);
 
-    //#if WINDOWS
-    //    private DropDownListBase? itemsControl;
-    //#else
-    private ItemsControl? itemsControl;
-    //#endif
-
-    private void OnGroupStyleVectorChanged(IObservableVector<GroupStyle> s, IVectorChangedEventArgs e)
-    {
-        var index = (int)e.Index;
-        switch (e.CollectionChange)
-        {
-            case CollectionChange.Reset:
-                itemsControl?.GroupStyle!.Clear();
-                break;
-            case CollectionChange.ItemInserted:
-                itemsControl?.GroupStyle!.Insert(index, s[index]);
-                break;
-            case CollectionChange.ItemRemoved:
-                itemsControl?.GroupStyle!.RemoveAt(index);
-                break;
-            case CollectionChange.ItemChanged:
-                if (itemsControl is not null)
-                    itemsControl.GroupStyle![index] = s[index];
-                break;
-            default:
-                throw new NotSupportedException();
-        }
-    }
-
-    protected override void OnApplyTemplate()
-    {
-        base.OnApplyTemplate();
-        //#if WINDOWS
-        //        itemsControl = GetTemplateChild(PART_ItemsControl) as DropDownListBase;
-        //#else
-        itemsControl = GetTemplateChild(PART_ItemsControl) as ItemsControl;
-        //#endif
-
-        if (itemsControl is not null)
-        {
-            foreach (var groupStyle in this.GroupStyle)
+            static bool IsAnyChildFocused(DependencyObject parent, DependencyObject? focusedElement)
             {
-                itemsControl.GroupStyle?.Add(groupStyle);
+                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+                {
+                    var child = VisualTreeHelper.GetChild(parent, i);
+                    if (child == focusedElement)
+                        return true;
+                }
+
+                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+                {
+                    var child = VisualTreeHelper.GetChild(parent, i);
+                    if (IsAnyChildFocused(child, focusedElement))
+                        return true;
+                }
+
+                return false;
             }
-            //ctrl.FocusDisengaged += OnItemsControlFocusDisengaged;
-            //ctrl.LostFocus += OnItemsControlLostFocus;
-        }
-    }
-
-    private void OnItemsControlFocusDisengaged(Control sender, FocusDisengagedEventArgs args)
-    {
-        this.IsEditing = false;
-        this.CommitCommand?.Execute(null);
-    }
-
-    private void OnItemsControlLostFocus(object sender, RoutedEventArgs e)
-    {
-        this.IsEditing = false;
-        this.CommitCommand?.Execute(null);
+        });
     }
 }

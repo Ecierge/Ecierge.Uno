@@ -24,6 +24,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ecierge.Uno.Navigation", "E
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenIddict.Client.UnoTokenPersistence", "OpenIddict.Client.UnoTokenPersistence\OpenIddict.Client.UnoTokenPersistence.csproj", "{026C81B1-2954-44BE-B720-F30797DEB997}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ecierge.Uno.Controls", "Ecierge.Uno.Controls\Ecierge.Uno.Controls.csproj", "{3AE6E80A-503D-41DD-B5C8-A31C2EDC59B4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,6 +58,10 @@ Global
 		{026C81B1-2954-44BE-B720-F30797DEB997}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{026C81B1-2954-44BE-B720-F30797DEB997}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{026C81B1-2954-44BE-B720-F30797DEB997}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3AE6E80A-503D-41DD-B5C8-A31C2EDC59B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3AE6E80A-503D-41DD-B5C8-A31C2EDC59B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3AE6E80A-503D-41DD-B5C8-A31C2EDC59B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3AE6E80A-503D-41DD-B5C8-A31C2EDC59B4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

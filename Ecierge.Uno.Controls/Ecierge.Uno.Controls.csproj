@@ -50,10 +50,4 @@
     <PackageReference Include="CommunityToolkit.WinUI.Triggers" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="InlineEdit.xaml.cs">
-      <DependentUpon>InlineEdit.xaml</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
 </Project>
