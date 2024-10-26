@@ -185,6 +185,28 @@ public sealed partial class InlineEdit : Control
 
     #endregion EditContentTemplate
 
+    #region ButtonsStyle
+
+    /// <summary>
+    /// ButtonsStyle Dependency Property
+    /// </summary>
+    public static readonly DependencyProperty ButtonsStyleProperty =
+        DependencyProperty.Register(nameof(ButtonsStyle), typeof(Style), typeof(InlineEdit),
+            //new ((Style?)null));
+            new (Application.Current.Resources[typeof(Button)] as Style));
+
+    /// <summary>
+    /// Gets or sets the ButtonsStyle property. This dependency property
+    /// indicates the style applied to all buttons.
+    /// </summary>
+    public Style ButtonsStyle
+    {
+        get => (Style)GetValue(ButtonsStyleProperty);
+        set => SetValue(ButtonsStyleProperty, value);
+    }
+
+    #endregion ButtonsStyle
+
     public InlineEdit()
     {
         this.DefaultStyleKey = typeof(InlineEdit);

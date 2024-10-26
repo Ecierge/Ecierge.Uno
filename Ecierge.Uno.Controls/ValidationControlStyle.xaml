@@ -13,6 +13,10 @@
     <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
   </ResourceDictionary.MergedDictionaries>
 
+  <DataTemplate x:Key="ErrorItemTemplate">
+    <TextBlock Foreground="{StaticResource SystemFillColorCriticalBrush}" Text="{Binding}" />
+  </DataTemplate>
+
   <Style TargetType="local:ValidationControl">
     <Setter Property="IsTabStop" Value="False" />
     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -41,7 +45,6 @@
                 </VisualState>
               </VisualStateGroup>
             </VisualStateManager.VisualStateGroups>
-
 
             <Grid Margin="{TemplateBinding Padding}">
               <ContentPresenter x:Name="ContentPresenter"
@@ -86,8 +89,6 @@
                     <behaviors:ShowFlyoutAction Flyout="{StaticResource ErrorsFlyout}" Target="{Binding ElementName=ContentPresenter}" />
                   </ic:EventTriggerBehavior>
                 </i:Interaction.Behaviors>
-                <!--<TextBlock x:Name="IconBackground" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="{StaticResource InfoBarIconFontSize}" Text="{StaticResource InfoBarIconBackgroundGlyph}" Foreground="{ThemeResource InfoBarInformationalSeverityIconBackground}" FontFamily="{ThemeResource SymbolThemeFontFamily}" AutomationProperties.AccessibilityView="Raw" />
-                <TextBlock x:Name="StandardIcon" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="{StaticResource InfoBarIconFontSize}" Text="{StaticResource InfoBarErrorIconGlyph}" Foreground="{ThemeResource InfoBarInformationalSeverityIconForeground}" FontFamily="{ThemeResource SymbolThemeFontFamily}"/>-->
                 <FontIcon Glyph="&#xE783;" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="{StaticResource InfoBarIconFontSize}" Foreground="{ThemeResource SystemFillColorCritical}" FontFamily="{ThemeResource SymbolThemeFontFamily}"/>
               </Grid>
             </Grid>

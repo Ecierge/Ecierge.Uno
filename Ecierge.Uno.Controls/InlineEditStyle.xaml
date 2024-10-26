@@ -14,6 +14,10 @@
                     xmlns:not_win="http://uno.ui/not_win"
                     mc:Ignorable="d not_win">
 
+  <ResourceDictionary.MergedDictionaries>
+    <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/Resources.xaml" />
+  </ResourceDictionary.MergedDictionaries>
+
   <Style TargetType="local:InlineEdit">
     <Setter Property="Template">
       <Setter.Value>
@@ -29,7 +33,9 @@
                 <Grid ColumnDefinitions="*,Auto" MinWidth="120">
                   <ContentPresenter Content="{TemplateBinding Content}"
                                     ContentTemplate="{TemplateBinding ViewContentTemplate}" />
-                  <Button Grid.Column="1" Command="{TemplateBinding ViewCommand}" Padding="6" Margin="2" HorizontalAlignment="Right" >
+                  <HyperlinkButton Grid.Column="1"
+                                   Command="{TemplateBinding ViewCommand}"
+                                   Padding="6" Margin="2" HorizontalAlignment="Right" >
                     <IconSourceElement IconSource="{Binding ViewCommand.IconSource, RelativeSource={RelativeSource Mode=TemplatedParent}}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     <i:Interaction.Behaviors>
                         <ic:EventTriggerBehavior EventName="Click">
@@ -38,7 +44,7 @@
                                                    Value="True" />
                         </ic:EventTriggerBehavior>
                       </i:Interaction.Behaviors>
-                    </Button>
+                    </HyperlinkButton>
                 </Grid>
               </ctc:Case>
               <ctc:Case Value="True">
@@ -46,10 +52,18 @@
                   <ContentPresenter x:Name="PART_EditContentPresenter"
                                     Content="{TemplateBinding Content}"
                                     ContentTemplate="{TemplateBinding EditContentTemplate}" />
-                  <Button Grid.Column="1" Command="{TemplateBinding PrimaryEditCommand}" Padding="6" Margin="2">
+                  <Button Grid.Column="1"
+                          Command="{TemplateBinding PrimaryEditCommand}"
+                          Style="{TemplateBinding ButtonsStyle}"
+                          Visibility="{Binding PrimaryEditCommand, Converter={StaticResource NullToVisibilityConverter}, RelativeSource={RelativeSource Mode=TemplatedParent}}"
+                          Padding="6" Margin="2">
                     <IconSourceElement IconSource="{Binding PrimaryEditCommand.IconSource, RelativeSource={RelativeSource Mode=TemplatedParent}}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                   </Button>
-                  <Button Grid.Column="2" Command="{TemplateBinding SecondaryEditCommand}" Padding="6" Margin="2">
+                  <Button Grid.Column="2"
+                          Command="{TemplateBinding SecondaryEditCommand}"
+                          Style="{TemplateBinding ButtonsStyle}"
+                          Visibility="{Binding SecondaryEditCommand, Converter={StaticResource NullToVisibilityConverter}, RelativeSource={RelativeSource Mode=TemplatedParent}}"
+                          Padding="6" Margin="2">
                     <IconSourceElement IconSource="{Binding SecondaryEditCommand.IconSource, RelativeSource={RelativeSource Mode=TemplatedParent}}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                   </Button>
                 </Grid>

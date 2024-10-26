@@ -5,7 +5,6 @@
 
   <ResourceDictionary.MergedDictionaries>
     <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
-    <!--<ResourceDictionary Source="ms-appx:///eCierge.Console.UI/Styles.xaml"/>-->
   </ResourceDictionary.MergedDictionaries>
 
   <Style TargetType="local:CoordinatesNumberBox">
@@ -70,7 +69,7 @@
               <Grid ColumnDefinitions="*,Auto,*,Auto,Auto,Auto">
                 <Grid.Resources>
                   <DataTemplate x:Key="ButtonContentTemplate" x:DataType="IconSource">
-                    <IconSourceElement IconSource="{Binding}" />
+                    <IconSourceElement IconSource="{x:Bind Mode=OneWay}" />
                   </DataTemplate>
                 </Grid.Resources>
 

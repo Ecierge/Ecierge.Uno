@@ -1,0 +1,15 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ctc="using:CommunityToolkit.WinUI.Converters">
+
+  <ctc:EmptyObjectToObjectConverter x:Key="NullToVisibilityConverter">
+    <ctc:EmptyObjectToObjectConverter.EmptyValue>
+      <Visibility>Collapsed</Visibility>
+    </ctc:EmptyObjectToObjectConverter.EmptyValue>
+    <ctc:EmptyObjectToObjectConverter.NotEmptyValue>
+      <Visibility>Visible</Visibility>
+    </ctc:EmptyObjectToObjectConverter.NotEmptyValue>
+  </ctc:EmptyObjectToObjectConverter>
+
+</ResourceDictionary>

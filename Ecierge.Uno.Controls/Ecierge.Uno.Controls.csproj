@@ -47,6 +47,7 @@
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.WinUI.Behaviors" />
     <PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" />
+    <PackageReference Include="CommunityToolkit.WinUI.Converters" />
     <PackageReference Include="CommunityToolkit.WinUI.Triggers" />
   </ItemGroup>
 

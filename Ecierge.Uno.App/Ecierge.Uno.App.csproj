@@ -61,6 +61,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CommunityToolkit.WinUI.Converters" />
     <PackageReference Include="CommunityToolkit.WinUI.DeveloperTools" />
     <PackageReference Include="CommunityToolkit.WinUI.Triggers" />
   </ItemGroup>
