@@ -6,16 +6,20 @@
       $(DotNetVersion)-ios;
       $(DotNetVersion)-maccatalyst;
       $(DotNetVersion)-windows10.0.22621;
+      $(DotNetVersion)-browserwasm;
+      $(DotNetVersion)-desktop;
       $(DotNetVersion)
     </TargetFrameworks>
 
     <UnoSingleProject>true</UnoSingleProject>
+    <!-- See https://github.com/unoplatform/uno/issues/18603 -->
+    <UnoDisableGenerateGlobalUsingsMock>true</UnoDisableGenerateGlobalUsingsMock>
     <OutputType>Library</OutputType>
     <!-- Ensures the .xr.xml files are generated in a proper layout folder -->
     <GenerateLibraryLayout>true</GenerateLibraryLayout>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <!--<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>-->
 
     <!--
       If you encounter this error message:
@@ -48,23 +52,42 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
+    <PackageReference Include="OpenIddict.Abstractions" />
     <PackageReference Include="OpenIddict.Client" />
     <PackageReference Include="OpenIddict.Core" />
   </ItemGroup>
 
-  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
+  <!-- See https://github.com/unoplatform/uno/issues/18603 -->
+  <Target Name="_UnoGenerateGlobalCorrectUsingsMock"
+      BeforeTargets="CoreCompile"
+      DependsOnTargets="_UnoFilterWebSdkGlobalUsings"
+      Condition=" '$(TargetFramework)'=='$(DotNetVersion)-browserwasm' AND '$(Optimize)' != 'true' ">
     <!--
-    If you encounter this error message:
-
-      error NETSDK1148: A referenced assembly was compiled using a newer version of Microsoft.Windows.SDK.NET.dll.
-      Please update to a newer .NET SDK in order to reference this assembly.
-
-    This means that the two packages below must be aligned with the "build" version number of
-    the "Microsoft.Windows.SDK.BuildTools" package above, and the "revision" version number
-    must be the highest found in https://www.nuget.org/packages/Microsoft.Windows.SDK.NET.Ref.
+      This target is present to work around global usings that provided by the .NET Web SDK
+      that we cannot remove reliably, particular during Hot Reload.
+      As a workaround we generate a temporary file that contains the namespaces and private
+      types that will make global using namespaces valid at compile time.
     -->
-    <!-- <FrameworkReference Update="Microsoft.Windows.SDK.NET.Ref" RuntimeFrameworkVersion="10.0.22621.28" />
-    <FrameworkReference Update="Microsoft.Windows.SDK.NET.Ref" TargetingPackVersion="10.0.22621.28" /> -->
-  </ItemGroup>
+
+    <PropertyGroup>
+      <_FakeGlobalUsingsFile>$(IntermediateOutputPath)/FakeGlobalUsings.g.cs</_FakeGlobalUsingsFile>
+      <_FakeGlobalUsingsAssemblyName>$(AssemblyName.Replace('.','_'))</_FakeGlobalUsingsAssemblyName>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <_UsingsDedup Include="%(Using.Identity)" KeepDuplicates="false" Condition="'%(Using.Static)' == '' AND '%(Using.Alias)' == ''" />
+      <_GlobalUsingMocksLines Include="@(_UsingsDedup->'namespace %(Identity) { class __HotReloadWorkaround__$(_FakeGlobalUsingsAssemblyName) { } }')" />
+    </ItemGroup>
+
+    <WriteLinesToFile File="$(_FakeGlobalUsingsFile)" Lines="@(_GlobalUsingMocksLines)" WriteOnlyWhenDifferent="true" Overwrite="true" />
+
+    <ItemGroup>
+      <Compile Include="$(_FakeGlobalUsingsFile)" Visible="False" />
+      <FileWrites Include="$(_FakeGlobalUsingsFile)" />
+
+      <_GlobalUsingMocksLines Remove="@(_GlobalUsingMocksLines)" />
+      <_UsingsDedup Remove="@(_UsingsDedup)" />
+    </ItemGroup>
+  </Target>
 
 </Project>
