@@ -1,2 +1,39 @@
-﻿<Project>
+<Project>
+
+  <!-- See https://github.com/unoplatform/uno/issues/18603 -->
+  <PropertyGroup>
+    <UnoDisableGenerateGlobalUsingsMock>true</UnoDisableGenerateGlobalUsingsMock>
+  </PropertyGroup>
+  <Target Name="_UnoGenerateGlobalCorrectUsingsMock"
+      BeforeTargets="CoreCompile"
+      DependsOnTargets="_UnoFilterWebSdkGlobalUsings"
+      Condition=" '$(TargetFramework)'=='$(DotNetVersion)-browserwasm' AND '$(Optimize)' != 'true' ">
+    <!--
+      This target is present to work around global usings that provided by the .NET Web SDK
+      that we cannot remove reliably, particular during Hot Reload.
+      As a workaround we generate a temporary file that contains the namespaces and private
+      types that will make global using namespaces valid at compile time.
+    -->
+
+    <PropertyGroup>
+      <_FakeGlobalUsingsFile>$(IntermediateOutputPath)/FakeGlobalUsings.g.cs</_FakeGlobalUsingsFile>
+      <_FakeGlobalUsingsAssemblyName>$(AssemblyName.Replace('.','_'))</_FakeGlobalUsingsAssemblyName>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <_UsingsDedup Include="%(Using.Identity)" KeepDuplicates="false" Condition="'%(Using.Static)' == '' AND '%(Using.Alias)' == ''" />
+      <_GlobalUsingMocksLines Include="@(_UsingsDedup->'namespace %(Identity) { class __HotReloadWorkaround__$(_FakeGlobalUsingsAssemblyName) { } }')" />
+    </ItemGroup>
+
+    <WriteLinesToFile File="$(_FakeGlobalUsingsFile)" Lines="@(_GlobalUsingMocksLines)" WriteOnlyWhenDifferent="true" Overwrite="true" />
+
+    <ItemGroup>
+      <Compile Include="$(_FakeGlobalUsingsFile)" Visible="False" />
+      <FileWrites Include="$(_FakeGlobalUsingsFile)" />
+
+      <_GlobalUsingMocksLines Remove="@(_GlobalUsingMocksLines)" />
+      <_UsingsDedup Remove="@(_UsingsDedup)" />
+    </ItemGroup>
+  </Target>
+
 </Project>
