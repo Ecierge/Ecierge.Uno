@@ -6,9 +6,9 @@
       $(DotNetVersion)-ios;
       $(DotNetVersion)-maccatalyst;
       $(DotNetVersion)-windows10.0.22621;
-      $(DotNetVersion)-browserwasm;
+      $(DotNetVersion);
       $(DotNetVersion)-desktop;
-      $(DotNetVersion)
+      $(DotNetVersion)-browserwasm
     </TargetFrameworks>
 
     <UnoSingleProject>true</UnoSingleProject>
@@ -55,4 +55,4 @@
     <PackageReference Include="OpenIddict.Core" />
   </ItemGroup>
 
-  </Project>
+</Project>
