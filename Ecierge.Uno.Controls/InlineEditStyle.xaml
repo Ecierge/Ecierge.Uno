@@ -35,6 +35,7 @@
                                     ContentTemplate="{TemplateBinding ViewContentTemplate}" />
                   <HyperlinkButton Grid.Column="1"
                                    Command="{TemplateBinding ViewCommand}"
+                                   Visibility="{Binding IsEditable, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource Mode=TemplatedParent}}"
                                    Padding="6" Margin="2" HorizontalAlignment="Right" >
                     <IconSourceElement IconSource="{Binding ViewCommand.IconSource, RelativeSource={RelativeSource Mode=TemplatedParent}}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     <i:Interaction.Behaviors>

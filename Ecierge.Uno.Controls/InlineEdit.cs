@@ -10,6 +10,26 @@ public sealed partial class InlineEdit : Control
 {
     private const string PART_EditContentPresenter = "PART_EditContentPresenter";
 
+    #region IsEditable
+
+    /// <summary>
+    /// IsEditable Dependency Property
+    /// </summary>
+    public static readonly DependencyProperty IsEditableProperty =
+        DependencyProperty.Register(nameof(IsEditable), typeof(bool), typeof(InlineEdit), new ((bool)true));
+
+    /// <summary>
+    /// Gets or sets the IsEditable property. This dependency property
+    /// indicates whether the control can switch to edit mope.
+    /// </summary>
+    public bool IsEditable
+    {
+        get => (bool)GetValue(IsEditableProperty);
+        set => SetValue(IsEditableProperty, value);
+    }
+
+    #endregion IsEditable
+
     #region IsEditing
 
     /// <summary>

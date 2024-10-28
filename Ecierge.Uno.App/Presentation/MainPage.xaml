@@ -54,7 +54,10 @@
         <ctrl:InlineEdit x:Name="InlineEdit" Content="{Binding}">
           <ctrl:InlineEdit.ViewContentTemplate>
             <DataTemplate>
-              <HyperlinkButton Content="{Binding Name}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+              <HyperlinkButton Content="{Binding Name}"
+                               IsEnabled="{Binding IsEditable, ElementName=InlineEdit}"
+                               HorizontalAlignment="Stretch"
+                               HorizontalContentAlignment="Stretch">
                 <i:Interaction.Behaviors>
                   <ic:EventTriggerBehavior EventName="Click">
                     <ic:ChangePropertyAction TargetObject="{Binding ElementName=InlineEdit}" PropertyName="IsEditing" Value="True" />
@@ -78,6 +81,7 @@
             <XamlUICommand IconSource="{ct:SymbolIconSource Symbol=Cancel}" />
           </ctrl:InlineEdit.SecondaryEditCommand>-->
         </ctrl:InlineEdit>
+        <CheckBox Content="IsEditable" IsChecked="{Binding IsEditable, ElementName=InlineEdit, Mode=TwoWay}" />
         <developerTools:FocusTracker IsActive="True" />
         <TextBox Text="{Binding Name, Mode=TwoWay}"
             PlaceholderText="Enter your name:" />

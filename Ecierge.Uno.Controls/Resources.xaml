@@ -3,6 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:ctc="using:CommunityToolkit.WinUI.Converters">
 
+  <ctc:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
   <ctc:EmptyObjectToObjectConverter x:Key="NullToVisibilityConverter">
     <ctc:EmptyObjectToObjectConverter.EmptyValue>
       <Visibility>Collapsed</Visibility>
