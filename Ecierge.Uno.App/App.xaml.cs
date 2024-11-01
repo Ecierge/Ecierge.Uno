@@ -75,7 +75,7 @@ public partial class App : Application
                 .UseLocalization()
                 // Register Json serializers (ISerializer and ISerializer)
                 .UseSerialization((context, services) => services
-                    .AddContentSerializer(context)
+                    //.AddContentSerializer(context)
                     .AddJsonTypeInfo(WeatherForecastContext.Default.IImmutableListWeatherForecast))
                 .UseHttp((context, services) => services
                     // Register HttpClient
