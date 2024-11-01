@@ -371,6 +371,7 @@ public static class NavigatorExtensions
         {
             NavigationResult result;
             NavigationData? navigationData = data as NavigationData;
+            INavigationData routeNavigationData = (navigator.Route.Data ?? NavigationData.Empty).Union(navigationData);
             if (segment.Data is DataSegment dataSegment)
             {
                 object? routeData;
@@ -385,7 +386,7 @@ public static class NavigatorExtensions
                 if (dataSegment.IsMandatory && data is null)
                     throw new InvalidOperationException($"No data segment value found with name '{dataSegment.Name}'");
 
-                result = await navigator.NavigateAsync(new DataSegmentNavigationRequest(initiator, dataSegment, routeData, navigationData));
+                result = await navigator.NavigateAsync(new DataSegmentNavigationRequest(initiator, dataSegment, routeData, routeNavigationData));
                 if (result.Success)
                 {
                     await navigator.WaitForVisualTreeAsync();
@@ -398,7 +399,7 @@ public static class NavigatorExtensions
                 navigator.RaiseNavigationStarted(() => navigator.Route.Add(segment));
                 if (segment is DialogSegment dialogSegment)
                 {
-                    result = await navigator.NavigateAsync(new DialogSegmentNavigationRequest(initiator, dialogSegment, navigator.Region.Segment, navigationData));
+                    result = await navigator.NavigateAsync(new DialogSegmentNavigationRequest(initiator, dialogSegment, navigator.Region.Segment, routeNavigationData));
                     if (result.Success)
                     {
                         await navigator.WaitForVisualTreeAsync();
@@ -408,7 +409,7 @@ public static class NavigatorExtensions
                 }
                 else
                 {
-                    result = await navigator.NavigateAsync(new NameSegmentNavigationRequest(initiator, segment, navigationData));
+                    result = await navigator.NavigateAsync(new NameSegmentNavigationRequest(initiator, segment, routeNavigationData));
                     if (result.Success)
                     {
                         await navigator.WaitForVisualTreeAsync();
