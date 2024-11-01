@@ -49,10 +49,13 @@
       Mvvm;
       Configuration;
       Http;
-      Serialization;
       Localization;
       ThemeService;
     </UnoFeatures>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <WasmShellLoadAllSatelliteResources>true</WasmShellLoadAllSatelliteResources>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Debug' or '$(IsUiAutomationMappingEnabled)'=='True'">
