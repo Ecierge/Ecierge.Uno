@@ -13,7 +13,7 @@
     All features: https://platform.uno/docs/articles/features/using-the-uno-sdk.html?tabs=uno-packages#uno-platform-features
   -->
   <PropertyGroup>
-    <WindowsSdkPackageVersion>10.0.22621.48</WindowsSdkPackageVersion>
+    <!--<WindowsSdkPackageVersion>10.0.22621.54</WindowsSdkPackageVersion>-->
     <UnoExtensionsVersion>5.1.2</UnoExtensionsVersion> <!-- https://www.nuget.org/packages/Uno.Extensions.Core -->
     <UnoLoggingVersion>1.7.0</UnoLoggingVersion> <!-- https://www.nuget.org/packages/Uno.Extensions.Logging.OSLog -->
     <UnoCoreLoggingSingletonVersion>4.1.1</UnoCoreLoggingSingletonVersion> <!-- https://www.nuget.org/packages/Uno.Core.Extensions.Logging -->
