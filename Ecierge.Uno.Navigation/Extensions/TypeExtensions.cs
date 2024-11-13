@@ -42,7 +42,7 @@ internal static class TypeExtensions
             }
 
             var paras = ctr.GetParameters();
-            var args = new List<object?>();
+            var args = new List<object?>(paras.Length);
             var dataRegistry = services.GetRequiredService<INavigationDataRegistry>();
             foreach (var para in paras)
             {
