@@ -11,6 +11,7 @@
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="NUnit" />
     <PackageReference Include="NUnit3TestAdapter" />
+    <PackageReference Include="System.Text.Json" />
     <PackageReference Include="Uno.UITest.Helpers" />
     <PackageReference Include="Xamarin.UITest" />
   </ItemGroup>

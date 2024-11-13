@@ -48,6 +48,7 @@
     <PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" />
     <PackageReference Include="CommunityToolkit.WinUI.Converters" />
     <PackageReference Include="CommunityToolkit.WinUI.Triggers" />
+    <PackageReference Include="System.Private.Uri" />
   </ItemGroup>
 
 </Project>
