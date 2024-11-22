@@ -13,12 +13,11 @@
     All features: https://platform.uno/docs/articles/features/using-the-uno-sdk.html?tabs=uno-packages#uno-platform-features
   -->
   <PropertyGroup>
-    <!--<WindowsSdkPackageVersion>10.0.22621.54</WindowsSdkPackageVersion>-->
+    <WindowsSdkPackageVersion>10.0.26100.57</WindowsSdkPackageVersion> <!-- https://www.nuget.org/packages/Microsoft.Windows.SDK.NET.Ref -->
     <UnoExtensionsVersion>5.1.2</UnoExtensionsVersion> <!-- https://www.nuget.org/packages/Uno.Extensions.Core -->
     <UnoLoggingVersion>1.7.0</UnoLoggingVersion> <!-- https://www.nuget.org/packages/Uno.Extensions.Logging.OSLog -->
     <UnoCoreLoggingSingletonVersion>4.1.1</UnoCoreLoggingSingletonVersion> <!-- https://www.nuget.org/packages/Uno.Core.Extensions.Logging -->
     <UnoResizetizerVersion>1.6.0</UnoResizetizerVersion> <!-- https://www.nuget.org/packages/Uno.Resizetizer -->
-    <UnoToolkitVersion>6.3.5</UnoToolkitVersion> <!-- https://www.nuget.org/packages/Uno.Toolkit -->
     <UnoThemesVersion>5.3.1</UnoThemesVersion> <!-- https://www.nuget.org/packages/Uno.Themes -->
     <UnoUniversalImageLoaderVersion>1.9.37</UnoUniversalImageLoaderVersion> <!-- https://www.nuget.org/packages/Uno.UniversalImageLoader -->
     <UnoWasmBootstrapVersion>8.0.21</UnoWasmBootstrapVersion> <!-- https://www.nuget.org/packages/Uno.Wasm.Bootstrap -->
