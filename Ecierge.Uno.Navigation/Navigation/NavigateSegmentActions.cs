@@ -77,8 +77,8 @@ public partial class NavigateLocalSegmentAction : NavigateSegmentActionBase, IAc
         {
             var navigationRegion = element.FindNavigationRegion();
             if (navigationRegion is null) throw new NavigationRegionMissingException(element);
-            // TODO: COnsider not using this condition
-            if (!navigationRegion.Segment.Nested.Any(s => s.Name == SegmentName) && navigationRegion.Parent is not null)
+            // TODO: Consider not using this condition
+            if (!navigationRegion.Segment.NestedAfterData.Any(s => s.Name == SegmentName) && navigationRegion.Parent is not null)
                 navigationRegion = navigationRegion.Parent!;
             return navigationRegion.Navigator.NavigateLocalSegmentAsync(sender, SegmentName!, SegmentData);
         }
