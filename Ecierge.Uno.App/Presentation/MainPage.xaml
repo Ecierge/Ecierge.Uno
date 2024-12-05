@@ -9,6 +9,7 @@
       xmlns:nav="using:Ecierge.Uno.Navigation"
       xmlns:utu="using:Uno.Toolkit.UI"
       xmlns:um="using:Uno.Material"
+      xmlns:bread="using:Ecierge.Uno.Controls.LocationBreadcrumb"
       xmlns:developerTools="using:CommunityToolkit.WinUI.DeveloperTools"
       NavigationCacheMode="Required"
       Background="{ThemeResource BackgroundBrush}">
@@ -85,6 +86,39 @@
         <developerTools:FocusTracker IsActive="True" />
         <TextBox Text="{Binding Name, Mode=TwoWay}"
             PlaceholderText="Enter your name:" />
+
+        <BreadcrumbBar x:Name="BreadcrumbBar2">
+          <BreadcrumbBar.ItemTemplate>
+            <DataTemplate x:DataType="local:Folder">
+              <BreadcrumbBarItem Content="{Binding}" AutomationProperties.Name="{Binding Name}">
+                <BreadcrumbBarItem.ContentTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding Name}" />
+                  </DataTemplate>
+                </BreadcrumbBarItem.ContentTemplate>
+              </BreadcrumbBarItem>
+            </DataTemplate>
+          </BreadcrumbBar.ItemTemplate>
+        </BreadcrumbBar>
+
+        <bread:LocationBreadcrumbBar x:Name="BreadcrumbBar3">
+          <bread:LocationBreadcrumbBar.ItemTemplate>
+            <DataTemplate x:DataType="local:Folder">
+              <bread:LocationBreadcrumbBarItem SelectedItem="{Binding}" AutomationProperties.Name="{Binding Name}">
+                <bread:LocationBreadcrumbBarItem.ItemTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding Name}" />
+                  </DataTemplate>
+                </bread:LocationBreadcrumbBarItem.ItemTemplate>
+              </bread:LocationBreadcrumbBarItem>
+            </DataTemplate>
+          </bread:LocationBreadcrumbBar.ItemTemplate>
+        </bread:LocationBreadcrumbBar>
+
+
+        <TextBlock Text="Folder 1"></TextBlock>
+
+
         
         <ctrl:CoordinatesNumberBox/>
         
