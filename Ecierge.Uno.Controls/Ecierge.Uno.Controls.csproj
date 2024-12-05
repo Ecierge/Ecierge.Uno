@@ -1,4 +1,4 @@
-﻿<Project Sdk="Uno.Sdk">
+<Project Sdk="Uno.Sdk">
   <PropertyGroup>
     <TargetFrameworks>
       $(DotNetVersion)-android;
@@ -49,6 +49,7 @@
     <PackageReference Include="CommunityToolkit.WinUI.Converters" />
     <PackageReference Include="CommunityToolkit.WinUI.Triggers" />
     <PackageReference Include="System.Private.Uri" />
+    <PackageReference Include="System.Reactive" />
   </ItemGroup>
 
 </Project>
