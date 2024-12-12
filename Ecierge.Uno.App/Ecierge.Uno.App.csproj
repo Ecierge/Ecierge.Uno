@@ -4,7 +4,7 @@
       $(DotNetVersion)-android;
       $(DotNetVersion)-ios;
       $(DotNetVersion)-maccatalyst;
-      $(DotNetVersion)-windows10.0.22621;
+      $(DotNetVersion)-windows10.0.26100;
       $(DotNetVersion)-browserwasm;
       $(DotNetVersion)-desktop;
       $(DotNetVersion)

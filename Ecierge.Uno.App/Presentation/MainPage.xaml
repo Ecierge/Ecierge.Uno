@@ -91,7 +91,7 @@
         <Button Content="Go to Second Page with target">
           <i:Interaction.Behaviors>
             <ic:EventTriggerBehavior EventName="Click">
-              <nav:NavigateLocalSegmentAction Target="{x:Bind}" SegmentName="Second" SegmentData="{Binding Name}" />
+              <nav:NavigateLocalSegmentAction TargetElement="{x:Bind}" SegmentName="Second" SegmentData="{Binding Name}" />
             </ic:EventTriggerBehavior>
           </i:Interaction.Behaviors>
         </Button>
