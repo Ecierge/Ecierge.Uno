@@ -24,7 +24,9 @@ public partial class LocationBreadcrumbBarItem : ComboBox
 
     // Contains the 1-indexed assigned to the element
     private int m_index;
-    private bool m_isEllipsisDropDownItem;
+    private bool m_isEllipsisDropDownItem = false;
+    private FrameworkElement _lastFocusedElement;
+    private bool _isKeyPressed = false;
 
     // Inline item fields
 
@@ -33,6 +35,7 @@ public partial class LocationBreadcrumbBarItem : ComboBox
 
     // BreadcrumbBarItem visual representation
     private Button? m_button = null;
+    private ComboBox? m_comboBox = null;
     // Parent BreadcrumbBarItem to ask for hidden elements
     private ManagedWeakReference? m_parentBreadcrumb = null;
 
@@ -41,6 +44,7 @@ public partial class LocationBreadcrumbBarItem : ComboBox
     private ItemsRepeater? m_ellipsisItemsRepeater = null;
     private IElementFactoryShim? m_ellipsisDropDownItemDataTemplate = null;
     private LocationBreadcrumbElementFactory? m_ellipsisElementFactory = null;
+
 
     // Ellipsis dropdown item fields
 

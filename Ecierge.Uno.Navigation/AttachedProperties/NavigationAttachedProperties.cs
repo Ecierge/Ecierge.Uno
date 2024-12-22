@@ -7,6 +7,7 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 
 using CommunityToolkit.WinUI;
+using Microsoft.UI.Dispatching;
 
 public static class Navigation
 {
@@ -40,11 +41,21 @@ public static class Navigation
         return navigationRegion;
     }
 
-    public static void SetSegment([NotNull] this FrameworkElement element, string value)
+    public static async void SetSegment([NotNull] this FrameworkElement element, string value)
     {
-        var parentNavigationRegion =
-            element.FindParentNavigationRegion() ??
-            throw new RootNavigationRegionMissingException();
+
+        //var parentNavigationRegion =
+        //    element.FindParentNavigationRegion() 
+        //    ?? throw new RootNavigationRegionMissingException();
+        var parentNavigationRegion = element.FindParentNavigationRegion();
+
+        if (parentNavigationRegion == null)
+        {
+            await Task.Delay(1000);
+            var tcs = new TaskCompletionSource();
+            element.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, () => tcs.SetResult());
+            await tcs.Task;
+        }
 
         var navigationBoundary = element.FindNavigationBoundary();
 
