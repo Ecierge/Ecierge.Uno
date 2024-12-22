@@ -107,7 +107,6 @@ public partial class LocationBreadcrumbBar : Control
                 itemsRepeater.Loaded -= OnLocationBreadcrumbBarItemsRepeaterLoaded;
             });
             itemsRepeater.Loaded += OnLocationBreadcrumbBarItemsRepeaterLoaded;
-
         }
         UpdateItemsRepeaterItemsSource();
     }
@@ -192,7 +191,7 @@ public partial class LocationBreadcrumbBar : Control
 
             if (m_itemsRepeater is { } itemsRepeater)
             {
-                m_itemsIterable = new LocationBreadcrumbIterable(ItemsSource);
+                m_itemsIterable = new LocationBreadcrumbIterable (ItemsSource);
                 itemsRepeater.ItemsSource = m_itemsIterable;
             }
 
@@ -570,8 +569,6 @@ public partial class LocationBreadcrumbBar : Control
         bool flowDirectionIsLTR = (FlowDirection == Microsoft.UI.Xaml.FlowDirection.LeftToRight);
         bool keyIsLeft = (args.Key == VirtualKey.Left);
         bool keyIsRight = (args.Key == VirtualKey.Right);
-
-
 
         // Moving to the next element
         if ((flowDirectionIsLTR && keyIsRight) || (!flowDirectionIsLTR && keyIsLeft))

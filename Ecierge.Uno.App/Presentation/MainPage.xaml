@@ -17,8 +17,8 @@
       <VisualStateGroup x:Name="NavigationRegionStates">
         <VisualState x:Name="Tab1State">
           <VisualState.StateTriggers>
-            <ct:IsEqualStateTrigger Value="{Binding Path=(nav:NavigationRegion.NestedSegmentName), ElementName=SelectorBar}"
-                                    To="{x:Bind SelectorBarItem1.Text}" />
+            <!--<ct:IsEqualStateTrigger Value="{Binding Path=(nav:NavigationRegion.NestedSegmentName), ElementName=SelectorBar}"
+                                    To="{x:Bind SelectorBarItem1.Text}" />-->
             <!--<nav:SegmentNameTrigger TargetNavigationRegion="{x:Bind SelectorBar}"
                                     SegmentName="{x:Bind SelectorBarItem1.Text}" />-->
           </VisualState.StateTriggers>
@@ -29,8 +29,8 @@
         </VisualState>
         <VisualState x:Name="Tab2State">
           <VisualState.StateTriggers>
-            <ct:IsEqualStateTrigger Value="{Binding Path=(nav:NavigationRegion.NestedSegmentName), ElementName=SelectorBar}"
-                                    To="{x:Bind SelectorBarItem2.Text}" />
+            <!--<ct:IsEqualStateTrigger Value="{Binding Path=(nav:NavigationRegion.NestedSegmentName), ElementName=SelectorBar}"
+                                    To="{x:Bind SelectorBarItem2.Text}" />-->
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="Tab1Content.Visibility"  Value="Collapsed" />
@@ -103,10 +103,10 @@
         <bctrl:LocationBreadcrumbBar x:Name="BreadcrumbBar3">
           <bctrl:LocationBreadcrumbBar.ItemTemplate>
             <DataTemplate x:DataType="local:Folder">
-              <ctrl:LocationBreadcrumbBarItem SelectedItem="{Binding SubFolders}"
+              <bread:LocationBreadcrumbBarItem SelectedItem="{Binding SubFolders}"
                                               PlaceholderText="{Binding Name}"
                                               AutomationProperties.Name="{Binding Name}">
-                <ctrl:LocationBreadcrumbBarItem.ItemTemplate>
+                <bread:LocationBreadcrumbBarItem.ItemTemplate>
                   <DataTemplate>
                     <TextBlock Text="{Binding Name}" />
                   </DataTemplate>
@@ -115,6 +115,7 @@
             </DataTemplate>
           </ctrl:LocationBreadcrumbBar.ItemTemplate>
         </ctrl:LocationBreadcrumbBar>-->
+
 
 
 
@@ -177,7 +178,7 @@
         <SelectorBar x:Name="SelectorBar" nav:NavigationRegion.ForSegment="Main">
           <SelectorBarItem x:Name="SelectorBarItem1" nav:Route.SegmentName="Tab1" Text="Tab1" />
           <SelectorBarItem x:Name="SelectorBarItem2" nav:Route.SegmentName="Tab2" Text="Tab2" />
-        </SelectorBar>
+        </SelectorBar>-->
         <Grid>
           <TextBlock x:Name="Tab1Content" Visibility="Collapsed">Tab1 Content</TextBlock>
           <TextBlock x:Name="Tab2Content" Visibility="Collapsed">Tab2 Content</TextBlock>

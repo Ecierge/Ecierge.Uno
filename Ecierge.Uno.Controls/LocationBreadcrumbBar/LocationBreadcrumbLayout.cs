@@ -117,7 +117,7 @@ internal partial class LocationBreadcrumbLayout : NonVirtualizingLayout
             float newAccumLength = accumLength + (float)GetElementAt(context, i).DesiredSize.Width;
             if (newAccumLength > m_availableSize.Width)
             {
-                return i + 1;
+                return i;
             }
             accumLength = newAccumLength;
         }

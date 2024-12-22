@@ -128,7 +128,7 @@ public partial class App : Application
             //    nested:
             //    [
                     new ("Main", views[typeof(MainPage)], isDefault:true, [
-                            new ("Tab1", isDefault: true),
+                            new ("Tab1", isDefault: false),
                             new ("Tab2"),
                             new DialogSegment("Dialog", views[typeof(MainPage)], nested:[
                                     new ("Tab1", isDefault: true),

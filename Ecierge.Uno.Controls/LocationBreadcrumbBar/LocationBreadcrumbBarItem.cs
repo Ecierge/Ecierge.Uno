@@ -195,6 +195,8 @@ public partial class LocationBreadcrumbBarItem : ComboBox
                 });
             }
 
+            //m_comboBox!.SelectedItem = "FolderFolder";
+
             UpdateButtonCommonVisualState(false /*useTransitions*/);
             UpdateInlineItemTypeVisualState(false /*useTransitions*/);
         }

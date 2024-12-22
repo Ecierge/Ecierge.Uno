@@ -1,6 +1,7 @@
 namespace Ecierge.Uno.Navigation;
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.UI.Dispatching;
 
 public static class NavigationRegion
 {
@@ -40,7 +41,16 @@ public static class NavigationRegion
             }
             else
             {
-                element.SetSegment(newSegmentName);
+                if (shouldAttach && !isAttached)
+                {
+                    element.AttachRegion();
+                    element.Unloaded += OnUnloaded;
+                }
+                if (!shouldAttach && isAttached)
+                {
+                    element.DetachRegion();
+                }
+#endif
             }
 
             void OnLoaded(object e, RoutedEventArgs args)
@@ -61,6 +71,67 @@ public static class NavigationRegion
     }
 
     #endregion ForSegment
+
+    #region AttachForSegmentName
+
+    /// <summary>
+    /// AttachForSegmentName Attach Dependency Property
+    /// </summary>
+    public static readonly DependencyProperty AttachForSegmentNameProperty =
+        DependencyProperty.RegisterAttached("AttachForSegmentName", typeof(string), typeof(NavigationRegion), new((string?)null, OnAttachForSegmentNameChanged));
+
+    /// <summary>
+    /// Gets the AttachForSegmentName property. This dependency property
+    /// indicates the name of segment for navigation within it.
+    /// </summary>
+    public static string? GetAttachForSegmentName(FrameworkElement element) => (string?)element.GetValue(AttachForSegmentNameProperty);
+
+    /// <summary>
+    /// Sets the AttachForSegmentName property. This dependency property
+    /// indicates the name of segment for navigation within it.
+    /// </summary>
+    public static void SetAttachForSegmentName(FrameworkElement element, string? value) => element.SetValue(AttachForSegmentNameProperty, value);
+
+    /// <summary>
+    /// Handles changes to the AttachForSegmentName property.
+    /// </summary>
+    private static void OnAttachForSegmentNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (GetAttach((d as FrameworkElement)!))
+            throw new InvalidOperationException("Cannot set AttachForSegmentName and Attach properties at the same time.");
+
+        string oldValue = (string)e.OldValue;
+        string newValue = (string)d.GetValue(AttachForSegmentNameProperty);
+
+        if (d is FrameworkElement element)
+        {
+            if (!element.IsLoaded)
+            {
+                element.Loaded += OnLoaded;
+            }
+            else
+            {
+                element.AttachRegion(newValue);
+                element.Unloaded += OnUnloaded;
+            }
+
+            void OnLoaded(object e, RoutedEventArgs args)
+            {
+                element.Loaded -= OnLoaded;
+                element.AttachRegion(newValue);
+                element.Unloaded += OnUnloaded;
+            }
+
+            void OnUnloaded(object e, RoutedEventArgs args)
+            {
+                element.Unloaded -= OnUnloaded;
+                element.DetachRegion();
+            }
+        }
+
+    }
+
+    #endregion AttachForSegmentName
 
     #region IsBoundary
 
