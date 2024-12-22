@@ -1,6 +1,7 @@
 namespace Ecierge.Uno.Navigation;
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.UI.Dispatching;
 
 public static class NavigationRegion
 {
@@ -114,12 +115,14 @@ public static class NavigationRegion
             {
                 element.AttachRegion(newValue);
                 element.Unloaded += OnUnloaded;
+#endif
             }
 
             void OnLoaded(object e, RoutedEventArgs args)
             {
                 element.Loaded -= OnLoaded;
                 element.AttachRegion(newValue);
+#endif
                 element.Unloaded += OnUnloaded;
             }
 

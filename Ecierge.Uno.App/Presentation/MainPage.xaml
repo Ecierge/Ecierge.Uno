@@ -18,8 +18,8 @@
       <VisualStateGroup x:Name="NavigationRegionStates">
         <VisualState x:Name="Tab1State">
           <VisualState.StateTriggers>
-            <ct:IsEqualStateTrigger Value="{Binding Path=(nav:NavigationRegion.NestedSegmentName), ElementName=SelectorBar}"
-                                    To="{x:Bind SelectorBarItem1.Text}" />
+            <!--<ct:IsEqualStateTrigger Value="{Binding Path=(nav:NavigationRegion.NestedSegmentName), ElementName=SelectorBar}"
+                                    To="{x:Bind SelectorBarItem1.Text}" />-->
             <!--<nav:SegmentNameTrigger TargetNavigationRegion="{x:Bind SelectorBar}"
                                     SegmentName="{x:Bind SelectorBarItem1.Text}" />-->
           </VisualState.StateTriggers>
@@ -30,8 +30,8 @@
         </VisualState>
         <VisualState x:Name="Tab2State">
           <VisualState.StateTriggers>
-            <ct:IsEqualStateTrigger Value="{Binding Path=(nav:NavigationRegion.NestedSegmentName), ElementName=SelectorBar}"
-                                    To="{x:Bind SelectorBarItem2.Text}" />
+            <!--<ct:IsEqualStateTrigger Value="{Binding Path=(nav:NavigationRegion.NestedSegmentName), ElementName=SelectorBar}"
+                                    To="{x:Bind SelectorBarItem2.Text}" />-->
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="Tab1Content.Visibility"  Value="Collapsed" />
@@ -78,9 +78,9 @@
           <ctrl:InlineEdit.PrimaryEditCommand>
             <XamlUICommand IconSource="{ct:SymbolIconSource Symbol=Accept}" />
           </ctrl:InlineEdit.PrimaryEditCommand>
-          <!--<ctrl:InlineEdit.SecondaryEditCommand>
+          <ctrl:InlineEdit.SecondaryEditCommand>
             <XamlUICommand IconSource="{ct:SymbolIconSource Symbol=Cancel}" />
-          </ctrl:InlineEdit.SecondaryEditCommand>-->
+          </ctrl:InlineEdit.SecondaryEditCommand>
         </ctrl:InlineEdit>
         <CheckBox Content="IsEditable" IsChecked="{Binding IsEditable, ElementName=InlineEdit, Mode=TwoWay}" />
         <developerTools:FocusTracker IsActive="True" />
@@ -104,7 +104,9 @@
         <bread:LocationBreadcrumbBar x:Name="BreadcrumbBar3">
           <bread:LocationBreadcrumbBar.ItemTemplate>
             <DataTemplate x:DataType="local:Folder">
-              <bread:LocationBreadcrumbBarItem SelectedItem="{Binding}" AutomationProperties.Name="{Binding Name}">
+              <bread:LocationBreadcrumbBarItem SelectedItem="{Binding SubFolders}"
+                                              PlaceholderText="{Binding Name}"
+                                              AutomationProperties.Name="{Binding Name}">
                 <bread:LocationBreadcrumbBarItem.ItemTemplate>
                   <DataTemplate>
                     <TextBlock Text="{Binding Name}" />
@@ -114,6 +116,7 @@
             </DataTemplate>
           </bread:LocationBreadcrumbBar.ItemTemplate>
         </bread:LocationBreadcrumbBar>
+
 
 
         <TextBlock Text="Folder 1"></TextBlock>
@@ -175,10 +178,10 @@
           </i:Interaction.Behaviors>
         </Button>
         <!-- Route.NestedSegmentName -->
-        <SelectorBar x:Name="SelectorBar" nav:NavigationRegion.Attach="True">
+        <!--<SelectorBar x:Name="SelectorBar" nav:NavigationRegion.ForSegment="Main">
           <SelectorBarItem x:Name="SelectorBarItem1" nav:Route.SegmentName="Tab1" Text="Tab1" />
           <SelectorBarItem x:Name="SelectorBarItem2" nav:Route.SegmentName="Tab2" Text="Tab2" />
-        </SelectorBar>
+        </SelectorBar>-->
         <Grid>
           <TextBlock x:Name="Tab1Content" Visibility="Collapsed">Tab1 Content</TextBlock>
           <TextBlock x:Name="Tab2Content" Visibility="Collapsed">Tab2 Content</TextBlock>

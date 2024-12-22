@@ -69,21 +69,21 @@ public partial class NavigateRootRouteAction : NavigateRouteActionBase, IAction
 public abstract partial class NavigateTargetRouteActionBase : NavigateRouteActionBase
 {
 
-    #region TargetElement
+    #region Target
 
     /// <summary>
     /// Target Dependency Property
     /// </summary>
-    public static readonly DependencyProperty TargetElementProperty =
-        DependencyProperty.Register(nameof(TargetElement), typeof(FrameworkElement), typeof(NavigateSegmentActionBase), new((FrameworkElement?)null));
+    public static readonly DependencyProperty TargetProperty =
+        DependencyProperty.Register(nameof(Target), typeof(FrameworkElement), typeof(NavigateSegmentActionBase), new((FrameworkElement?)null));
     /// <summary>
     /// Gets or sets the Target property. This dependency property
     /// indicates the FrameworkElement that has a navigation region.
     /// </summary>
-    public FrameworkElement? TargetElement
+    public FrameworkElement? Target
     {
-        get { return (FrameworkElement?)GetValue(TargetElementProperty); }
-        set { SetValue(TargetElementProperty, value); }
+        get { return (FrameworkElement?)GetValue(TargetProperty); }
+        set { SetValue(TargetProperty, value); }
     }
 
 #endregion
@@ -93,7 +93,7 @@ public partial class NavigateLocalRouteAction : NavigateTargetRouteActionBase, I
 {
     public object? Execute(object sender, object parameter)
     {
-        var target = TargetElement ?? sender;
+        var target = Target ?? sender;
 
         if (navigationRegion is null && target is FrameworkElement element)
         {
@@ -112,7 +112,7 @@ public partial class NavigateNestedRouteAction : NavigateTargetRouteActionBase, 
 {
     public object? Execute(object sender, object parameter)
     {
-        var target = TargetElement ?? sender;
+        var target = Target ?? sender;
         if (navigationRegion is null && target is FrameworkElement element)
         {
             navigationRegion = element.FindNavigationRegion();

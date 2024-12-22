@@ -59,6 +59,7 @@ public partial class LocationBreadcrumbBar : Control
         PreviewKeyDown -= OnChildPreviewKeyDown;
         UnregisterPropertyChangedCallback(FlowDirectionProperty, _flowPropertyToken);
 #endif
+        //KeyUp -= OnChildKeyUp;
     }
 
     protected override void OnApplyTemplate()
@@ -71,7 +72,10 @@ public partial class LocationBreadcrumbBar : Control
 
         m_itemsRepeater = (ItemsRepeater)GetTemplateChild(s_itemsRepeaterPartName);
 
+
         PreviewKeyDown += OnChildPreviewKeyDown;
+
+        //KeyUp += OnChildKeyUp;
         AccessKeyInvoked += OnAccessKeyInvoked;
         GettingFocus += OnGettingFocus;
 
@@ -108,8 +112,8 @@ public partial class LocationBreadcrumbBar : Control
                 itemsRepeater.Loaded -= OnLocationBreadcrumbBarItemsRepeaterLoaded;
             });
             itemsRepeater.Loaded += OnLocationBreadcrumbBarItemsRepeaterLoaded;
-        }
 
+        }
         UpdateItemsRepeaterItemsSource();
     }
 
@@ -193,7 +197,7 @@ public partial class LocationBreadcrumbBar : Control
 
             if (m_itemsRepeater is { } itemsRepeater)
             {
-                m_itemsIterable = new LocationBreadcrumbIterable(ItemsSource);
+                m_itemsIterable = new LocationBreadcrumbIterable (ItemsSource);
                 itemsRepeater.ItemsSource = m_itemsIterable;
             }
 
@@ -292,7 +296,7 @@ public partial class LocationBreadcrumbBar : Control
                     m_ellipsisLocationBreadcrumbBarItem = item;
                     UpdateEllipsisLocationBreadcrumbBarItemDropDownItemTemplate();
 
-                    //AutomationProperties.SetName(item, ResourceAccessor.GetLocalizedStringResource(ResourceAccessor.SR_AutomationNameEllipsisLocationBreadcrumbBarItem));
+                    AutomationProperties.SetName(item, "Ellipsis - Navigation Bar");
                 }
                 else
                 {
@@ -396,7 +400,7 @@ public partial class LocationBreadcrumbBar : Control
         {
             uint visibleItemsCount = m_itemsRepeaterLayout.GetVisibleItemsCount();
             var isEllipsisRendered = m_itemsRepeaterLayout.EllipsisIsRendered();
-            int firstItemToIndex = 0;
+            int firstItemToIndex = 1;
 
             if (isEllipsisRendered)
             {
@@ -490,7 +494,7 @@ public partial class LocationBreadcrumbBar : Control
         if (m_itemsRepeater is { } itemsRepeater)
         {
             var focusedElem = XamlRoot is null ?
-                FocusManager.GetFocusedElement(null) :                                                                          // HAS_UNO
+                FocusManager.GetFocusedElement(null) :
                 FocusManager.GetFocusedElement(XamlRoot);
             if (focusedElem is Microsoft.UI.Xaml.UIElement focusedElement)
             {
@@ -571,6 +575,9 @@ public partial class LocationBreadcrumbBar : Control
         bool flowDirectionIsLTR = (FlowDirection == Microsoft.UI.Xaml.FlowDirection.LeftToRight);
         bool keyIsLeft = (args.Key == VirtualKey.Left);
         bool keyIsRight = (args.Key == VirtualKey.Right);
+
+
+
 
         // Moving to the next element
         if ((flowDirectionIsLTR && keyIsRight) || (!flowDirectionIsLTR && keyIsLeft))

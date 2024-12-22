@@ -7,10 +7,11 @@
 
 using System.Collections.ObjectModel;
 using Uno.Disposables;
-using Windows.System;
+using VirtualKey = Windows.System.VirtualKey;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft/* UWP don't rename */.UI.Xaml.Automation.Peers;
+using Microsoft.UI.Dispatching;
 #if !HAS_UNO_WINUI // Avoid duplicate using for WinUI build
 using Microsoft.UI.Xaml.Automation.Peers;
 #endif
@@ -23,13 +24,14 @@ using Microsoft.UI.Content;
 using Microsoft.UI.Input;
 using PointerDeviceType = Microsoft.UI.Input.PointerDeviceType;
 using System;
+
 #else
 using PointerDeviceType = Windows.Devices.Input.PointerDeviceType;
 #endif
 
 #if !HAS_UNO
 using IElementFactoryShim = Microsoft.UI.Xaml.IElementFactory;
-#else 
+#else
 using Uno.UI.DataBinding;
 #endif
 
@@ -78,9 +80,11 @@ public partial class LocationBreadcrumbBarItem : ComboBox
         if (m_childPreviewKeyDownToken.Disposable == null)
         {
             PreviewKeyDown += OnChildPreviewKeyDown;
+            PreviewKeyUp += OnChildPreviewKeyUp;
             m_childPreviewKeyDownToken.Disposable = Disposable.Create(() =>
             {
                 PreviewKeyDown += OnChildPreviewKeyDown;
+                PreviewKeyUp += OnChildPreviewKeyUp;
             });
         }
 
@@ -132,6 +136,7 @@ public partial class LocationBreadcrumbBarItem : ComboBox
     {
         base.OnApplyTemplate();
 
+        // Custom ComboBox creating
         if (m_isEllipsisDropDownItem)
         {
             UpdateEllipsisDropDownItemCommonVisualState(false /*useTransitions*/);
@@ -153,8 +158,13 @@ public partial class LocationBreadcrumbBarItem : ComboBox
                 }
 #endif
             }
+            else
+            {
+                m_comboBox = GetTemplateChild("PART_ItemComboBox") as ComboBox;
+            }
 
             m_button = (Button)GetTemplateChild(s_itemButtonPartName);
+
 
             if (m_button is { } button)
             {
@@ -182,6 +192,8 @@ public partial class LocationBreadcrumbBarItem : ComboBox
                     UnregisterPropertyChangedCallback(Control.IsEnabledProperty, isEnabledToken);
                 });
             }
+
+            //m_comboBox!.SelectedItem = "FolderFolder";
 
             UpdateButtonCommonVisualState(false /*useTransitions*/);
             UpdateInlineItemTypeVisualState(false /*useTransitions*/);
@@ -299,13 +311,17 @@ public partial class LocationBreadcrumbBarItem : ComboBox
         {
             throw new InvalidOperationException("m_isEllipsisDropDownItem must be false");
         }
-
+        //if (args.Element is LocationBreadcrumbBarItem ellipsisDropDownItem)
+        //{
+        //    if (ellipsisDropDownItem is { } ellipsisDropDownItemImpl)
+        //    {
+        //        VisualStateManager.GoToState(ellipsisDropDownItemImpl, s_lastItemStateName, useTransitions: false);
+        //        ellipsisDropDownItemImpl.SetIsEllipsisDropDownItem(false /*isEllipsisDropDownItem*/);
+        //    }
+        //}
         if (args.Element is LocationBreadcrumbBarItem ellipsisDropDownItem)
         {
-            if (ellipsisDropDownItem is { } ellipsisDropDownItemImpl)
-            {
-                ellipsisDropDownItemImpl.SetIsEllipsisDropDownItem(true /*isEllipsisDropDownItem*/);
-            }
+            DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Normal, () => VisualStateManager.GoToState(ellipsisDropDownItem, s_lastItemStateName, useTransitions: false));
         }
 
         UpdateFlyoutIndex(args.Element, args.Index);
@@ -331,27 +347,89 @@ public partial class LocationBreadcrumbBarItem : ComboBox
         UpdateInlineItemTypeVisualState(true /*useTransitions*/);
     }
 
+    private T FindChild<T>(DependencyObject parent, string childName) where T : DependencyObject
+    {
+        if (parent == null) return default;
+
+        for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+        {
+            var child = VisualTreeHelper.GetChild(parent, i);
+            if (child is T typedChild && ((FrameworkElement)child).Name == childName)
+            {
+                return typedChild;
+            }
+
+            var result = FindChild<T>(child, childName);
+            if (result != null) return result;
+        }
+
+        return default;
+    }
+    private void ComboBox_DropDownClosed(object sender, object e)
+    {
+        var comboBox = sender as ComboBox;
+        if (comboBox != null)
+        {
+            comboBox.DropDownClosed -= ComboBox_DropDownClosed;
+
+            _lastFocusedElement?.Focus(FocusState.Programmatic);
+        }
+    }
+
     private void OnChildPreviewKeyDown(object sender, KeyRoutedEventArgs args)
     {
-        if (m_isEllipsisDropDownItem)
+        var comboBox = FindChild<ComboBox>(this, "PART_ItemComboBox");
+
+        // Проверяем, была ли клавиша уже обработана
+        if (_isKeyPressed) return;
+
+        // Если нажаты F4 или Enter
+        if (args.Key == VirtualKey.F4 || args.Key == VirtualKey.Enter)
         {
-            if (args.Key == VirtualKey.Enter || args.Key == VirtualKey.Space)
+            _isKeyPressed = true; // Устанавливаем флаг, чтобы избежать повторной обработки
+
+            if (m_isEllipsisDropDownItem)
             {
-                this.OnClickEvent(sender, null);
-                args.Handled = true;
-            }
-        }
-        else if (args.Key == VirtualKey.Enter || args.Key == VirtualKey.Space)
-        {
-            if (m_isEllipsisItem)
-            {
-                OnEllipsisItemClick(null, null);
+                if (!comboBox.IsDropDownOpen)
+                {
+                    this.OnClickEvent(sender, null);
+                    args.Handled = true;
+                }
             }
             else
             {
-                OnLocationBreadcrumbBarItemClick(null, null);
+                _lastFocusedElement = sender as FrameworkElement;
+
+                if (m_isEllipsisItem)
+                {
+                    OnEllipsisItemClick(null, null);
+                }
+                else if (comboBox != null)
+                {
+                    if (!comboBox.IsDropDownOpen)
+                    {
+                        comboBox.Focus(FocusState.Programmatic);
+                        comboBox.IsDropDownOpen = true;
+                        comboBox.DropDownClosed += ComboBox_DropDownClosed;
+                    }
+                    else
+                    {
+                        comboBox.IsDropDownOpen = false;
+                    }
+
+                    args.Handled = true;
+                }
             }
-            args.Handled = true;
+        }
+    }
+
+    // Сброс состояния при отпускании клавиши
+    private void OnChildPreviewKeyUp(object sender, KeyRoutedEventArgs args)
+    {
+        if (args.Key == VirtualKey.F4 || args.Key == VirtualKey.Enter)
+        {
+            _isKeyPressed = false; // Сбрасываем флаг
+            args.Handled = true;   // Отмечаем событие как обработанное
         }
     }
 
@@ -456,17 +534,17 @@ public partial class LocationBreadcrumbBarItem : ComboBox
 
     private void UpdateItemTypeVisualState()
     {
-        VisualStateManager.GoToState(this, m_isEllipsisDropDownItem ? s_ellipsisDropDownStateName : s_inlineStateName, false /*useTransitions*/);
+        VisualStateManager.GoToState(this, m_isEllipsisDropDownItem ? s_lastItemStateName : s_lastItemStateName, false /*useTransitions*/);
     }
 
     private void UpdateEllipsisDropDownItemCommonVisualState(bool useTransitions)
     {
-        if (m_isEllipsisDropDownItem)
-        {
-            throw new InvalidOperationException("m_isEllipsisDropDownItem must be false");
-        }
+        //if (m_isEllipsisDropDownItem)
+        //{
+        //    throw new InvalidOperationException("m_isEllipsisDropDownItem must be false");
+        //}
 
-        string commonVisualStateName;
+        string commonVisualStateName = s_currentStateName;
 
         if (!IsEnabled)
         {
@@ -585,7 +663,6 @@ public partial class LocationBreadcrumbBarItem : ComboBox
                 {
                     flyoutRepeater.ItemsSource = hiddenElements;
                 }
-
                 OpenFlyout();
             }
         }
@@ -600,7 +677,7 @@ public partial class LocationBreadcrumbBarItem : ComboBox
 
         m_isEllipsisItem = false;
         m_isLastItem = true;
-
+        
         UpdateButtonCommonVisualState(false /*useTransitions*/);
         UpdateInlineItemTypeVisualState(false /*useTransitions*/);
     }
@@ -656,7 +733,7 @@ public partial class LocationBreadcrumbBarItem : ComboBox
                 {
                     m_ellipsisElementFactory.UserElementFactory(dataTemplate);
                 }
-
+                
                 m_ellipsisRepeaterElementPreparedRevoker.Disposable = Disposable.Create(() =>
                 {
                     ellipsisItemsRepeater.ElementPrepared -= OnFlyoutElementPreparedEvent;
@@ -675,6 +752,7 @@ public partial class LocationBreadcrumbBarItem : ComboBox
                 AutomationProperties.SetName(ellipsisFlyout, s_ellipsisFlyoutAutomationName);
                 ellipsisFlyout.Content = ellipsisItemsRepeater;
                 ellipsisFlyout.Placement = FlyoutPlacementMode.Bottom;
+
 
                 m_ellipsisFlyout = ellipsisFlyout;
             }
@@ -703,7 +781,6 @@ public partial class LocationBreadcrumbBarItem : ComboBox
         {
             throw new InvalidOperationException("m_isEllipsisDropDownItem must be false");
         }
-
         m_ellipsisItem = ellipsisItem;
     }
 
@@ -837,7 +914,7 @@ public partial class LocationBreadcrumbBarItem : ComboBox
         {
             throw new InvalidOperationException("m_isEllipsisDropDownItem must be false");
         }
-
+        
         if (IgnorePointerId(args))
         {
             return;
