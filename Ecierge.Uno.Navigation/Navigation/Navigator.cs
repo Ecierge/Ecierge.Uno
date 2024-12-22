@@ -177,6 +177,7 @@ public abstract class Navigator
 
     public async Task WaitForVisualTreeAsync()
     {
+        await Task.Delay(5000);
         var tcs = new TaskCompletionSource();
         this.Target.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, () => tcs.SetResult());
         await tcs.Task;

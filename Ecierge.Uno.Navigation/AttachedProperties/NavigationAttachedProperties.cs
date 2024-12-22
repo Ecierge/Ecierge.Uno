@@ -7,6 +7,7 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 
 using CommunityToolkit.WinUI;
+using Microsoft.UI.Dispatching;
 
 public static class Navigation
 {
