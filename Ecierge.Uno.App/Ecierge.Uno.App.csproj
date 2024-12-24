@@ -4,7 +4,7 @@
       $(DotNetVersion)-android;
       $(DotNetVersion)-ios;
       $(DotNetVersion)-maccatalyst;
-      $(DotNetVersion)-windows10.0.22621;
+      $(DotNetVersion)-windows10.0.26100;
       $(DotNetVersion)-browserwasm;
       $(DotNetVersion)-desktop;
       $(DotNetVersion)
@@ -68,6 +68,7 @@
     <PackageReference Include="CommunityToolkit.WinUI.DeveloperTools" />
     <PackageReference Include="CommunityToolkit.WinUI.Triggers" />
     <PackageReference Include="Refit" />
+    <PackageReference Include="Refit.HttpClientFactory" />
   </ItemGroup>
 
   <ItemGroup>

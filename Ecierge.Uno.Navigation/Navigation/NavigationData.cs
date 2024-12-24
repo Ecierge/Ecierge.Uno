@@ -18,6 +18,8 @@ public interface INavigationData : IImmutableDictionary<string, object>
 
     new INavigationData Add(string key, object value);
 
+    new INavigationData Remove(string key);
+
     new INavigationData SetItem(string key, object value);
 
     INavigationData Union(INavigationData? other);

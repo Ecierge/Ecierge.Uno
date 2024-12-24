@@ -11,17 +11,17 @@ public abstract partial class NavigateSegmentActionBase : DependencyObject
     /// <summary>
     /// Target Dependency Property
     /// </summary>
-    public static readonly DependencyProperty TargetProperty =
-        DependencyProperty.Register(nameof(Target), typeof(FrameworkElement), typeof(NavigateSegmentActionBase), new((FrameworkElement?)null));
+    public static readonly DependencyProperty TargetElementProperty =
+        DependencyProperty.Register(nameof(TargetElement), typeof(FrameworkElement), typeof(NavigateSegmentActionBase), new((FrameworkElement?)null));
 
     /// <summary>
     /// Gets or sets the Target property. This dependency property
     /// indicates the FrameworkElement that has a navigation region.
     /// </summary>
-    public FrameworkElement? Target
+    public FrameworkElement? TargetElement
     {
-        get { return (FrameworkElement?)GetValue(TargetProperty); }
-        set { SetValue(TargetProperty, value); }
+        get { return (FrameworkElement?)GetValue(TargetElementProperty); }
+        set { SetValue(TargetElementProperty, value); }
     }
 
     #endregion
@@ -71,14 +71,14 @@ public partial class NavigateLocalSegmentAction : NavigateSegmentActionBase, IAc
 {
     public object? Execute(object sender, object parameter)
     {
-        var target = Target ?? sender;
+        var target = TargetElement ?? sender;
 
         if (target is FrameworkElement element)
         {
             var navigationRegion = element.FindNavigationRegion();
             if (navigationRegion is null) throw new NavigationRegionMissingException(element);
-            // TODO: COnsider not using this condition
-            if (!navigationRegion.Segment.Nested.Any(s => s.Name == SegmentName) && navigationRegion.Parent is not null)
+            // TODO: Consider not using this condition
+            if (!navigationRegion.Segment.NestedAfterData.Any(s => s.Name == SegmentName) && navigationRegion.Parent is not null)
                 navigationRegion = navigationRegion.Parent!;
             return navigationRegion.Navigator.NavigateLocalSegmentAsync(sender, SegmentName!, SegmentData);
         }
@@ -90,7 +90,7 @@ public partial class NavigateNestedSegmentAction : NavigateSegmentActionBase, IA
 {
     public object? Execute(object sender, object parameter)
     {
-        var target = Target ?? sender;
+        var target = TargetElement ?? sender;
         if (target is FrameworkElement element)
         {
             var navigationRegion = element.FindNavigationRegion();
@@ -105,7 +105,7 @@ public partial class NavigateDialogSegmentAction : NavigateSegmentActionBase, IA
 {
     public object? Execute(object sender, object parameter)
     {
-        var target = Target ?? sender;
+        var target = TargetElement ?? sender;
         if (target is FrameworkElement element)
         {
             var navigationRegion = element.FindNavigationRegion();

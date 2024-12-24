@@ -371,7 +371,19 @@ public static class NavigatorExtensions
         {
             NavigationResult result;
             NavigationData? navigationData = data as NavigationData;
-            INavigationData routeNavigationData = (navigator.Route.Data ?? NavigationData.Empty).Union(navigationData);
+            INavigationData? oldRouteData = navigator.Route.Data;
+
+            //TODO: implement full route data clean up
+            if (oldRouteData is not null && navigator.Route.Segments.LastOrDefault() is DataSegmentInstance oldDataSegment)
+            {
+                oldRouteData = oldRouteData.Remove(oldDataSegment.DataSegment.Name);
+            }
+            else
+            {
+                oldRouteData = NavigationData.Empty;
+            }
+
+            INavigationData routeNavigationData = oldRouteData.Union(navigationData);
             if (segment.Data is DataSegment dataSegment)
             {
                 object? routeData;
