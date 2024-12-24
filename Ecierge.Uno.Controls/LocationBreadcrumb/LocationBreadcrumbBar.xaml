@@ -317,7 +317,7 @@
                   FontFamily="{ThemeResource SymbolThemeFontFamily}"
                   FontSize="{TemplateBinding FontSize}"
                   Padding="3"
-                  Text="{Binding}"
+                  Text="{Binding PlaceholderText}"
                   VerticalAlignment="Stretch"
                   IsTextScaleFactorEnabled="False"/>
             <!-- ContentPresenter to be shown only when the rendered item is the Current Item -->

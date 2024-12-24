@@ -156,6 +156,8 @@ public partial class LocationBreadcrumbBarItem : ComboBox
                 {
                     m_ellipsisFlyout = (Flyout)rootGrid.Resources[s_itemEllipsisFlyoutPartName];
                 }
+                m_ellipsisFlyout = (Flyout)GetTemplateChild(s_itemEllipsisFlyoutPartName);
+
 #endif
             }
             else
@@ -192,8 +194,6 @@ public partial class LocationBreadcrumbBarItem : ComboBox
                     UnregisterPropertyChangedCallback(Control.IsEnabledProperty, isEnabledToken);
                 });
             }
-
-            //m_comboBox!.SelectedItem = "FolderFolder";
 
             UpdateButtonCommonVisualState(false /*useTransitions*/);
             UpdateInlineItemTypeVisualState(false /*useTransitions*/);
@@ -311,14 +311,6 @@ public partial class LocationBreadcrumbBarItem : ComboBox
         {
             throw new InvalidOperationException("m_isEllipsisDropDownItem must be false");
         }
-        //if (args.Element is LocationBreadcrumbBarItem ellipsisDropDownItem)
-        //{
-        //    if (ellipsisDropDownItem is { } ellipsisDropDownItemImpl)
-        //    {
-        //        VisualStateManager.GoToState(ellipsisDropDownItemImpl, s_lastItemStateName, useTransitions: false);
-        //        ellipsisDropDownItemImpl.SetIsEllipsisDropDownItem(false /*isEllipsisDropDownItem*/);
-        //    }
-        //}
         if (args.Element is LocationBreadcrumbBarItem ellipsisDropDownItem)
         {
             DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Normal, () => VisualStateManager.GoToState(ellipsisDropDownItem, s_lastItemStateName, useTransitions: false));
@@ -380,13 +372,17 @@ public partial class LocationBreadcrumbBarItem : ComboBox
     {
         var comboBox = FindChild<ComboBox>(this, "PART_ItemComboBox");
 
-        // Проверяем, была ли клавиша уже обработана
         if (_isKeyPressed) return;
 
-        // Если нажаты F4 или Enter
-        if (args.Key == VirtualKey.F4 || args.Key == VirtualKey.Enter)
+        if (args.Key == VirtualKey.F4 || args.Key == VirtualKey.Enter || args.Key == VirtualKey.Space)
         {
-            _isKeyPressed = true; // Устанавливаем флаг, чтобы избежать повторной обработки
+            
+            _isKeyPressed = true;
+            var focusedElement = sender as FrameworkElement;
+            if (focusedElement != null)
+            {
+                System.Diagnostics.Debug.WriteLine($"Element with name '{focusedElement.Name}' got focus.");
+            }
 
             if (m_isEllipsisDropDownItem)
             {
@@ -403,6 +399,7 @@ public partial class LocationBreadcrumbBarItem : ComboBox
                 if (m_isEllipsisItem)
                 {
                     OnEllipsisItemClick(null, null);
+                    if (args.Key == VirtualKey.Tab) throw new Exception();
                 }
                 else if (comboBox != null)
                 {
@@ -416,20 +413,19 @@ public partial class LocationBreadcrumbBarItem : ComboBox
                     {
                         comboBox.IsDropDownOpen = false;
                     }
-
+                    if (args.Key == VirtualKey.Tab) throw new Exception();
                     args.Handled = true;
                 }
             }
         }
     }
 
-    // Сброс состояния при отпускании клавиши
     private void OnChildPreviewKeyUp(object sender, KeyRoutedEventArgs args)
     {
-        if (args.Key == VirtualKey.F4 || args.Key == VirtualKey.Enter)
+        if (args.Key == VirtualKey.F4 || args.Key == VirtualKey.Enter || args.Key == VirtualKey.Space)
         {
-            _isKeyPressed = false; // Сбрасываем флаг
-            args.Handled = true;   // Отмечаем событие как обработанное
+            _isKeyPressed = false; 
+            args.Handled = true;   
         }
     }
 
@@ -507,6 +503,7 @@ public partial class LocationBreadcrumbBarItem : ComboBox
             FlyoutShowOptions options = new();
             flyout.ShowAt(this, options);
         }
+
     }
 
     private void CloseFlyout()
