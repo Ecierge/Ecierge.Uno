@@ -17,11 +17,10 @@ public interface INavigationData : IImmutableDictionary<string, object>
     object? GetData(Type dataType);
 
     new INavigationData Add(string key, object value);
-
     new INavigationData Remove(string key);
-
+    new INavigationData RemoveRange(IEnumerable<string> keys);
+    new INavigationData Clear();
     new INavigationData SetItem(string key, object value);
-
     INavigationData Union(INavigationData? other);
 }
 

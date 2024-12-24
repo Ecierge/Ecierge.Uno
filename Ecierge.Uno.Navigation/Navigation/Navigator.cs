@@ -277,9 +277,10 @@ public static class NavigatorExtensions
         NavigationResult result = default;
         async ValueTask<NavigationResponse> CoreNavigateRouteAsync()
         {
-            for (int i = 0; i < route.NavigatableSegments.Length; i++)
+            var navigatableSegments = route.GetNavigatableSegments();
+            for (int i = 0; i < navigatableSegments.Length; i++)
             {
-                var segment = route.NavigatableSegments[i];
+                var segment = navigatableSegments[i];
                 switch (segment)
                 {
                     case NameSegmentInstance nameSegmentInstance:
@@ -290,7 +291,7 @@ public static class NavigatorExtensions
                         result = await currentNavigator.NavigateAsync(new DataSegmentNavigationRequest(initiator, dataSegmentInstance.DataSegment, data));
                         break;
                     case DialogSegmentInstance dialogSegmentInstance:
-                        var parentSegment = route.NavigatableSegments[i - 1].Segment;
+                        var parentSegment = navigatableSegments[i - 1].Segment;
                         result = await currentNavigator.NavigateAsync(new DialogSegmentNavigationRequest(initiator, dialogSegmentInstance.DialogSegment, parentSegment, route.Data));
                         // The next navigator must be inside the dialog instead of ContentDialogNavigator
                         currentNavigator = currentNavigator.ChildNavigator!;
@@ -371,19 +372,9 @@ public static class NavigatorExtensions
         {
             NavigationResult result;
             NavigationData? navigationData = data as NavigationData;
-            INavigationData? oldRouteData = navigator.Route.Data;
+            INavigationData? oldNavigationData = navigator.ActualRoute.TrimTill(navigator.Route.LastNamedSegment).Data ?? NavigationData.Empty;
+            INavigationData ? routeNavigationData = oldNavigationData.Union(navigationData);
 
-            //TODO: implement full route data clean up
-            if (oldRouteData is not null && navigator.Route.Segments.LastOrDefault() is DataSegmentInstance oldDataSegment)
-            {
-                oldRouteData = oldRouteData.Remove(oldDataSegment.DataSegment.Name);
-            }
-            else
-            {
-                oldRouteData = NavigationData.Empty;
-            }
-
-            INavigationData routeNavigationData = oldRouteData.Union(navigationData);
             if (segment.Data is DataSegment dataSegment)
             {
                 object? routeData;

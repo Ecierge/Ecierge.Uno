@@ -6,10 +6,10 @@ using Microsoft.Xaml.Interactivity;
 
 public abstract partial class NavigateSegmentActionBase : DependencyObject
 {
-    #region Target
+    #region TargetElement
 
     /// <summary>
-    /// Target Dependency Property
+    /// TargetElement Dependency Property
     /// </summary>
     public static readonly DependencyProperty TargetElementProperty =
         DependencyProperty.Register(nameof(TargetElement), typeof(FrameworkElement), typeof(NavigateSegmentActionBase), new((FrameworkElement?)null));
