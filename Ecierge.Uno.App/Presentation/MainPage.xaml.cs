@@ -3,9 +3,11 @@ namespace Ecierge.Uno.App.Presentation;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
 
 public sealed partial class MainPage : Page
 {
@@ -22,8 +24,15 @@ public sealed partial class MainPage : Page
 
         BreadcrumbBar2.ItemsSource = new ObservableCollection<Folder> { home };
         BreadcrumbBar3.ItemsSource = new ObservableCollection<Folder> { home, folder1, folder2, folder3, folder4, folder5 };
+
+        this.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler(OnGlobalPointerPressed), true);
     }
 
+    private void OnGlobalPointerPressed(object sender, PointerRoutedEventArgs e)
+    {
+        var originalSource = e.OriginalSource as FrameworkElement;
+        System.Diagnostics.Debug.WriteLine($"Pointer pressed on: {originalSource?.Name ?? "Unnamed"} ({originalSource?.GetType().Name})");
+    }
 }
 public class Folder
 {

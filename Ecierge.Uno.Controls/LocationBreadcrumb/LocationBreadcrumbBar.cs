@@ -75,7 +75,6 @@ public partial class LocationBreadcrumbBar : Control
 
         PreviewKeyDown += OnChildPreviewKeyDown;
 
-        //KeyUp += OnChildKeyUp;
         AccessKeyInvoked += OnAccessKeyInvoked;
         GettingFocus += OnGettingFocus;
 
@@ -575,7 +574,6 @@ public partial class LocationBreadcrumbBar : Control
         bool flowDirectionIsLTR = (FlowDirection == Microsoft.UI.Xaml.FlowDirection.LeftToRight);
         bool keyIsLeft = (args.Key == VirtualKey.Left);
         bool keyIsRight = (args.Key == VirtualKey.Right);
-
 
 
 
