@@ -40,6 +40,18 @@ public record struct Route
         Refresh = refresh;
     }
 
+    public override string ToString()
+     => string.Join('/',
+            Segments.Select(s =>
+                s switch
+                {
+                    DialogSegmentInstance d => "!" + d.Segment.Name,
+                    NameSegmentInstance n => n.Segment.Name,
+                    DataSegmentInstance d => d.Segment.Name,
+                    _ => null
+                })
+        );
+
     public bool IsSubRouteOf(Route route)
     {
         if (Segments.Length > route.Segments.Length) return false;
@@ -84,12 +96,44 @@ public record struct Route
 
     public Route TrimHead(Route route) => TrimHead(route.Segments.Last());
 
-    public Route TrimTill(RouteSegmentInstance segment)
+    /// <summary>
+    /// Takes the specified number of segments from the end of the route.
+    /// Also cleans the navigation data from the removed data segments.
+    /// </summary>
+    /// <param name="count">Segments to take.</param>
+    /// <returns>New route with the specified number of segments.</returns>
+    public Route Take(int count)
     {
+        var dataToRemove =
+            Segments.Skip(count).OfType<DataSegmentInstance>().Select(segmentInstance => segmentInstance.DataSegment.Name);
+        var data = Data?.RemoveRange(dataToRemove);
+        if (count == -1) return this;
+        var segments = Segments.Take(count).ToImmutableArray();
+        return new(segments, data, Refresh);
+    }
+
+    /// <summary>
+    /// Removes all segments from the end of the route until the specified segment.
+    /// </summary>
+    /// <param name="segment"></param>
+    /// <returns>New route till the specified segment.</returns>
+    public Route TrimTill(RouteSegmentInstance? segment)
+    {
+        if (segment is null) return this;
         var index = Segments.LastIndexOf(segment);
-        if (index == -1) return this;
-        var segments = Segments.Take(index + 1).ToImmutableArray();
-        return new(segments, Data, Refresh);
+        return this.Take(index + 1);
+    }
+
+    /// <summary>
+    /// Removes all segments from the end of the route until the specified segment.
+    /// </summary>
+    /// <param name="segment"></param>
+    /// <returns>New route till the specified segment.</returns>
+    public Route TrimTill(RouteSegment segment)
+    {
+        var instance = Segments.LastOrDefault(s => s.Segment == segment);
+        if (instance is null) return this;
+        return this.TrimTill(instance);
     }
 
     public Route Add(NameSegment segment, INavigationData? navigationData = null)
@@ -142,23 +186,28 @@ public record struct Route
         return new(baseSegments.ToImmutableArray(), Data, Refresh);
     }
 
-    internal ImmutableArray<RouteSegmentInstance> NavigatableSegments
-    {
-        get
+    public NameSegmentInstance? LastNamedSegment =>
+        this.Segments.LastOrDefault() switch
         {
-            if (Segments.Length < 2) return Segments;
+            NameSegmentInstance n => n,
+            DataSegmentInstance d => Segments[^2] as NameSegmentInstance,
+            _ => null
+        };
 
-            var last = Segments.Last();
-            return
-                Segments.Pairwise((current, next) =>
-                {
-                    if (next is DataSegmentInstance) return default!;
-                    else return current!;
-                })
-                .Where(s => s is not null)
-                .Append(last)
-                .ToImmutableArray();
-        }
+    internal ImmutableArray<RouteSegmentInstance> GetNavigatableSegments()
+    {
+        if (Segments.Length < 2) return Segments;
+
+        var last = Segments.Last();
+        return
+            Segments.Pairwise((current, next) =>
+            {
+                if (next is DataSegmentInstance) return default!;
+                else return current!;
+            })
+            .Where(s => s is not null)
+            .Append(last)
+            .ToImmutableArray();
     }
 
     public Route ReplaceData(DataSegment segment, string primitive, Task<object>? data)
