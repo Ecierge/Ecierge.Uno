@@ -1,10 +1,8 @@
 #nullable enable
 
 using Windows.Foundation;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 
-namespace Ecierge.Uno.Controls.LocationBreadcrumbBar;
+namespace Ecierge.Uno.Controls;
 
 public partial class LocationBreadcrumbBar : Control
 {

@@ -1,21 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 #nullable enable
 
-using System;
 using Windows.Foundation;
-using Microsoft.UI.Xaml;
+
 #if HAS_UNO
 using Uno.UI.DataBinding;
 #else
 using ManagedWeakReference = System.WeakReference;
 #endif
 
-namespace Ecierge.Uno.Controls.LocationBreadcrumbBar;
+namespace Ecierge.Uno.Controls;
 
 internal partial class LocationBreadcrumbLayout : NonVirtualizingLayout
 {

@@ -5,7 +5,7 @@ using Uno.UI.DataBinding;
 #endif
 using Windows.Foundation;
 
-namespace Ecierge.Uno.Controls.LocationBreadcrumbBar;
+namespace Ecierge.Uno.Controls;
 
 internal partial class LocationBreadcrumbLayout : NonVirtualizingLayout
 {

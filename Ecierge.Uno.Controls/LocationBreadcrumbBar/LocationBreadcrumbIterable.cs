@@ -1,10 +1,10 @@
 #nullable enable
 
 using System.Collections;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace Ecierge.Uno.Controls.LocationBreadcrumbBar;
+namespace Ecierge.Uno.Controls;
+
 internal partial class LocationBreadcrumbIterable : IEnumerable<object?>
 {
     public LocationBreadcrumbIterable()
@@ -14,16 +14,16 @@ internal partial class LocationBreadcrumbIterable : IEnumerable<object?>
 #if !HAS_UNO
     public LocationBreadcrumbIterable(object? itemsSource)
     {
-    
+
         if (itemsSource is IEnumerable<object?> sourceEnumerable)
         {
-    
+
             var list = new ObservableCollection<object?>(sourceEnumerable);
-    
-    
+
+
             list.Insert(0, null);
-    
-    
+
+
             ItemsSource = list;
         }
         else

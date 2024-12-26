@@ -12,7 +12,7 @@ using Uno.UI.Helpers.Xaml;
 using Microsoft.UI.Xaml.Automation.Peers;
 using Microsoft.UI.Xaml.Automation.Provider;
 
-namespace Ecierge.Uno.Controls.LocationBreadcrumbBar;
+namespace Ecierge.Uno.Controls;
 
 /// <summary>
 /// Exposes BreadcrumbBar types to Microsoft UI Automation.
@@ -23,12 +23,10 @@ public partial class LocationBreadcrumbBarItemAutomationPeer : FrameworkElementA
     /// Initializes a new instance of the BreadcrumbBarItemAutomationPeer class.
     /// </summary>
     /// <param name="owner"></param>
-    public LocationBreadcrumbBarItemAutomationPeer(LocationBreadcrumbBarItem owner) : base(owner)
-    {
-    }
+    public LocationBreadcrumbBarItemAutomationPeer(LocationBreadcrumbBarItem owner) : base(owner) { }
 
     //IAutomationPeerOverrides
-    /*protected override string GetLocalizedControlTypeCore() =>                                                          
+    /*protected override string GetLocalizedControlTypeCore() =>
     ResourceAccessor.GetLocalizedStringResource(*
         ResourceAccessor.SR_BreadcrumbBarItemLocalizedControlType);*/
 

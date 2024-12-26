@@ -1,14 +1,8 @@
 #nullable enable
 
-
-using System;
 using System.Collections;
-using System.Collections.Generic;
-#if HAS_UNO
-using Uno.UI.Controls;
-#endif
 
-namespace Ecierge.Uno.Controls.LocationBreadcrumbBar;
+namespace Ecierge.Uno.Controls;
 
 internal class LocationBreadcrumbIterator : IEnumerator<object?>
 {
@@ -19,7 +13,7 @@ internal class LocationBreadcrumbIterator : IEnumerator<object?>
     internal LocationBreadcrumbIterator(object? itemsSource)
     {
 #if !HAS_UNO
-		m_currentIndex = 0;
+        m_currentIndex = 0;
 #else // Uno specific: IEnumerator starts on "-1" index as MoveNext is called first!
         m_currentIndex = -1;
 #endif

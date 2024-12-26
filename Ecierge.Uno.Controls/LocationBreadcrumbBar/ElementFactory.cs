@@ -9,8 +9,8 @@ using Microsoft.UI.Xaml;
 using IElementFactoryShim = Microsoft.UI.Xaml.IElementFactory;
 #endif
 
+namespace Ecierge.Uno.Controls;
 
-namespace Ecierge.Uno.Controls.LocationBreadcrumbBar;
 public class ElementFactory : IElementFactoryShim
 {
 #if HAS_UNO

@@ -1,10 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Ecierge.Uno.Controls.LocationBreadcrumbBar;
+namespace Ecierge.Uno.Controls;
 
 partial class RecyclePool
 {
@@ -16,5 +10,4 @@ partial class RecyclePool
 
     public static void SetPoolInstance(DataTemplate dataTemplate, RecyclePool value)
         => dataTemplate.SetValue(PoolInstanceProperty, value);
-
 }

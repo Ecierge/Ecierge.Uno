@@ -3,23 +3,21 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
 #if !HAS_UNO
+using ElementFactory = Ecierge.Uno.Controls.ElementFactory;
 using IElementFactoryShim = Microsoft.UI.Xaml.IElementFactory;
-using ElementFactory = Ecierge.Uno.Controls.LocationBreadcrumbBar.ElementFactory;
 #else
 using ElementFactoryRecycleArgs = Microsoft.UI.Xaml.Controls.ElementFactoryRecycleArgs;
 using ElementFactoryGetArgs = Microsoft.UI.Xaml.Controls.ElementFactoryGetArgs;
 #endif
 
-namespace Ecierge.Uno.Controls.LocationBreadcrumbBar;
+namespace Ecierge.Uno.Controls;
 
 internal partial class LocationBreadcrumbElementFactory : ElementFactory
 {
 
     private IElementFactoryShim? m_itemTemplateWrapper = null;
 
-    public LocationBreadcrumbElementFactory()
-    {
-    }
+    public LocationBreadcrumbElementFactory() { }
 
     internal void UserElementFactory(object? newValue)
     {
@@ -88,16 +86,14 @@ internal partial class LocationBreadcrumbElementFactory : ElementFactory
             {
                 var breadcrumbItemImpl = breadcrumbItem;
                 breadcrumbItemImpl.ResetVisualProperties();
-                
+
                 isEllipsisDropDownItem = breadcrumbItemImpl.IsEllipsisDropDownItem();
             }
 
             if (m_itemTemplateWrapper != null && isEllipsisDropDownItem)
             {
                 m_itemTemplateWrapper.RecycleElement(args);
-
             }
         }
     }
-
 }
