@@ -1,7 +1,6 @@
 namespace Ecierge.Uno.Navigation;
 
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.UI.Dispatching;
 
 public static class NavigationRegion
 {
@@ -41,21 +40,13 @@ public static class NavigationRegion
             }
             else
             {
-#if ANDROID
-               d.DispatcherQueue.TryEnqueue (DispatcherQueuePriority.Low, () => element.SetSegment(newSegmentName));
-#else
                 element.SetSegment(newSegmentName);
-#endif
             }
 
             void OnLoaded(object e, RoutedEventArgs args)
             {
                 element.Loaded -= OnLoaded;
-#if ANDROID
-                d.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, () => element.SetSegment(newSegmentName));
-#else
                 element.SetSegment(newSegmentName);
-#endif
                 element.Unloaded += OnUnloaded;
             }
 
@@ -69,7 +60,7 @@ public static class NavigationRegion
 
     }
 
-#endregion ForSegment
+    #endregion ForSegment
 
     #region IsBoundary
 

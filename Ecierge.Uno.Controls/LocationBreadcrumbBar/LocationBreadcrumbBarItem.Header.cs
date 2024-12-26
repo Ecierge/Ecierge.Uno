@@ -1,4 +1,5 @@
 #nullable enable
+
 #if HAS_UNO
 using Uno.Disposables;
 using Uno.UI.DataBinding;
@@ -11,7 +12,8 @@ using Windows.Foundation;
 using Microsoft.UI.Xaml.Controls.Primitives;
 
 
-namespace Ecierge.Uno.Controls.LocationBreadcrumb;
+namespace Ecierge.Uno.Controls.LocationBreadcrumbBar;
+
 public partial class LocationBreadcrumbBarItem : ComboBox
 {
     // Only used for bug workaround in BreadcrumbElementFactory::RecycleElementCore.

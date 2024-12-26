@@ -1,5 +1,6 @@
 #nullable enable
 
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ using System.Collections.Generic;
 using Uno.UI.Controls;
 #endif
 
-namespace Ecierge.Uno.Controls.LocationBreadcrumb;
+namespace Ecierge.Uno.Controls.LocationBreadcrumbBar;
 
 internal class LocationBreadcrumbIterator : IEnumerator<object?>
 {
@@ -62,23 +63,6 @@ internal class LocationBreadcrumbIterator : IEnumerator<object?>
     {
         return m_currentIndex < m_size;
     }
-
-    //uint GetMany(array_view<object> items)
-    //{
-    //	uint howMany{ };
-    //	if (HasCurrent())
-    //	{
-    //		do
-    //		{
-    //			if (howMany >= items.size()) break;
-
-    //			items[howMany] = Current();
-    //			howMany++;
-    //		} while (MoveNext());
-    //	}
-
-    //	return howMany;
-    //}
 
     public bool MoveNext()
     {

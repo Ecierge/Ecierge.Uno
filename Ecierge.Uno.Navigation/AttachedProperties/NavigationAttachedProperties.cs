@@ -18,14 +18,6 @@ public static class Navigation
 
     internal static void SetNavigationRegion([NotNull] this FrameworkElement element, Regions.NavigationRegion navigationRegion) => element.SetValue(InfoProperty, navigationRegion);
 
-    internal static void ResetNavigationRegion([NotNull] this FrameworkElement element)
-    {
-        var navigationRegion = element.GetNavigationRegion();
-        if (navigationRegion is null) return;
-        navigationRegion.Scope.Dispose();
-        element.SetValue(InfoProperty, null);
-    }
-
     internal static Regions.NavigationRegion? GetNavigationRegion([NotNull] this FrameworkElement element) => (Regions.NavigationRegion?)element.GetValue(InfoProperty);
 
     internal static Regions.NavigationRegion FindNavigationRegion([NotNull] this FrameworkElement element)
@@ -49,7 +41,7 @@ public static class Navigation
         return navigationRegion;
     }
 
-    public static void AttachRegion([NotNull] this FrameworkElement element, string? segmentName = null)
+    public static void SetSegment([NotNull] this FrameworkElement element, string value)
     {
         var parentNavigationRegion =
             element.FindParentNavigationRegion() ??
@@ -71,22 +63,17 @@ public static class Navigation
             nestedSegments = parentSegment.Nested;
         }
 
-        NameSegment nestedSegment;
+        NameSegment? nestedSegment;
         if (parentSegment is DialogSegment && parentNavigationRegion.Target!.GetType().IsAssignableTo(typeof(ContentDialog)))
         {
             nestedSegment = parentSegment;
         }
-        else if (string.IsNullOrEmpty(segmentName))
-        {
-            nestedSegment = parentNavigationRegion.Navigator.Route.LastNamedSegment!.NameSegment;
-        }
         else
         {
-            NameSegment? foundNestedSegment = nestedSegments.FirstOrDefault(s => s.Name == segmentName);
-            if (foundNestedSegment is null) throw new NestedSegmentMissingException(segmentName, parentSegmentName);
-            nestedSegment = foundNestedSegment;
+            nestedSegment = nestedSegments.FirstOrDefault(s => s.Name == value);
         }
 
+        if (nestedSegment is null) throw new NestedSegmentMissingException(value, parentSegmentName);
 #pragma warning disable CA2000 // Dispose objects before losing scope
         var scope = parentNavigationRegion.Scope.CreateScope(parentNavigationRegion.Navigator, nestedSegment, element);
 #pragma warning restore CA2000 // Dispose objects before losing scope
@@ -107,8 +94,6 @@ public static class Navigation
             }
         }
     }
-
-    public static void DetachRegion([NotNull] this FrameworkElement element) => element.ResetNavigationRegion();
 
     #endregion NavigationInfo
 

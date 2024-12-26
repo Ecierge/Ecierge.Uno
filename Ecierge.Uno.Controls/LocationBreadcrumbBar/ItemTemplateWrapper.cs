@@ -3,7 +3,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Shapes;
 #if !HAS_UNO
-using RecyclePool = Ecierge.Uno.Controls.LocationBreadcrumb.RecyclePool;
+using RecyclePool = Ecierge.Uno.Controls.LocationBreadcrumbBar.RecyclePool;
 using ElementFactoryRecycleArgs = Microsoft.UI.Xaml.ElementFactoryRecycleArgs;
 using IElementFactoryShim = Microsoft.UI.Xaml.IElementFactory;
 //UNO.UI.FeatureConfiguration
@@ -15,7 +15,7 @@ using UIElement = Microsoft.UI.Xaml.UIElement;
 using ElementFactoryGetArgs = Microsoft.UI.Xaml.Controls.ElementFactoryGetArgs;
 #endif
 
-namespace Ecierge.Uno.Controls.LocationBreadcrumb
+namespace Ecierge.Uno.Controls.LocationBreadcrumbBar
 {
     internal partial class ItemTemplateWrapper : IElementFactoryShim
     {

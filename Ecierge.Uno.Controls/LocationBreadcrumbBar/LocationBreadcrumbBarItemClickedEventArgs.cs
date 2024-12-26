@@ -4,7 +4,7 @@
 
 #nullable enable
 
-namespace Ecierge.Uno.Controls.LocationBreadcrumb;
+namespace Ecierge.Uno.Controls.LocationBreadcrumbBar;
 
 /// <summary>
 /// Provides data for the BreadcrumbBar.ItemClicked event.

@@ -9,7 +9,6 @@
       xmlns:nav="using:Ecierge.Uno.Navigation"
       xmlns:utu="using:Uno.Toolkit.UI"
       xmlns:um="using:Uno.Material"
-      xmlns:bread="using:Ecierge.Uno.Controls.LocationBreadcrumb"
       xmlns:developerTools="using:CommunityToolkit.WinUI.DeveloperTools"
       NavigationCacheMode="Required"
       Background="{ThemeResource BackgroundBrush}">
@@ -18,8 +17,8 @@
       <VisualStateGroup x:Name="NavigationRegionStates">
         <VisualState x:Name="Tab1State">
           <VisualState.StateTriggers>
-            <!--<ct:IsEqualStateTrigger Value="{Binding Path=(nav:NavigationRegion.NestedSegmentName), ElementName=SelectorBar}"
-                                    To="{x:Bind SelectorBarItem1.Text}" />-->
+            <ct:IsEqualStateTrigger Value="{Binding Path=(nav:NavigationRegion.NestedSegmentName), ElementName=SelectorBar}"
+                                    To="{x:Bind SelectorBarItem1.Text}" />
             <!--<nav:SegmentNameTrigger TargetNavigationRegion="{x:Bind SelectorBar}"
                                     SegmentName="{x:Bind SelectorBarItem1.Text}" />-->
           </VisualState.StateTriggers>
@@ -30,8 +29,8 @@
         </VisualState>
         <VisualState x:Name="Tab2State">
           <VisualState.StateTriggers>
-            <!--<ct:IsEqualStateTrigger Value="{Binding Path=(nav:NavigationRegion.NestedSegmentName), ElementName=SelectorBar}"
-                                    To="{x:Bind SelectorBarItem2.Text}" />-->
+            <ct:IsEqualStateTrigger Value="{Binding Path=(nav:NavigationRegion.NestedSegmentName), ElementName=SelectorBar}"
+                                    To="{x:Bind SelectorBarItem2.Text}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="Tab1Content.Visibility"  Value="Collapsed" />
@@ -100,22 +99,22 @@
             </DataTemplate>
           </BreadcrumbBar.ItemTemplate>
         </BreadcrumbBar>
-
-        <bread:LocationBreadcrumbBar x:Name="BreadcrumbBar3">
-          <bread:LocationBreadcrumbBar.ItemTemplate>
+        <!--Custom LocationBreadcrumbBar-->
+        <bctrl:LocationBreadcrumbBar x:Name="BreadcrumbBar3">
+          <bctrl:LocationBreadcrumbBar.ItemTemplate>
             <DataTemplate x:DataType="local:Folder">
-              <bread:LocationBreadcrumbBarItem SelectedItem="{Binding SubFolders}"
+              <ctrl:LocationBreadcrumbBarItem SelectedItem="{Binding SubFolders}"
                                               PlaceholderText="{Binding Name}"
                                               AutomationProperties.Name="{Binding Name}">
-                <bread:LocationBreadcrumbBarItem.ItemTemplate>
+                <ctrl:LocationBreadcrumbBarItem.ItemTemplate>
                   <DataTemplate>
                     <TextBlock Text="{Binding Name}" />
                   </DataTemplate>
-                </bread:LocationBreadcrumbBarItem.ItemTemplate>
-              </bread:LocationBreadcrumbBarItem>
+                </ctrl:LocationBreadcrumbBarItem.ItemTemplate>
+              </ctrl:LocationBreadcrumbBarItem>
             </DataTemplate>
-          </bread:LocationBreadcrumbBar.ItemTemplate>
-        </bread:LocationBreadcrumbBar>
+          </ctrl:LocationBreadcrumbBar.ItemTemplate>
+        </ctrl:LocationBreadcrumbBar>-->
 
 
 
@@ -175,10 +174,10 @@
           </i:Interaction.Behaviors>
         </Button>
         <!-- Route.NestedSegmentName -->
-        <SelectorBar x:Name="SelectorBar" nav:NavigationRegion.Attach="True">
+        <SelectorBar x:Name="SelectorBar" nav:NavigationRegion.ForSegment="Main">
           <SelectorBarItem x:Name="SelectorBarItem1" nav:Route.SegmentName="Tab1" Text="Tab1" />
           <SelectorBarItem x:Name="SelectorBarItem2" nav:Route.SegmentName="Tab2" Text="Tab2" />
-        </SelectorBar>-->
+        </SelectorBar>
         <Grid>
           <TextBlock x:Name="Tab1Content" Visibility="Collapsed">Tab1 Content</TextBlock>
           <TextBlock x:Name="Tab2Content" Visibility="Collapsed">Tab2 Content</TextBlock>
