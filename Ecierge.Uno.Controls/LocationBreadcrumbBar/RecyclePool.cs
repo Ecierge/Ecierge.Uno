@@ -1,14 +1,14 @@
 #if !HAS_UNO
 using IPanel = Ecierge.Uno.Controls.Breadcrumb.Interfaces.IPanel;
 #endif
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Ecierge.Uno.Controls.Breadcrumb.Interfaces;
 using Microsoft.UI.Xaml;
 
-
-namespace Ecierge.Uno.Controls.LocationBreadcrumb
+namespace Ecierge.Uno.Controls.LocationBreadcrumbBar
 {
     public partial class RecyclePool
     {

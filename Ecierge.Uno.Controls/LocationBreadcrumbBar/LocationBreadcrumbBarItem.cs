@@ -35,7 +35,7 @@ using IElementFactoryShim = Microsoft.UI.Xaml.IElementFactory;
 using Uno.UI.DataBinding;
 #endif
 
-namespace Ecierge.Uno.Controls.LocationBreadcrumb;
+namespace Ecierge.Uno.Controls.LocationBreadcrumbBar;
 
 /// <summary>
 /// Represents an item in a BreadcrumbBar control.

@@ -5,6 +5,6 @@ public sealed partial class CoordinatesNumberBoxStyle : ResourceDictionary
 {
     public CoordinatesNumberBoxStyle()
     {
-        //this.InitializeComponent();
+        this.InitializeComponent();
     }
 }

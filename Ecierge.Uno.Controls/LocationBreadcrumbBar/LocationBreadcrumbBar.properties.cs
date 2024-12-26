@@ -4,7 +4,8 @@ using Windows.Foundation;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
-namespace Ecierge.Uno.Controls.LocationBreadcrumb;
+namespace Ecierge.Uno.Controls.LocationBreadcrumbBar;
+
 public partial class LocationBreadcrumbBar : Control
 {
     public object? ItemsSource
@@ -13,24 +14,11 @@ public partial class LocationBreadcrumbBar : Control
         set => SetValue(ItemsSourceProperty, value);
     }
 
-    /// <summary>
-    /// Identifies the ItemsSource depe
-    /// ndency property.
-    /// </summary>
-
-    /// <summary>
-    /// Gets or sets the data template for the BreadcrumbBarItem.
-    /// </summary>
     public object? ItemTemplate
     {
         get => GetValue(ItemTemplateProperty);
         set => SetValue(ItemTemplateProperty, value);
     }
-
-    /// <summary>
-    /// Identifies the ItemTemplate dependency property.
-    /// </summary>
-    ///
 
     public static DependencyProperty ItemsSourceProperty { get; } =
         DependencyProperty.Register(
@@ -44,7 +32,6 @@ public partial class LocationBreadcrumbBar : Control
             typeof(object),
             typeof(LocationBreadcrumbBar),
             new PropertyMetadata(null, OnPropertyChanged));
-
 
     private static void OnPropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
     {

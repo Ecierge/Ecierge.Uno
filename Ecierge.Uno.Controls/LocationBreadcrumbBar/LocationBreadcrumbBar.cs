@@ -13,14 +13,10 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 //using Android.InputMethodServices;
 
-#if !HAS_UNO
-using DependencyPropertyChangedEventArgs = Microsoft.UI.Xaml.DependencyPropertyChangedEventArgs;
-#else
-
-#endif
 using FocusManager = Microsoft.UI.Xaml.Input.FocusManager;
 using FocusNavigationDirection = Microsoft.UI.Xaml.Input.FocusNavigationDirection;
-namespace Ecierge.Uno.Controls.LocationBreadcrumb;
+
+namespace Ecierge.Uno.Controls.LocationBreadcrumbBar;
 
 public partial class LocationBreadcrumbBar : Control
 {
@@ -196,7 +192,7 @@ public partial class LocationBreadcrumbBar : Control
 
             if (m_itemsRepeater is { } itemsRepeater)
             {
-                m_itemsIterable = new LocationBreadcrumbIterable (ItemsSource);
+                m_itemsIterable = new LocationBreadcrumbIterable(ItemsSource);
                 itemsRepeater.ItemsSource = m_itemsIterable;
             }
 

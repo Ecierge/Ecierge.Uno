@@ -4,7 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Ecierge.Uno.Controls.LocationBreadcrumb;
+namespace Ecierge.Uno.Controls.LocationBreadcrumbBar;
+
 partial class RecyclePool
 {
     public static DependencyProperty PoolInstanceProperty { get; } = DependencyProperty.RegisterAttached(

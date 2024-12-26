@@ -1,10 +1,12 @@
 #nullable enable
+
 #if HAS_UNO
 using Uno.UI.DataBinding;
 #endif
 using Windows.Foundation;
 
-namespace Ecierge.Uno.Controls.LocationBreadcrumb;
+namespace Ecierge.Uno.Controls.LocationBreadcrumbBar;
+
 internal partial class LocationBreadcrumbLayout : NonVirtualizingLayout
 {
     private Size m_availableSize;

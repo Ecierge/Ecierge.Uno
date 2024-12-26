@@ -4,7 +4,7 @@
 
   <ResourceDictionary.MergedDictionaries>
     <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/Resources.xaml" />
-    <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/LocationBreadcrumb/LocationBreadcrumbBar.xaml"/>
+    <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/LocationBreadcrumbBar/LocationBreadcrumbBar.xaml"/>
     <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/CoordinatesNumberBoxStyle.xaml" />
     <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/InlineEditStyle.xaml" />
     <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/ValidationControlStyle.xaml" />

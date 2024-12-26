@@ -1,17 +1,16 @@
 using Ecierge.Uno.Controls.Breadcrumb;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+
 #if !HAS_UNO
 using IElementFactoryShim = Microsoft.UI.Xaml.IElementFactory;
-using ElementFactory = Ecierge.Uno.Controls.LocationBreadcrumb.ElementFactory;
+using ElementFactory = Ecierge.Uno.Controls.LocationBreadcrumbBar.ElementFactory;
 #else
 using ElementFactoryRecycleArgs = Microsoft.UI.Xaml.Controls.ElementFactoryRecycleArgs;
 using ElementFactoryGetArgs = Microsoft.UI.Xaml.Controls.ElementFactoryGetArgs;
 #endif
-//using Uno.UI.DataBinding;
 
-
-namespace Ecierge.Uno.Controls.LocationBreadcrumb;
+namespace Ecierge.Uno.Controls.LocationBreadcrumbBar;
 
 internal partial class LocationBreadcrumbElementFactory : ElementFactory
 {

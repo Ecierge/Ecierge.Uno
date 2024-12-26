@@ -3,7 +3,7 @@ namespace Ecierge.Uno.App.Presentation;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Ecierge.Uno.Controls.LocationBreadcrumb;
+using Ecierge.Uno.Controls;
 using Ecierge.Uno.Navigation;
 
 public partial class MainViewModel : ObservableObject
