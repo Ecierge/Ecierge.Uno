@@ -1,7 +1,6 @@
 namespace Ecierge.Uno.Navigation;
 
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.UI.Dispatching;
 
 public static class NavigationRegion
 {

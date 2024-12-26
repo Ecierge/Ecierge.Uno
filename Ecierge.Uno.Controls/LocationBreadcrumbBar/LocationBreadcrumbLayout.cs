@@ -15,7 +15,7 @@ using Uno.UI.DataBinding;
 using ManagedWeakReference = System.WeakReference;
 #endif
 
-namespace Ecierge.Uno.Controls.LocationBreadcrumb;
+namespace Ecierge.Uno.Controls.LocationBreadcrumbBar;
 
 internal partial class LocationBreadcrumbLayout : NonVirtualizingLayout
 {

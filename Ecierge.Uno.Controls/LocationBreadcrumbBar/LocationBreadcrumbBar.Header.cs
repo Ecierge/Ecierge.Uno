@@ -3,7 +3,7 @@
 using Uno.Disposables;
 using Microsoft.UI.Xaml.Controls;
 
-namespace Ecierge.Uno.Controls.LocationBreadcrumb;
+namespace Ecierge.Uno.Controls.LocationBreadcrumbBar;
 
 public partial class LocationBreadcrumbBar : Control
 {

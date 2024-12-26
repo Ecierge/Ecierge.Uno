@@ -23,7 +23,7 @@ public sealed partial class MainPage : Page
         var home = new Folder("Home", new ObservableCollection<Folder> { folder1, folder2, folder3, folder4, folder5 });
 
         BreadcrumbBar2.ItemsSource = new ObservableCollection<Folder> { home };
-        BreadcrumbBar3.ItemsSource = new ObservableCollection<Folder> { home, folder1, folder2, folder3, folder4, folder5 };
+        //BreadcrumbBar3.ItemsSource = new ObservableCollection<Folder> { home, folder1, folder2, folder3, folder4, folder5 };
 
         this.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler(OnGlobalPointerPressed), true);
     }
@@ -34,6 +34,7 @@ public sealed partial class MainPage : Page
         System.Diagnostics.Debug.WriteLine($"Pointer pressed on: {originalSource?.Name ?? "Unnamed"} ({originalSource?.GetType().Name})");
     }
 }
+
 public class Folder
 {
     public string Name { get; set; }
