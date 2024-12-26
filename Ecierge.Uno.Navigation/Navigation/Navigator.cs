@@ -348,7 +348,7 @@ public static class NavigatorExtensions
         IEnumerable<NameSegment> OfExactType(ImmutableArray<NameSegment> segments) => segments.Where(s => s.GetType() == typeof(NameSegment));
         var nestedSegment = FindNestedSegmentToNavigateCore(navigator, OfExactType, segmentName);
         if (nestedSegment is not null) return nestedSegment;
-        else throw new NestedSegmentMissingException(navigator.Region.Segment.Name, segmentName);
+        else throw new NestedSegmentMissingException(segmentName, navigator.Region.Segment.Name);
     }
 
     public static DialogSegment FindDialogSegmentToNavigate([NotNull] this Navigator navigator, string segmentName)

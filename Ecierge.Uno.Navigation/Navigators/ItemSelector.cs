@@ -1,16 +1,24 @@
 namespace Ecierge.Uno.Navigation.Navigators;
 
-using System;
-
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 public abstract class ItemSelector<TTarget> where TTarget : FrameworkElement
 {
-    public Navigator Navigator { get; set; }
+    Navigator navigator = default!;
+    public Navigator Navigator
+    {
+        get => navigator;
+        set
+        {
+            navigator = value;
+            Target = (TTarget)navigator.Target;
+            Logger = Navigator.ServiceProvider.GetRequiredService<ILogger<ItemSelector<TTarget>>>();
+        }
+    }
 
-    protected TTarget Target => (TTarget)Navigator.Target;
-    protected ILogger Logger => Navigator.ServiceProvider.GetRequiredService<ILogger<ItemSelector<TTarget>>>();
+    protected TTarget Target { get; private set; } = default!;
+    protected ILogger Logger { get; private set; } = default!;
 
     public abstract NavigationResult SelectItem(NavigationRequest request);
 }
