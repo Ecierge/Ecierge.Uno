@@ -1,5 +1,5 @@
 ﻿<ResourceDictionary xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:controls="using:Ecierge.Uno.Controls.LocationBreadcrumbBar"
+                    xmlns:controls="using:Ecierge.Uno.Controls"
                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
   <ResourceDictionary.MergedDictionaries>
     <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
@@ -23,7 +23,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="controls:LocationBreadcrumbBarItem">
           <Grid x:Name="PART_LayoutRoot" CornerRadius="{TemplateBinding CornerRadius}">
-            <VisualStateManager.VisualStateGroups> 
+            <VisualStateManager.VisualStateGroups>
               <VisualStateGroup x:Name="ItemTypeStates">
                 <VisualState x:Name="Inline" />
                 <!--collapse btn-->
@@ -335,7 +335,7 @@
               LineHeight="20" Padding="1,3"
               VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
               CornerRadius="{TemplateBinding CornerRadius}" />
-              <!--ContentTransitions="{TemplateBinding ContentTransitions}"-->
+            <!--ContentTransitions="{TemplateBinding ContentTransitions}"-->
             <!-- ContentPresenter to be shown only when the rendered item is a drop down Item -->
             <ContentPresenter x:Name="PART_EllipsisDropDownItemContentPresenter" x:DeferLoadStrategy="Lazy"
               AutomationProperties.AccessibilityView="Raw"
@@ -346,7 +346,7 @@
               HorizontalContentAlignment="Stretch"
               FontWeight="Normal"
               VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
-              <!--ContentTransitions="{TemplateBinding ContentTransitions}"-->
+            <!--ContentTransitions="{TemplateBinding ContentTransitions}"-->
             <!-- TextBlock that contains the chevron icon -->
             <TextBlock x:Name="PART_ChevronTextBlock"
               AutomationProperties.AccessibilityView="Raw"

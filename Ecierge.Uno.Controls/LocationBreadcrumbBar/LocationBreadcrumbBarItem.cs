@@ -4,30 +4,16 @@
 
 #nullable enable
 
-
 using System.Collections.ObjectModel;
-using Uno.Disposables;
-using VirtualKey = Windows.System.VirtualKey;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft/* UWP don't rename */.UI.Xaml.Automation.Peers;
 using Microsoft.UI.Dispatching;
 #if !HAS_UNO_WINUI // Avoid duplicate using for WinUI build
 using Microsoft.UI.Xaml.Automation.Peers;
 #endif
-using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Content;
-
-#if HAS_UNO_WINUI
-using Microsoft.UI.Input;
-using PointerDeviceType = Microsoft.UI.Input.PointerDeviceType;
-using System;
-
-#else
-using PointerDeviceType = Windows.Devices.Input.PointerDeviceType;
-#endif
+using Uno.Disposables;
 
 #if !HAS_UNO
 using IElementFactoryShim = Microsoft.UI.Xaml.IElementFactory;
@@ -35,7 +21,9 @@ using IElementFactoryShim = Microsoft.UI.Xaml.IElementFactory;
 using Uno.UI.DataBinding;
 #endif
 
-namespace Ecierge.Uno.Controls.LocationBreadcrumbBar;
+using VirtualKey = Windows.System.VirtualKey;
+
+namespace Ecierge.Uno.Controls;
 
 /// <summary>
 /// Represents an item in a BreadcrumbBar control.
@@ -149,7 +137,7 @@ public partial class LocationBreadcrumbBarItem : ComboBox
             if (m_isEllipsisItem)
             {
 #if !HAS_UNO
-				m_ellipsisFlyout = (Flyout)GetTemplateChild(s_itemEllipsisFlyoutPartName);
+                m_ellipsisFlyout = (Flyout)GetTemplateChild(s_itemEllipsisFlyoutPartName);
 #else
                 var rootGrid = GetTemplateChild("PART_LayoutRoot") as FrameworkElement;
                 if (rootGrid is not null)
@@ -357,7 +345,7 @@ public partial class LocationBreadcrumbBarItem : ComboBox
 
         return default;
     }
-    private void ComboBox_DropDownClosed(object sender, object e)
+    private void ComboBox_DropDownClosed(object? sender, object e)
     {
         var comboBox = sender as ComboBox;
         if (comboBox != null)
@@ -376,7 +364,7 @@ public partial class LocationBreadcrumbBarItem : ComboBox
 
         if (args.Key == VirtualKey.F4 || args.Key == VirtualKey.Enter || args.Key == VirtualKey.Space)
         {
-            
+
             _isKeyPressed = true;
             var focusedElement = sender as FrameworkElement;
             if (focusedElement != null)
@@ -394,7 +382,7 @@ public partial class LocationBreadcrumbBarItem : ComboBox
             }
             else
             {
-                _lastFocusedElement = sender as FrameworkElement;
+                _lastFocusedElement = (sender as FrameworkElement)!;
 
                 if (m_isEllipsisItem)
                 {
@@ -424,8 +412,8 @@ public partial class LocationBreadcrumbBarItem : ComboBox
     {
         if (args.Key == VirtualKey.F4 || args.Key == VirtualKey.Enter || args.Key == VirtualKey.Space)
         {
-            _isKeyPressed = false; 
-            args.Handled = true;   
+            _isKeyPressed = false;
+            args.Handled = true;
         }
     }
 
@@ -674,7 +662,7 @@ public partial class LocationBreadcrumbBarItem : ComboBox
 
         m_isEllipsisItem = false;
         m_isLastItem = true;
-        
+
         UpdateButtonCommonVisualState(false /*useTransitions*/);
         UpdateInlineItemTypeVisualState(false /*useTransitions*/);
     }
@@ -730,7 +718,7 @@ public partial class LocationBreadcrumbBarItem : ComboBox
                 {
                     m_ellipsisElementFactory.UserElementFactory(dataTemplate);
                 }
-                
+
                 m_ellipsisRepeaterElementPreparedRevoker.Disposable = Disposable.Create(() =>
                 {
                     ellipsisItemsRepeater.ElementPrepared -= OnFlyoutElementPreparedEvent;
@@ -911,7 +899,7 @@ public partial class LocationBreadcrumbBarItem : ComboBox
         {
             throw new InvalidOperationException("m_isEllipsisDropDownItem must be false");
         }
-        
+
         if (IgnorePointerId(args))
         {
             return;
@@ -981,15 +969,15 @@ public partial class LocationBreadcrumbBarItem : ComboBox
     }
 
 #if HAS_UNO
-	// TODO: Uno specific: Remove when #4689 is fixed
+    // TODO: Uno specific: Remove when #4689 is fixed
 
-	protected bool _fullyInitialized = false;
+    protected bool _fullyInitialized = false;
 
-	internal void Reinitialize()
-	{
-		OnApplyTemplate();
-		//UpdateVisualState(false);
-		OnLoadedEvent(this, new RoutedEventArgs());
-	}
+    internal void Reinitialize()
+    {
+        OnApplyTemplate();
+        //UpdateVisualState(false);
+        OnLoadedEvent(this, new RoutedEventArgs());
+    }
 #endif
 }

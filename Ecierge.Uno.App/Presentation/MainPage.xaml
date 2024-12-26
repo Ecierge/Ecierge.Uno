@@ -6,7 +6,6 @@
       xmlns:local="using:Ecierge.Uno.App.Presentation"
       xmlns:ct="using:CommunityToolkit.WinUI"
       xmlns:ctrl="using:Ecierge.Uno.Controls"
-      xmlns:bctrl="using:Ecierge.Uno.Controls.LocationBreadcrumbBar"
       xmlns:nav="using:Ecierge.Uno.Navigation"
       xmlns:utu="using:Uno.Toolkit.UI"
       xmlns:um="using:Uno.Material"
@@ -87,7 +86,7 @@
         <TextBox Text="{Binding Name, Mode=TwoWay}"
             PlaceholderText="Enter your name:" />
 
-        <BreadcrumbBar x:Name="BreadcrumbBar2">
+        <BreadcrumbBar x:Name="BreadcrumbBar">
           <BreadcrumbBar.ItemTemplate>
             <DataTemplate x:DataType="local:Folder">
               <BreadcrumbBarItem Content="{Binding}" AutomationProperties.Name="{Binding Name}">
@@ -101,21 +100,21 @@
           </BreadcrumbBar.ItemTemplate>
         </BreadcrumbBar>
 
-        <bctrl:LocationBreadcrumbBar x:Name="BreadcrumbBar3">
-          <bctrl:LocationBreadcrumbBar.ItemTemplate>
+        <ctrl:LocationBreadcrumbBar x:Name="LocationBreadcrumbBar">
+          <ctrl:LocationBreadcrumbBar.ItemTemplate>
             <DataTemplate x:DataType="local:Folder">
-              <bctrl:LocationBreadcrumbBarItem SelectedItem="{Binding SubFolders}"
+              <ctrl:LocationBreadcrumbBarItem SelectedItem="{Binding SubFolders}"
                                               PlaceholderText="{Binding Name}"
                                               AutomationProperties.Name="{Binding Name}">
-                <bctrl:LocationBreadcrumbBarItem.ItemTemplate>
+                <ctrl:LocationBreadcrumbBarItem.ItemTemplate>
                   <DataTemplate>
                     <TextBlock Text="{Binding Name}" />
                   </DataTemplate>
-                </bctrl:LocationBreadcrumbBarItem.ItemTemplate>
-              </bctrl:LocationBreadcrumbBarItem>
+                </ctrl:LocationBreadcrumbBarItem.ItemTemplate>
+              </ctrl:LocationBreadcrumbBarItem>
             </DataTemplate>
-          </bctrl:LocationBreadcrumbBar.ItemTemplate>
-        </bctrl:LocationBreadcrumbBar>
+          </ctrl:LocationBreadcrumbBar.ItemTemplate>
+        </ctrl:LocationBreadcrumbBar>
 
         <TextBlock Text="Folder 1"></TextBlock>
 

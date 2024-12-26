@@ -22,8 +22,8 @@ public sealed partial class MainPage : Page
         var folder1 = new Folder("Folder1", new ObservableCollection<Folder> { folder2, folder3, folder4, folder5 });
         var home = new Folder("Home", new ObservableCollection<Folder> { folder1, folder2, folder3, folder4, folder5 });
 
-        BreadcrumbBar2.ItemsSource = new ObservableCollection<Folder> { home };
-        //BreadcrumbBar3.ItemsSource = new ObservableCollection<Folder> { home, folder1, folder2, folder3, folder4, folder5 };
+        BreadcrumbBar.ItemsSource = new ObservableCollection<Folder> { home };
+        LocationBreadcrumbBar.ItemsSource = new ObservableCollection<Folder> { home, folder1, folder2, folder3, folder4, folder5 };
 
         this.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler(OnGlobalPointerPressed), true);
     }

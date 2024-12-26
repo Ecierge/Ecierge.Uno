@@ -11,12 +11,11 @@ using Microsoft.UI.Xaml.Automation.Peers;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
-//using Android.InputMethodServices;
 
 using FocusManager = Microsoft.UI.Xaml.Input.FocusManager;
 using FocusNavigationDirection = Microsoft.UI.Xaml.Input.FocusNavigationDirection;
 
-namespace Ecierge.Uno.Controls.LocationBreadcrumbBar;
+namespace Ecierge.Uno.Controls;
 
 public partial class LocationBreadcrumbBar : Control
 {

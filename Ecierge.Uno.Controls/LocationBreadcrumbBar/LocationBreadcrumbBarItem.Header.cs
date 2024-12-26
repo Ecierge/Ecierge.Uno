@@ -4,15 +4,12 @@
 using Uno.Disposables;
 using Uno.UI.DataBinding;
 #else
+using IElementFactoryShim = Microsoft.UI.Xaml.IElementFactory;
 using ManagedWeakReference = System.WeakReference;
 using SerialDisposable = System.Reactive.Disposables.SerialDisposable;
-using IElementFactoryShim = Microsoft.UI.Xaml.IElementFactory;
 #endif
-using Windows.Foundation;
-using Microsoft.UI.Xaml.Controls.Primitives;
 
-
-namespace Ecierge.Uno.Controls.LocationBreadcrumbBar;
+namespace Ecierge.Uno.Controls;
 
 public partial class LocationBreadcrumbBarItem : ComboBox
 {
