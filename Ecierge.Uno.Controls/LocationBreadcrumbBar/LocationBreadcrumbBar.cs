@@ -191,7 +191,7 @@ public partial class LocationBreadcrumbBar : Control
 
             if (m_itemsRepeater is { } itemsRepeater)
             {
-                m_itemsIterable = new LocationBreadcrumbIterable (ItemsSource);
+                m_itemsIterable = new LocationBreadcrumbIterable(ItemsSource);
                 itemsRepeater.ItemsSource = m_itemsIterable;
             }
 
