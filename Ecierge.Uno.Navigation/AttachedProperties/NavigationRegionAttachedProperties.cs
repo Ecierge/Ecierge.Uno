@@ -4,63 +4,71 @@ using System.Diagnostics.CodeAnalysis;
 
 public static class NavigationRegion
 {
-    #region ForSegment
+    #region Attach
 
     /// <summary>
-    /// ForSegment Attached Dependency Property
+    /// Attach Attached Dependency Property
     /// </summary>
-    public static readonly DependencyProperty ForSegmentProperty =
-        DependencyProperty.RegisterAttached("ForSegment", typeof(string), typeof(NavigationRegion), new(null, OnForSegmentChanged));
+    public static readonly DependencyProperty AttachProperty =
+        DependencyProperty.RegisterAttached("Attach", typeof(bool), typeof(NavigationRegion), new(false, OnAttachChanged));
 
     /// <summary>
-    /// Gets the ForSegment property. This dependency property
+    /// Gets the Attach property. This dependency property
     /// indicates the name of segment for navigation within it.
     /// </summary>
-    public static string? GetForSegment(FrameworkElement element) => (string?)element.GetValue(ForSegmentProperty);
+    public static bool GetAttach(FrameworkElement element) => (bool)element.GetValue(AttachProperty);
 
     /// <summary>
-    /// Sets the ForSegment property. This dependency property
+    /// Sets the Attach property. This dependency property
     /// indicates the name of segment for navigation within it.
     /// </summary>
-    public static void SetForSegment(FrameworkElement element, string value) => element.SetValue(ForSegmentProperty, value);
+    public static void SetAttach(FrameworkElement element, bool value) => element.SetValue(AttachProperty, value);
 
     /// <summary>
-    /// Handles changes to the ForSegment property.
+    /// Handles changes to the Attach property.
     /// </summary>
-    private static void OnForSegmentChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    private static void OnAttachChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        string oldSegmentName = (string)e.OldValue;
-        string newSegmentName = (string)d.GetValue(ForSegmentProperty);
+        bool isAttached = (bool)e.OldValue;
+        bool shouldAttach = (bool)d.GetValue(AttachProperty);
 
         if (d is FrameworkElement element)
         {
             if (!element.IsLoaded)
             {
-                element.Loaded += OnLoaded;
+                if (shouldAttach && !isAttached)
+                    element.Loaded += OnLoaded;
             }
             else
             {
-                element.SetSegment(newSegmentName);
+                if (shouldAttach && !isAttached)
+                {
+                    element.AttachRegion();
+                    element.Unloaded += OnUnloaded;
+                }
+                if (!shouldAttach && isAttached)
+                {
+                    element.DetachRegion();
+                }
             }
 
             void OnLoaded(object e, RoutedEventArgs args)
             {
                 element.Loaded -= OnLoaded;
-                element.SetSegment(newSegmentName);
+                element.AttachRegion();
                 element.Unloaded += OnUnloaded;
             }
 
             void OnUnloaded(object e, RoutedEventArgs args)
             {
                 element.Unloaded -= OnUnloaded;
-                element.GetNavigationRegion()!.Scope!.Dispose();
-                element.SetValue(Uno.Navigation.Navigation.InfoProperty, null);
+                element.DetachRegion();
             }
         }
 
     }
 
-    #endregion ForSegment
+    #endregion Attach
 
     #region IsBoundary
 
