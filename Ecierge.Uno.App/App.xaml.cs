@@ -84,7 +84,11 @@ public partial class App : Application
                     .AddTransient<DelegatingHandler, DebugHttpHandler>()
 #endif
                     .AddSingleton<IWeatherCache, WeatherCache>()
-                    .AddRefitClient<IApiClient>(context))
+                    // Uno Refit integrations is based on vulnerable package
+                    // however with the latest version of Refit it crashes
+                    // with MissingMethodException
+                    //.AddRefitClient<IApiClient>(context)
+                )
                 .ConfigureServices((context, services) =>
                 {
                     // TODO: Register your services
@@ -95,7 +99,7 @@ public partial class App : Application
         MainWindow = builder.Window;
 
 #if DEBUG
-        MainWindow.EnableHotReload();
+        MainWindow.UseStudio();
 #endif
         MainWindow.SetWindowIcon();
 
