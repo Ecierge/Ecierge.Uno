@@ -2,6 +2,7 @@ namespace Ecierge.Uno.Navigation;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
@@ -50,8 +51,13 @@ internal static class TypeExtensions
                 {
                     if (navigationData.TryGetValue(para.Name!, out var data))
                     {
-                        args.Add(data);
-                        continue;
+                        if (para.ParameterType == data.GetType())
+                        {
+                            args.Add(data);
+                            continue;
+                        }
+                        logger.LogWarning("Navigation data item found for parameter '{parameterName}' of type '{type}' does not match the expected type '{expectedType}'", para.Name, data.GetType(), para.ParameterType);
+                        Debugger.Break();
                     }
                 }
                 else if (para.ParameterType.IsGenericType && para.ParameterType.GetGenericTypeDefinition() == typeof(Task<>))

@@ -9,6 +9,7 @@
       $(DotNetVersion)-desktop;
       $(DotNetVersion)
     </TargetFrameworks>
+    <TargetFrameworks Condition=" '$(OverrideTargetFramework)' != '' ">$(OverrideTargetFramework)</TargetFrameworks>
 
     <OutputType>Exe</OutputType>
     <UnoSingleProject>true</UnoSingleProject>
