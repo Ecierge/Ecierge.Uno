@@ -37,7 +37,11 @@ public abstract class Navigator
     public Navigator? ChildNavigator
     {
         get { child.TryGetTarget(out var value); return value; }
-        internal set => child.SetTarget(value);
+        internal set
+        {
+            if (value is not null) value.Route = this.Route;
+            child.SetTarget(value);
+        }
     }
 
     public Navigator LeafNavigator

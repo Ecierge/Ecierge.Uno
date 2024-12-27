@@ -48,7 +48,7 @@ public static class Navigation
         return navigationRegion;
     }
 
-    public static void AttachRegion([NotNull] this FrameworkElement element)
+    public static void AttachRegion([NotNull] this FrameworkElement element, string? segmentName = null)
     {
         var parentNavigationRegion =
             element.FindParentNavigationRegion() ??
@@ -75,9 +75,15 @@ public static class Navigation
         {
             nestedSegment = parentSegment;
         }
-        else
+        else if (string.IsNullOrEmpty(segmentName))
         {
             nestedSegment = parentNavigationRegion.Navigator.Route.LastNamedSegment!.NameSegment;
+        }
+        else
+        {
+            NameSegment? foundNestedSegment = nestedSegments.FirstOrDefault(s => s.Name == segmentName);
+            if (foundNestedSegment is null) throw new NestedSegmentMissingException(segmentName, parentSegmentName);
+            nestedSegment = foundNestedSegment;
         }
 
 #pragma warning disable CA2000 // Dispose objects before losing scope
