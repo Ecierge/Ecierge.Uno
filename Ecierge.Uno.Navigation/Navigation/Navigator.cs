@@ -377,7 +377,7 @@ public static class NavigatorExtensions
             NavigationResult result;
             NavigationData? navigationData = data as NavigationData;
             INavigationData? oldNavigationData = navigator.ActualRoute.TrimTill(navigator.Route.LastNamedSegment).Data ?? NavigationData.Empty;
-            INavigationData ? routeNavigationData = oldNavigationData.Union(navigationData);
+            INavigationData? routeNavigationData = oldNavigationData.Union(navigationData);
 
             if (segment.Data is DataSegment dataSegment)
             {

@@ -51,6 +51,7 @@
     <PackageReference Include="CommunityToolkit.WinUI.Converters" />
     <PackageReference Include="CommunityToolkit.WinUI.Triggers" />
     <PackageReference Include="System.Private.Uri" />
+    <PackageReference Include="System.Reactive" />
   </ItemGroup>
 
 </Project>

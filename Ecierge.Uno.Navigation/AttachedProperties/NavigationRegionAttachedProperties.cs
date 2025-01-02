@@ -4,43 +4,39 @@ using System.Diagnostics.CodeAnalysis;
 
 public static class NavigationRegion
 {
-    #region Attach
+    #region ForSegment
 
     /// <summary>
-    /// Attach Attached Dependency Property
+    /// ForSegment Attached Dependency Property
     /// </summary>
-    public static readonly DependencyProperty AttachProperty =
-        DependencyProperty.RegisterAttached("Attach", typeof(bool), typeof(NavigationRegion), new(false, OnAttachChanged));
+    public static readonly DependencyProperty ForSegmentProperty =
+        DependencyProperty.RegisterAttached("ForSegment", typeof(string), typeof(NavigationRegion), new(null, OnForSegmentChanged));
 
     /// <summary>
-    /// Gets the Attach property. This dependency property
+    /// Gets the ForSegment property. This dependency property
     /// indicates the name of segment for navigation within it.
     /// </summary>
-    public static bool GetAttach(FrameworkElement element) => (bool)element.GetValue(AttachProperty);
+    public static string? GetForSegment(FrameworkElement element) => (string?)element.GetValue(ForSegmentProperty);
 
     /// <summary>
-    /// Sets the Attach property. This dependency property
+    /// Sets the ForSegment property. This dependency property
     /// indicates the name of segment for navigation within it.
     /// </summary>
-    public static void SetAttach(FrameworkElement element, bool value) => element.SetValue(AttachProperty, value);
+    public static void SetForSegment(FrameworkElement element, string value) => element.SetValue(ForSegmentProperty, value);
 
     /// <summary>
-    /// Handles changes to the Attach property.
+    /// Handles changes to the ForSegment property.
     /// </summary>
-    private static void OnAttachChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    private static void OnForSegmentChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        if (GetAttachForSegmentName((d as FrameworkElement)!) is not null)
-            throw new InvalidOperationException("Cannot set AttachForSegmentName and Attach properties at the same time.");
-
-        bool isAttached = (bool)e.OldValue;
-        bool shouldAttach = (bool)d.GetValue(AttachProperty);
+        string oldSegmentName = (string)e.OldValue;
+        string newSegmentName = (string)d.GetValue(ForSegmentProperty);
 
         if (d is FrameworkElement element)
         {
             if (!element.IsLoaded)
             {
-                if (shouldAttach && !isAttached)
-                    element.Loaded += OnLoaded;
+                element.Loaded += OnLoaded;
             }
             else
             {
@@ -65,13 +61,14 @@ public static class NavigationRegion
             void OnUnloaded(object e, RoutedEventArgs args)
             {
                 element.Unloaded -= OnUnloaded;
-                element.DetachRegion();
+                element.GetNavigationRegion()!.Scope!.Dispose();
+                element.SetValue(Uno.Navigation.Navigation.InfoProperty, null);
             }
         }
 
     }
 
-    #endregion Attach
+    #endregion ForSegment
 
     #region AttachForSegmentName
 

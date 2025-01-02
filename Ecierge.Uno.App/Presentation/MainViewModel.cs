@@ -1,8 +1,9 @@
 namespace Ecierge.Uno.App.Presentation;
 
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
-
+using Ecierge.Uno.Controls;
 using Ecierge.Uno.Navigation;
 
 public partial class MainViewModel : ObservableObject
@@ -11,6 +12,7 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     private string? name;
+
 
     public MainViewModel(
         IStringLocalizer localizer,
@@ -22,6 +24,7 @@ public partial class MainViewModel : ObservableObject
         Title += $" - {localizer["ApplicationName"]}";
         Title += $" - {appInfo?.Value?.Environment}";
         GoToSecond = new AsyncRelayCommand(GoToSecondView);
+
     }
     public string? Title { get; }
 

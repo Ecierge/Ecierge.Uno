@@ -6,6 +6,7 @@
       xmlns:local="using:Ecierge.Uno.App.Presentation"
       xmlns:ct="using:CommunityToolkit.WinUI"
       xmlns:ctrl="using:Ecierge.Uno.Controls"
+      xmlns:bctrl="using:Ecierge.Uno.Controls.LocationBreadcrumbBar"
       xmlns:nav="using:Ecierge.Uno.Navigation"
       xmlns:utu="using:Uno.Toolkit.UI"
       xmlns:um="using:Uno.Material"
@@ -77,14 +78,47 @@
           <ctrl:InlineEdit.PrimaryEditCommand>
             <XamlUICommand IconSource="{ct:SymbolIconSource Symbol=Accept}" />
           </ctrl:InlineEdit.PrimaryEditCommand>
-          <!--<ctrl:InlineEdit.SecondaryEditCommand>
+          <ctrl:InlineEdit.SecondaryEditCommand>
             <XamlUICommand IconSource="{ct:SymbolIconSource Symbol=Cancel}" />
-          </ctrl:InlineEdit.SecondaryEditCommand>-->
+          </ctrl:InlineEdit.SecondaryEditCommand>
         </ctrl:InlineEdit>
         <CheckBox Content="IsEditable" IsChecked="{Binding IsEditable, ElementName=InlineEdit, Mode=TwoWay}" />
         <developerTools:FocusTracker IsActive="True" />
         <TextBox Text="{Binding Name, Mode=TwoWay}"
             PlaceholderText="Enter your name:" />
+
+        <BreadcrumbBar x:Name="BreadcrumbBar2">
+          <BreadcrumbBar.ItemTemplate>
+            <DataTemplate x:DataType="local:Folder">
+              <BreadcrumbBarItem Content="{Binding}" AutomationProperties.Name="{Binding Name}">
+                <BreadcrumbBarItem.ContentTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding Name}" />
+                  </DataTemplate>
+                </BreadcrumbBarItem.ContentTemplate>
+              </BreadcrumbBarItem>
+            </DataTemplate>
+          </BreadcrumbBar.ItemTemplate>
+        </BreadcrumbBar>
+
+        <bctrl:LocationBreadcrumbBar x:Name="BreadcrumbBar3">
+          <bctrl:LocationBreadcrumbBar.ItemTemplate>
+            <DataTemplate x:DataType="local:Folder">
+              <bctrl:LocationBreadcrumbBarItem SelectedItem="{Binding SubFolders}"
+                                              PlaceholderText="{Binding Name}"
+                                              AutomationProperties.Name="{Binding Name}">
+                <bctrl:LocationBreadcrumbBarItem.ItemTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding Name}" />
+                  </DataTemplate>
+                </bctrl:LocationBreadcrumbBarItem.ItemTemplate>
+              </bctrl:LocationBreadcrumbBarItem>
+            </DataTemplate>
+          </bctrl:LocationBreadcrumbBar.ItemTemplate>
+        </bctrl:LocationBreadcrumbBar>
+
+        <TextBlock Text="Folder 1"></TextBlock>
+
         <Button Content="Go to Second Page"
             AutomationProperties.AutomationId="SecondPageButton"
             Command="{Binding GoToSecond}" />
@@ -138,7 +172,7 @@
           </i:Interaction.Behaviors>
         </Button>
         <!-- Route.NestedSegmentName -->
-        <SelectorBar x:Name="SelectorBar" nav:NavigationRegion.Attach="True">
+        <SelectorBar x:Name="SelectorBar" nav:NavigationRegion.ForSegment="Main">
           <SelectorBarItem x:Name="SelectorBarItem1" nav:Route.SegmentName="Tab1" Text="Tab1" />
           <SelectorBarItem x:Name="SelectorBarItem2" nav:Route.SegmentName="Tab2" Text="Tab2" />
         </SelectorBar>
