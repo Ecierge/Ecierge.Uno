@@ -23,7 +23,7 @@ public partial class LocationBreadcrumbBar : Control
 
     // This is the "element collection" provided to the underlying ItemsRepeater, so it
     // includes the extra ellipsis/null element in the position 0.
-    private LocationBreadcrumbIterable? m_itemsIterable = null;
+    private LocationBreadcrumbIterable m_itemsIterable = new LocationBreadcrumbIterable();
 
     private ItemsRepeater? m_itemsRepeater = null;
     private LocationBreadcrumbElementFactory? m_itemsRepeaterElementFactory = null;

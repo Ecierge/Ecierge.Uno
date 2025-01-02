@@ -31,7 +31,6 @@ public partial class LocationBreadcrumbBar : Control
 
         m_itemsRepeaterElementFactory = new LocationBreadcrumbElementFactory();
         m_itemsRepeaterLayout = new LocationBreadcrumbLayout(this);
-        m_itemsIterable = new LocationBreadcrumbIterable();
 
 #if HAS_UNO
         this.Loaded += LocationBreadcrumbBar_Loaded;
@@ -81,8 +80,8 @@ public partial class LocationBreadcrumbBar : Control
         if (m_itemsRepeater is { } itemsRepeater)
         {
             itemsRepeater.Layout = m_itemsRepeaterLayout;
-            itemsRepeater.ItemsSource = new ObservableCollection<object>();
             itemsRepeater.ItemTemplate = m_itemsRepeaterElementFactory;
+            itemsRepeater.ItemsSource = m_itemsIterable;
 
             m_itemsRepeaterElementPreparedRevoker.Disposable = Disposable.Create(() =>
             {
@@ -188,12 +187,7 @@ public partial class LocationBreadcrumbBar : Control
         if (ItemsSource != null)
         {
             m_breadcrumbItemsSourceView = new ItemsSourceView(ItemsSource);
-
-            if (m_itemsRepeater is { } itemsRepeater)
-            {
-                m_itemsIterable = new LocationBreadcrumbIterable(ItemsSource);
-                itemsRepeater.ItemsSource = m_itemsIterable;
-            }
+            m_itemsIterable.ItemsSource = ItemsSource;
 
             if (m_breadcrumbItemsSourceView != null)
             {
@@ -212,8 +206,7 @@ public partial class LocationBreadcrumbBar : Control
         {
             // A new BreadcrumbIterable must be created as ItemsRepeater compares if the previous
             // itemsSource is equals to the new one
-            m_itemsIterable = new LocationBreadcrumbIterable(ItemsSource);
-            itemsRepeater.ItemsSource = m_itemsIterable;
+            m_itemsIterable.ItemsSource = ItemsSource;
 
             // For some reason, when interacting with keyboard, the last element doesn't raise the OnPrepared event
             ForceUpdateLastElement();
