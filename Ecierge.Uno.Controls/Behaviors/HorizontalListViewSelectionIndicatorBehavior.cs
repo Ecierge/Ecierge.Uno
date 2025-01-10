@@ -65,7 +65,6 @@ public class HorizontalListViewSelectionIndicatorBehavior : Behavior<ListView>
                 previousListViewItemPresenter.FindDescendants().OfType<Border>().LastOrDefault() is Border previousSelectionIndicator)
             {
                 previousSelectionIndicator.BorderThickness = new Thickness(0);
-                previousSelectionIndicator.Width = 3;
             }
         }
     }
