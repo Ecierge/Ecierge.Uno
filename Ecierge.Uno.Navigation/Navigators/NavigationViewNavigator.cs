@@ -136,10 +136,13 @@ public class NavigationViewContentNavigator : ContentControlNavigatorBase<Naviga
         var view = result.Result;
         Target.Content = view;
 
-        Target.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, () =>
+        var navigationStatus = NavigationStatus;
+        void NavigationFinished(object? sender, NavigationResponse e)
         {
+            navigationStatus.NavigationFinished -= NavigationFinished;
             itemSelector.SelectItem(request);
-        });
+        }
+        navigationStatus.NavigationFinished += NavigationFinished;
 
         return new NavigationResult(request.RouteSegment, view);
     }

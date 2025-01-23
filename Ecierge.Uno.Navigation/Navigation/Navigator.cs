@@ -28,6 +28,7 @@ public abstract class Navigator
     public IServiceProvider ServiceProvider { get; }
     public FrameworkElement Target => ServiceProvider.GetRequiredService<FrameworkElement>();
     protected NavigationScope Scope => ServiceProvider.GetService<NavigationScope>()!;
+    public INavigationStatus NavigationStatus => ServiceProvider.GetRequiredService<INavigationStatus>();
     private Lazy<ILogger> logger;
     protected ILogger Logger => logger.Value;
 

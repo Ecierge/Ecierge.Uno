@@ -23,19 +23,18 @@ internal static class NavigationStatusExtensions
 {
     public static void RaiseNavigationStarted(this Navigator navigator, Lazy<Routing.Route> route)
     {
-        var status = (NavigationStatus)navigator.ServiceProvider.GetRequiredService<INavigationStatus>();
+        var status = (NavigationStatus)navigator.NavigationStatus;
         status.OnNavigationStarted(route);
     }
-
     public static void RaiseNavigationStarted(this Navigator navigator, Func<Routing.Route> routeFactory)
     {
-        var status = (NavigationStatus)navigator.ServiceProvider.GetRequiredService<INavigationStatus>();
+        var status = (NavigationStatus)navigator.NavigationStatus;
         status.OnNavigationStarted(new Lazy<Routing.Route>(routeFactory));
     }
 
     public static void RaiseNavigationCompleted(this Navigator navigator, NavigationResponse response)
     {
-        var status = (NavigationStatus)navigator.ServiceProvider.GetRequiredService<INavigationStatus>();
+        var status = (NavigationStatus)navigator.NavigationStatus;
         status.OnNavigationCompleted(response);
     }
 }
