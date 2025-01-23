@@ -1,5 +1,6 @@
 namespace Ecierge.Uno.Navigation.Routing;
 
+using System.Diagnostics;
 using System.Collections.Immutable;
 
 using MoreLinq;
@@ -8,14 +9,20 @@ public abstract record RouteSegmentInstance()
 {
     public abstract RouteSegment Segment { get; }
 }
+
+[DebuggerDisplay("{Segment.Name}")]
 public record NameSegmentInstance(NameSegment NameSegment) : RouteSegmentInstance
 {
     public override RouteSegment Segment => NameSegment;
 }
+
+[DebuggerDisplay("<{Segment.Name}>")]
 public record DataSegmentInstance(DataSegment DataSegment, string Primitive, object? Data) : RouteSegmentInstance
 {
     public override RouteSegment Segment => DataSegment;
 }
+
+[DebuggerDisplay("#{Segment.Name}")]
 public record DialogSegmentInstance(DialogSegment DialogSegment) : RouteSegmentInstance
 {
     public override RouteSegment Segment => throw new NotImplementedException("Dialog segments not implemented.");
