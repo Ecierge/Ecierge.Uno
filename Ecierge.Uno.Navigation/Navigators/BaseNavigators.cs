@@ -1,5 +1,6 @@
 namespace Ecierge.Uno.Navigation.Navigators;
 
+using System;
 using System.Threading.Tasks;
 
 using CommunityToolkit.WinUI;
@@ -10,10 +11,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Dispatching;
 
-public abstract class Navigator<TTarget>(IServiceProvider serviceProvider) : Navigator(serviceProvider)
+public abstract class Navigator<TTarget> : Navigator
     where TTarget : FrameworkElement
 {
-    new public TTarget Target => (TTarget)base.Target;
+    new public TTarget Target { get; private set; }
+
+    protected Navigator(IServiceProvider serviceProvider) : base(serviceProvider)
+    {
+        Target = (TTarget)base.Target;
+    }
 }
 
 public abstract class FactoryNavigator<TTarget> : Navigator<TTarget>
