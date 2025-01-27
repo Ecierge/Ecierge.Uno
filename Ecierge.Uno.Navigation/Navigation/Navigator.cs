@@ -28,7 +28,8 @@ public abstract class Navigator
     public IServiceProvider ServiceProvider { get; }
     public FrameworkElement Target => ServiceProvider.GetRequiredService<FrameworkElement>();
     protected NavigationScope Scope => ServiceProvider.GetService<NavigationScope>()!;
-    public INavigationStatus NavigationStatus => ServiceProvider.GetRequiredService<INavigationStatus>();
+    public INavigationStatus NavigationStatus { get; private set; }
+
     private Lazy<ILogger> logger;
     protected ILogger Logger => logger.Value;
 
@@ -74,6 +75,7 @@ public abstract class Navigator
     {
         ServiceProvider = serviceProvider;
         logger = new(() => serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger(this.GetType()));
+        NavigationStatus = ServiceProvider.GetRequiredService<INavigationStatus>();
     }
 
     private void SetRoute(NavigationRequest request)
