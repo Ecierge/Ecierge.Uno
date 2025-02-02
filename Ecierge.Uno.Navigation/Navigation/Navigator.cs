@@ -283,7 +283,7 @@ public static class NavigatorExtensions
     {
         navigator.RaiseNavigationStarted(() => route);
         // TODO: Ensure that navigation item mapping resolution happens only once
-        route = route with { Data = (navigator.Route.Data ?? NavigationData.Empty).Union(route.Data) };
+        route = route with { Data = (navigator.Parent?.Route.Data ?? NavigationData.Empty).Union(route.Data) };
         NavigationResponse? response = null;
         var currentNavigator = navigator;
         NavigationResult result = default;
