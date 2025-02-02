@@ -93,7 +93,7 @@ public class NavigationViewNavigator : SelectorNavigator<NavigationView>
             navigatedName = segmentName;
             navigatedItem = selectedItem;
 
-            var request = new NameSegmentNavigationRequest(s, segment);
+            var request = new NameSegmentNavigationRequest(s, segment, segment.BuildDefaultRoute());
             await NavigateAsync(request);
         };
     }

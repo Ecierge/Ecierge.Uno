@@ -28,7 +28,7 @@ public record DialogSegmentInstance(DialogSegment DialogSegment) : RouteSegmentI
     public override RouteSegment Segment => throw new NotImplementedException("Dialog segments not implemented.");
 }
 
-public record struct Route
+public record Route
 {
     public ImmutableArray<RouteSegmentInstance> Segments { get; init; }
     public INavigationData? Data { get; init; }
@@ -37,6 +37,8 @@ public record struct Route
     public static Route Empty => new Route(ImmutableArray<RouteSegmentInstance>.Empty);
 
     public Route() : this(ImmutableArray<RouteSegmentInstance>.Empty) { }
+
+    public Route(INavigationData? data) : this(ImmutableArray<RouteSegmentInstance>.Empty, data) { }
 
     public Route(ImmutableArray<RouteSegmentInstance> segments, INavigationData? data = null, bool refresh = false)
     {
