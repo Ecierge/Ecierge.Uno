@@ -65,6 +65,47 @@ namespace Ecierge.Uno.Navigation
                 foreach (var segment in nested) segment.ParentSegment = this;
             }
         }
+
+        public Routing.Route BuildDefaultRoute(object? data = null)
+        {
+            var list = new List<RouteSegmentInstance> {
+                this switch
+                {
+                    DialogSegment dialog => new DialogSegmentInstance(dialog),
+                    _ =>new NameSegmentInstance(this)
+                }
+            };
+            INavigationData navigationData = (data as INavigationData)!;
+            if (Data is not null)
+            {
+                if (data is null && Data.IsMandatory)
+                    throw new ArgumentNullException(nameof(data), "Data is mandatory.");
+                if (navigationData is not null)
+                {
+                    list.Add(new DataSegmentInstance(Data, null, navigationData[Data.Name]));
+                }
+                else
+                {
+                    navigationData = NavigationData.Empty.Add(Data.Name, data!);
+                    list.Add(new DataSegmentInstance(Data, null, data));
+                }
+                AddDefaultSegments(Data);
+            }
+            else
+            {
+                AddDefaultSegments(this);
+            }
+
+            void AddDefaultSegments(RouteSegment segment)
+            {
+                if (segment.Nested.SingleOrDefault(s => s.IsDefault) is NameSegment defaultSegment)
+                {
+                    list.Add(new NameSegmentInstance(defaultSegment));
+                    AddDefaultSegments(defaultSegment);
+                }
+            }
+            return new Routing.Route(list.ToImmutableArray(), navigationData);
+        }
     }
 
     public record DataSegment : RouteSegment

@@ -3,7 +3,7 @@ using System.Diagnostics;
 namespace Ecierge.Uno.Navigation;
 
 [ImplicitKeys(IsEnabled = false)]
-public abstract partial record NavigationRequest(object Sender, INavigationData? NavigationData)
+public abstract partial record NavigationRequest(object Sender, Routing.Route Route)
 {
     public Guid Id { get; } = Guid.NewGuid();
 
@@ -16,8 +16,8 @@ public abstract partial record NavigationRequest(object Sender, INavigationData?
 public record NameSegmentNavigationRequest(
       object Sender
     , NameSegment Segment
-    , INavigationData? NavigationData = null)
-    : NavigationRequest(Sender, NavigationData)
+    , Routing.Route Route)
+    : NavigationRequest(Sender, Route)
 {
     public override NameSegment NameSegment => Segment;
     public override RouteSegment RouteSegment => Segment;
@@ -29,8 +29,8 @@ public record DataSegmentNavigationRequest(
       object Sender
     , DataSegment Segment
     , object? RouteData
-    , INavigationData? NavigationData = null)
-    : NavigationRequest(Sender, NavigationData)
+    , Routing.Route Route)
+    : NavigationRequest(Sender, Route)
 {
     public override NameSegment NameSegment => Segment.ParentNameSegment;
     public override RouteSegment RouteSegment => Segment;
@@ -48,7 +48,7 @@ public record DialogSegmentNavigationRequest : NavigationRequest
       object sender
     , DialogSegment segment
     , RouteSegment parentSegment
-    , INavigationData? NavigationData = null) : base(sender, NavigationData)
+    , Routing.Route route) : base(sender, route)
     {
         if (parentSegment is DialogSegment)
             throw new ArgumentException("Dialogs must not be nested.", nameof(parentSegment));

@@ -103,21 +103,25 @@ public class NavigationData : INavigationData
     IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)data).GetEnumerator();
 }
 
-internal static class NavigationDataExtensions
+internal static class RouteExtensions
 {
-    public static void ApplyScopedInstanceServices(this INavigationData navigationData, IServiceProvider serviceProvider)
+    public static void ApplyScopedInstanceServices(this Routing.Route route, IServiceProvider serviceProvider)
     {
+        var navigationData = route.Data;
         var scopedInstanceOptions = serviceProvider.GetService<IOptions<ScopedInstanceRepositoryOptions>>()?.Value;
         if (scopedInstanceOptions is null)
             return;
 
-        var typesToClone = scopedInstanceOptions.TypesToClone;
-        foreach (var value in navigationData.Values)
+        if (navigationData is not null)
         {
-            Type serviceType = value.GetType();
-            if (typesToClone.Contains(serviceType))
+            var typesToClone = scopedInstanceOptions.TypesToClone;
+            foreach (var value in navigationData.Values)
             {
-                serviceProvider.AddScopedInstance(serviceType, value);
+                Type serviceType = value.GetType();
+                if (typesToClone.Contains(serviceType))
+                {
+                    serviceProvider.AddScopedInstance(serviceType, value);
+                }
             }
         }
     }

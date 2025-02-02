@@ -41,11 +41,11 @@ internal class SelectorBarNavigator : SelectorNavigator<SelectorBar>
             if (isFirstNavigation)
             {
                 isFirstNavigation = false;
-                _ = this.NavigateSegmentAsync(s, segment);
+                _ = this.NavigateLocalSegmentAsync(s, segment);
             }
             else
             {
-                var request = new NameSegmentNavigationRequest(s, segment);
+                var request = new NameSegmentNavigationRequest(s, segment, segment.BuildDefaultRoute());
                 await NavigateAsync(request);
             }
         };
