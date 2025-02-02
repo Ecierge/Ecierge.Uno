@@ -7,6 +7,7 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 
 using CommunityToolkit.WinUI;
+using Microsoft.UI.Dispatching;
 
 public static class Navigation
 {
@@ -21,7 +22,7 @@ public static class Navigation
     {
         var navigationRegion = element.GetNavigationRegion();
         if (navigationRegion is null) return;
-        navigationRegion.Scope.Dispose();
+        element.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, () => navigationRegion.Scope.Dispose());
         element.SetValue(InfoProperty, null);
     }
 
