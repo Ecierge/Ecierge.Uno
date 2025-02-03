@@ -85,6 +85,9 @@
         <developerTools:FocusTracker IsActive="True" />
         <TextBox Text="{Binding Name, Mode=TwoWay}"
             PlaceholderText="Enter your name:" />
+        
+        <ctrl:CoordinatesNumberBox/>
+        
         <Button Content="Go to Second Page"
             AutomationProperties.AutomationId="SecondPageButton"
             Command="{Binding GoToSecond}" />
