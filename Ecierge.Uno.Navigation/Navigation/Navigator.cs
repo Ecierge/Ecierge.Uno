@@ -222,7 +222,7 @@ public static class NavigatorExtensions
         // Get the last navigatable segment from which nested segments will be searched within
         RouteSegment? nextSegment = navigator.Region.Segment switch
         {
-            NameSegment nameSegment when nameSegment.Data is DataSegment nestedDataSegment => nestedDataSegment,
+            NameSegment nameSegment when nameSegment.DataSegment is DataSegment nestedDataSegment => nestedDataSegment,
             RouteSegment routeSegment => routeSegment
         };
         foreach (var segmentName in segmentNames)
@@ -248,7 +248,7 @@ public static class NavigatorExtensions
             RouteSegment? nextSegment = segment switch
             {
                 // The next is data
-                NameSegment nameSegment when nameSegment.Data is DataSegment nestedDataSegment => nestedDataSegment,
+                NameSegment nameSegment when nameSegment.DataSegment is DataSegment nestedDataSegment => nestedDataSegment,
                 // The next is dialog
                 RouteSegment routeSegment when segmentName.StartsWith('!') => navigator.FindDialogSegmentToNavigate(segmentName[1..]),
                 // The next is nested
@@ -347,7 +347,7 @@ public static class NavigatorExtensions
     {
         NameSegment segment = navigator.Region.Segment;
         ImmutableArray<NameSegment> nested;
-        if (segment.Data is DataSegment dataSegment)
+        if (segment.DataSegment is DataSegment dataSegment)
             nested = dataSegment.Nested;
         else
             nested = segment.Nested;
