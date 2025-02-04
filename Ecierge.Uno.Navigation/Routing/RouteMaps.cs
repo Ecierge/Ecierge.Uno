@@ -36,22 +36,22 @@ namespace Ecierge.Uno.Navigation
     public record NameSegment : RouteSegment
     {
         public bool IsDefault { get; init; } = false;
-        public bool HasData => Data is not null;
-        public bool HasMandatoryData => Data is not null && Data.IsMandatory;
+        public bool HasData => DataSegment is not null;
+        public bool HasMandatoryData => DataSegment is not null && DataSegment.IsMandatory;
         public ViewMap? ViewMap { get; set; }
-        public DataSegment? Data { get; private init; }
+        public DataSegment? DataSegment { get; private init; }
         public override ImmutableArray<NameSegment> Nested { get; protected init; } = ImmutableArray<NameSegment>.Empty;
-        public override ImmutableArray<NameSegment> NestedAfterData => Data is not null ? Data.Nested : Nested;
+        public override ImmutableArray<NameSegment> NestedAfterData => DataSegment is not null ? DataSegment.Nested : Nested;
 
-        public NameSegment(string name, ViewMap? view, DataSegment data) : base(name)
+        public NameSegment(string name, ViewMap? view, DataSegment dataSegment) : base(name)
         {
             ViewMap = view;
-            data = data ?? throw new ArgumentNullException(nameof(data));
+            dataSegment = dataSegment ?? throw new ArgumentNullException(nameof(dataSegment));
             IsDefault = false;
-            if (data is not null)
+            if (dataSegment is not null)
             {
-                Data = data;
-                data.ParentSegment = this;
+                DataSegment = dataSegment;
+                dataSegment.ParentSegment = this;
             }
         }
 
@@ -76,20 +76,22 @@ namespace Ecierge.Uno.Navigation
                 }
             };
             INavigationData navigationData = (data as INavigationData)!;
-            if (Data is not null)
+            if (DataSegment is not null)
             {
-                if (data is null && Data.IsMandatory)
+                if (data is null && DataSegment.IsMandatory)
                     throw new ArgumentNullException(nameof(data), "Data is mandatory.");
                 if (navigationData is not null)
                 {
-                    list.Add(new DataSegmentInstance(Data, null, navigationData[Data.Name]));
+                    // TODO: Do something with primitive value that is null now
+                    list.Add(new DataSegmentInstance(DataSegment, null, navigationData[DataSegment.Name]));
                 }
                 else
                 {
-                    navigationData = NavigationData.Empty.Add(Data.Name, data!);
-                    list.Add(new DataSegmentInstance(Data, null, data));
+                    navigationData = NavigationData.Empty.Add(DataSegment.Name, data!);
+                    // TODO: Do something with primitive value that is null now
+                    list.Add(new DataSegmentInstance(DataSegment, null, data));
                 }
-                AddDefaultSegments(Data);
+                AddDefaultSegments(DataSegment);
             }
             else
             {
@@ -169,7 +171,7 @@ namespace Ecierge.Uno.Navigation.Helpers
             var viewMap = a.ViewMap ?? b.ViewMap;
             if (a.HasData)
             {
-                var dataSegment = Merge(a.Data!, b.Data!);
+                var dataSegment = Merge(a.DataSegment!, b.DataSegment!);
                 return new NameSegment(a.Name, viewMap!, dataSegment);
             }
             else

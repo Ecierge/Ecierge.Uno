@@ -60,7 +60,7 @@ public static class Navigation
         var parentSegment = parentNavigationRegion.Segment;
         ImmutableArray<NameSegment> nestedSegments;
         string parentSegmentName;
-        if (parentSegment.Data is DataSegment dataSegment)
+        if (parentSegment.DataSegment is DataSegment dataSegment)
         {
             parentSegmentName = dataSegment.Name;
             nestedSegments = dataSegment.Nested;
