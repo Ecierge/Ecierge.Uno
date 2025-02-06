@@ -48,7 +48,13 @@
                   <VisualState.Setters>
                     <Setter Target="BorderElement.Background" Value="{ThemeResource TextControlBackgroundFocused}" />
                     <Setter Target="BorderElement.BorderBrush" Value="{ThemeResource TextControlBorderBrushFocused}" />
-                    <Setter Target="BorderElement.BorderThickness" Value="{ThemeResource TextControlBorderThemeThicknessFocused}" />
+                    <Setter Target="BorderElement.BorderThickness" Value="0,0,0,2" />
+                  </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Unfocused">
+                  <VisualState.Setters>
+                    <Setter Target="BorderElement.BorderBrush" Value="{ThemeResource TextControlBorderBrush}"/>
+                    <Setter Target="BorderElement.BorderThickness" Value="0,0,0,1"/>
                   </VisualState.Setters>
                 </VisualState>
               </VisualStateGroup>
@@ -57,7 +63,7 @@
             <ContentPresenter x:Name="HeaderContentPresenter" Grid.Row="0" Grid.Column="0" Content="{TemplateBinding Header}" ContentTemplate="{TemplateBinding HeaderTemplate}" FontWeight="Normal" Foreground="{ThemeResource TextControlHeaderForeground}" Margin="{ThemeResource TextBoxTopHeaderMargin}" TextWrapping="Wrap" VerticalAlignment="Top" Visibility="Collapsed" x:DeferLoadStrategy="Lazy" />
             <ContentPresenter x:Name="DescriptionPresenter" Grid.Row="2" Grid.Column="0" Content="{TemplateBinding Description}" Foreground="{ThemeResource SystemControlDescriptionTextForegroundBrush}" AutomationProperties.AccessibilityView="Raw" x:Load="False" />
 
-            <Border x:Name="BorderElement"
+            <Border Height="29" x:Name="BorderElement"
                     Grid.Row="1"
                     Background="{TemplateBinding Background}"
                     BorderBrush="{TemplateBinding BorderBrush}"
@@ -67,15 +73,12 @@
                     MinWidth="{TemplateBinding MinWidth}"
                     MinHeight="{TemplateBinding MinHeight}">
               <Grid ColumnDefinitions="*,Auto,*,Auto,Auto,Auto">
-                <Grid.Resources>
-                  <DataTemplate x:Key="ButtonContentTemplate" x:DataType="IconSource">
-                    <IconSourceElement IconSource="{x:Bind Mode=OneWay}" />
-                  </DataTemplate>
-                </Grid.Resources>
-
                 <NumberBox x:Name="LatitudeBox"
                            HorizontalContentAlignment="Right"
                            Grid.Column="0"
+                           BorderThickness="0"
+                           BorderBrush="Transparent"
+                           Background="Transparent"
                            Minimum="-90" Maximum="90"
                            SmallChange="0.01"
                            LargeChange="0.05"
@@ -84,6 +87,9 @@
                 <TextBlock Grid.Column="1" Text="," VerticalAlignment="Center" HorizontalTextAlignment="Right"/>
                 <NumberBox x:Name="LongitudeBox"
                            Grid.Column="2"
+                           BorderThickness="0"
+                           BorderBrush="Transparent"
+                           Background="Transparent"
                            VerticalAlignment="Center"
                            Minimum="-180" Maximum="180"
                            SmallChange="0.01"
@@ -91,6 +97,8 @@
                            Text="{x:Null}"
                            Value="{TemplateBinding Longitude}"/>
                 <Button Grid.Column="3"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
                         BorderThickness="{ThemeResource TextControlBorderThemeThickness}"
                         CornerRadius="{ThemeResource ControlCornerRadius}"
                         Padding="{ThemeResource HelperButtonThemePadding}"
@@ -103,6 +111,8 @@
                 </Button>
                 <Button Grid.Column="4"
                         Grid.Row="1"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
                         BorderThickness="{ThemeResource TextControlBorderThemeThickness}"
                         CornerRadius="{ThemeResource ControlCornerRadius}"
                         Padding="{ThemeResource HelperButtonThemePadding}"
@@ -115,6 +125,8 @@
                 </Button>
                 <Button Grid.Column="5"
                         Grid.Row="1"
+                        Background="Transparent"
+                        BorderBrush="Transparent"
                         BorderThickness="{ThemeResource TextControlBorderThemeThickness}"
                         CornerRadius="{ThemeResource ControlCornerRadius}"
                         Padding="{ThemeResource HelperButtonThemePadding}"
