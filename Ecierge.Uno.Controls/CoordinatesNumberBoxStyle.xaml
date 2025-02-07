@@ -101,13 +101,18 @@
                         BorderBrush="Transparent"
                         BorderThickness="{ThemeResource TextControlBorderThemeThickness}"
                         CornerRadius="{ThemeResource ControlCornerRadius}"
-                        Padding="{ThemeResource HelperButtonThemePadding}"
+                        Padding="0,0,-2,-2"
+                        Margin="0,2,0,-4"
                         Command="{TemplateBinding SelectPositionCommand}"
                         AutomationProperties.AccessibilityView="Raw"
                         FontSize="{ThemeResource ControlContentThemeFontSize}"
-                        Width="30"
+                        Width="36"
                         VerticalAlignment="Stretch">
-                  <FontIcon Glyph="&#xE819;" />
+                  <Button.RenderTransform>
+                    <ScaleTransform ScaleX="0.8" ScaleY="0.8"/>
+                  </Button.RenderTransform>
+                  <FontIcon Glyph="&#xE819;"
+                            Foreground="#c0c0c0"/>
                 </Button>
                 <Button Grid.Column="4"
                         Grid.Row="1"
@@ -115,13 +120,19 @@
                         BorderBrush="Transparent"
                         BorderThickness="{ThemeResource TextControlBorderThemeThickness}"
                         CornerRadius="{ThemeResource ControlCornerRadius}"
-                        Padding="{ThemeResource HelperButtonThemePadding}"
+                        Padding="0,0,-2,-2"
+                        Margin="0,2,0,-4"
                         Command="{TemplateBinding SelectPositionCommand}"
                         AutomationProperties.AccessibilityView="Raw"
                         FontSize="{ThemeResource ControlContentThemeFontSize}"
-                        Width="30"
+                        Width="36"
                         VerticalAlignment="Stretch">
-                  <FontIcon Glyph="&#xE707;" />
+                  <Button.RenderTransform>
+                    <ScaleTransform ScaleX="0.8" ScaleY="0.8"/>
+                  </Button.RenderTransform>
+                  <FontIcon Glyph="&#xE707;"
+                            Foreground="#c0c0c0">
+                  </FontIcon>
                 </Button>
                 <Button Grid.Column="5"
                         Grid.Row="1"
@@ -129,12 +140,17 @@
                         BorderBrush="Transparent"
                         BorderThickness="{ThemeResource TextControlBorderThemeThickness}"
                         CornerRadius="{ThemeResource ControlCornerRadius}"
-                        Padding="{ThemeResource HelperButtonThemePadding}"
+                        Padding="0,0,-2,-2"
+                        Margin="0,2,0,-4"
                         AutomationProperties.AccessibilityView="Raw"
                         FontSize="{ThemeResource ControlContentThemeFontSize}"
-                        Width="30"
+                        Width="36"
                         VerticalAlignment="Stretch">
-                  <SymbolIcon Symbol="Clear" />
+                  <Button.RenderTransform>
+                    <ScaleTransform ScaleX="0.8" ScaleY="0.8"/>
+                  </Button.RenderTransform>
+                  <SymbolIcon Symbol="Clear"
+                              Foreground="#c0c0c0"/>
                 </Button>
               </Grid>
             </Border>
