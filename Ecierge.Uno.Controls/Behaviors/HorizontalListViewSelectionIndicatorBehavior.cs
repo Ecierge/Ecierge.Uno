@@ -1,13 +1,11 @@
 namespace Ecierge.Uno.Behaviors;
 
+using System.Linq;
 using CommunityToolkit.WinUI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.Xaml.Interactivity;
-using System.Linq;
-using Windows.UI;
-
 public class HorizontalListViewSelectionIndicatorBehavior : Behavior<ListView>
 {
     private ListViewItem? previousSelectedItem;
