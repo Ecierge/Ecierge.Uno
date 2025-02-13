@@ -63,7 +63,7 @@
             <ContentPresenter x:Name="HeaderContentPresenter" Grid.Row="0" Grid.Column="0" Content="{TemplateBinding Header}" ContentTemplate="{TemplateBinding HeaderTemplate}" FontWeight="Normal" Foreground="{ThemeResource TextControlHeaderForeground}" Margin="{ThemeResource TextBoxTopHeaderMargin}" TextWrapping="Wrap" VerticalAlignment="Top" Visibility="Collapsed" x:DeferLoadStrategy="Lazy" />
             <ContentPresenter x:Name="DescriptionPresenter" Grid.Row="2" Grid.Column="0" Content="{TemplateBinding Description}" Foreground="{ThemeResource SystemControlDescriptionTextForegroundBrush}" AutomationProperties.AccessibilityView="Raw" x:Load="False" />
 
-            <Border Height="29" x:Name="BorderElement"
+            <Border x:Name="BorderElement"
                     Grid.Row="1"
                     Background="{TemplateBinding Background}"
                     BorderBrush="{TemplateBinding BorderBrush}"
@@ -74,7 +74,9 @@
                     MinHeight="{TemplateBinding MinHeight}">
               <Grid ColumnDefinitions="*,Auto,*,Auto,Auto,Auto">
                 <NumberBox x:Name="LatitudeBox"
+                           Padding="10,8,6,6"
                            HorizontalContentAlignment="Right"
+                           Margin="-2"
                            Grid.Column="0"
                            BorderThickness="0"
                            BorderBrush="Transparent"
@@ -86,11 +88,13 @@
                            Value="{TemplateBinding Latitude}" />
                 <TextBlock Grid.Column="1" Text="," VerticalAlignment="Center" HorizontalTextAlignment="Right"/>
                 <NumberBox x:Name="LongitudeBox"
+                           Padding="10,8,6,6"
+                           Margin="-2"
                            Grid.Column="2"
                            BorderThickness="0"
                            BorderBrush="Transparent"
                            Background="Transparent"
-                           VerticalAlignment="Center"
+                           HorizontalContentAlignment="Right"
                            Minimum="-180" Maximum="180"
                            SmallChange="0.01"
                            LargeChange="0.05"
