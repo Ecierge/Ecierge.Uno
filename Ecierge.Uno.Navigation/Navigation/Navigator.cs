@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
-
+using CommunityToolkit.WinUI;
 using Ecierge.Uno.Navigation.Navigators;
 using Ecierge.Uno.Navigation.Routing;
 
@@ -150,7 +150,9 @@ public abstract class Navigator
         ChildNavigator = null;
         RequestedRoute = request.Route;
         request.Route.ApplyScopedInstanceServices(ServiceProvider);
-        var result = await NavigateCoreAsync(request);
+
+        var result = await this.Target.DispatcherQueue.EnqueueAsync(() => { return NavigateCoreAsync(request); });
+
         if (result.IsSkipped)
         {
             // Restore child navigator
