@@ -26,7 +26,7 @@ public abstract class Navigator
     public Navigator RootNavigator { get; internal set; } = default!;
 
     public IServiceProvider ServiceProvider { get; }
-    public FrameworkElement Target => ServiceProvider.GetRequiredService<FrameworkElement>();
+    public FrameworkElement? Target => ServiceProvider.GetService<FrameworkElement>();
     protected NavigationScope Scope => ServiceProvider.GetService<NavigationScope>()!;
     public INavigationStatus NavigationStatus { get; private set; }
 
@@ -305,7 +305,10 @@ public static class NavigatorExtensions
                         result = await currentNavigator.NavigateAsync(new DataSegmentNavigationRequest(initiator, dataSegmentInstance.DataSegment, data, route));
                         break;
                     case DialogSegmentInstance dialogSegmentInstance:
-                        var parentSegment = navigatableSegments[i - 1].Segment;
+                        var parentSegment =
+                            i > 0 ?
+                            navigatableSegments[i - 1].Segment :
+                            navigator.Region.Segment;
                         result = await currentNavigator.NavigateAsync(new DialogSegmentNavigationRequest(initiator, dialogSegmentInstance.DialogSegment, parentSegment, route));
                         // The next navigator must be inside the dialog instead of ContentDialogNavigator
                         currentNavigator = currentNavigator.ChildNavigator!;
