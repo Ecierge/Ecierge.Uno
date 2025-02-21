@@ -26,7 +26,7 @@ public abstract class Navigator
     public Navigator RootNavigator { get; internal set; } = default!;
 
     public IServiceProvider ServiceProvider { get; }
-    public FrameworkElement Target => ServiceProvider.GetRequiredService<FrameworkElement>();
+    public FrameworkElement? Target => ServiceProvider.GetService<FrameworkElement>();
     protected NavigationScope Scope => ServiceProvider.GetService<NavigationScope>()!;
     public INavigationStatus NavigationStatus { get; private set; }
 
@@ -151,7 +151,12 @@ public abstract class Navigator
         RequestedRoute = request.Route;
         request.Route.ApplyScopedInstanceServices(ServiceProvider);
 
-        var result = await this.Target.DispatcherQueue.EnqueueAsync(() => { return NavigateCoreAsync(request); });
+        var dispatcherQueue = this.Target?.DispatcherQueue ?? Parent?.Target?.DispatcherQueue;
+#if DEBUG
+        if (dispatcherQueue is null)
+            Debug.Fail ("Must be at least a parent with DispatcherQueue");
+#endif
+        var result = await dispatcherQueue!.EnqueueAsync(() => { return NavigateCoreAsync(request); });
 
         if (result.IsSkipped)
         {
@@ -305,7 +310,10 @@ public static class NavigatorExtensions
                         result = await currentNavigator.NavigateAsync(new DataSegmentNavigationRequest(initiator, dataSegmentInstance.DataSegment, data, route));
                         break;
                     case DialogSegmentInstance dialogSegmentInstance:
-                        var parentSegment = navigatableSegments[i - 1].Segment;
+                        var parentSegment =
+                            i > 0 ?
+                            navigatableSegments[i - 1].Segment :
+                            navigator.Region.Segment;
                         result = await currentNavigator.NavigateAsync(new DialogSegmentNavigationRequest(initiator, dialogSegmentInstance.DialogSegment, parentSegment, route));
                         // The next navigator must be inside the dialog instead of ContentDialogNavigator
                         currentNavigator = currentNavigator.ChildNavigator!;

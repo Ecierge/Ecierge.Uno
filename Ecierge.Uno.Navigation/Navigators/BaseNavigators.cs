@@ -14,11 +14,11 @@ using Microsoft.UI.Dispatching;
 public abstract class Navigator<TTarget> : Navigator
     where TTarget : FrameworkElement
 {
-    new public TTarget Target { get; private set; }
+    new public TTarget? Target { get; internal set; }
 
     protected Navigator(IServiceProvider serviceProvider) : base(serviceProvider)
     {
-        Target = (TTarget)base.Target;
+        Target = (TTarget?)base.Target;
     }
 }
 

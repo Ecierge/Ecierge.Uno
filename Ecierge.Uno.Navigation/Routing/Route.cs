@@ -25,7 +25,7 @@ public record DataSegmentInstance(DataSegment DataSegment, string Primitive, obj
 [DebuggerDisplay("#{Segment.Name}")]
 public record DialogSegmentInstance(DialogSegment DialogSegment) : RouteSegmentInstance
 {
-    public override RouteSegment Segment => throw new NotImplementedException("Dialog segments not implemented.");
+    public override RouteSegment Segment => DialogSegment;
 }
 
 public record Route
