@@ -119,9 +119,9 @@
         <TextBlock Text="Folder 1"></TextBlock>
 
 
-        
+
         <ctrl:CoordinatesNumberBox/>
-        
+
         <Button Content="Go to Second Page"
             AutomationProperties.AutomationId="SecondPageButton"
             Command="{Binding GoToSecond}" />
@@ -175,7 +175,7 @@
           </i:Interaction.Behaviors>
         </Button>
         <!-- Route.NestedSegmentName -->
-        <SelectorBar x:Name="SelectorBar" nav:NavigationRegion.ForSegment="Main">
+        <SelectorBar x:Name="SelectorBar" nav:NavigationRegion.AttachForSegmentName="Main">
           <SelectorBarItem x:Name="SelectorBarItem1" nav:Route.SegmentName="Tab1" Text="Tab1" />
           <SelectorBarItem x:Name="SelectorBarItem2" nav:Route.SegmentName="Tab2" Text="Tab2" />
         </SelectorBar>

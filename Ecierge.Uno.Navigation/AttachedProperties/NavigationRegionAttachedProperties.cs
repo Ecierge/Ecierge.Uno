@@ -114,14 +114,12 @@ public static class NavigationRegion
             {
                 element.AttachRegion(newValue);
                 element.Unloaded += OnUnloaded;
-#endif
             }
 
             void OnLoaded(object e, RoutedEventArgs args)
             {
                 element.Loaded -= OnLoaded;
                 element.AttachRegion(newValue);
-#endif
                 element.Unloaded += OnUnloaded;
             }
 
