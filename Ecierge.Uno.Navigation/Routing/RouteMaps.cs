@@ -152,6 +152,7 @@ namespace Ecierge.Uno.Navigation.Helpers
                     var segment = Merge(currentSegment, nextSegment);
                     orderedSegments[i] = segment;
                     orderedSegments.RemoveAt(i + 1);
+                    i--;
                 }
             }
             return orderedSegments.ToImmutableArray();

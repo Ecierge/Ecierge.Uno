@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
-using CommunityToolkit.WinUI;
 using Ecierge.Uno.Navigation.Navigators;
 using Ecierge.Uno.Navigation.Routing;
 
@@ -154,7 +153,7 @@ public abstract class Navigator
         var dispatcherQueue = this.Target?.DispatcherQueue ?? Parent?.Target?.DispatcherQueue;
 #if DEBUG
         if (dispatcherQueue is null)
-            Debug.Fail ("Must be at least a parent with DispatcherQueue");
+            Debug.Fail("Must be at least a parent with DispatcherQueue");
 #endif
         var result = await dispatcherQueue!.EnqueueAsync(() => { return NavigateCoreAsync(request); });
 
@@ -384,7 +383,7 @@ public static class NavigatorExtensions
 
         } while (dialogSegment is null && (currentNavigator = currentNavigator!.Parent) is not null);
         if (dialogSegment is not null) return dialogSegment;
-        else throw new NestedSegmentMissingException(targetNavigator.Region.Segment.Name, segmentName);
+        else throw new NestedSegmentMissingException(segmentName, targetNavigator.Region.Segment.Name);
     }
 
     //public static async ValueTask<NavigationResponse> NavigateSegmentAsync([NotNull] this Navigator navigator, object initiator, NameSegment segment, object? data = null)
