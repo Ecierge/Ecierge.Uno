@@ -1,5 +1,4 @@
 <Project Sdk="Uno.Sdk">
-
   <PropertyGroup>
     <TargetFrameworks>
       $(DotNetVersion)-android;

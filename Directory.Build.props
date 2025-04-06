@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <DotNetVersion>net8.0</DotNetVersion>
+    <DotNetVersion>net9.0</DotNetVersion>
     <AssemblyName>$(MSBuildProjectName.Replace(" ", "_"))</AssemblyName>
     <RootNamespace>$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
     <LangVersion Condition="'$(MSBuildProjectExtension)'=='.csproj'">latest</LangVersion>
@@ -18,11 +18,11 @@
     <!--<UnoExtensionsVersion>5.1.2</UnoExtensionsVersion> --><!-- https://www.nuget.org/packages/Uno.Extensions.Core -->
     <!--<UnoLoggingVersion>1.7.0</UnoLoggingVersion> --><!-- https://www.nuget.org/packages/Uno.Extensions.Logging.OSLog -->
     <!--<UnoCoreLoggingSingletonVersion>4.1.1</UnoCoreLoggingSingletonVersion> --><!-- https://www.nuget.org/packages/Uno.Core.Extensions.Logging -->
-    <UnoResizetizerVersion>1.8.1</UnoResizetizerVersion> <!-- https://www.nuget.org/packages/Uno.Resizetizer -->
+    <!--<UnoResizetizerVersion>1.8.1</UnoResizetizerVersion> --><!-- https://www.nuget.org/packages/Uno.Resizetizer -->
     <!--<UnoToolkitVersion>6.3.6</UnoToolkitVersion>--><!-- https://www.nuget.org/packages/Uno.Toolkit -->
     <!--<UnoThemesVersion>5.3.1</UnoThemesVersion> --><!-- https://www.nuget.org/packages/Uno.Themes -->
     <!--<UnoUniversalImageLoaderVersion>1.9.37</UnoUniversalImageLoaderVersion> --><!-- https://www.nuget.org/packages/Uno.UniversalImageLoader -->
-    <UnoWasmBootstrapVersion>8.0.23</UnoWasmBootstrapVersion> <!-- https://www.nuget.org/packages/Uno.Wasm.Bootstrap -->
+    <!--<UnoWasmBootstrapVersion>8.0.23</UnoWasmBootstrapVersion> --><!-- https://www.nuget.org/packages/Uno.Wasm.Bootstrap -->
     <!--
       Adding NoWarn to remove build warnings
       NU1507: Warning when there are multiple package sources when using CPM with no source mapping

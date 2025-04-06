@@ -6,16 +6,16 @@
     See https://aka.platform.uno/using-uno-sdk#implicit-packages for more information regarding the Implicit Packages.
   -->
   <ItemGroup>
-    <PackageVersion Include="CommunityToolkit.WinUI.Behaviors" Version="8.1.240916" />
-    <PackageVersion Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.1.240916" />
-    <PackageVersion Include="CommunityToolkit.WinUI.Converters" Version="8.1.240916" />
-    <PackageVersion Include="CommunityToolkit.WinUI.DeveloperTools" Version="8.1.240916" />
-    <PackageVersion Include="CommunityToolkit.WinUI.Triggers" Version="8.1.240916" />
-    <PackageVersion Include="coverlet.collector" Version="6.0.2" />
+    <PackageVersion Include="CommunityToolkit.WinUI.Behaviors" Version="8.2.250402" />
+    <PackageVersion Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.2.250402" />
+    <PackageVersion Include="CommunityToolkit.WinUI.Converters" Version="8.2.250402" />
+    <PackageVersion Include="CommunityToolkit.WinUI.DeveloperTools" Version="8.2.250402" />
+    <PackageVersion Include="CommunityToolkit.WinUI.Triggers" Version="8.2.250402" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.4" />
     <PackageVersion Include="FluentAssertions" Version="8.2.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Authorization" Version="8.0.10" />
-    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="9.0.4" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="9.0.5" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.0" />
     <PackageVersion Include="morelinq" Version="4.4.0" />
     <PackageVersion Include="NUnit" Version="4.3.2" />
     <PackageVersion Include="NUnit3TestAdapter" Version="5.0.0" />
@@ -24,7 +24,7 @@
     <PackageVersion Include="OpenIddict.Client" Version="5.8.0" />
     <PackageVersion Include="OpenIddict.Core" Version="5.8.0" />
     <PackageVersion Include="System.Private.Uri" Version="4.3.2" />
-    <PackageVersion Include="System.Text.Json" Version="8.0.5" />
+    <PackageVersion Include="System.Text.Json" Version="9.0.5" />
     <PackageVersion Include="Uno.UITest.Helpers" Version="1.1.0-dev.82" />
     <PackageVersion Include="Xamarin.UITest" Version="4.4.2" />
   </ItemGroup>

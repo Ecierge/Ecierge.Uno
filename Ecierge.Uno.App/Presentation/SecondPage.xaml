@@ -2,7 +2,6 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:i="using:Microsoft.Xaml.Interactivity"
-      xmlns:ic="using:Microsoft.Xaml.Interactions.Core"
       xmlns:local="using:Ecierge.Uno.App.Presentation"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -34,30 +33,30 @@
         Margin="8" />
       <Button Content="Go to Main default from root">
         <i:Interaction.Behaviors>
-          <ic:EventTriggerBehavior EventName="Click">
+          <i:EventTriggerBehavior EventName="Click">
             <nav:NavigateRootRouteAction Route="Main" />
-          </ic:EventTriggerBehavior>
+          </i:EventTriggerBehavior>
         </i:Interaction.Behaviors>
       </Button>
       <Button Content="Go to Main Tab2 from root">
         <i:Interaction.Behaviors>
-          <ic:EventTriggerBehavior EventName="Click">
+          <i:EventTriggerBehavior EventName="Click">
             <nav:NavigateRootRouteAction Route="Main/Tab2" />
-          </ic:EventTriggerBehavior>
+          </i:EventTriggerBehavior>
         </i:Interaction.Behaviors>
       </Button>
       <Button Content="Go to Main default local">
         <i:Interaction.Behaviors>
-          <ic:EventTriggerBehavior EventName="Click">
+          <i:EventTriggerBehavior EventName="Click">
             <nav:NavigateLocalRouteAction Route="Main" />
-          </ic:EventTriggerBehavior>
+          </i:EventTriggerBehavior>
         </i:Interaction.Behaviors>
       </Button>
       <Button Content="Go to Main Tab2 local">
         <i:Interaction.Behaviors>
-          <ic:EventTriggerBehavior EventName="Click">
+          <i:EventTriggerBehavior EventName="Click">
             <nav:NavigateLocalRouteAction Route="Main/Tab2" />
-          </ic:EventTriggerBehavior>
+          </i:EventTriggerBehavior>
         </i:Interaction.Behaviors>
       </Button>
     </StackPanel>

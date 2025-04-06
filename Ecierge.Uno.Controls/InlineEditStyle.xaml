@@ -1,7 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:i="using:Microsoft.Xaml.Interactivity"
-                    xmlns:ic="using:Microsoft.Xaml.Interactions.Core"
                     xmlns:ct="using:CommunityToolkit.WinUI"
                     xmlns:ctb="using:CommunityToolkit.WinUI.Behaviors"
                     xmlns:ctc="using:CommunityToolkit.WinUI.Controls"
@@ -39,11 +38,11 @@
                                    Padding="6" Margin="2" HorizontalAlignment="Right" >
                     <IconSourceElement IconSource="{Binding ViewCommand.IconSource, RelativeSource={RelativeSource Mode=TemplatedParent}}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     <i:Interaction.Behaviors>
-                        <ic:EventTriggerBehavior EventName="Click">
-                          <ic:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}}"
+                        <i:EventTriggerBehavior EventName="Click">
+                          <i:ChangePropertyAction TargetObject="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}}"
                                                    PropertyName="IsEditing"
                                                    Value="True" />
-                        </ic:EventTriggerBehavior>
+                        </i:EventTriggerBehavior>
                       </i:Interaction.Behaviors>
                     </HyperlinkButton>
                 </Grid>
