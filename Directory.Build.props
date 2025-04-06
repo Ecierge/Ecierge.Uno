@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <DotNetVersion>net8.0</DotNetVersion>
+    <DotNetVersion>net9.0</DotNetVersion>
     <AssemblyName>$(MSBuildProjectName.Replace(" ", "_"))</AssemblyName>
     <RootNamespace>$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
     <LangVersion Condition="'$(MSBuildProjectExtension)'=='.csproj'">latest</LangVersion>
