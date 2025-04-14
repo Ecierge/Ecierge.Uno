@@ -58,7 +58,21 @@ public class ViewRegistryBuilder(IServiceCollection services) : RegistryBuilder<
         items.Add(view);
         Services.AddTransient(view.View);
         if (view.ViewModel is not null)
-            Services.AddTransient(view.ViewModel);
+        {
+            if (view.FactoryMethod != null)
+            {
+                Services.AddTransient(view.ViewModel, view.FactoryMethod);
+            }
+            else
+            {
+                Services.AddTransient(view.ViewModel);
+            }
+
+            foreach (var additionType in view.AdditionTypes)
+            {
+                Services.AddTransient(additionType);
+            }
+        }
         return this;
     }
 
