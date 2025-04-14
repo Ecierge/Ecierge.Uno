@@ -12,6 +12,7 @@ public interface INavigationDataMap
         return data.ContainsKey(name);
     }
     Task<object> FromNavigationData(INavigationData data, string name);
+    TValue FromNavigationData<TValue>(INavigationData data, string name);
     RouteData ToNavigationData(INavigationData? data, string name, object value);
 }
 
@@ -40,6 +41,17 @@ public abstract class NavigationDataMap<TPrimitive, TObject> : INavigationDataMa
             default:
                 throw new NotSupportedException();
         }
+    }
+
+    public TValue FromNavigationData<TValue>(INavigationData data, string name)
+    {
+        data = data ?? throw new ArgumentNullException(nameof(data));
+        if (data[name] is TValue result)
+        {
+            return result;
+        }
+        
+        throw new NotSupportedException();
     }
 
     RouteData INavigationDataMap.ToNavigationData(INavigationData? data, string name, object value)
