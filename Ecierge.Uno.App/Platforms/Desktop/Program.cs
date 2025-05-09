@@ -2,19 +2,19 @@ namespace Ecierge.Uno.App;
 
 using System;
 
-using global::Uno.UI.Runtime.Skia;
+using global::Uno.UI.Hosting;
 
 public static class Program
 {
     [STAThread]
     public static void Main(string[] args)
     {
-        var host = SkiaHostBuilder.Create()
+        var host = UnoPlatformHostBuilder.Create()
             .App(() => new App())
             .UseX11()
             .UseLinuxFrameBuffer()
             .UseMacOS()
-            .UseWindows()
+            .UseWin32()
             .Build();
 
         host.Run();

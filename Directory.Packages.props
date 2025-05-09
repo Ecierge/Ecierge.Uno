@@ -23,8 +23,6 @@
     <PackageVersion Include="OpenIddict.Abstractions" Version="5.8.0" />
     <PackageVersion Include="OpenIddict.Client" Version="5.8.0" />
     <PackageVersion Include="OpenIddict.Core" Version="5.8.0" />
-    <PackageVersion Include="Refit" Version="8.0.0" />
-    <PackageVersion Include="Refit.HttpClientFactory" Version="8.0.0" />
     <PackageVersion Include="System.Private.Uri" Version="4.3.2" />
     <PackageVersion Include="System.Text.Json" Version="8.0.5" />
     <PackageVersion Include="Uno.UITest.Helpers" Version="1.1.0-dev.70" />

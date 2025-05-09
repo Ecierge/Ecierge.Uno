@@ -80,14 +80,9 @@ public partial class App : Application
                 .UseHttp((context, services) => services
                     // Register HttpClient
 #if DEBUG
-                    // DelegatingHandler will be automatically injected into Refit Client
+                    // DelegatingHandler will be automatically injected into HTTP Client
                     .AddTransient<DelegatingHandler, DebugHttpHandler>()
 #endif
-                    .AddSingleton<IWeatherCache, WeatherCache>()
-                    // Uno Refit integrations is based on vulnerable package
-                    // however with the latest version of Refit it crashes
-                    // with MissingMethodException
-                    //.AddRefitClient<IApiClient>(context)
                 )
                 .ConfigureServices((context, services) =>
                 {

@@ -1,4 +1,4 @@
-﻿global using System.Collections.Immutable;
+global using System.Collections.Immutable;
 
 global using CommunityToolkit.Mvvm.ComponentModel;
 global using CommunityToolkit.Mvvm.Input;
@@ -7,7 +7,6 @@ global using Ecierge.Uno.App.DataContracts;
 global using Ecierge.Uno.App.DataContracts.Serialization;
 global using Ecierge.Uno.App.Models;
 global using Ecierge.Uno.App.Presentation;
-global using Ecierge.Uno.App.Services.Caching;
 global using Ecierge.Uno.App.Services.Endpoints;
 
 global using Microsoft.Extensions.DependencyInjection;
