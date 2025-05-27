@@ -78,6 +78,21 @@ public abstract class Navigator
         NavigationStatus = ServiceProvider.GetRequiredService<INavigationStatus>();
     }
 
+    public async Task<NavigationRuleResult> IsAllowedToNavigateAsync(NavigationRequest request)
+    {
+        var checkers = ServiceProvider.GetServices<INavigationRuleChecker>().ToList();
+        foreach (var checker in checkers)
+        {
+            var ruleResult = await checker.CanNavigateAsync(request);
+            if (!ruleResult.IsAllowed)
+            {
+                return ruleResult;
+            }
+        }
+
+        return NavigationRuleResult.Allow();
+    }
+
     private void SetRoute(NavigationRequest request)
     {
         var parentRoute =
@@ -139,6 +154,12 @@ public abstract class Navigator
     /// <returns>The navigation response (awaitable)</returns>
     public async ValueTask<NavigationResult> NavigateAsync(NavigationRequest request)
     {
+        var navigationRuleResult = await IsAllowedToNavigateAsync(request);
+        if (!navigationRuleResult.IsAllowed)
+        {
+            return new NavigationResult(navigationRuleResult.Reason);
+        }
+        
         if (request is DialogSegmentNavigationRequest dialogRequest && !dialogRequest.Handle)
             return await NavigateDialogAsync(dialogRequest);
 
