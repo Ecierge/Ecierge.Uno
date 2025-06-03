@@ -51,6 +51,11 @@
     <PackageReference Include="CommunityToolkit.WinUI.Converters" />
     <PackageReference Include="CommunityToolkit.WinUI.Triggers" />
     <PackageReference Include="System.Private.Uri" />
+    <PackageReference Include="Uno.Microsoft.Xaml.Behaviors.Interactivity.WinUI" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(TargetFramework.StartsWith('$(DotNetVersion)-windows10.0.'))">
+    <PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" />
   </ItemGroup>
 
 </Project>
