@@ -159,7 +159,7 @@ public abstract class Navigator
         {
             return new NavigationResult(navigationRuleResult.Reason);
         }
-        
+
         if (request is DialogSegmentNavigationRequest dialogRequest && !dialogRequest.Handle)
             return await NavigateDialogAsync(dialogRequest);
 
@@ -349,11 +349,8 @@ public static class NavigatorExtensions
                     return new NavigationFailedResponse(fullRoute, navigator);
                 }
 
-                if (currentNavigator.ChildNavigator is null)
-                {
-                    // Wait for the visual tree to be loaded
-                    await currentNavigator.WaitForVisualTreeAsync();
-                }
+                // Child navigator is created after UI is created and attached to a visual tree
+                await currentNavigator.WaitForVisualTreeAsync();
                 if (currentNavigator.ChildNavigator is not null)
                     currentNavigator = currentNavigator.ChildNavigator;
             }
