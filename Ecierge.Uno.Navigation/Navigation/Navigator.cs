@@ -204,6 +204,7 @@ public abstract class Navigator
     {
         var dialogScope = Scope.CreateDialogScope(request.Segment, this);
         var navigator = (ContentDialogNavigator)dialogScope.ServiceProvider.GetRequiredService<Navigator>();
+        navigator.Region = new Regions.NavigationRegion(dialogScope);
         request.Handle = true;
         return navigator.NavigateAsync(request);
     }
