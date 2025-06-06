@@ -78,12 +78,12 @@ public abstract class Navigator
         NavigationStatus = ServiceProvider.GetRequiredService<INavigationStatus>();
     }
 
-    public async Task<NavigationRuleResult> IsAllowedToNavigateAsync(NavigationRequest request)
+    public async Task<NavigationRuleResult> IsAllowedToNavigateAsync(string route)
     {
         var checkers = ServiceProvider.GetServices<INavigationRuleChecker>().ToList();
         foreach (var checker in checkers)
         {
-            var ruleResult = await checker.CanNavigateAsync(request);
+            var ruleResult = await checker.CanNavigateAsync(route);
             if (!ruleResult.IsAllowed)
             {
                 return ruleResult;
@@ -154,7 +154,7 @@ public abstract class Navigator
     /// <returns>The navigation response (awaitable)</returns>
     public async ValueTask<NavigationResult> NavigateAsync(NavigationRequest request)
     {
-        var navigationRuleResult = await IsAllowedToNavigateAsync(request);
+        var navigationRuleResult = await IsAllowedToNavigateAsync(request.Route.ToString());
         if (!navigationRuleResult.IsAllowed)
         {
             return new NavigationResult(navigationRuleResult.Reason);

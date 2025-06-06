@@ -2,5 +2,5 @@
 
 public interface INavigationRuleChecker
 {
-    Task<NavigationRuleResult> CanNavigateAsync(NavigationRequest request);
+    Task<NavigationRuleResult> CanNavigateAsync(string route);
 }
