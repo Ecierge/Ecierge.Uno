@@ -3,14 +3,15 @@
 public class NavigationRuleResult
 {
     public bool IsAllowed { get; }
-    public string Reason { get; }
+    public IReadOnlyList<string> Reasons { get; }
 
-    private NavigationRuleResult(bool isAllowed, string reason)
+    private NavigationRuleResult(bool isAllowed, IReadOnlyList<string> reason)
     {
         IsAllowed = isAllowed;
-        Reason = reason;
+        Reasons = reason;
     }
 
-    public static NavigationRuleResult Allow() => new(true, string.Empty);
-    public static NavigationRuleResult Deny(string reason) => new(false, reason);
+    public static NavigationRuleResult Allow() => new(true, []);
+    public static NavigationRuleResult Deny(string reason) => new(false, [reason]);
+    public static NavigationRuleResult Deny(IReadOnlyList<string> reasons) => new(false, reasons);
 }
