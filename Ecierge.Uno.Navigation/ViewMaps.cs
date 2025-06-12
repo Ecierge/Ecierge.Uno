@@ -2,31 +2,68 @@ namespace Ecierge.Uno.Navigation;
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Data;
-using System.Text;
+using Microsoft.Extensions.DependencyInjection;
 
-public record ViewMap(
-        Type View
-    ,   Type? ViewModel = null
-#pragma warning disable CA1819 // Properties should not return arrays
-    // TODO: Replace with `ImmutableArray<string>` when it's available
-    , params string[] AuthorizationPolicies
-#pragma warning restore CA1819 // Properties should not return arrays
-    );
+public abstract class ViewMapBase(Type view, Type? viewModel, IReadOnlyCollection<Type> additionalDependencies)
+{
+    public Type View { get; } = view;
+    public Type? ViewModel { get; } = viewModel;
 
-public record ViewMap<TView>(
-        Func<IServiceProvider, TView>? ViewFactory = null
-    ) : ViewMap(typeof(TView));
-public record ViewMap<TView, TViewModel>(
-        Func<IServiceProvider, TView>? ViewFactory = null
-    ,   Func<IServiceProvider, TViewModel>? ViewModelFactory = null
-    ) : ViewMap(typeof(TView), typeof(TViewModel));
+    public ViewMapBase With<TDependency>()
+    {
+        var dependencies = new List<Type>(additionalDependencies) {typeof(TDependency)};
+        return CreateInstance(dependencies);
+    }
 
-//public record DataViewMap<TView, TData>(
-//        Func<IServiceProvider, TView>? ViewFactory = null
-//    ) : ViewMap(typeof(TView), Data: new ViewDataMap<TData>());
-//public record DataViewMap<TView, TViewModel, TData>(
-//        Func<IServiceProvider, TView>? ViewFactory = null
-//    ,   Func<IServiceProvider, TViewModel>? ViewModelFactory = null
-//    ) : ViewMap(typeof(TView), typeof(TViewModel), new ViewDataMap<TData>());
+    protected abstract ViewMapBase CreateInstance(IReadOnlyCollection<Type> dependencies);
+
+    public IServiceCollection Register(IServiceCollection services)
+    {
+        foreach (var dependency in additionalDependencies)
+        {
+            services.AddTransient(dependency);
+        }
+        
+        services.AddTransient(View);
+        if (ViewModel is not null)
+        {
+            services.AddTransient(ViewModel);
+        }
+        
+        return services;
+    }
+}
+
+public class ViewMap<TView> : ViewMapBase
+{
+    private ViewMap(IReadOnlyCollection<Type> dependencies) : base(typeof(TView), null, dependencies)
+    {
+        
+    }
+
+    public ViewMap() : base(typeof(TView), null, [])
+    {
+    }
+
+    protected override ViewMapBase CreateInstance(IReadOnlyCollection<Type> dependencies)
+    {
+        return new ViewMap<TView>(dependencies);
+    }
+}
+
+public class ViewMap<TView, TViewModel> : ViewMapBase
+{
+    private ViewMap(IReadOnlyCollection<Type> dependencies) : base(typeof(TView), typeof(TViewModel), dependencies)
+    {
+        
+    }
+
+    public ViewMap() : this([])
+    {
+    }
+
+    protected override ViewMapBase CreateInstance(IReadOnlyCollection<Type> dependencies)
+    {
+        return new ViewMap<TView, TViewModel>(dependencies);
+    }
+}

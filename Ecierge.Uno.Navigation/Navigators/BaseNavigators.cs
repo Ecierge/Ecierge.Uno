@@ -31,7 +31,7 @@ public abstract class FactoryNavigator<TTarget> : Navigator<TTarget>
     {
         var viewMap = request.View!;
         var view = (FrameworkElement)ServiceProvider.GetRequiredService(viewMap.View);
-        if (viewMap.ViewModel is Type viewModelType)
+        if (viewMap.ViewModel is { } viewModelType)
         {
             var result = Scope.CreateViewModel(request, request.Route.Data);
             if (result.Success)

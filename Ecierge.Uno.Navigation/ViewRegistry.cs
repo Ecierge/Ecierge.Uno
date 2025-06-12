@@ -7,9 +7,9 @@ using System.Diagnostics.CodeAnalysis;
 
 using Microsoft.Extensions.DependencyInjection;
 
-public interface IViewRegistry : IRegistry<ViewMap>
+public interface IViewRegistry : IRegistry<ViewMapBase>
 {
-    ViewMap this[Type view] { get; }
+    ViewMapBase this[Type view] { get; }
 }
 
 public sealed class ViewMapNotFoundException : KeyNotFoundException
@@ -20,15 +20,15 @@ public sealed class ViewMapNotFoundException : KeyNotFoundException
     private ViewMapNotFoundException(string message, Exception innerException) : base(message, innerException) { }
 }
 
-public class ViewRegistry(IEnumerable<ViewMap> items) : IViewRegistry
+public class ViewRegistry(IEnumerable<ViewMapBase> items) : IViewRegistry
 {
-    private readonly ImmutableArray<ViewMap> items = items.ToImmutableArray();
-    public ImmutableDictionary<Type, ViewMap> Views { get; } = items.ToImmutableDictionary(x => x.View, x => x);
+    private readonly ImmutableArray<ViewMapBase> items = items.ToImmutableArray();
+    public ImmutableDictionary<Type, ViewMapBase> Views { get; } = items.ToImmutableDictionary(x => x.View, x => x);
 #pragma warning disable CA1033 // Interface methods should be callable by child types
-    ImmutableArray<ViewMap> IRegistry<ViewMap>.Items => items;
+    ImmutableArray<ViewMapBase> IRegistry<ViewMapBase>.Items => items;
 #pragma warning restore CA1033 // Interface methods should be callable by child types
 #pragma warning disable CA1043 // Use Integral Or String Argument For Indexers
-    public ViewMap this[Type view]
+    public ViewMapBase this[Type view]
     {
         get
         {
@@ -41,34 +41,33 @@ public class ViewRegistry(IEnumerable<ViewMap> items) : IViewRegistry
 #pragma warning restore CA1043 // Use Integral Or String Argument For Indexers
 }
 
-public interface IViewRegistryBuilder : IRegistryBuilder<ViewMap>
+public interface IViewRegistryBuilder : IRegistryBuilder<ViewMapBase>
 {
     public new IViewRegistry Build();
 }
 
-public class ViewRegistryBuilder(IServiceCollection services) : RegistryBuilder<ViewMap>(services), IViewRegistryBuilder
+public class ViewRegistryBuilder(IServiceCollection services) : RegistryBuilder<ViewMapBase>(services), IViewRegistryBuilder
 {
 #pragma warning disable CA1725 // Parameter names should match base declaration
-    protected override void AddItem(ViewMap view) => Register(view);
+    protected override void AddItem(ViewMapBase view) => Register(view);
 #pragma warning restore CA1725 // Parameter names should match base declaration
 
-    public new ViewRegistryBuilder Register(ViewMap view)
+    public new ViewRegistryBuilder Register(ViewMapBase view)
     {
         view = view ?? throw new ArgumentNullException(nameof(view));
         items.Add(view);
-        Services.AddTransient(view.View);
-        if (view.ViewModel is not null)
-            Services.AddTransient(view.ViewModel);
+        view.Register(Services);
+        
         return this;
     }
 
-    public new ViewRegistryBuilder Register([NotNull] params ViewMap[] views)
+    public new ViewRegistryBuilder Register([NotNull] params ViewMapBase[] views)
     {
         foreach (var view in views) Register(view);
         return this;
     }
 
-    public override IRegistry<ViewMap> Build() => new ViewRegistry(items);
+    public override IRegistry<ViewMapBase> Build() => new ViewRegistry(items);
 
     IViewRegistry IViewRegistryBuilder.Build() => new ViewRegistry(items);
 }

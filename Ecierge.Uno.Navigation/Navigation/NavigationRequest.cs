@@ -9,7 +9,7 @@ public abstract partial record NavigationRequest(object Sender, Routing.Route Ro
 
     public abstract NameSegment NameSegment { get; }
     public abstract RouteSegment RouteSegment { get; }
-    internal abstract ViewMap? View { get; }
+    internal abstract ViewMapBase? View { get; }
 }
 
 [DebuggerDisplay("{Segment.Name}")]
@@ -21,7 +21,7 @@ public record NameSegmentNavigationRequest(
 {
     public override NameSegment NameSegment => Segment;
     public override RouteSegment RouteSegment => Segment;
-    internal override ViewMap? View => Segment.ViewMap;
+    internal override ViewMapBase? View => Segment.ViewMap;
 }
 
 [DebuggerDisplay("{NameSegment.Name}/{Segment.Name}")]
@@ -34,7 +34,7 @@ public record DataSegmentNavigationRequest(
 {
     public override NameSegment NameSegment => Segment.ParentNameSegment;
     public override RouteSegment RouteSegment => Segment;
-    internal override ViewMap? View => Segment.ParentNameSegment.ViewMap;
+    internal override ViewMapBase? View => Segment.ParentNameSegment.ViewMap;
 }
 
 [DebuggerDisplay("!{Segment.Name}")]
@@ -63,5 +63,5 @@ public record DialogSegmentNavigationRequest : NavigationRequest
         _ => throw new NotSupportedException("Not supported segment type.")
     };
     public override RouteSegment RouteSegment => Segment;
-    internal override ViewMap? View => Segment.ViewMap;
+    internal override ViewMapBase? View => Segment.ViewMap;
 }
