@@ -38,12 +38,12 @@ namespace Ecierge.Uno.Navigation
         public bool IsDefault { get; init; } = false;
         public bool HasData => DataSegment is not null;
         public bool HasMandatoryData => DataSegment is not null && DataSegment.IsMandatory;
-        public ViewMap? ViewMap { get; set; }
+        public ViewMapBase? ViewMap { get; set; }
         public DataSegment? DataSegment { get; private init; }
         public override ImmutableArray<NameSegment> Nested { get; protected init; } = ImmutableArray<NameSegment>.Empty;
         public override ImmutableArray<NameSegment> NestedAfterData => DataSegment is not null ? DataSegment.Nested : Nested;
 
-        public NameSegment(string name, ViewMap? view, DataSegment dataSegment) : base(name)
+        public NameSegment(string name, ViewMapBase? view, DataSegment dataSegment) : base(name)
         {
             ViewMap = view;
             dataSegment = dataSegment ?? throw new ArgumentNullException(nameof(dataSegment));
@@ -55,7 +55,7 @@ namespace Ecierge.Uno.Navigation
             }
         }
 
-        public NameSegment(string name, ViewMap? view = null, bool isDefault = false, ImmutableArray<NameSegment> nested = default) : base(name)
+        public NameSegment(string name, ViewMapBase? view = null, bool isDefault = false, ImmutableArray<NameSegment> nested = default) : base(name)
         {
             ViewMap = view;
             IsDefault = isDefault;
@@ -129,8 +129,8 @@ namespace Ecierge.Uno.Navigation
 
     public record DialogSegment : NameSegment
     {
-        public DialogSegment(string name, ViewMap view, DataSegment data) : base(name, view, data) { }
-        public DialogSegment(string name, ViewMap? view = null, ImmutableArray<NameSegment> nested = default) : base(name, view, false, nested) { }
+        public DialogSegment(string name, ViewMapBase view, DataSegment data) : base(name, view, data) { }
+        public DialogSegment(string name, ViewMapBase? view = null, ImmutableArray<NameSegment> nested = default) : base(name, view, false, nested) { }
     }
 }
 
