@@ -62,7 +62,7 @@ public static class WindowExtensions
         Navigation.SetRootNavigator(window.Content!, navigator);
         if (initialNavigate is not null)
         {
-            await initialNavigate.Invoke(serviceProvider, navigator).ConfigureAwait(true);
+            await initialNavigate.Invoke(navigationScope.ServiceProvider, navigator).ConfigureAwait(true);
         }
         else
         {
