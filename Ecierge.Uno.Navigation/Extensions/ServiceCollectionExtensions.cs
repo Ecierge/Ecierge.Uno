@@ -51,6 +51,7 @@ public static class ServiceCollectionExtensions
                 .AddScopedInstance<FrameworkElement>()
                 .AddScopedInstance<DispatcherQueue>()
                 .AddScopedInstance<NavigationScope>()
+                .AddScopedInstance<IServiceScope>()
                 .AddScopedInstance<Navigator>()
                 .AddScopedInstance<NameSegment>()
                 .AddSingleton<INavigationStatus, NavigationStatus>()

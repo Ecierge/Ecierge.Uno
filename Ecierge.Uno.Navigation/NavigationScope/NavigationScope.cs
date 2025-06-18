@@ -16,6 +16,7 @@ public sealed class NavigationScope : IServiceScope, IDisposable
     private static readonly Type ContentDialogType = typeof(ContentDialog);
     private static readonly Type DispatcherType = typeof(DispatcherQueue);
     private static readonly Type NavigationScopeType = typeof(NavigationScope);
+    private static readonly Type IServiceScopeType = typeof(IServiceScope);
     private static readonly Type NameSegmentType = typeof(NameSegment);
     private static readonly Type NavigatorType = typeof(Navigator);
 
@@ -35,8 +36,9 @@ public sealed class NavigationScope : IServiceScope, IDisposable
         var serviceProvider = this.ServiceProvider;
         serviceProvider.AddScopedInstance(WindowType, window);
         serviceProvider.AddScopedInstance(DispatcherType, window.DispatcherQueue);
-        serviceProvider.AddScopedInstance(NavigationScopeType, this);
         serviceProvider.AddScopedInstance(NameSegmentType, segment);
+        serviceProvider.AddScopedInstance(NavigationScopeType, this);
+        serviceProvider.AddScopedInstance(IServiceScopeType, this);
         serviceProvider.AddScopedInstance(FrameworkElementType, element);
         serviceProvider.AddScopedInstance(NavigatorType, GetNavigator(element, null));
     }
@@ -51,6 +53,7 @@ public sealed class NavigationScope : IServiceScope, IDisposable
         serviceProvider.CloneScopedInstance<Window>(parentNavigator.ServiceProvider);
         serviceProvider.CloneScopedInstance<DispatcherQueue>(parentNavigator.ServiceProvider);
         serviceProvider.AddScopedInstance(NavigationScopeType, this);
+        serviceProvider.AddScopedInstance(IServiceScopeType, this);
         serviceProvider.AddScopedInstance(NameSegmentType, segment);
         var scopedInstanceOptions = serviceProvider.GetService<IOptions<ScopedInstanceRepositoryOptions>>()?.Value;
         if (scopedInstanceOptions is not null)
