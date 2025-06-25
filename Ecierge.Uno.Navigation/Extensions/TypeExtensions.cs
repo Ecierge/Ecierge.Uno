@@ -2,6 +2,7 @@ namespace Ecierge.Uno.Navigation;
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -11,6 +12,16 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Dispatching;
+
+[AttributeUsage(AttributeTargets.Parameter, AllowMultiple = true)]
+public class NavigationParameterAttribute : Attribute
+{
+    public string ParameterName { get; }
+    public NavigationParameterAttribute(string parameterName)
+    {;
+        ParameterName = parameterName ?? throw new ArgumentNullException(nameof(parameterName));
+    }
+}
 
 internal static class TypeExtensions
 {
@@ -67,9 +78,17 @@ internal static class TypeExtensions
                     {
                         // TODO: Ensure that navigation item mapping resolution happens only once
                         var map = (INavigationDataMap)services.GetRequiredService(dataMapType);
-                        if (map.HasValue(navigationData, para.Name!))
+                        var navigationParameterName =
+                            para.CustomAttributes
+                                .Where(attr => attr.AttributeType == typeof(NavigationParameterAttribute))
+                                .Select(attr => attr.ConstructorArguments.First().Value?.ToString())
+                                .Append(para.Name)
+                                .Where(name => name is not null)
+                                .Where(name => map.HasValue(navigationData, name!))
+                                .FirstOrDefault();
+                        if (navigationParameterName is not null)
                         {
-                            var task = map.FromNavigationData(navigationData, para.Name!);
+                            var task = map.FromNavigationData(navigationData, navigationParameterName);
                             args.Add(TaskConverter.Convert(task, entityType));
                         }
                         else
