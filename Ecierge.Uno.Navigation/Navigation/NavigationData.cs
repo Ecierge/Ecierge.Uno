@@ -17,6 +17,7 @@ public interface INavigationData : IImmutableDictionary<string, object>
     object? GetData(Type dataType);
 
     new INavigationData Add(string key, object value);
+    INavigationData Add(KeyValuePair<string, object> kvp) => Add(kvp.Key, kvp.Value);
     new INavigationData Remove(string key);
     new INavigationData RemoveRange(IEnumerable<string> keys);
     new INavigationData Clear();
@@ -43,6 +44,7 @@ public class NavigationData : INavigationData
     public int Count => data.Count;
 
     public INavigationData Add(string key, object value) => new NavigationData(data.Add(key, value));
+    public INavigationData Add(KeyValuePair<string, object> kvp) => Add(kvp.Key, kvp.Value);
     IImmutableDictionary<string, object> IImmutableDictionary<string, object>.Add(string key, object value) => Add(key, value);
 
     public INavigationData AddRange(IEnumerable<KeyValuePair<string, object>> pairs)
