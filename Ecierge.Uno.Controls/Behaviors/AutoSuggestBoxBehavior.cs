@@ -7,6 +7,47 @@ using Microsoft.Xaml.Interactivity;
 /// </summary>
 public class AutoSuggestBoxBehavior : Behavior<AutoSuggestBox>
 {
+    #region Text
+
+    /// <summary>
+    /// Text Dependency Property
+    /// </summary>
+    public static readonly DependencyProperty TextProperty =
+        DependencyProperty.Register(nameof(Text), typeof(string), typeof(AutoSuggestBoxBehavior), new((string?)null, OnTextChanged));
+
+    /// <summary>
+    /// Gets or sets the Text property. This dependency property
+    /// indicates then AuthoSuggestBox text.
+    /// </summary>
+    public string? Text
+    {
+        get => (string?)GetValue(TextProperty);
+        set => SetValue(TextProperty, value);
+    }
+
+    /// <summary>
+    /// Handles changes to the Text property.
+    /// </summary>
+    private static void OnTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        AutoSuggestBoxBehavior target = (AutoSuggestBoxBehavior)d;
+        //string oldText = (string)e.OldValue;
+        string newText = (string)e.NewValue;
+        AutoSuggestBox autoSuggestBox = target.AssociatedObject;
+        if (autoSuggestBox.Text != newText)
+            autoSuggestBox.Text = newText;
+        //target.OnTextChanged(oldText, newText);
+    }
+
+    ///// <summary>
+    ///// Provides derived classes an opportunity to handle changes to the Text property.
+    ///// </summary>
+    //protected virtual void OnTextChanged(string oldText, string newText)
+    //{
+    //}
+
+    #endregion Text
+
     #region QuerySubmittedCommand
 
     /// <summary>
@@ -53,6 +94,7 @@ public class AutoSuggestBoxBehavior : Behavior<AutoSuggestBox>
     protected override void OnAttached()
     {
         base.OnAttached();
+        this.AssociatedObject.TextChanged += AssociatedObject_TextChanged;
         this.AssociatedObject.QuerySubmitted += AssociatedObject_QuerySubmitted;
         this.AssociatedObject.SuggestionChosen += AssociatedObject_SuggestionChosen;
     }
@@ -61,8 +103,17 @@ public class AutoSuggestBoxBehavior : Behavior<AutoSuggestBox>
     protected override void OnDetaching()
     {
         base.OnDetaching();
+        this.AssociatedObject.TextChanged -= AssociatedObject_TextChanged;
         this.AssociatedObject.QuerySubmitted -= AssociatedObject_QuerySubmitted;
         this.AssociatedObject.SuggestionChosen -= AssociatedObject_SuggestionChosen;
+    }
+
+    private void AssociatedObject_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+    {
+        if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+        {
+            Text = sender.Text;
+        }
     }
 
     private void AssociatedObject_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
