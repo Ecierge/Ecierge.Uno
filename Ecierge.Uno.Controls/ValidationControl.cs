@@ -129,13 +129,20 @@ public sealed partial class ValidationControl : ContentControl
         this.DataContextChanged += OnDataContextChanged;
     }
 
+    private Style? originalStyle;
     private Style? lastErrorStyle;
 
     private void TrySetStyle(Style? style)
     {
         if (this.Errors is IEnumerable errors && errors.GetEnumerator().MoveNext())
         {
-            if (style is not null && lastErrorStyle is null)
+            if (this.Content is Control control && control.Style is not null)
+            {
+                originalStyle = control.Style;
+                lastErrorStyle = style;
+                control.Style = style;
+            }
+            else if (style is not null && lastErrorStyle is null)
             {
                 lastErrorStyle = style;
                 this.Resources[lastErrorStyle.TargetType] = lastErrorStyle;
@@ -149,7 +156,12 @@ public sealed partial class ValidationControl : ContentControl
 
     private void UnapplyErrorContentStyle()
     {
-        if (lastErrorStyle is not null)
+        if (originalStyle is not null && this.Content is Control control)
+        {
+            control.Style = originalStyle;
+            lastErrorStyle = null;
+        }
+        else if (lastErrorStyle is not null)
         {
             this.Resources.Remove(lastErrorStyle.TargetType);
             lastErrorStyle = null;
