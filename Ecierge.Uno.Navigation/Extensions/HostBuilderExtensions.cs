@@ -3,6 +3,8 @@ namespace Ecierge.Uno;
 
 using Ecierge.Uno.Navigation;
 
+using global::Uno.Extensions;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 

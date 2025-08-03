@@ -45,7 +45,7 @@ internal class SelectorBarNavigator : SelectorNavigator<SelectorBar>
             }
             else
             {
-                var request = new NameSegmentNavigationRequest(s, segment, segment.BuildDefaultRoute());
+                var request = new NameSegmentNavigationRequest(s, segment, segment.BuildDefaultRoute(serviceProvider));
                 await NavigateAsync(request);
             }
         };
@@ -53,7 +53,7 @@ internal class SelectorBarNavigator : SelectorNavigator<SelectorBar>
 
     protected override NavigationResult SelectItem(NavigationRequest request)
     {
-        if (navigatedName == request.NameSegment.Name) return new NavigationResult(request.RouteSegment, isSkipped: true);
+        if (navigatedName == request.NameSegment.Name) return new NavigationResult(request, isSkipped: true);
 
         var selectorBar = (SelectorBar)Region!.Target!;
         var item =
@@ -73,6 +73,6 @@ internal class SelectorBarNavigator : SelectorNavigator<SelectorBar>
         navigatedItem = item;
         // TODO: Rewrite to item selector and set index
         selectorBar.SelectedItem = item;
-        return new NavigationResult(request.RouteSegment);
+        return new NavigationResult(request);
     }
 }

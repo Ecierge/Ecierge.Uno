@@ -10,9 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 public interface INavigationDataRegistry : IRegistry<Type>
 {
     ImmutableDictionary<Type, Type> EntityMap { get; }
-    ImmutableHashSet<Type> Primitives { get; }
     Type this[Type entity] { get; }
-    bool HasAssignablePrimitive(Type primitive);
     bool TryGetForAssignableEntity(Type entity, [NotNullWhen(true)] out Type? data);
 }
 
@@ -24,10 +22,9 @@ public sealed class NavigationDataMapNotFoundException : KeyNotFoundException
     private NavigationDataMapNotFoundException(string message, Exception innerException) : base(message, innerException) { }
 }
 
-public class NavigationDataRegistry(IReadOnlyDictionary<Type, Type> entityMap, IReadOnlySet<Type> primitives) : INavigationDataRegistry
+public class NavigationDataRegistry(IReadOnlyDictionary<Type, Type> entityMap) : INavigationDataRegistry
 {
     public ImmutableDictionary<Type, Type> EntityMap { get; } = entityMap.ToImmutableDictionary();
-    public ImmutableHashSet<Type> Primitives { get; } = primitives.ToImmutableHashSet();
 #pragma warning disable CA1033 // Interface methods should be callable by child types
     ImmutableArray<Type> IRegistry<Type>.Items => entityMap.Values.ToImmutableArray();
 #pragma warning restore CA1033 // Interface methods should be callable by child types
@@ -43,19 +40,6 @@ public class NavigationDataRegistry(IReadOnlyDictionary<Type, Type> entityMap, I
         }
     }
 #pragma warning restore CA1043 // Use Integral Or String Argument For Indexers
-
-    // TODO: Improve lookup performance
-    public bool HasAssignablePrimitive(Type primitive)
-    {
-        if (Primitives.Contains(primitive))
-            return true;
-        foreach (var p in Primitives)
-        {
-            if (p.IsAssignableTo(primitive))
-                return true;
-        }
-        return false;
-    }
 
     public bool TryGetForAssignableEntity(Type entity, [NotNullWhen(true)] out Type? data)
     {
@@ -75,7 +59,6 @@ public class NavigationDataRegistry(IReadOnlyDictionary<Type, Type> entityMap, I
 public interface INavigationDataRegistryBuilder
 {
     IReadOnlyDictionary<Type, Type> EntityMap { get; }
-    IReadOnlySet<Type> Primitives { get; }
     INavigationDataRegistryBuilder Register<T>() where T : class, INavigationDataMap;
     public INavigationDataRegistry Build();
 }
@@ -84,9 +67,7 @@ public class NavigationDataRegistryBuilder : INavigationDataRegistryBuilder
 {
     private readonly IServiceCollection services;
     private readonly Dictionary<Type, Type> entityMap = new();
-    private readonly HashSet<Type> primitives = new();
     public IReadOnlyDictionary<Type, Type> EntityMap => entityMap;
-    public IReadOnlySet<Type> Primitives => primitives;
 
     public NavigationDataRegistryBuilder(IServiceCollection services)
     {
@@ -95,17 +76,11 @@ public class NavigationDataRegistryBuilder : INavigationDataRegistryBuilder
 
     public INavigationDataRegistryBuilder Register<T>() where T : class, INavigationDataMap
     {
-        services.AddScoped<T>();
+        services.AddSingleton<T>();
+        services.AddInheritedScopedInstance(T.EntityType);
         entityMap.Add(T.EntityType, typeof(T));
-        primitives.Add(T.PrimitiveType);
         return this;
     }
 
-    public INavigationDataRegistryBuilder Register([NotNull] params INavigationDataMap[] navigationDataMaps)
-    {
-        foreach (var map in navigationDataMaps) Register(map);
-        return this;
-    }
-
-    public INavigationDataRegistry Build() => new NavigationDataRegistry(entityMap, primitives);
+    public INavigationDataRegistry Build() => new NavigationDataRegistry(entityMap);
 }

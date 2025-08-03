@@ -24,7 +24,7 @@ public abstract class DialogNavigator<TTarget, TResult> : FactoryNavigator<TTarg
         if (!result.Success) return result;
 
         showTask = result.Result;
-        return new NavigationResult(request.RouteSegment);
+        return new NavigationResult(request);
     }
 
     protected void CloseDialog()
@@ -44,7 +44,8 @@ public abstract class DialogNavigator<TTarget, TResult> : FactoryNavigator<TTarg
     {
         CloseDialog();
         Parent!.ChildNavigator = null;
-        return new(new NavigationResult(Parent!.Region.Segment));
+        var request = new BackNavigationRequest(initiator, Parent!.Route);
+        return new(new NavigationResult(request));
     }
 }
 
@@ -90,6 +91,6 @@ public class ContentDialogNavigator : DialogNavigator<ContentDialog, ContentDial
         dialog.Closed += DialogClosed;
 
         var showTask = dialog.ShowAsync();
-        return new NavigationResult<IAsyncOperation<ContentDialogResult>>(request.RouteSegment, showTask);
+        return new NavigationResult<IAsyncOperation<ContentDialogResult>>(request, showTask);
     }
 }

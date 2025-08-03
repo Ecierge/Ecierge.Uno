@@ -6,13 +6,14 @@ using System.Threading.Tasks;
 public abstract class ContentControlNavigatorBase<TContentControl>(IServiceProvider serviceProvider) : FactoryNavigator<TContentControl>(serviceProvider)
     where TContentControl : ContentControl
 {
-    protected override FrameworkElement? WaitForVisualTreeTarget => Target.Content as FrameworkElement;
+    protected override FrameworkElement? WaitForVisualTreeTarget => Target?.Content as FrameworkElement;
 }
 
 public class ContentControlNavigator : ContentControlNavigatorBase<ContentControl>
 {
     public ContentControlNavigator(IServiceProvider serviceProvider) : base(serviceProvider) { }
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
     protected override async ValueTask<NavigationResult> NavigateCoreAsync(NavigationRequest request)
     {
         // TODO: Check if view is the same as the current view
@@ -22,6 +23,7 @@ public class ContentControlNavigator : ContentControlNavigatorBase<ContentContro
         var view = (FrameworkElement)result.Result!;
         var contentControl = Target!;
         contentControl.Content = view;
-        return new NavigationResult(request.RouteSegment);
+        return new NavigationResult(request);
     }
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 }

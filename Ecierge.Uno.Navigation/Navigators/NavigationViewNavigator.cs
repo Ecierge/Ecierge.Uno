@@ -50,7 +50,7 @@ public class ByNameNavigationViewItemSelector : ItemSelector<NavigationView>
         {
             var itemToSelect = Target.MenuItemFromContainer(containerToSelect);
             Target.SelectedItem = itemToSelect;
-            return new NavigationResult(request.RouteSegment);
+            return new NavigationResult(request);
         }
         else
         {
@@ -93,7 +93,7 @@ public class NavigationViewNavigator : SelectorNavigator<NavigationView>
             navigatedName = segmentName;
             navigatedItem = selectedItem;
 
-            var request = new NameSegmentNavigationRequest(s, segment, segment.BuildDefaultRoute());
+            var request = new NameSegmentNavigationRequest(s, segment, segment.BuildDefaultRoute(serviceProvider));
             await NavigateAsync(request);
         };
     }
@@ -124,9 +124,10 @@ public class NavigationViewContentNavigator : ContentControlNavigatorBase<Naviga
         itemSelector.Navigator = this;
     }
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
     protected override async ValueTask<NavigationResult> NavigateCoreAsync(NavigationRequest request)
     {
-        if (navigatedName == request.NameSegment.Name) return new NavigationResult(request.RouteSegment, isSkipped: true);
+        if (navigatedName == request.NameSegment.Name) return new NavigationResult(request, isSkipped: true);
 
         var result = CreateView(request);
         if (!result.Success) return result;
@@ -144,6 +145,7 @@ public class NavigationViewContentNavigator : ContentControlNavigatorBase<Naviga
         }
         navigationStatus.NavigationFinished += NavigationFinished;
 
-        return new NavigationResult(request.RouteSegment, view);
+        return new NavigationResult(request, view);
     }
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 }
