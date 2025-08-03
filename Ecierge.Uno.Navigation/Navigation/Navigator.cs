@@ -222,8 +222,16 @@ public abstract class Navigator
     public async Task WaitForVisualTreeAsync()
     {
         var tcs = new TaskCompletionSource();
-        this.Target.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, () => tcs.SetResult());
-        await tcs.Task;
+        if (this.Target is null)
+        {
+            // No target, no visual tree
+            tcs.SetResult();
+        }
+        else
+        {
+            this.Target.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, () => tcs.SetResult());
+            await tcs.Task;
+        }
     }
 
     protected virtual ValueTask WaitForVisualTree() => ValueTask.CompletedTask;
