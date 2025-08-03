@@ -118,6 +118,7 @@ namespace Ecierge.Uno.Navigation
         public override ImmutableArray<NameSegment> NestedAfterData => Nested;
         public DataSegment(string name, Type? dataMap, bool isMandatory = true, params NameSegment[] nested) : base(name)
         {
+            DataMap = dataMap;
             IsMandatory = isMandatory;
             if (nested is not null)
             {
