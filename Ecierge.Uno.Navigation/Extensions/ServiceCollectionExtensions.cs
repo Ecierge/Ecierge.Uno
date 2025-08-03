@@ -4,8 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -17,6 +15,15 @@ using Ecierge.Uno.Navigation.Navigators;
 
 public static class ServiceCollectionExtensions
 {
+    /// <summary>
+    /// Adds navigation services to the service collection.
+    /// </summary>
+    /// <param name="services">The service collection to add navigation services to.</param>
+    /// <param name="configure">Optional configuration action for <see cref="NavigationOptions"/>.</param>
+    /// <param name="routeBuilder">Optional action to configure the view and route registries.</param>
+    /// <param name="createViewRegistryBuilder">Optional factory to create a custom <see cref="IViewRegistryBuilder"/>.</param>
+    /// <param name="createRouteRegistryBuilder">Optional factory to create a custom <see cref="IRouteRegistryBuilder"/>.</param>
+    /// <returns></returns>
     public static IServiceCollection AddNavigation(
           this IServiceCollection services
         , Func<NavigationOptions, NavigationOptions>? configure = null
@@ -47,17 +54,16 @@ public static class ServiceCollectionExtensions
                 .AddSingleton<ISingletonInstanceRepository, Ecierge.Uno.InstanceRepository>()
                 .AddScoped<IScopedInstanceRepository, Ecierge.Uno.InstanceRepository>()
 
-                .AddScopedInstance<Window>()
+                .AddInheritedScopedInstance<Window>()
+                .AddInheritedScopedInstance<DispatcherQueue>()
                 .AddScopedInstance<FrameworkElement>()
-                .AddScopedInstance<DispatcherQueue>()
                 .AddScopedInstance<NavigationScope>()
                 .AddScopedInstance<IServiceScope>()
                 .AddScopedInstance<Navigator>()
                 .AddScopedInstance<NameSegment>()
                 .AddSingleton<INavigationStatus, NavigationStatus>()
 
-                .AddScoped<NavigationData>()
-                .AddTransient<INavigationData>(sp => sp.GetRequiredService<NavigationData>())
+                .AddScopedInstance<INavigationData>()
 
                 //.AddSingleton<IResponseNavigatorFactory, ResponseNavigatorFactory>()
 
@@ -75,7 +81,7 @@ public static class ServiceCollectionExtensions
                 .AddNavigator<ContentControl, ContentControlNavigator>()
                 .AddNavigator<NavigationView, NavigationViewNavigator>()
                 .AddScoped<NavigationViewContentNavigator>()
-                //.AddNavigator<Panel, PanelVisiblityNavigator>(name: PanelVisiblityNavigator.NavigatorName)
+                //.AddNavigator<Panel, PanelVisibilityNavigator>(name: PanelVisibilityNavigator.NavigatorName)
                 //.AddNavigator<Microsoft.UI.Xaml.Controls.NavigationView, NavigationViewNavigator>()
                 //.AddNavigator<ContentDialog, ContentDialogNavigator>(true)
                 //.AddNavigator<MessageDialog, MessageDialogNavigator>(true)
@@ -99,52 +105,163 @@ public static class ServiceCollectionExtensions
 
                 .AddSingleton(routes.GetType(), routes)
                 .AddSingleton<IRouteRegistry>(sp => (RouteRegistry)sp.GetRequiredService(routes.GetType()));
-                //.AddSingleton<RouteResolver>()
-                //.AddSingleton<RouteResolverDefault>()
-                //.AddSingleton<IRouteResolver>(sp =>
-                //{
-                //    var config = sp.GetRequiredService<NavigationOptions>();
-                //    return (sp.GetRequiredService(config.RouteResolver!) as IRouteResolver)!;
-                //})
-
-
-                //.AddScoped<NavigationDataProvider>()
-                //.AddScoped<RegionControlProvider>()
-                //.AddTransient<IDictionary<string, object>>(services => services.GetRequiredService<NavigationDataProvider>().Parameters)
     }
 
+    /// <summary>
+    /// Adds a scoped instance of the specified type to the service collection.
+    /// If an instance is present in the current scope it will be copied to child scopes.
+    /// </summary>
+    /// <param name="services">The service collection to add the scoped instance to.</param>
+    /// <param name="type">The type of the instance to add.</param>
+    /// <returns>The updated service collection.</returns>
+    public static IServiceCollection AddInheritedScopedInstance(this IServiceCollection services, Type type)
+     =>
+#pragma warning disable CS8603 // Possible null reference return.
+        services
+            .AddTransient(type, sp => sp.GetInstance(type))
+            .Configure<ScopedInstanceRepositoryOptions>(options => options.AddTypeToClone(type));
+#pragma warning restore CS8603 // Possible null reference return.
+
+    /// <summary>
+    /// Adds a scoped instance of the specified type to the service collection.
+    /// If an instance is present in the current scope it will be copied to child scopes.
+    /// </summary>
+    /// <param name="services">The service collection to add the scoped instance to.</param>
+    /// <typeparam name="T">The type of the instance to add.</typeparam>
+    /// <returns>The updated service collection.</returns>
     public static IServiceCollection AddInheritedScopedInstance<T>(this IServiceCollection services)
         where T : class
-    {
+     =>
 #pragma warning disable CS8603 // Possible null reference return.
-        return services
+        services
             .AddTransient<T>(sp => sp.GetInstance<T>())
             .Configure<ScopedInstanceRepositoryOptions>(options => options.AddTypeToClone<T>());
 #pragma warning restore CS8603 // Possible null reference return.
-    }
 
+
+    /// <summary>
+    /// Adds a scoped instance of the specified type to the service collection.
+    /// </summary>
+    /// <param name="services">The service collection to add the scoped instance to.</param>
+    /// <param name="type">The type of the instance to add.</param>
+    /// <returns>The updated service collection.</returns>
     public static IServiceCollection AddScopedInstance<T>(this IServiceCollection services)
         where T : class
-    {
+     =>
 #pragma warning disable CS8603 // Possible null reference return.
-        return services
+        services
             .AddTransient<T>(sp => sp.GetInstance<T>());
 #pragma warning restore CS8603 // Possible null reference return.
-    }
 
-
-#pragma warning disable IDE0022 // Use expression body for method
-    public static IServiceCollection AddNavigator<TControl, TNavigator>(
-          [NotNull] this IServiceCollection services
-        , string? name = null
-        , bool isTransient = false
-        )
+    /// <summary>
+    /// Adds a navigator for the specified control type and a mapping to navigator type to the service collection.
+    /// </summary>
+    /// <typeparam name="TControl">The type of the control that the navigator will manage.</typeparam>
+    /// <typeparam name="TNavigator">The type of the navigator that will manage the control.</typeparam>
+    /// <param name="services">The service collection to add the navigator to.</param>
+    /// <returns>The updated service collection.</returns>
+    public static IServiceCollection AddNavigator<TControl, TNavigator>([NotNull] this IServiceCollection services)
         where TControl : Control
         where TNavigator : Navigator
-    {
-        return services
+     =>
+        services
             .AddScoped<TNavigator>()
             .AddSingleton(new Tuple<Type, Type>(typeof(TControl), typeof(TNavigator)));
-    }
-#pragma warning restore IDE0022 // Use expression body for method
+
+    #region Add scoped with navigation parameters
+
+    /// <summary>
+    /// Adds a scoped service that can be created with navigation parameters.
+    /// </summary>
+    /// <typeparam name="TService">The type of the service to add.</typeparam>
+    /// <param name="services">The service collection to add the service to.</param>
+    /// <returns>The updated service collection.</returns>
+    public static IServiceCollection AddScopedWithNavigationParameters<TService>(this IServiceCollection services)
+        where TService : class
+     =>
+        services.AddScoped<TService>(TypeExtensions.CreateWithNavigationParameters<TService>);
+
+    /// <summary>
+    /// Adds a scoped service with a specific implementation that can be created with navigation parameters.
+    /// </summary>
+    /// <typeparam name="TService">The type of the service to add.</typeparam>
+    /// <typeparam name="TImplementation">The type of the implementation to add.</typeparam>
+    /// <param name="services">The service collection to add the service to.</param>
+    /// <returns>The updated service collection.</returns>
+    public static IServiceCollection AddScopedWithNavigationParameters<TService, TImplementation>(this IServiceCollection services)
+        where TService : class
+        where TImplementation : class, TService
+     =>
+        services.AddScoped<TService, TImplementation>(TypeExtensions.CreateWithNavigationParameters<TImplementation>);
+
+    /// <summary>
+    /// Adds a scoped service of the specified type that can be created with navigation parameters.
+    /// </summary>
+    /// <param name="services">The service collection to add the service to.</param>
+    /// <param name="serviceType">The type of the service to add.</param>
+    /// <returns>The updated service collection.</returns>
+    public static IServiceCollection AddScopedWithNavigationParameters(this IServiceCollection services, Type serviceType)
+     =>
+        services.AddScoped(serviceType, TypeExtensions.GetFactoryWithNavigationParameters(serviceType));
+
+    /// <summary>
+    /// Adds a scoped service of the specified type with a specific implementation that can be created with navigation parameters.
+    /// </summary>
+    /// <param name="services">The service collection to add the service to.</param>
+    /// <param name="serviceType">The type of the service to add.</param>
+    /// <param name="implementationType">The type of the implementation to add.</param>
+    /// <returns>The updated service collection.</returns>
+    public static IServiceCollection AddScopedWithNavigationParameters(this IServiceCollection services, Type serviceType, Type implementationType) =>
+        services.AddScoped(serviceType, TypeExtensions.GetFactoryWithNavigationParameters(implementationType));
+
+    #endregion Add scoped with navigation parameters
+
+    #region Add transient with navigation parameters
+
+    /// <summary>
+    /// Adds a transient service that can be created with navigation parameters.
+    /// </summary>
+    /// <typeparam name="TService">The type of the service to add.</typeparam>
+    /// <param name="services">The service collection to add the service to.</param>
+    /// <returns>The updated service collection.</returns>
+    public static IServiceCollection AddTransientWithNavigationParameters<TService>(this IServiceCollection services)
+        where TService : class
+     =>
+        services.AddTransient<TService>(TypeExtensions.CreateWithNavigationParameters<TService>);
+
+    /// <summary>
+    /// Adds a transient service with a specific implementation that can be created with navigation parameters.
+    /// </summary>
+    /// <typeparam name="TService">The type of the service to add.</typeparam>
+    /// <typeparam name="TImplementation">The type of the implementation to add.</typeparam>
+    /// <param name="services">The service collection to add the service to.</param>
+    /// <returns>The updated service collection.</returns>
+    public static IServiceCollection AddTransientWithNavigationParameters<TService, TImplementation>(this IServiceCollection services)
+        where TService : class
+        where TImplementation : class, TService
+     =>
+        services.AddTransient<TService, TImplementation>(TypeExtensions.CreateWithNavigationParameters<TImplementation>);
+
+    /// <summary>
+    /// Adds a transient service of the specified type that can be created with navigation parameters.
+    /// </summary>
+    /// <param name="services">The service collection to add the service to.</param>
+    /// <param name="serviceType">The type of the service to add.</param>
+    /// <returns>The updated service collection.</returns>
+    public static IServiceCollection AddTransientWithNavigationParameters(this IServiceCollection services, Type serviceType)
+     =>
+        services.AddTransient(serviceType, TypeExtensions.GetFactoryWithNavigationParameters(serviceType));
+
+    /// <summary>
+    /// Adds a transient service of the specified type with a specific implementation that can be created with navigation parameters.
+    /// </summary>
+    /// <param name="services">The service collection to add the service to.</param>
+    /// <param name="serviceType">The type of the service to add.</param>
+    /// <param name="implementationType">The type of the implementation to add.</param>
+    /// <returns>The updated service collection.</returns>
+    public static IServiceCollection AddTransientWithNavigationParameters(this IServiceCollection services, Type serviceType, Type implementationType)
+     =>
+        services.AddTransient(serviceType, TypeExtensions.GetFactoryWithNavigationParameters(implementationType));
+
+    #endregion Add transient with navigation parameters
 }

@@ -106,7 +106,7 @@ public class ViewRegistryBuilder(IServiceCollection services) : RegistryBuilder<
     /// </summary>
     /// <param name="views">A collection of view maps to register.</param>
     /// <returns>This instance for method chaining.</returns>
-    public new ViewRegistryBuilder Register([NotNull] params IEnumerable<ViewMapBase> views)
+    public ViewRegistryBuilder Register([NotNull] params IEnumerable<ViewMapBase> views)
     {
         foreach (var view in views) Register(view);
         return this;

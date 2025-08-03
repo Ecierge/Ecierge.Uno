@@ -1,4 +1,4 @@
-<Project Sdk="Uno.Sdk">
+﻿<Project Sdk="Uno.Sdk">
   <PropertyGroup>
     <TargetFrameworks>
       $(DotNetVersion)-android;
@@ -44,6 +44,12 @@
     </UnoFeatures>
 
   </PropertyGroup>
+
+  <Target Name="RemoveUnnecessaryImplicitUsings" BeforeTargets="BeforeBuild">
+    <ItemGroup>
+      <Using Remove="Uno.Extensions" />
+    </ItemGroup>
+  </Target>
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.WinUI.Behaviors" />

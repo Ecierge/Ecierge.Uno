@@ -75,6 +75,6 @@ public static class WindowExtensions
         return Navigation.GetRootNavigator((FrameworkElement)window.Content!);
     }
 
-    public static XamlRoot GetXamlRoot([NotNull] this Window window) => window.Content?.XamlRoot;
+    public static XamlRoot? GetXamlRoot([NotNull] this Window window) => window.Content?.XamlRoot;
     public static void SetXamlRootTo([NotNull] this Window window, [NotNull] UIElement element) => element.XamlRoot = window.Content?.XamlRoot;
 }

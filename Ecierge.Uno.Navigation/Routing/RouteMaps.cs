@@ -1,6 +1,10 @@
 using System.Collections.Immutable;
 
+using Ecierge.Uno.Navigation.Helpers;
+using Ecierge.Uno.Navigation.Navigators;
 using Ecierge.Uno.Navigation.Routing;
+
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Ecierge.Uno.Navigation
 {
@@ -66,7 +70,7 @@ namespace Ecierge.Uno.Navigation
             }
         }
 
-        public Routing.Route BuildDefaultRoute(object? data = null)
+        public Routing.Route BuildDefaultRoute(IServiceProvider serviceProvider, object? data = null)
         {
             var list = new List<RouteSegmentInstance> {
                 this switch
@@ -76,20 +80,23 @@ namespace Ecierge.Uno.Navigation
                 }
             };
             INavigationData navigationData = (data as INavigationData)!;
-            if (DataSegment is not null)
+            if (DataSegment is { } dataSegment)
             {
                 if (data is null && DataSegment.IsMandatory)
                     throw new ArgumentNullException(nameof(data), "Data is mandatory.");
+                var dataMap = (INavigationDataMap)serviceProvider.GetRequiredService(dataSegment.DataMap!);
                 if (navigationData is not null)
                 {
-                    // TODO: Do something with primitive value that is null now
-                    list.Add(new DataSegmentInstance(DataSegment, null, navigationData[DataSegment.Name]));
+                    var primitive = dataMap.GetStringValue(navigationData, DataSegment.Name);
+                    var task = dataMap.GetEntityTask(navigationData, DataSegment.Name);
+                    list.Add(new DataSegmentInstance(DataSegment, primitive, task));
                 }
                 else
                 {
-                    navigationData = NavigationData.Empty.Add(DataSegment.Name, data!);
-                    // TODO: Do something with primitive value that is null now
-                    list.Add(new DataSegmentInstance(DataSegment, null, data));
+                    var primitive = dataMap.GetStringValue(data!);
+                    var task = dataMap.GetEntityTask(data!);
+                    navigationData = NavigationData.Empty.Add(DataSegment.Name, task);
+                    list.Add(new DataSegmentInstance(DataSegment, primitive, task));
                 }
                 AddDefaultSegments(DataSegment);
             }

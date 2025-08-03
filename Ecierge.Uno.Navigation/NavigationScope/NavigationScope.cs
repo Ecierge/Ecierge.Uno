@@ -2,6 +2,7 @@ namespace Ecierge.Uno.Navigation;
 
 using System;
 
+using Ecierge.Uno;
 using Ecierge.Uno.Navigation;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -50,8 +51,6 @@ public sealed class NavigationScope : IServiceScope, IDisposable
 
         serviceScope = parentNavigator.ServiceProvider.CreateScope();
         var serviceProvider = this.ServiceProvider;
-        serviceProvider.CloneScopedInstance<Window>(parentNavigator.ServiceProvider);
-        serviceProvider.CloneScopedInstance<DispatcherQueue>(parentNavigator.ServiceProvider);
         serviceProvider.AddScopedInstance(NavigationScopeType, this);
         serviceProvider.AddScopedInstance(IServiceScopeType, this);
         serviceProvider.AddScopedInstance(NameSegmentType, segment);
@@ -74,21 +73,7 @@ public sealed class NavigationScope : IServiceScope, IDisposable
         serviceProvider.AddScopedInstance(NavigatorType, GetNavigator(element, parentNavigator));
     }
 
-    ~NavigationScope() => Dispose(false);
-
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    private void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            serviceScope.Dispose();
-        }
-    }
+    public void Dispose() => serviceScope.Dispose();
 
     public NavigationScope CreateScope(Navigator parentNavigator, NameSegment segment, FrameworkElement element)
      => new NavigationScope(parentNavigator, segment, element);
@@ -119,7 +104,7 @@ public sealed class NavigationScope : IServiceScope, IDisposable
                 throw new InvalidOperationException($"No navigator found for {viewType.Name}");
         }
         Navigator navigator = (Navigator)serviceProvider.GetRequiredService(navigatorType);
-        AssginNavigators(lastNavigator, navigator);
+        AssignNavigators(lastNavigator, navigator);
         serviceProvider.AddScopedInstance(NavigatorType, navigator);
         lastNavigator.ChildNavigator = navigator;
         return navigationScope;
@@ -136,11 +121,11 @@ public sealed class NavigationScope : IServiceScope, IDisposable
                 throw new InvalidOperationException($"No navigator found for {elementType.Name}");
         }
         var navigator = (Navigator)this.ServiceProvider.GetRequiredService(navigatorType);
-        AssginNavigators(parent, navigator);
+        AssignNavigators(parent, navigator);
         return navigator;
     }
 
-    private void AssginNavigators(Navigator? parent, Navigator navigator)
+    private void AssignNavigators(Navigator? parent, Navigator navigator)
     {
         navigator.Parent = parent;
         if (parent is not null)
@@ -152,41 +137,61 @@ public sealed class NavigationScope : IServiceScope, IDisposable
 
     public NavigationResult CreateViewModel(NavigationRequest request, INavigationData? navigationData)
     {
-        var data = navigationData ?? NavigationData.Empty;
+        var navData = navigationData ?? NavigationData.Empty;
 
-        var nameSegment = request.NameSegment;
         var viewModelType = request.View!.ViewModel!;
 
-        var viewModel = data.GetData(viewModelType);
-        if (viewModel is not null) return new NavigationResult(nameSegment, viewModel);
-
-        if (request is not DataSegmentNavigationRequest)
         {
-            try
-            {
-                viewModel = ServiceProvider.GetService(viewModelType);
-            }
-            catch (InvalidOperationException) { }
-            if (viewModel is not null) return new NavigationResult(nameSegment, viewModel);
-        }
-        if (request is DataSegmentNavigationRequest dataRequest && dataRequest.RouteData is not null)
-        {
-            navigationData = (navigationData ?? NavigationData.Empty).Add(dataRequest.Segment.Name, dataRequest.RouteData);
+            if (navData.GetData(viewModelType) is { } viewModel)
+                return new NavigationResult(request, viewModel);
         }
 
-        var ctor = viewModelType.GetNavigationConstructor(ServiceProvider, navigationData ?? NavigationData.Empty, out var args);
-        if (ctor is not null)
+        INavigationData AddOrUpdateValue(INavigationData data, string key, object value, Type? dataMapType = null)
         {
-            try
+            var exists = data.TryGetValue(key, out var oldValue);
+            if (!exists)
+                return data.Add(key, value);
+            if (oldValue == value)
+                return data;
+            if (value is Task && dataMapType is not null)
             {
-                return new NavigationResult(nameSegment, ctor.Invoke(args));
+                var dataMap = (INavigationDataMap)ServiceProvider.GetRequiredService(dataMapType);
+                if (oldValue!.GetType() == dataMap.EntityType)
+                    return data;
             }
-            catch
-            {
-                ServiceProvider.GetRequiredService<ILogger<NavigationScope>>().LogInformation("Failed to create view model of type {ViewModelType} using route data and service provider", viewModelType);
-                return new NavigationResult($"Failed to create view model of type {viewModelType} using route data and service provider");
-            }
+            return data.SetItem(key, value);
         }
-        return new NavigationResult($"Constructor for {viewModelType} not found");
+
+        switch (request)
+        {
+            case PrimitiveDataSegmentNavigationRequest dataRequest:
+                if (dataRequest.Segment.DataMap is { } dataMapType)
+                {
+                    var dataMap = (INavigationDataMap)ServiceProvider.GetRequiredService(dataMapType);
+                    var dataTask = dataMap.LoadEntityAsync(dataRequest.RouteDataPrimitive);
+                    navData = AddOrUpdateValue(navData, dataRequest.Segment.Name, dataTask, dataMapType);
+                    request = dataRequest.WithDataEntity(dataTask);
+                }
+                else
+                {
+                    navData = AddOrUpdateValue(navData, dataRequest.Segment.Name, dataRequest.RouteDataPrimitive);
+                }
+                break;
+            case TaskDataSegmentNavigationRequest dataRequest:
+                navData = AddOrUpdateValue(navData, dataRequest.Segment.Name, dataRequest.RouteDataTask, dataRequest.Segment.DataMap);
+                break;
+        }
+        ServiceProvider.AddScopedInstance<INavigationData>(navData);
+
+        try
+        {
+            var viewModel = ServiceProvider.GetRequiredService(viewModelType);
+            return new NavigationResult(request, viewModel);
+        }
+        catch (InvalidOperationException)
+        {
+            ServiceProvider.GetRequiredService<ILogger<NavigationScope>>().LogInformation("Failed to create view model of type {ViewModelType} using route data and service provider", viewModelType);
+            return new NavigationResult($"Failed to create view model of type {viewModelType} using route data and service provider");
+        }
     }
 }
