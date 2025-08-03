@@ -17,7 +17,7 @@ public record NameSegmentInstance(NameSegment NameSegment) : RouteSegmentInstanc
 }
 
 [DebuggerDisplay("<{Segment.Name}>")]
-public record DataSegmentInstance(DataSegment DataSegment, string Primitive, object? Data) : RouteSegmentInstance
+public record DataSegmentInstance(DataSegment DataSegment, string Primitive, Task? Data) : RouteSegmentInstance
 {
     public override RouteSegment Segment => DataSegment;
 }
@@ -153,7 +153,7 @@ public record Route
         return new(Segments.Add(new NameSegmentInstance(segment)), data, Refresh);
     }
 
-    public Route Add(DataSegment segment, string primitive, object? data, INavigationData? navigationData = null)
+    public Route Add(DataSegment segment, string primitive, Task? data = null, INavigationData? navigationData = null)
     {
         bool isNested = Segments.LastOrDefault()?.Segment.Nested.Contains(segment.ParentNameSegment) ?? true;
         if (!isNested) throw new InvalidOperationException("Segment is not nested.");
@@ -164,7 +164,12 @@ public record Route
             );
         navigationData = Data?.Union(navigationData) ?? navigationData;
         if (data is not null)
-            navigationData = navigationData?.Add(segment.Name, data) ?? NavigationData.Empty.Add(segment.Name, data);
+        {
+            if (navigationData is null)
+                navigationData = NavigationData.Empty.Add(segment.Name, data);
+            else if (!navigationData.ContainsKey(segment.Name))
+                navigationData = navigationData.Add(segment.Name, data);
+        }
         return new(segments, navigationData, Refresh);
     }
 
@@ -184,7 +189,7 @@ public record Route
         return new(baseSegments.ToImmutableArray(), Data, Refresh);
     }
 
-    public Route ReplaceLast(DataSegment segment, string primitive, object? data)
+    public Route ReplaceLast(DataSegment segment, string primitive, Task? data)
     {
         var baseSegments = Segments.SkipLast(1).ToList();
         bool isNested = baseSegments.LastOrDefault()?.Segment.Nested.Contains(segment.ParentNameSegment) ?? true;

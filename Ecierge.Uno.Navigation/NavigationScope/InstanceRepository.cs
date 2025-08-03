@@ -21,9 +21,11 @@ public class ScopedInstanceRepositoryOptions
 {
     public HashSet<Type> TypesToClone { get; } = new HashSet<Type>();
 
-    public ScopedInstanceRepositoryOptions AddTypeToClone<T>()
+    public ScopedInstanceRepositoryOptions AddTypeToClone(Type type)
     {
-        TypesToClone.Add(typeof(T));
+        TypesToClone.Add(type);
         return this;
     }
+
+    public ScopedInstanceRepositoryOptions AddTypeToClone<T>() => AddTypeToClone(typeof(T));
 }
