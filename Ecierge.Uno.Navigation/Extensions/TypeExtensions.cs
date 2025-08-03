@@ -149,8 +149,18 @@ internal static class TypeExtensions
                             var map = (INavigationDataMap)services.GetRequiredService(dataMapType);
                             if (map.TryGetEntityTask(navigationData, navigationParameterName, out var task))
                             {
-                                args.Add(task);
-                                continue;
+                                var dataItemTaskType = task!.GetType().GenericTypeArguments.First();
+                                if (dataItemTaskType == entityType)
+                                {
+                                    args.Add(task);
+                                    continue;
+                                }
+                                else if (dataItemTaskType.IsAssignableTo(entityType))
+                                {
+                                    var convertedTask = TaskConverter.Convert(task, entityType);
+                                    args.Add(convertedTask);
+                                    continue;
+                                }
                             }
                         }
                     }
@@ -189,6 +199,47 @@ internal static class TypeExtensions
             MethodInfo genericCastMethod = castMethod.MakeGenericMethod(targetType);
             return genericCastMethod.Invoke(null, new object[] { task })!;
         }
+
+        private static readonly Type TcsType = typeof(TaskCompletionSource<>);
+
+        public static Task Convert(Task originalTask, Type destinationType)
+        {
+            var originalTaskType = originalTask.GetType();
+            var resultProperty = originalTaskType.GetProperty("Result");
+            if (resultProperty == null)
+                throw new ArgumentException("Provided task does not return value.");
+
+            // Create TaskCompletionSource<U> dynamically
+            var tcsType = TcsType.MakeGenericType(destinationType);
+            var tcs = Activator.CreateInstance(tcsType);
+            var setResultMethod = tcsType.GetMethod("SetResult")!;
+            var setExceptionMethod = tcsType.GetMethod("SetException", new[] { typeof(IEnumerable<Exception>) })!;
+            var setCanceledMethod = tcsType.GetMethod("SetCanceled", Type.EmptyTypes)!;
+            var taskProperty = tcsType.GetProperty("Task")!;
+
+            var _ = originalTask.ContinueWith(t =>
+            {
+                if (t.IsFaulted)
+                {
+                    setExceptionMethod.Invoke(tcs, new object[] { t.Exception.InnerExceptions });
+                }
+                else if (t.IsCanceled)
+                {
+                    setCanceledMethod.Invoke(tcs, null);
+                }
+                else
+                {
+                    var result = resultProperty.GetValue(t)!;
+                    if (!destinationType.IsAssignableFrom(result.GetType()))
+                        throw new InvalidCastException($"Cannot cast {result.GetType()} to {destinationType}");
+
+                    setResultMethod.Invoke(tcs, new[] { result });
+                }
+            });
+
+            return (Task)taskProperty.GetValue(tcs)!;
+        }
+
 
         private static async Task<T> Cast<T>(Task<object> obj)
         {
