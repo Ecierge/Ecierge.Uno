@@ -8,10 +8,12 @@ public record struct NavigationResult
     public bool IsSkipped { get; private set; }
     public IReadOnlyList<string> Errors { get; private set; }
     public bool Success => SegmentNavigated is not null;
+    public NavigationRequest? Request { get; init; } = null;
 
-    public NavigationResult(RouteSegment segmentNavigated, object? result = null, bool isSkipped = false)
+    public NavigationResult(NavigationRequest request, object? result = null, bool isSkipped = false)
     {
-        SegmentNavigated = segmentNavigated ?? throw new ArgumentNullException(nameof(segmentNavigated));
+        Request = request ?? throw new ArgumentNullException(nameof(request));
+        SegmentNavigated = request.RouteSegment;
         Result = result;
         IsSkipped = isSkipped;
         Errors = Array.Empty<string>();
@@ -27,10 +29,12 @@ public record struct NavigationResult<T>
     public T? Result { get; private set; }
     public IReadOnlyList<string> Errors { get; private set; }
     public bool Success => SegmentNavigated is not null;
+    public NavigationRequest? Request { get; init; } = null;
 
-    public NavigationResult(RouteSegment segmentNavigated, T? result = default)
+    public NavigationResult(NavigationRequest request, T? result = default)
     {
-        SegmentNavigated = segmentNavigated ?? throw new ArgumentNullException(nameof(segmentNavigated));
+        Request = request ?? throw new ArgumentNullException(nameof(request));
+        SegmentNavigated = request.RouteSegment;
         Result = result;
         Errors = Array.Empty<string>();
     }
@@ -41,7 +45,7 @@ public record struct NavigationResult<T>
     public static implicit operator NavigationResult(NavigationResult<T> result)
     {
         if (result.Success)
-            return new(result.SegmentNavigated!, result.Result);
+            return new(result.Request!, result.Result);
         else
             return new(result.Errors);
     }

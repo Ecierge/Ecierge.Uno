@@ -2,8 +2,6 @@ namespace Ecierge.Uno.Navigation;
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
@@ -18,7 +16,7 @@ public class NavigationParameterAttribute : Attribute
 {
     public string ParameterName { get; }
     public NavigationParameterAttribute(string parameterName)
-    {;
+    {
         ParameterName = parameterName ?? throw new ArgumentNullException(nameof(parameterName));
     }
 }
@@ -32,9 +30,32 @@ internal static class TypeExtensions
     private static readonly Type NameSegmentType = typeof(NameSegment);
     private static readonly Type NavigatorType = typeof(Navigator);
 
-    public static ConstructorInfo? GetNavigationConstructor([NotNull] this Type type, IServiceProvider services, INavigationData navigationData, out object?[] constructorArguments)
+    public static TService CreateWithNavigationParameters<TService>([NotNull] IServiceProvider serviceProvider)
+        where TService : class
     {
-        navigationData = navigationData ?? throw new ArgumentNullException(nameof(navigationData));
+        var ksp = serviceProvider as IKeyedServiceProvider ?? throw new InvalidOperationException("Service provider must implement IKeyedServiceProvider to create instances with navigation parameters.");
+        var type = typeof(TService);
+        var constructorInfo = GetNavigationConstructor(type, ksp);
+        if (constructorInfo is null)
+            throw new InvalidOperationException($"No suitable constructor found for type '{type.FullName}' with navigation parameters.");
+        var (constructor, parameters) = constructorInfo.Value;
+        return (TService)constructor.Invoke(parameters);
+    }
+
+    public static Func<IServiceProvider, object> CreateWithNavigationParameters([NotNull] Type type) =>
+        (sp) =>
+        {
+            var ksp = sp as IKeyedServiceProvider ?? throw new InvalidOperationException("Service provider must implement IKeyedServiceProvider to create instances with navigation parameters.");
+            var constructorInfo = GetNavigationConstructor(type, ksp);
+            if (constructorInfo is null)
+                throw new InvalidOperationException($"No suitable constructor found for type '{type.FullName}' with navigation parameters.");
+            var (constructor, parameters) = constructorInfo.Value;
+            return constructor.Invoke(parameters);
+        };
+
+    public static (ConstructorInfo Constructor, object?[] Parameters)? GetNavigationConstructor([NotNull] this Type type, IKeyedServiceProvider services)
+    {
+        INavigationData navigationData = services.GetRequiredService<INavigationData>();
 
         var ctr = type.GetConstructors().FirstOrDefault();
         if (ctr is not null)
@@ -58,88 +79,78 @@ internal static class TypeExtensions
             var dataRegistry = services.GetRequiredService<INavigationDataRegistry>();
             foreach (var para in paras)
             {
-                if (dataRegistry.HasAssignablePrimitive(para.ParameterType))
+                // 1. Try keyed services
+                var serviceKey = para.GetCustomAttribute<FromKeyedServicesAttribute>()?.Key;
+                if (serviceKey is not null && services.GetKeyedService(para.ParameterType, serviceKey) is { } keyedValue)
                 {
-                    if (navigationData.TryGetValue(para.Name!, out var data))
+                    args.Add(keyedValue);
+                    continue;
+                }
+                // 2. Try general services
+                else if (services.GetService(para.ParameterType) is { } value)
+                {
+                    args.Add(value);
+                    continue;
+                }
+
+                var navigationParameterName =
+                    para.CustomAttributes
+                        .Where(attr => attr.AttributeType == typeof(NavigationParameterAttribute))
+                        .Select(attr => attr.ConstructorArguments.First().Value?.ToString())
+                        .Append(para.Name)
+                        .Where(name => name is not null)
+                        .Where(name => navigationData.ContainsKey(name!))
+                        .FirstOrDefault();
+                if (navigationParameterName is not null)
+                {
+                    // 3. Try get entity from navigation data
+                    if (dataRegistry.TryGetForAssignableEntity(para.ParameterType, out var dataMapType))
                     {
-                        if (para.ParameterType == data.GetType())
+                        var map = (INavigationDataMap)services.GetRequiredService(dataMapType);
+                        if (map.TryGetEntity(navigationData, navigationParameterName, out var value))
                         {
-                            args.Add(data);
+                            args.Add(value);
                             continue;
                         }
-                        logger.LogWarning("Navigation data item found for parameter '{parameterName}' of type '{type}' does not match the expected type '{expectedType}'", para.Name, data.GetType(), para.ParameterType);
-                        Debugger.Break();
                     }
-                }
-                else if (para.ParameterType.IsGenericType && para.ParameterType.GetGenericTypeDefinition() == typeof(Task<>))
-                {
-                    var entityType = para.ParameterType.GetGenericArguments().First();
-                    if (dataRegistry.TryGetForAssignableEntity(entityType, out var dataMapType))
+                    // 4. Try get entity task from navigation data
+                    var parameterType = para.ParameterType;
+                    if (parameterType.IsGenericType && parameterType.GetGenericTypeDefinition() == typeof(Task<>))
                     {
-                        // TODO: Ensure that navigation item mapping resolution happens only once
-                        var map = (INavigationDataMap)services.GetRequiredService(dataMapType);
-                        var navigationParameterName =
-                            para.CustomAttributes
-                                .Where(attr => attr.AttributeType == typeof(NavigationParameterAttribute))
-                                .Select(attr => attr.ConstructorArguments.First().Value?.ToString())
-                                .Append(para.Name)
-                                .Where(name => name is not null)
-                                .Where(name => map.HasValue(navigationData, name!))
-                                .FirstOrDefault();
-                        if (navigationParameterName is not null)
+                        var entityType = parameterType.GetGenericArguments().First();
+                        if (dataRegistry.TryGetForAssignableEntity(entityType, out dataMapType))
                         {
-                            var task = map.FromNavigationData(navigationData, navigationParameterName);
-                            args.Add(TaskConverter.Convert(task, entityType));
-                        }
-                        else
-                        {
-                            if (para.IsOptional)
-                                args.Add(GetDefaultParameterValue(para));
-                            else
+                            var map = (INavigationDataMap)services.GetRequiredService(dataMapType);
+                            if (map.TryGetEntityTask(navigationData, navigationParameterName, out var task))
                             {
-                                logger.LogWarning("No navigation data item found for mandatory parameter '{parameterName}' of type '{type}'", para.Name, para.ParameterType);
-                                constructorArguments = Array.Empty<object?>();
-                                return null;
+                                args.Add(task);
+                                continue;
                             }
                         }
-                        continue;
                     }
-                    else
-                    {
-                        logger.LogWarning("No data map found for parameter '{parameterName}' of type '{type}'", para.Name, para.ParameterType);
-                    }
+                    // TODO: Consider injecting primitives
+                    // 5. Try string primitive
+                    //if (para.ParameterType == typeof(string))
+                    //{
+                    //    if (navigationData.TryGetValue(navigationParameterName, out var value))
+                    //    {
+                    //        args.Add(value);
+                    //        continue;
+                    //    }
+                    //}
                 }
-                var key = para.GetCustomAttribute<FromKeyedServicesAttribute>()?.Key;
-                object? arg;
-                if (key is not null)
-                {
-                    arg = services.GetKeyedServices(para.ParameterType, key).FirstOrDefault();
-                }
+                // 6. Get default value if optional
+                if (para.IsOptional)
+                    args.Add(GetDefaultParameterValue(para));
                 else
                 {
-                    arg = services.GetService(para.ParameterType);
+                    logger.LogWarning("No service or navigation data item found for mandatory parameter '{parameterName}' of type '{type}'", para.Name, para.ParameterType);
+                    return null;
                 }
-                if (arg is null)
-                {
-                    if (para.IsOptional)
-                    {
-                        args.Add(GetDefaultParameterValue(para));
-                        continue;
-                    }
-                    else
-                    {
-                        logger.LogWarning("No service found for mandatory parameter '{parameterName}' of type '{type}'", para.Name, para.ParameterType);
-                        constructorArguments = Array.Empty<object?>();
-                        return null;
-                    }
-                }
-                args.Add(arg!);
             }
-            constructorArguments = args.ToArray();
-            return ctr;
+            return (ctr, args.ToArray());
         }
 
-        constructorArguments = Array.Empty<object?>();
         return null;
     }
 

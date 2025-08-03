@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Options;
 
 /// <summary>
-/// Options to adjust the behaviour of Navigation
+/// Options to adjust the behavior of Navigation
 /// </summary>
 public record NavigationOptions
 {
@@ -36,7 +36,14 @@ public record NavigationOptions
         var key =
             Navigators.Keys
                 .Where(k => k.IsAssignableFrom(controlType))
-                .OrderByDescending(k => k.GetBaseTypes().IndexOf(controlType))
+                .OrderByDescending(k =>
+                    k
+                    .GetBaseTypes()
+                    .Select((t, i) => (Index: i, Type: t))
+                    .Where(t => t.Type == controlType)
+                    .FirstOrDefault((-1, null!))
+                    .Index
+                )
                 .FirstOrDefault();
         if (key is not null)
         {
