@@ -3,12 +3,9 @@ namespace Ecierge.Uno.Navigation.Navigators;
 using System;
 using System.Threading.Tasks;
 
-using CommunityToolkit.WinUI;
-
 using Ecierge.Uno.Navigation;
 
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.UI.Dispatching;
 
 public abstract class Navigator<TTarget> : Navigator
@@ -41,7 +38,7 @@ public abstract class FactoryNavigator<TTarget> : Navigator<TTarget>
             }
             else return result;
         }
-        return new NavigationResult(request.RouteSegment, view);
+        return new NavigationResult(request, view);
     }
 
     protected virtual FrameworkElement? WaitForVisualTreeTarget => Target;

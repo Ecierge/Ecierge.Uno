@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -42,6 +43,8 @@ public class NavigationData : INavigationData
     public IEnumerable<object> Values => data.Values;
 
     public int Count => data.Count;
+
+    public bool IsEmpty => data.IsEmpty;
 
     public INavigationData Add(string key, object value) => new NavigationData(data.Add(key, value));
     public INavigationData Add(KeyValuePair<string, object> kvp) => Add(kvp.Key, kvp.Value);
@@ -107,6 +110,13 @@ public class NavigationData : INavigationData
 
 internal static class RouteExtensions
 {
+    private static readonly Type taskType = typeof(Task);
+    private static readonly Type genericTaskType = typeof(Task<>);
+
+    /// <summary>
+    /// Applies scoped instance services from the route's navigation data to the service provider.
+    /// </summary>
+    /// <param name="route">The route to apply scoped instance services from its navigation data.</param>
     public static void ApplyScopedInstanceServices(this Routing.Route route, IServiceProvider serviceProvider)
     {
         var navigationData = route.Data;
@@ -120,9 +130,19 @@ internal static class RouteExtensions
             foreach (var value in navigationData.Values)
             {
                 Type serviceType = value.GetType();
+                bool isTask = serviceType.IsGenericType && serviceType.IsAssignableTo(taskType);
+                if (isTask && serviceType.GetGenericArguments() is [var argument])
+                    serviceType = argument;
                 if (typesToClone.Contains(serviceType))
                 {
-                    serviceProvider.AddScopedInstance(serviceType, value);
+                    if (isTask)
+                    {
+                        var taskType = genericTaskType.MakeGenericType(serviceType);
+                        var taskValue = taskType.GetProperty("Result")!.GetValue(value, null)!;
+                        serviceProvider.AddScopedInstance(serviceType, taskValue);
+                    }
+                    else
+                        serviceProvider.AddScopedInstance(serviceType, value);
                 }
             }
         }

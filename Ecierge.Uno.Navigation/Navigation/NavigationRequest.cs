@@ -12,6 +12,15 @@ public abstract partial record NavigationRequest(object Sender, Routing.Route Ro
     internal abstract ViewMapBase? View { get; }
 }
 
+[DebuggerDisplay("🔙")]
+public record BackNavigationRequest(object Sender, Routing.Route Route) : NavigationRequest(Sender, Route)
+{
+    // TODO: Implement correctly
+    public override NameSegment NameSegment => throw new NotSupportedException("Back navigation does not have a name segment.");
+    public override RouteSegment RouteSegment => throw new NotSupportedException("Back navigation does not have a route segment.");
+    internal override ViewMapBase? View => null;
+}
+
 [DebuggerDisplay("{Segment.Name}")]
 public record NameSegmentNavigationRequest(
       object Sender
@@ -24,11 +33,30 @@ public record NameSegmentNavigationRequest(
     internal override ViewMapBase? View => Segment.ViewMap;
 }
 
-[DebuggerDisplay("{NameSegment.Name}/{Segment.Name}")]
-public record DataSegmentNavigationRequest(
+[DebuggerDisplay("{NameSegment.Name}/<{Segment.Name}:{RouteDataPrimitive}>")]
+public record PrimitiveDataSegmentNavigationRequest(
       object Sender
     , DataSegment Segment
-    , object? RouteData
+    , string RouteDataPrimitive
+    , Routing.Route Route)
+    : NavigationRequest(Sender, Route)
+{
+    public override NameSegment NameSegment => Segment.ParentNameSegment;
+    public override RouteSegment RouteSegment => Segment;
+    internal override ViewMapBase? View => Segment.ParentNameSegment.ViewMap;
+
+    public TaskDataSegmentNavigationRequest WithDataEntity(Task routeDataTask)
+    {
+        return new TaskDataSegmentNavigationRequest(Sender, Segment, RouteDataPrimitive, routeDataTask, Route);
+    }
+}
+
+[DebuggerDisplay("{NameSegment.Name}/<{Segment.Name}:{RouteDataPrimitive}>")]
+public record TaskDataSegmentNavigationRequest(
+      object Sender
+    , DataSegment Segment
+    , string RouteDataPrimitive
+    , Task RouteDataTask
     , Routing.Route Route)
     : NavigationRequest(Sender, Route)
 {

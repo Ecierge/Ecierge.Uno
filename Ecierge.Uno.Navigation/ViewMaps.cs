@@ -55,7 +55,7 @@ public abstract class ViewMapBase(Type view, Type? viewModel, IEnumerable<Type> 
         services.AddTransient(View);
         if (ViewModel is not null)
         {
-            services.AddTransient(ViewModel);
+            services.AddTransientWithNavigationParameters(ViewModel);
         }
 
         return services;
