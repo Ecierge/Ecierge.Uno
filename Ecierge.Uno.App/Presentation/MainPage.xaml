@@ -86,6 +86,8 @@
             PlaceholderText="Enter your name:" />
 
         <ctrl:CoordinatesNumberBox/>
+        
+        <ctrl:NullableNumberBox/>
 
         <ctrl:GroupedComboBox Width="200" ItemsSource="{Binding GropedItemsSource.View}" PlaceholderText="Placeholder" >
           <ctrl:GroupedComboBox.ItemTemplate>

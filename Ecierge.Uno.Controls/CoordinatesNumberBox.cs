@@ -108,7 +108,7 @@ public sealed partial class CoordinatesNumberBox : Control
 
     #endregion
 
-    #region Latitute
+    #region Latitude
 
     /// <summary>
     /// Latitude Dependency Property
