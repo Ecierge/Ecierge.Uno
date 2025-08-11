@@ -71,28 +71,18 @@
                     Control.IsTemplateFocusTarget="True"
                     MinWidth="{TemplateBinding MinWidth}"
                     MinHeight="{TemplateBinding MinHeight}">
-              <Grid ColumnDefinitions="Auto,*,Auto" x:Name="NullableNumberBox">
-                <CheckBox x:Name="CheckBox"
-                           HorizontalContentAlignment="Right"
-                           Grid.Column="0"
-                           BorderThickness="0"
-                           BorderBrush="Transparent"
-                           Background="Transparent"
-                           IsChecked="{Binding IsCheckBoxChecked, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" />
+              <Grid>
                 <NumberBox x:Name="NumberBox"
-                           Padding="10,10,6,6"
-                           Grid.Column="1"
-                           BorderThickness="0"
-                           BorderBrush="Transparent"
-                           Background="Transparent"
+                           Padding="20,10,6,6"
                            HorizontalContentAlignment="Right"
                            IsEnabled="{TemplateBinding IsNumberBoxEnabled}"
                            PlaceholderText="_"
-                           Value="{Binding Value, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
-                           SmallChange="0.1">
-                  <NumberBox.SpinButtonPlacementMode>Inline</NumberBox.SpinButtonPlacementMode>
-                  <NumberBox.ValidationMode>InvalidInputOverwritten</NumberBox.ValidationMode>
-                </NumberBox>
+                           SmallChange="0.1" />
+                <CheckBox x:Name="CheckBox" Style="{StaticResource DefaultCheckBoxStyle}"
+                           HorizontalContentAlignment="Left"
+                           BorderBrush="{x:Null}"
+                           Background="Transparent"
+                           IsChecked="{Binding IsCheckBoxChecked, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" />
               </Grid>
             </Border>
           </Grid>

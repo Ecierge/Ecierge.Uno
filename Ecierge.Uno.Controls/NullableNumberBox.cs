@@ -1,3 +1,5 @@
+namespace Ecierge.Uno.Controls;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,10 +7,40 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation.Collections;
 
-namespace Ecierge.Uno.Controls;
+[TemplatePart(Name = PartHeaderContentPresenter, Type = typeof(FrameworkElement))]
+[TemplatePart(Name = PartCheckBox, Type = typeof(CheckBox))]
+[TemplatePart(Name = PartNumberBox, Type = typeof(NumberBox))]
 public sealed partial class NullableNumberBox : Control
 {
     private const string PartHeaderContentPresenter = "HeaderContentPresenter";
+    private const string PartNumberBox = "NumberBox";
+    private const string PartCheckBox = "CheckBox";
+
+    private bool isChecked;
+    private NumberBox? numberBox;
+
+    #region AcceptsExpression
+
+    /// <summary>
+    /// Identifies the AcceptsExpression dependency property.
+    /// </summary>
+    public static readonly DependencyProperty AcceptsExpressionProperty =
+        DependencyProperty.Register(nameof(AcceptsExpression), typeof(bool), typeof(NullableNumberBox),
+            new(NumberBox.AcceptsExpressionProperty.GetMetadata(typeof(NumberBox)).DefaultValue));
+
+    /// <summary>
+    /// Toggles whether the control will accept and evaluate a basic formulaic expression
+    /// entered as input.
+    /// </summary>
+    public bool? AcceptsExpression
+    {
+        get => (bool?)GetValue(AcceptsExpressionProperty);
+        set => SetValue(AcceptsExpressionProperty, value);
+    }
+
+    #endregion AcceptsExpression
+
+
 
     #region Header
 
@@ -188,10 +220,28 @@ public sealed partial class NullableNumberBox : Control
     {
         base.OnApplyTemplate();
         SetHeaderVisibility();
-        if (Value != null)
+        this.numberBox = GetTemplateChild(PartNumberBox) as NumberBox;
+        if (GetTemplateChild(PartCheckBox) is CheckBox checkBox)
         {
-            IsValueSet = true;
-            IsCheckBoxChecked = true;
+            checkBox.Checked += (s, e) =>
+            {
+                isChecked = checkBox.IsChecked!.Value;
+                if (numberBox is not null)
+                {
+                    if (isChecked)
+                        Value = numberBox.Value;
+                    else
+                        Value = null;
+                }
+            };
+        }
+        if (numberBox is not null)
+        {
+            numberBox.ValueChanged += (s, e) =>
+            {
+                if (isChecked)
+                    Value = e.NewValue;
+            };
         }
     }
 
