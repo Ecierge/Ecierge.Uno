@@ -65,7 +65,7 @@
                      Header="{TemplateBinding Header}"
                      Padding="{ThemeResource ComboBoxEditableTextPadding}"
                      PlaceholderText="{TemplateBinding PlaceholderText}"
-                     Text="{Binding SelectedObject,
+                     Text="{Binding SelectedValue,
                                     RelativeSource={RelativeSource TemplatedParent},
                                     Mode=OneWay}">
               <TextBox.Resources>
@@ -82,13 +82,13 @@
                               Grid.Column="0"
                               Grid.ColumnSpan="2"
                               ContentTemplate="{TemplateBinding ItemTemplate}"
-                              Content="{Binding SelectedObject,
+                              Content="{Binding SelectedValue,
                                                 RelativeSource={RelativeSource TemplatedParent},
                                                 Mode=TwoWay}"
                               FlowDirection="{TemplateBinding FlowDirection}"
                               FontWeight="{ThemeResource ComboBoxHeaderThemeFontWeight}"
                               Foreground="{ThemeResource ComboBoxHeaderForeground}"
-                              Visibility="{Binding SelectedObject,
+                              Visibility="{Binding SelectedValue,
                                                 RelativeSource={RelativeSource TemplatedParent},
                                                 Converter={StaticResource NullToVisibilityConverter},
                                                 ConverterParameter=Collapsed}"

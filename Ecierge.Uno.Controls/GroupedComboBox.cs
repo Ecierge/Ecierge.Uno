@@ -2,6 +2,7 @@ namespace Ecierge.Uno.Controls;
 
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
+using static System.Net.Mime.MediaTypeNames;
 
 public class GroupedComboBox : ListView
 {
@@ -11,22 +12,16 @@ public class GroupedComboBox : ListView
 
     #region IsDropDownOpen
 
-    //
-    // Summary:
-    //     Identifies the IsDropDownOpen dependency property.
-    //
-    // Returns:
-    //     The identifier for the IsDropDownOpen dependency property.
+    /// <summary>
+    /// Identifies the IsDropDownOpen dependency property.
+    /// </summary>
     public static readonly DependencyProperty IsDropDownOpenProperty =
         DependencyProperty.Register(nameof(IsDropDownOpen), typeof(bool), typeof(GroupedComboBox), new(false));
 
-    //
-    // Summary:
-    //     Gets or sets a value that indicates whether the drop-down portion of the GroupedComboBox
-    //     is currently open.
-    //
-    // Returns:
-    //     True if the drop-down portion is open; otherwise, false. The default is false.
+    /// <summary>
+    /// Gets or sets a value that indicates whether the drop-down portion of the GroupedComboBox
+    /// is currently open.
+    /// </summary>
     public bool IsDropDownOpen
     {
         get => (bool)GetValue(IsDropDownOpenProperty);
@@ -46,14 +41,14 @@ public class GroupedComboBox : ListView
     #region PlaceholderText
 
     /// <summary>
-    /// PlaceholderText Dependency Property
+    /// Identifies the PlaceholderText dependency property.
     /// </summary>
     public static readonly DependencyProperty PlaceholderTextProperty =
         DependencyProperty.Register(nameof(PlaceholderText), typeof(string), typeof(GroupedComboBox), new(string.Empty));
 
     /// <summary>
-    /// Gets or sets the PlaceholderText property. This dependency property
-    /// indicates ....
+    /// Gets or sets the text that is displayed in the control until the value is changed
+    /// by a user action or some other operation.
     /// </summary>
     public string PlaceholderText
     {
@@ -66,14 +61,13 @@ public class GroupedComboBox : ListView
     #region TextBoxStyle
 
     /// <summary>
-    /// TextBoxStyle Dependency Property
+    /// Identifies the TextBoxStyle dependency property.
     /// </summary>
     public static readonly DependencyProperty TextBoxStyleProperty =
         DependencyProperty.Register(nameof(TextBoxStyle), typeof(Style), typeof(GroupedComboBox), new((Style?)null));
 
     /// <summary>
-    /// Gets or sets the TextBoxStyle property. This dependency property
-    /// indicates ....
+    /// Gets or sets the style of the TextBox in the ComboBox when the ComboBox is editable.
     /// </summary>
     public Style? TextBoxStyle
     {
@@ -83,25 +77,24 @@ public class GroupedComboBox : ListView
 
     #endregion TextBoxStyle
 
-    #region SelectedObject
+    #region SelectedValue
 
     /// <summary>
-    /// SelectedObject Dependency Property
+    /// Gets the identifier for the SelectedValue dependency property.
     /// </summary>
-    public static readonly DependencyProperty SelectedObjectProperty =
-        DependencyProperty.Register(nameof(SelectedObject), typeof(object), typeof(GroupedComboBox), new(null));
+    public static readonly DependencyProperty SelectedValueProperty =
+        DependencyProperty.Register(nameof(SelectedValue), typeof(object), typeof(GroupedComboBox), new(null));
 
     /// <summary>
-    /// Gets or sets the FirstItemSelected property. This dependency property
-    /// indicates ....
+    /// Gets or sets the value of the selected item, obtained by using the SelectedValuePath.
     /// </summary>
-    public object? SelectedObject
+    public object? SelectedValue
     {
-        get => (object?)GetValue(SelectedObjectProperty);
-        set => SetValue(SelectedObjectProperty, value);
+        get => (object?)GetValue(SelectedValueProperty);
+        set => SetValue(SelectedValueProperty, value);
     }
 
-    #endregion SelectedObject
+    #endregion SelectedValue
 
     public GroupedComboBox()
     {
@@ -169,15 +162,15 @@ public class GroupedComboBox : ListView
     {
         if (!_IsDropDownOpened)
         {
-            if (this.SelectedItem != SelectedObject)
+            if (this.SelectedItem != SelectedValue)
             {
-                this.SelectedItem = SelectedObject;
+                this.SelectedItem = SelectedValue;
             }
         }
         else
         {
             IsDropDownOpen = false;
-            SelectedObject = this.SelectedItem;
+            SelectedValue = this.SelectedItem;
         }
     }
 
