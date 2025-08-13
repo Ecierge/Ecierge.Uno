@@ -10,18 +10,18 @@ public static class ServiceProviderExtensions
 
     internal static IServiceProvider CloneScopedInstance<T>(this IServiceProvider target, IServiceProvider source) where T : notnull
     {
-        return target.AddScopedInstance(source.GetRequiredService<T>());
+        return target.SetScopedInstance(source.GetRequiredService<T>());
     }
 
     internal static IServiceProvider CloneScopedInstance(this IServiceProvider target, Type serviceType, IServiceProvider source)
     {
-        return target.AddScopedInstance(source.GetRequiredService(serviceType));
+        return target.SetScopedInstance(source.GetRequiredService(serviceType));
     }
 
     internal static IServiceProvider TryCloneScopedInstance<T>(this IServiceProvider target, IServiceProvider source) where T : notnull
     {
         if (source.GetService<T>() is T service)
-            return target.AddScopedInstance(service);
+            return target.SetScopedInstance(service);
         else
             return target;
     }
@@ -30,124 +30,124 @@ public static class ServiceProviderExtensions
     {
         var service = source.GetService(serviceType);
         if (service is not null)
-            return target.AddScopedInstance(serviceType, service);
+            return target.SetScopedInstance(serviceType, service);
         else
             return target;
     }
 
     #endregion Clone scoped instance
 
-    #region Add scoped instance
+    #region Set scoped instance
 
     /// <summary>
-    /// Adds a scoped instance factory to the service provider.
+    /// Sets a scoped instance factory on the service provider (overwrites any existing one).
     /// </summary>
-    /// <typeparam name="T">Type of the service to add.</typeparam>
-    /// <param name="provider">The service provider to add the scoped instance to.</param>
+    /// <typeparam name="T">Type of the service to set.</typeparam>
+    /// <param name="provider">The service provider to set the scoped instance on.</param>
     /// <param name="instanceCreator">A function that creates an instance of the service.</param>
-    /// <returns>The updated service provider with the scoped instance added.</returns>
-    public static IServiceProvider AddScopedInstance<T>(this IServiceProvider provider, Func<T> instanceCreator)
+    /// <returns>The updated service provider with the scoped instance set.</returns>
+    public static IServiceProvider SetScopedInstance<T>(this IServiceProvider provider, Func<T> instanceCreator)
      =>
-        provider.AddScopedInstance(typeof(T), instanceCreator);
+        provider.SetScopedInstance(typeof(T), instanceCreator);
 
     /// <summary>
-    /// Adds a scoped instance factory to the service provider.
+    /// Sets a scoped instance factory on the service provider (overwrites any existing one).
     /// </summary>
-    /// <param name="provider">The service provider to add the scoped instance to.</param>
-    /// <param name="serviceType">The type of the service to add.</param>
+    /// <param name="provider">The service provider to set the scoped instance on.</param>
+    /// <param name="serviceType">The type of the service to set.</param>
     /// <param name="instanceCreator">A function that creates an instance of the service.</param>
-    /// <returns>The updated service provider with the scoped instance added.</returns>
-    public static IServiceProvider AddScopedInstance(this IServiceProvider provider, Type serviceType, Func<object> instanceCreator)
+    /// <returns>The updated service provider with the scoped instance set.</returns>
+    public static IServiceProvider SetScopedInstance(this IServiceProvider provider, Type serviceType, Func<object> instanceCreator)
      =>
-        provider.AddScopedInstance(serviceType, instanceCreator);
+        provider.SetScopedInstance(serviceType, instanceCreator);
 
     /// <summary>
-    /// Adds a scoped instance to the service provider.
+    /// Sets a scoped instance on the service provider (overwrites any existing one).
     /// </summary>
-    /// <typeparam name="T">Type of the service to add.</typeparam>
-    /// <param name="provider">The service provider to add the scoped instance to.</param>
-    /// <param name="instance">The instance of the service to add.</param>
-    /// <returns>The updated service provider with the scoped instance added.</returns>
-    public static IServiceProvider AddScopedInstance<T>(this IServiceProvider provider, T instance)
+    /// <typeparam name="T">Type of the service to set.</typeparam>
+    /// <param name="provider">The service provider to set the scoped instance on.</param>
+    /// <param name="instance">The instance of the service to set.</param>
+    /// <returns>The updated service provider with the scoped instance set.</returns>
+    public static IServiceProvider SetScopedInstance<T>(this IServiceProvider provider, T instance)
      =>
-        provider.AddScopedInstance(typeof(T), instance!);
+        provider.SetScopedInstance(typeof(T), instance!);
 
     /// <summary>
-    /// Adds a scoped instance to the service provider.
+    /// Sets a scoped instance on the service provider (overwrites any existing one).
     /// </summary>
-    /// <param name="provider">The service provider to add the scoped instance to.</param>
-    /// <param name="serviceType">The type of the service to add.</param>
-    /// <param name="instance">The instance of the service to add.</param>
-    /// <returns>The updated service provider with the scoped instance added.</returns>
-    public static IServiceProvider AddScopedInstance(this IServiceProvider provider, Type serviceType, object instance)
+    /// <param name="provider">The service provider to set the scoped instance on.</param>
+    /// <param name="serviceType">The type of the service to set.</param>
+    /// <param name="instance">The instance of the service to set.</param>
+    /// <returns>The updated service provider with the scoped instance set.</returns>
+    public static IServiceProvider SetScopedInstance(this IServiceProvider provider, Type serviceType, object instance)
      =>
-        provider.AddInstance<IScopedInstanceRepository>(serviceType, instance!);
+        provider.SetInstance<IScopedInstanceRepository>(serviceType, instance!);
 
-    #endregion Add scoped instance
+    #endregion Set scoped instance
 
-    #region Add singleton instance
+    #region Set singleton instance
 
     /// <summary>
-    /// Adds a singleton instance factory to the service provider.
+    /// Sets a singleton instance factory on the service provider (overwrites any existing one).
     /// </summary>
-    /// <typeparam name="T">Type of the service to add.</typeparam>
-    /// <param name="provider">The service provider to add the singleton instance to.</param>
+    /// <typeparam name="T">Type of the service to set.</typeparam>
+    /// <param name="provider">The service provider to set the singleton instance on.</param>
     /// <param name="instanceCreator">A function that creates an instance of the service.</param>
-    /// <returns>The updated service provider with the singleton instance added.</returns>
-    public static IServiceProvider AddSingletonInstance<T>(this IServiceProvider provider, Func<T> instanceCreator)
+    /// <returns>The updated service provider with the singleton instance set.</returns>
+    public static IServiceProvider SetSingletonInstance<T>(this IServiceProvider provider, Func<T> instanceCreator)
      =>
-        provider.AddSingletonInstance(typeof(T), instanceCreator);
+        provider.SetSingletonInstance(typeof(T), instanceCreator);
 
     /// <summary>
-    /// Adds a singleton instance factory to the service provider.
+    /// Sets a singleton instance factory on the service provider (overwrites any existing one).
     /// </summary>
-    /// <param name="provider">The service provider to add the singleton instance to.</param>
-    /// <param name="serviceType">The type of the service to add.</param>
+    /// <param name="provider">The service provider to set the singleton instance on.</param>
+    /// <param name="serviceType">The type of the service to set.</param>
     /// <param name="instanceCreator">A function that creates an instance of the service.</param>
-    /// <returns>The updated service provider with the singleton instance added.</returns>
-    public static IServiceProvider AddSingletonInstance(this IServiceProvider provider, Type serviceType, Func<object> instanceCreator)
+    /// <returns>The updated service provider with the singleton instance set.</returns>
+    public static IServiceProvider SetSingletonInstance(this IServiceProvider provider, Type serviceType, Func<object> instanceCreator)
      =>
-        provider.AddSingletonInstance(serviceType, instanceCreator);
+        provider.SetSingletonInstance(serviceType, instanceCreator);
 
     /// <summary>
-    /// Adds a singleton instance to the service provider.
+    /// Sets a singleton instance on the service provider (overwrites any existing one).
     /// </summary>
-    /// <typeparam name="T">Type of the service to add.</typeparam>
-    /// <param name="provider">The service provider to add the singleton instance to.</param>
-    /// <param name="instance">The instance of the service to add.</param>
-    /// <returns>The updated service provider with the singleton instance added.</returns>
-    public static IServiceProvider AddSingletonInstance<T>(this IServiceProvider provider, T instance)
+    /// <typeparam name="T">Type of the service to set.</typeparam>
+    /// <param name="provider">The service provider to set the singleton instance on.</param>
+    /// <param name="instance">The instance of the service to set.</param>
+    /// <returns>The updated service provider with the singleton instance set.</returns>
+    public static IServiceProvider SetSingletonInstance<T>(this IServiceProvider provider, T instance)
      =>
-        provider.AddSingletonInstance(typeof(T), instance!);
+        provider.SetSingletonInstance(typeof(T), instance!);
 
     /// <summary>
-    /// Adds a singleton instance to the service provider.
+    /// Sets a singleton instance on the service provider (overwrites any existing one).
     /// </summary>
-    /// <param name="provider">The service provider to add the singleton instance to.</param>
-    /// <param name="serviceType">The type of the service to add.</param>
-    /// <param name="instance">The instance of the service to add.</param>
-    /// <returns>The updated service provider with the singleton instance added.</returns>
-    public static IServiceProvider AddSingletonInstance(this IServiceProvider provider, Type serviceType, object instance)
+    /// <param name="provider">The service provider to set the singleton instance on.</param>
+    /// <param name="serviceType">The type of the service to set.</param>
+    /// <param name="instance">The instance of the service to set.</param>
+    /// <returns>The updated service provider with the singleton instance set.</returns>
+    public static IServiceProvider SetSingletonInstance(this IServiceProvider provider, Type serviceType, object instance)
      =>
-        provider.AddInstance<ISingletonInstanceRepository>(serviceType, instance!);
+        provider.SetInstance<ISingletonInstanceRepository>(serviceType, instance!);
 
-    #endregion Add singleton instance
+    #endregion Set singleton instance
 
-    #region Add instance
+    #region Set instance
 
-    private static IServiceProvider AddInstance<TRepository>(this IServiceProvider provider, Type serviceType, object instance) where TRepository : IInstanceRepository
+    private static IServiceProvider SetInstance<TRepository>(this IServiceProvider provider, Type serviceType, object instance) where TRepository : IInstanceRepository
     {
-        provider.GetRequiredService<TRepository>().AddInstance(serviceType, instance);
+        provider.GetRequiredService<TRepository>().SetInstance(serviceType, instance);
         return provider;
     }
 
-    private static IInstanceRepository AddInstance(this IInstanceRepository repository, Type serviceType, object instance)
+    private static IInstanceRepository SetInstance(this IInstanceRepository repository, Type serviceType, object instance)
     {
         repository.Instances[serviceType] = instance;
         return repository;
     }
 
-    #endregion Add instance
+    #endregion Set instance
 
     #region Remove scoped instance
 
@@ -272,7 +272,7 @@ public static class ServiceProviderExtensions
             var instance = valueCreator();
             if (instance.GetType().IsAssignableTo(serviceType))
             {
-                repository.AddInstance(serviceType, instance);
+                repository.SetInstance(serviceType, instance);
             }
             return instance;
         }
@@ -293,7 +293,7 @@ public static class ServiceProviderExtensions
             var instance = valueCreator();
             if (instance is T instanceOfT)
             {
-                repository.AddInstance(typeof(T), instanceOfT);
+                repository.SetInstance(typeof(T), instanceOfT);
             }
             return instance;
         }

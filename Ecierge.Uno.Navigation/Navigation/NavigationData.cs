@@ -139,10 +139,10 @@ internal static class RouteExtensions
                     {
                         var taskType = genericTaskType.MakeGenericType(serviceType);
                         var taskValue = taskType.GetProperty("Result")!.GetValue(value, null)!;
-                        serviceProvider.AddScopedInstance(serviceType, taskValue);
+                        serviceProvider.SetScopedInstance(serviceType, taskValue);
                     }
                     else
-                        serviceProvider.AddScopedInstance(serviceType, value);
+                        serviceProvider.SetScopedInstance(serviceType, value);
                 }
             }
         }
