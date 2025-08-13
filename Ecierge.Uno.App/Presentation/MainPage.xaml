@@ -87,6 +87,23 @@
 
         <ctrl:CoordinatesNumberBox/>
 
+        <ctrl:GroupedComboBox Width="200" ItemsSource="{Binding GropedItemsSource.View}" PlaceholderText="Placeholder" >
+          <ctrl:GroupedComboBox.ItemTemplate>
+            <DataTemplate>
+              <TextBlock Text="{Binding}"/>
+            </DataTemplate>
+          </ctrl:GroupedComboBox.ItemTemplate>
+          <ctrl:GroupedComboBox.GroupStyle>
+            <GroupStyle>
+              <GroupStyle.HeaderTemplate>
+                <DataTemplate>
+                  <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}" Text="{Binding Key}" />
+                </DataTemplate>
+              </GroupStyle.HeaderTemplate>
+            </GroupStyle>
+          </ctrl:GroupedComboBox.GroupStyle>
+        </ctrl:GroupedComboBox>
+
         <Button Content="Go to Second Page"
             AutomationProperties.AutomationId="SecondPageButton"
             Command="{Binding GoToSecond}" />

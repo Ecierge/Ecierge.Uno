@@ -7,7 +7,20 @@
                     xmlns:ctc="using:CommunityToolkit.WinUI.Controls"
                     xmlns:i="using:Microsoft.Xaml.Interactivity"
                     xmlns:animatedvisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
-                    xmlns:controls="using:Microsoft.UI.Xaml.Controls">
+                    xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+                    xmlns:ctconv="using:CommunityToolkit.WinUI.Converters">
+
+
+  <ctconv:EmptyObjectToObjectConverter x:Key="NullToVisibilityConverter">
+    <ctconv:EmptyObjectToObjectConverter.EmptyValue>
+      <Visibility>Collapsed</Visibility>
+    </ctconv:EmptyObjectToObjectConverter.EmptyValue>
+    <ctconv:EmptyObjectToObjectConverter.NotEmptyValue>
+      <Visibility>Visible</Visibility>
+    </ctconv:EmptyObjectToObjectConverter.NotEmptyValue>
+  </ctconv:EmptyObjectToObjectConverter>
+
+
   <Style x:Key="DefaultGroupedComboBoxStyle" TargetType="comp:GroupedComboBox">
     <Setter Property="CornerRadius" Value="{ThemeResource OverlayCornerRadius}" />
     <Setter Property="TextBoxStyle" Value="{StaticResource ComboBoxTextBoxStyle}" />
