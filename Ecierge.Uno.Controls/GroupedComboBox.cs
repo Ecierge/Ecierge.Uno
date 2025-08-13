@@ -2,7 +2,6 @@ namespace Ecierge.Uno.Controls;
 
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
-using static System.Net.Mime.MediaTypeNames;
 
 public class GroupedComboBox : ListView
 {
