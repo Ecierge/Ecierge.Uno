@@ -1,6 +1,6 @@
-﻿namespace Ecierge.Uno.Navigation;
+namespace Ecierge.Uno.Navigation;
 
 public interface INavigationRuleChecker
 {
-    Task<NavigationRuleResult> CanNavigateAsync(string route);
+    ValueTask<NavigationRuleResult> CanNavigateAsync(string route);
 }
