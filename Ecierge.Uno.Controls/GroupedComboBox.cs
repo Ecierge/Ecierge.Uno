@@ -97,6 +97,11 @@ public class GroupedComboBox : ListView
 
     #endregion SelectedObject
 
+    public GroupedComboBox()
+    {
+        DefaultStyleKey = typeof(GroupedComboBox);
+    }
+
     /// <inheritdoc/>
     protected override void OnApplyTemplate()
     {
@@ -140,7 +145,7 @@ public class GroupedComboBox : ListView
         this.Unloaded += GroupedComboBox_Unloaded;
     }
 
-    private void GroupedComboBox_Unloaded(object sender, RoutedEventArgs e) => FocusManager.GotFocus -= FocusManager_GotFocus;
+    private void OnUnloaded(object sender, RoutedEventArgs e) => FocusManager.GotFocus -= FocusManager_GotFocus;
 
     protected override void OnItemsChanged(object e)
     {
