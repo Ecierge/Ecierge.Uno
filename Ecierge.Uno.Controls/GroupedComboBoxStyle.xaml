@@ -8,7 +8,7 @@
                     xmlns:i="using:Microsoft.Xaml.Interactivity"
                     xmlns:animatedvisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
                     xmlns:controls="using:Microsoft.UI.Xaml.Controls">
-  <Style x:Key="BaseGroupedComboBox" TargetType="comp:GroupedComboBox">
+  <Style x:Key="DefaultGroupedComboBoxStyle" TargetType="comp:GroupedComboBox">
     <Setter Property="CornerRadius" Value="{ThemeResource OverlayCornerRadius}" />
     <Setter Property="TextBoxStyle" Value="{StaticResource ComboBoxTextBoxStyle}" />
     <Setter Property="PlaceholderText" Value="Select Floor" />
@@ -65,7 +65,7 @@
                      Header="{TemplateBinding Header}"
                      Padding="{ThemeResource ComboBoxEditableTextPadding}"
                      PlaceholderText="{TemplateBinding PlaceholderText}"
-                     Text="{Binding SelectedItem,
+                     Text="{Binding SelectedObject,
                                     RelativeSource={RelativeSource TemplatedParent},
                                     Mode=OneWay}">
               <TextBox.Resources>
@@ -82,13 +82,13 @@
                               Grid.Column="0"
                               Grid.ColumnSpan="2"
                               ContentTemplate="{TemplateBinding ItemTemplate}"
-                              Content="{Binding SelectedItem,
+                              Content="{Binding SelectedObject,
                                                 RelativeSource={RelativeSource TemplatedParent},
                                                 Mode=TwoWay}"
                               FlowDirection="{TemplateBinding FlowDirection}"
                               FontWeight="{ThemeResource ComboBoxHeaderThemeFontWeight}"
                               Foreground="{ThemeResource ComboBoxHeaderForeground}"
-                              Visibility="{Binding SelectedItem,
+                              Visibility="{Binding SelectedObject,
                                                 RelativeSource={RelativeSource TemplatedParent},
                                                 Converter={StaticResource NullToVisibilityConverter},
                                                 ConverterParameter=Collapsed}"
@@ -157,4 +157,6 @@
       </Setter.Value>
     </Setter>
   </Style>
+  <Style TargetType="comp:GroupedComboBox" BasedOn="{StaticResource DefaultGroupedComboBoxStyle}"/>
+
 </ResourceDictionary>

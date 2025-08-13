@@ -7,27 +7,33 @@ public class GroupedComboBox : ListView
 {
     private Popup? _popup;
     private TextBox? _textBox;
-    private bool _isOpened = false;
+    private bool _IsDropDownOpened = false;
 
-    #region IsOpen
+    #region IsDropDownOpen
 
-    /// <summary>
-    /// IsOpen Dependency Property
-    /// </summary>
-    public static readonly DependencyProperty IsOpenProperty =
-        DependencyProperty.Register(nameof(IsOpen), typeof(bool), typeof(GroupedComboBox), new(false));
+    //
+    // Summary:
+    //     Identifies the IsDropDownOpen dependency property.
+    //
+    // Returns:
+    //     The identifier for the IsDropDownOpen dependency property.
+    public static readonly DependencyProperty IsDropDownOpenProperty =
+        DependencyProperty.Register(nameof(IsDropDownOpen), typeof(bool), typeof(GroupedComboBox), new(false));
 
-    /// <summary>
-    /// Gets or sets the IsOpen property. This dependency property
-    /// indicates ....
-    /// </summary>
-    public bool IsOpen
+    //
+    // Summary:
+    //     Gets or sets a value that indicates whether the drop-down portion of the GroupedComboBox
+    //     is currently open.
+    //
+    // Returns:
+    //     True if the drop-down portion is open; otherwise, false. The default is false.
+    public bool IsDropDownOpen
     {
-        get => (bool)GetValue(IsOpenProperty);
+        get => (bool)GetValue(IsDropDownOpenProperty);
         set
         {
-            SetValue(IsOpenProperty, value);
-            _isOpened = true;
+            SetValue(IsDropDownOpenProperty, value);
+            _IsDropDownOpened = true;
             if (_popup != null && _popup.IsOpen != value)
             {
                 _popup.IsOpen = value;
@@ -35,7 +41,7 @@ public class GroupedComboBox : ListView
         }
     }
 
-    #endregion IsOpen
+    #endregion IsDropDownOpen
 
     #region PlaceholderText
 
@@ -115,7 +121,7 @@ public class GroupedComboBox : ListView
         if (_popup is null || _textBox is null || mainGrid is null || contentPresenter is null)
             return;
 
-        _popup.IsOpen = IsOpen;
+        _popup.IsOpen = IsDropDownOpen;
 
         _textBox.Tapped -= OnTextBoxTapped;
         _textBox.Tapped += OnTextBoxTapped;
@@ -141,27 +147,27 @@ public class GroupedComboBox : ListView
         this.SelectionChanged -= GropedComboBox_SelectionChanged;
         this.SelectionChanged += GropedComboBox_SelectionChanged;
 
-        this.Unloaded -= GroupedComboBox_Unloaded;
-        this.Unloaded += GroupedComboBox_Unloaded;
+        this.Unloaded -= OnUnloaded;
+        this.Unloaded += OnUnloaded;
     }
 
     private void OnUnloaded(object sender, RoutedEventArgs e) => FocusManager.GotFocus -= FocusManager_GotFocus;
 
     protected override void OnItemsChanged(object e)
     {
-        if (_isOpened)
+        if (_IsDropDownOpened)
         {
             base.OnItemsChanged(e);
         }
     }
 
-    private void TextBox_PointerPressed(object sender, PointerRoutedEventArgs e) => IsOpen = true;
+    private void TextBox_PointerPressed(object sender, PointerRoutedEventArgs e) => IsDropDownOpen = true;
 
-    private void _textBox_GotFocus(object sender, RoutedEventArgs e) => IsOpen = true;
+    private void _textBox_GotFocus(object sender, RoutedEventArgs e) => IsDropDownOpen = true;
 
     private void GropedComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (!_isOpened)
+        if (!_IsDropDownOpened)
         {
             if (this.SelectedItem != SelectedObject)
             {
@@ -170,7 +176,7 @@ public class GroupedComboBox : ListView
         }
         else
         {
-            IsOpen = false;
+            IsDropDownOpen = false;
             SelectedObject = this.SelectedItem;
         }
     }
@@ -181,16 +187,16 @@ public class GroupedComboBox : ListView
         {
             if (!(this == element || element is ListViewItem || element == _textBox) && this != element)
             {
-                IsOpen = false;
+                IsDropDownOpen = false;
             }
         }
         else
         {
-            IsOpen = false;
+            IsDropDownOpen = false;
         }
     }
 
-    private void Content_PointerPressed(object sender, PointerRoutedEventArgs e) => IsOpen = false;
+    private void Content_PointerPressed(object sender, PointerRoutedEventArgs e) => IsDropDownOpen = false;
 
-    private void OnTextBoxTapped(object sender, TappedRoutedEventArgs e) => IsOpen = true;
+    private void OnTextBoxTapped(object sender, TappedRoutedEventArgs e) => IsDropDownOpen = true;
 }
