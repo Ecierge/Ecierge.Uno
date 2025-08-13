@@ -128,8 +128,8 @@ public class GroupedComboBox : ListView
         contentPresenter.Tapped -= OnTextBoxTapped;
         contentPresenter.Tapped += OnTextBoxTapped;
 
-        _textBox.GotFocus -= _textBox_GotFocus;
-        _textBox.GotFocus += _textBox_GotFocus;
+        _textBox.GotFocus -= TextBox_GotFocus;
+        _textBox.GotFocus += TextBox_GotFocus;
 
         _popup.XamlRoot.Content!.PointerPressed -= Content_PointerPressed;
         _popup.XamlRoot.Content!.PointerPressed += Content_PointerPressed;
@@ -156,7 +156,7 @@ public class GroupedComboBox : ListView
 
     private void TextBox_PointerPressed(object sender, PointerRoutedEventArgs e) => IsDropDownOpen = true;
 
-    private void _textBox_GotFocus(object sender, RoutedEventArgs e) => IsDropDownOpen = true;
+    private void TextBox_GotFocus(object sender, RoutedEventArgs e) => IsDropDownOpen = true;
 
     private void GropedComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
