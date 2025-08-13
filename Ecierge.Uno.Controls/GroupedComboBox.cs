@@ -80,7 +80,7 @@ public class GroupedComboBox : ListView
     #region SelectedValue
 
     /// <summary>
-    /// Gets the identifier for the SelectedValue dependency property.
+    /// Identifies the  SelectedValue dependency property.
     /// </summary>
     public static readonly DependencyProperty SelectedValueProperty =
         DependencyProperty.Register(nameof(SelectedValue), typeof(object), typeof(GroupedComboBox), new(null));

@@ -157,6 +157,7 @@
       </Setter.Value>
     </Setter>
   </Style>
+
   <Style TargetType="comp:GroupedComboBox" BasedOn="{StaticResource DefaultGroupedComboBoxStyle}"/>
 
 </ResourceDictionary>
