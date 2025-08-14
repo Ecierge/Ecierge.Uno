@@ -64,25 +64,47 @@
                               TextWrapping="Wrap" VerticalAlignment="Top" Visibility="Collapsed" />
             <Border x:Name="BorderElement"
                     Grid.Row="1"
-                    Background="{TemplateBinding Background}"
-                    BorderBrush="{TemplateBinding BorderBrush}"
-                    BorderThickness="{TemplateBinding BorderThickness}"
                     CornerRadius="{TemplateBinding CornerRadius}"
                     Control.IsTemplateFocusTarget="True"
                     MinWidth="{TemplateBinding MinWidth}"
                     MinHeight="{TemplateBinding MinHeight}">
               <Grid>
                 <NumberBox x:Name="NumberBox"
-                           Padding="20,10,6,6"
+                           Padding="34,6,6,6"
                            HorizontalContentAlignment="Right"
-                           IsEnabled="{TemplateBinding IsNumberBoxEnabled}"
-                           PlaceholderText="_"
-                           SmallChange="0.1" />
+                           SmallChange="{TemplateBinding SmallChange}"
+                           LargeChange="{TemplateBinding LargeChange}"
+                           Header="{TemplateBinding Header}"
+                           HeaderTemplate="{TemplateBinding HeaderTemplate}"
+                           Description="{TemplateBinding Description}"
+                           Value="{TemplateBinding Value}"
+                           IsWrapEnabled="{TemplateBinding IsWrapEnabled}"
+                           IsEnabled="{TemplateBinding IsEnabled1}"
+                           SelectionFlyout="{TemplateBinding SelectionFlyout}"
+                           SpinButtonPlacementMode="{TemplateBinding SpinButtonPlacementMode}"
+                           PreventKeyboardDisplayOnProgrammaticFocus="{TemplateBinding PreventKeyboardDisplayOnProgrammaticFocus}"
+                           PlaceholderText="{TemplateBinding PlaceholderText}"
+                           NumberFormatter="{TemplateBinding NumberFormatter}"
+                           Minimum="{TemplateBinding Minimum}"
+                           Maximum="{TemplateBinding Maximum}"
+                           TextReadingOrder="{TemplateBinding TextReadingOrder}"
+                           Text="{TemplateBinding Text}"
+                           ValidationMode="{TemplateBinding ValidationMode}"
+                           IsTabStop="False"
+                           CornerRadius="{ThemeResource ControlCornerRadius}"
+                           Background="{ThemeResource TextControlBackground}"
+                           BorderThickness="{ThemeResource TextControlBorderThemeThickness}"
+                           BorderBrush="{ThemeResource TextControlBorderBrush}"
+                           Foreground="{ThemeResource TextControlForeground}"
+                           />
                 <CheckBox x:Name="CheckBox" Style="{StaticResource DefaultCheckBoxStyle}"
-                           HorizontalContentAlignment="Left"
-                           BorderBrush="{x:Null}"
-                           Background="Transparent"
-                           IsChecked="{Binding IsCheckBoxChecked, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" />
+                          HorizontalContentAlignment="Left"
+                          Margin="8,0,0,0"
+                          BorderBrush="{x:Null}"
+                          MinWidth="32"
+                          Background="Transparent"
+                          IsChecked="{TemplateBinding IsChecked}"
+                          />
               </Grid>
             </Border>
           </Grid>
