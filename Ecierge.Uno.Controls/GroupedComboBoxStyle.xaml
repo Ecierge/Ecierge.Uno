@@ -58,7 +58,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="comp:GroupedComboBox">
-          <Grid x:Name="MainGrid"
+          <Grid x:Name="LayoutRoot"
                 Padding="0,2,0,2">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*" />

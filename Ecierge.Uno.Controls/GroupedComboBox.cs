@@ -5,8 +5,10 @@ using Microsoft.UI.Xaml.Input;
 
 public partial class GroupedComboBox : ListView
 {
-    private Popup? popup;
+    private Panel? layoutRoot;
+    private ContentPresenter? contentPresenter;
     private TextBox? textBox;
+    private Popup? popup;
     private bool isDropDownOpenedOnce = false;
 
     #region IsDropDownOpen
@@ -91,74 +93,69 @@ public partial class GroupedComboBox : ListView
 
     #endregion TextBoxStyle
 
-    #region SelectedValue
+    //#region SelectedValue
 
-    /// <summary>
-    /// Identifies the  SelectedValue dependency property.
-    /// </summary>
-    public static readonly DependencyProperty SelectedValueProperty =
-        DependencyProperty.Register(nameof(SelectedValue), typeof(object), typeof(GroupedComboBox), new(null));
+    ///// <summary>
+    ///// Identifies the  SelectedValue dependency property.
+    ///// </summary>
+    //public static readonly DependencyProperty SelectedValueProperty =
+    //    DependencyProperty.Register(nameof(SelectedValue), typeof(object), typeof(GroupedComboBox), new(null));
 
-    /// <summary>
-    /// Gets or sets the value of the selected item, obtained by using the SelectedValuePath.
-    /// </summary>
-    public object? SelectedValue
-    {
-        get => (object?)GetValue(SelectedValueProperty);
-        set => SetValue(SelectedValueProperty, value);
-    }
+    ///// <summary>
+    ///// Gets or sets the value of the selected item, obtained by using the SelectedValuePath.
+    ///// </summary>
+    //public object? SelectedValue
+    //{
+    //    get => (object?)GetValue(SelectedValueProperty);
+    //    set => SetValue(SelectedValueProperty, value);
+    //}
 
-    #endregion SelectedValue
+    //#endregion SelectedValue
 
     public GroupedComboBox()
     {
         DefaultStyleKey = typeof(GroupedComboBox);
+        this.SelectionChanged += GropedComboBox_SelectionChanged;
+        this.Loaded += (object sender, RoutedEventArgs e) => FocusManager.GotFocus += FocusManager_GotFocus;
+        this.Unloaded += (object sender, RoutedEventArgs e) => FocusManager.GotFocus -= FocusManager_GotFocus;
     }
 
     /// <inheritdoc/>
     protected override void OnApplyTemplate()
     {
+        layoutRoot?.RemoveHandler(UIElement.PointerPressedEvent, new PointerEventHandler(TextBox_PointerPressed));
+        contentPresenter?.RemoveHandler(UIElement.PointerPressedEvent, new PointerEventHandler(TextBox_PointerPressed));
+        contentPresenter?.Tapped -= OnTextBoxTapped;
+        textBox?.GotFocus -= TextBox_GotFocus;
+        textBox?.Tapped -= OnTextBoxTapped;
+        if (popup?.XamlRoot?.Content is { } oldPopupXamlRootContent)
+        {
+            oldPopupXamlRootContent.PointerPressed -= OnOuterContentPointerPressed;
+        }
+
         base.OnApplyTemplate();
 
+        layoutRoot = GetTemplateChild("LayoutRoot") as Panel;
         popup = GetTemplateChild("Popup") as Popup;
         textBox = GetTemplateChild("EditableText") as TextBox;
-        var mainGrid = GetTemplateChild("MainGrid") as Grid;
-        var contentPresenter = GetTemplateChild("ContentPresenter") as ContentPresenter;
+        contentPresenter = GetTemplateChild("ContentPresenter") as ContentPresenter;
 
-        if (popup is null || textBox is null || mainGrid is null || contentPresenter is null)
+        if (popup is null || textBox is null || layoutRoot is null || contentPresenter is null)
             return;
 
         popup.IsOpen = IsDropDownOpen;
 
-        textBox.Tapped -= OnTextBoxTapped;
+        layoutRoot.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler(TextBox_PointerPressed), true);
+        contentPresenter.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler(TextBox_PointerPressed), true);
+        contentPresenter.Tapped += OnTextBoxTapped;
+        textBox.GotFocus += TextBox_GotFocus;
         textBox.Tapped += OnTextBoxTapped;
 
-        mainGrid.RemoveHandler(UIElement.PointerPressedEvent, new PointerEventHandler(TextBox_PointerPressed));
-        mainGrid.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler(TextBox_PointerPressed), true);
-
-        contentPresenter.RemoveHandler(UIElement.PointerPressedEvent, new PointerEventHandler(TextBox_PointerPressed));
-        contentPresenter.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler(TextBox_PointerPressed), true);
-
-        contentPresenter.Tapped -= OnTextBoxTapped;
-        contentPresenter.Tapped += OnTextBoxTapped;
-
-        textBox.GotFocus -= TextBox_GotFocus;
-        textBox.GotFocus += TextBox_GotFocus;
-
-        popup.XamlRoot.Content!.PointerPressed -= Content_PointerPressed;
-        popup.XamlRoot.Content!.PointerPressed += Content_PointerPressed;
-
-        FocusManager.GotFocus -= FocusManager_GotFocus;
-        FocusManager.GotFocus += FocusManager_GotFocus;
-
-        this.SelectionChanged -= GropedComboBox_SelectionChanged;
-        this.SelectionChanged += GropedComboBox_SelectionChanged;
-
-        this.Unloaded -= OnUnloaded;
-        this.Unloaded += OnUnloaded;
+        if (popup.XamlRoot?.Content is { } newPopupXamlRootContent)
+        {
+            newPopupXamlRootContent.PointerPressed += OnOuterContentPointerPressed;
+        }
     }
-
-    private void OnUnloaded(object sender, RoutedEventArgs e) => FocusManager.GotFocus -= FocusManager_GotFocus;
 
     protected override void OnItemsChanged(object e)
     {
@@ -201,7 +198,7 @@ public partial class GroupedComboBox : ListView
         }
     }
 
-    private void Content_PointerPressed(object sender, PointerRoutedEventArgs e) => IsDropDownOpen = false;
+    private void OnOuterContentPointerPressed(object sender, PointerRoutedEventArgs e) => IsDropDownOpen = false;
 
     private void OnTextBoxTapped(object sender, TappedRoutedEventArgs e) => IsDropDownOpen = true;
 }
