@@ -3,11 +3,11 @@ namespace Ecierge.Uno.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 
-public class GroupedComboBox : ListView
+public partial class GroupedComboBox : ListView
 {
-    private Popup? _popup;
-    private TextBox? _textBox;
-    private bool _IsDropDownOpened = false;
+    private Popup? popup;
+    private TextBox? textBox;
+    private bool isDropDownOpenedOnce = false;
 
     #region IsDropDownOpen
 
@@ -15,7 +15,8 @@ public class GroupedComboBox : ListView
     /// Identifies the IsDropDownOpen dependency property.
     /// </summary>
     public static readonly DependencyProperty IsDropDownOpenProperty =
-        DependencyProperty.Register(nameof(IsDropDownOpen), typeof(bool), typeof(GroupedComboBox), new(false));
+        DependencyProperty.Register(nameof(IsDropDownOpen), typeof(bool), typeof(GroupedComboBox),
+            new (false, new PropertyChangedCallback(OnIsDropDownOpenChanged)));
 
     /// <summary>
     /// Gets or sets a value that indicates whether the drop-down portion of the GroupedComboBox
@@ -24,15 +25,28 @@ public class GroupedComboBox : ListView
     public bool IsDropDownOpen
     {
         get => (bool)GetValue(IsDropDownOpenProperty);
-        set
-        {
-            SetValue(IsDropDownOpenProperty, value);
-            _IsDropDownOpened = true;
-            if (_popup != null && _popup.IsOpen != value)
-            {
-                _popup.IsOpen = value;
-            }
-        }
+        set => SetValue(IsDropDownOpenProperty, value);
+    }
+
+    /// <summary>
+    /// Handles changes to the IsDropDownOpen property.
+    /// </summary>
+    private static void OnIsDropDownOpenChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        GroupedComboBox target = (GroupedComboBox)d;
+        bool oldIsDropDownOpen = (bool)e.OldValue;
+        bool newIsDropDownOpen = (bool)e.NewValue;
+        target.OnIsDropDownOpenChanged(oldIsDropDownOpen, newIsDropDownOpen);
+    }
+
+    /// <summary>
+    /// Provides derived classes an opportunity to handle changes to the IsDropDownOpen property.
+    /// </summary>
+    protected virtual void OnIsDropDownOpenChanged(bool oldIsDropDownOpen, bool newIsDropDownOpen)
+    {
+        if (newIsDropDownOpen)
+            isDropDownOpenedOnce = true;
+        popup?.IsOpen = newIsDropDownOpen;
     }
 
     #endregion IsDropDownOpen
@@ -105,18 +119,18 @@ public class GroupedComboBox : ListView
     {
         base.OnApplyTemplate();
 
-        _popup = GetTemplateChild("Popup") as Popup;
-        _textBox = GetTemplateChild("EditableText") as TextBox;
+        popup = GetTemplateChild("Popup") as Popup;
+        textBox = GetTemplateChild("EditableText") as TextBox;
         var mainGrid = GetTemplateChild("MainGrid") as Grid;
         var contentPresenter = GetTemplateChild("ContentPresenter") as ContentPresenter;
 
-        if (_popup is null || _textBox is null || mainGrid is null || contentPresenter is null)
+        if (popup is null || textBox is null || mainGrid is null || contentPresenter is null)
             return;
 
-        _popup.IsOpen = IsDropDownOpen;
+        popup.IsOpen = IsDropDownOpen;
 
-        _textBox.Tapped -= OnTextBoxTapped;
-        _textBox.Tapped += OnTextBoxTapped;
+        textBox.Tapped -= OnTextBoxTapped;
+        textBox.Tapped += OnTextBoxTapped;
 
         mainGrid.RemoveHandler(UIElement.PointerPressedEvent, new PointerEventHandler(TextBox_PointerPressed));
         mainGrid.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler(TextBox_PointerPressed), true);
@@ -127,11 +141,11 @@ public class GroupedComboBox : ListView
         contentPresenter.Tapped -= OnTextBoxTapped;
         contentPresenter.Tapped += OnTextBoxTapped;
 
-        _textBox.GotFocus -= TextBox_GotFocus;
-        _textBox.GotFocus += TextBox_GotFocus;
+        textBox.GotFocus -= TextBox_GotFocus;
+        textBox.GotFocus += TextBox_GotFocus;
 
-        _popup.XamlRoot.Content!.PointerPressed -= Content_PointerPressed;
-        _popup.XamlRoot.Content!.PointerPressed += Content_PointerPressed;
+        popup.XamlRoot.Content!.PointerPressed -= Content_PointerPressed;
+        popup.XamlRoot.Content!.PointerPressed += Content_PointerPressed;
 
         FocusManager.GotFocus -= FocusManager_GotFocus;
         FocusManager.GotFocus += FocusManager_GotFocus;
@@ -147,10 +161,8 @@ public class GroupedComboBox : ListView
 
     protected override void OnItemsChanged(object e)
     {
-        if (_IsDropDownOpened)
-        {
+        if (isDropDownOpenedOnce)
             base.OnItemsChanged(e);
-        }
     }
 
     private void TextBox_PointerPressed(object sender, PointerRoutedEventArgs e) => IsDropDownOpen = true;
@@ -159,7 +171,7 @@ public class GroupedComboBox : ListView
 
     private void GropedComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (!_IsDropDownOpened)
+        if (!isDropDownOpenedOnce)
         {
             if (this.SelectedItem != SelectedValue)
             {
@@ -177,7 +189,7 @@ public class GroupedComboBox : ListView
     {
         if (e.NewFocusedElement is FrameworkElement element)
         {
-            if (!(this == element || element is ListViewItem || element == _textBox) && this != element)
+            if (!(this == element || element is ListViewItem || element == textBox) && this != element)
             {
                 IsDropDownOpen = false;
             }
