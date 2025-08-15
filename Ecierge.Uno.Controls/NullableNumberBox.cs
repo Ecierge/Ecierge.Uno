@@ -14,16 +14,17 @@ using Windows.Foundation.Collections;
 using Windows.Globalization.NumberFormatting;
 using static CommunityToolkit.WinUI.TextBoxExtensions;
 
-[TemplatePart(Name = PartHeaderContentPresenter, Type = typeof(FrameworkElement))]
+[TemplatePart(Name = PartHeaderContentPresenter, Type = typeof(ContentPresenter))]
+[TemplatePart(Name = PartDescriptionContentPresenter, Type = typeof(ContentPresenter))]
 [TemplatePart(Name = PartCheckBox, Type = typeof(CheckBox))]
 [TemplatePart(Name = PartNumberBox, Type = typeof(NumberBox))]
 public sealed partial class NullableNumberBox : Control
 {
     private const string PartHeaderContentPresenter = "HeaderContentPresenter";
+    private const string PartDescriptionContentPresenter = "DescriptionContentPresenter";
     private const string PartNumberBox = "NumberBox";
     private const string PartCheckBox = "CheckBox";
 
-    private bool isChecked;
     private NumberBox? numberBox;
     private CheckBox? checkBox;
 
@@ -50,6 +51,26 @@ public sealed partial class NullableNumberBox : Control
 
     #endregion AcceptsExpression
 
+    #region Description
+
+    /// <summary>
+    /// Description Dependency Property
+    /// </summary>
+    public static readonly DependencyProperty DescriptionProperty =
+       DependencyProperty.Register(nameof(Description), typeof(object), typeof(NullableNumberBox),
+           new PropertyMetadata(NumberBox.DescriptionProperty.GetMetadata(typeof(NumberBox)).DefaultValue));
+
+    /// <summary>
+    /// Gets or sets the Description property. This dependency property
+    /// </summary>
+    public object? Description
+    {
+        get => (object?)GetValue(DescriptionProperty);
+        set => SetValue(DescriptionProperty, value);
+    }
+
+    #endregion Description
+
     #region Header
 
     /// <summary>
@@ -70,7 +91,7 @@ public sealed partial class NullableNumberBox : Control
         set => SetValue(HeaderProperty, value);
     }
 
-    #endregion
+    #endregion Header
 
     #region HeaderTemplate
 
@@ -91,68 +112,27 @@ public sealed partial class NullableNumberBox : Control
         set => SetValue(HeaderTemplateProperty, value);
     }
 
-    #endregion
+    #endregion HeaderTemplate
 
-    #region Value
-
-    /// <summary>
-    /// Value Dependency Property
-    /// </summary>
-    public static readonly DependencyProperty ValueProperty =
-        DependencyProperty.Register(nameof(Value), typeof(double?), typeof(NullableNumberBox),
-            new PropertyMetadata(null));
-
-    /// <summary>
-    /// Gets or sets the Value property. This dependency property
-    /// indicates the numeric value.
-    /// </summary>
-    public double? Value
-    {
-        get => (double?)GetValue(ValueProperty);
-        set => SetValue(ValueProperty, value);
-    }
-
-    #endregion
-
-    #region Description
-
-    /// <summary>
-    /// Description Dependency Property
-    /// </summary>
-    public static readonly DependencyProperty DescriptionProperty =
-       DependencyProperty.Register(nameof(Description), typeof(object), typeof(NullableNumberBox),
-           new PropertyMetadata(NumberBox.DescriptionProperty.GetMetadata(typeof(NumberBox)).DefaultValue));
-
-    /// <summary>
-    /// Gets or sets the Description property. This dependency property
-    /// </summary>
-    public object? Description
-    {
-        get => (object?)GetValue(DescriptionProperty);
-        set => SetValue(DescriptionProperty, value);
-    }
-
-    #endregion
-
-    #region IsEnabled1
+    #region IsEnabled
 
     /// <summary>
     /// IsEnabled Dependency Property
     /// </summary>
-    public static readonly DependencyProperty IsEnabled1Property =
-        DependencyProperty.Register(nameof(IsEnabled1), typeof(bool), typeof(NullableNumberBox),
+    public static readonly DependencyProperty IsEnabledProperty =
+        DependencyProperty.Register(nameof(IsEnabled), typeof(bool), typeof(NullableNumberBox),
             new PropertyMetadata(NumberBox.IsEnabledProperty.GetMetadata(typeof(NumberBox)).DefaultValue));
 
     /// <summary>
     /// Gets or sets the IsEnabled property. This dependency property
     /// </summary>
-    public bool IsEnabled1
+    public bool IsEnabled
     {
-        get => (bool)GetValue(IsEnabled1Property);
-        set => SetValue(IsEnabled1Property, value);
+        get => (bool)GetValue(IsEnabledProperty);
+        set => SetValue(IsEnabledProperty, value);
     }
 
-    #endregion
+    #endregion IsEnabled
 
     #region IsChecked
 
@@ -172,7 +152,7 @@ public sealed partial class NullableNumberBox : Control
         set => SetValue(IsCheckBoxCheckedProperty, value);
     }
 
-    #endregion
+    #endregion IsChecked
 
     #region IsWrapEnabled
 
@@ -192,7 +172,7 @@ public sealed partial class NullableNumberBox : Control
         set => SetValue(IsWrapEnabledProperty, value);
     }
 
-    #endregion
+    #endregion IsWrapEnabled
 
     #region LargeChange
 
@@ -212,27 +192,7 @@ public sealed partial class NullableNumberBox : Control
         set => SetValue(LargeChangeProperty, value);
     }
 
-    #endregion
-
-    #region SmallChange
-
-    /// <summary>
-    /// SmallChange Dependency Property
-    /// </summary>
-    public static readonly DependencyProperty SmallChangeProperty =
-        DependencyProperty.Register(nameof(SmallChange), typeof(double), typeof(NullableNumberBox),
-            new PropertyMetadata(NumberBox.SmallChangeProperty.GetMetadata(typeof(NumberBox)).DefaultValue));
-
-    /// <summary>
-    /// Gets or sets the SmallChange property. This dependency property
-    /// </summary>
-    public double SmallChange
-    {
-        get => (double)GetValue(SmallChangeProperty);
-        set => SetValue(SmallChangeProperty, value);
-    }
-
-    #endregion
+    #endregion LargeChange
 
     #region Maximum
 
@@ -252,12 +212,12 @@ public sealed partial class NullableNumberBox : Control
         set => SetValue(MaximumProperty, value);
     }
 
-    #endregion
+    #endregion Maximum
 
     #region Minimum
 
     /// <summary>
-    /// Maximum Dependency Property
+    /// Minimum Dependency Property
     /// </summary>
     public static readonly DependencyProperty MinimumProperty =
         DependencyProperty.Register(nameof(Minimum), typeof(double), typeof(NullableNumberBox),
@@ -272,7 +232,7 @@ public sealed partial class NullableNumberBox : Control
         set => SetValue(MinimumProperty, value);
     }
 
-    #endregion
+    #endregion Minimum
 
     #region NumberFormatter
 
@@ -294,7 +254,7 @@ public sealed partial class NullableNumberBox : Control
     private static INumberFormatter2 CreateDefaultFormatter()
     => new DecimalFormatter();
 
-    #endregion
+    #endregion NumberFormatter
 
     #region PlaceholderText
 
@@ -314,7 +274,7 @@ public sealed partial class NullableNumberBox : Control
         set => SetValue(PlaceholderTextProperty, value);
     }
 
-    #endregion
+    #endregion PlaceholderText
 
     #region PreventKeyboardDisplayOnProgrammaticFocus
 
@@ -335,7 +295,7 @@ public sealed partial class NullableNumberBox : Control
         set => SetValue(PreventKeyboardDisplayOnProgrammaticFocusProperty, value);
     }
 
-    #endregion
+    #endregion PreventKeyboardDisplayOnProgrammaticFocus
 
     #region SelectionFlyout
 
@@ -355,7 +315,7 @@ public sealed partial class NullableNumberBox : Control
         set => SetValue(SelectionFlyoutProperty, value);
     }
 
-    #endregion
+    #endregion SelectionFlyout
 
     #region SelectionHighlightColor
 
@@ -375,13 +335,33 @@ public sealed partial class NullableNumberBox : Control
         set => SetValue(SelectionHighlightColorProperty, value);
     }
 
-    #endregion
+    #endregion SelectionHighlightColor
+
+    #region SmallChange
+
+    /// <summary>
+    /// SmallChange Dependency Property
+    /// </summary>
+    public static readonly DependencyProperty SmallChangeProperty =
+        DependencyProperty.Register(nameof(SmallChange), typeof(double), typeof(NullableNumberBox),
+            new PropertyMetadata(NumberBox.SmallChangeProperty.GetMetadata(typeof(NumberBox)).DefaultValue));
+
+    /// <summary>
+    /// Gets or sets the SmallChange property. This dependency property
+    /// </summary>
+    public double SmallChange
+    {
+        get => (double)GetValue(SmallChangeProperty);
+        set => SetValue(SmallChangeProperty, value);
+    }
+
+    #endregion SmallChange
 
     #region SpinButtonPlacementMode
 
     /// <summary>
     /// SpinButtonPlacementMode Dependency Property
-    /// </summary>Invoke
+    /// </summary>
     public static readonly DependencyProperty SpinButtonPlacementModeProperty =
         DependencyProperty.Register(nameof(SpinButtonPlacementMode), typeof(NumberBoxSpinButtonPlacementMode), typeof(NullableNumberBox),
             new PropertyMetadata(NumberBox.SpinButtonPlacementModeProperty.GetMetadata(typeof(NumberBox)).DefaultValue));
@@ -395,7 +375,7 @@ public sealed partial class NullableNumberBox : Control
         set => SetValue(SpinButtonPlacementModeProperty, value);
     }
 
-    #endregion
+    #endregion SpinButtonPlacementMode
 
     #region Text
 
@@ -415,7 +395,7 @@ public sealed partial class NullableNumberBox : Control
         set => SetValue(TextProperty, value);
     }
 
-    #endregion
+    #endregion Text
 
     #region TextReadingOrder
 
@@ -427,7 +407,7 @@ public sealed partial class NullableNumberBox : Control
             new PropertyMetadata(NumberBox.TextReadingOrderProperty.GetMetadata(typeof(NumberBox)).DefaultValue));
 
     /// <summary>
-    /// Gets or sets the Text property. This dependency property
+    /// Gets or sets the TextReadingOrder property. This dependency property
     /// </summary>
     public TextReadingOrder TextReadingOrder
     {
@@ -435,7 +415,7 @@ public sealed partial class NullableNumberBox : Control
         set => SetValue(TextReadingOrderProperty, value);
     }
 
-    #endregion
+    #endregion TextReadingOrder
 
     #region ValidationMode
 
@@ -455,10 +435,33 @@ public sealed partial class NullableNumberBox : Control
         set => SetValue(ValidationModeProperty, value);
     }
 
-    #endregion
+    #endregion ValidationMode
+
+    #region Value
+
+    /// <summary>
+    /// Value Dependency Property
+    /// </summary>
+    public static readonly DependencyProperty ValueProperty =
+        DependencyProperty.Register(nameof(Value), typeof(double?), typeof(NullableNumberBox),
+            new PropertyMetadata(null));
+
+    /// <summary>
+    /// Gets or sets the Value property. This dependency property
+    /// indicates the numeric value.
+    /// </summary>
+    public double? Value
+    {
+        get => (double?)GetValue(ValueProperty);
+        set => SetValue(ValueProperty, value);
+    }
+
+    #endregion Value
     public NullableNumberBox()
     {
         DefaultStyleKey = typeof(NullableNumberBox);
+        SetHeaderVisibility();
+        SetDescriptionVisibility();
     }
 
     protected override void OnApplyTemplate()
@@ -471,19 +474,19 @@ public sealed partial class NullableNumberBox : Control
             if (Value is not null)
             {
                 checkBox.IsChecked = true;
-                IsEnabled1 = true;
+                numberBox.IsEnabled = true;
                 numberBox.Value = Value.Value;
             }
             else
             {
                 checkBox.IsChecked = false;
-                IsEnabled1 = false;
+                numberBox.IsEnabled = false;
             }
             checkBox.Checked += (s, e) =>
             {
                 if (numberBox is not null)
                 {
-                    IsEnabled1 = true;
+                    numberBox.IsEnabled = true;
                     Value = numberBox.Value;
                 }
             };
@@ -491,7 +494,7 @@ public sealed partial class NullableNumberBox : Control
             {
                 if (numberBox is not null)
                 {
-                    IsEnabled1 = false;
+                    numberBox.IsEnabled = false;
                     Value = null;
                 }
             };
@@ -505,21 +508,26 @@ public sealed partial class NullableNumberBox : Control
                 ValueChanged?.Invoke(this, e);
             };
         }
-        if (GetTemplateChild(PartHeaderContentPresenter) is FrameworkElement headerPresenter && checkBox is not null)
+    }
+    private void SetHeaderVisibility()
+    {
+        if (GetTemplateChild(PartHeaderContentPresenter) is ContentPresenter headerPresenter)
         {
+            headerPresenter.Content = Header;
+            headerPresenter.Visibility = string.IsNullOrEmpty(Description?.ToString())
+                ? Visibility.Collapsed
+                : Visibility.Visible;
+        }
+    }
 
-            if (Header is string headerText1 && Description is string descriptionText1)
-            {
-                checkBox.Margin = new Microsoft.UI.Xaml.Thickness(8, 6, 0, 0); // пример, можно подстроить
-            }
-            else if (Header is string headerText)
-            {
-                checkBox.Margin = new Microsoft.UI.Xaml.Thickness(8, 24, 0, 0);
-            }
-            else if (Description is string descriptionText)
-            {
-                checkBox.Margin = new Microsoft.UI.Xaml.Thickness(8, 0, 0, 22);
-            }
+    private void SetDescriptionVisibility()
+    {
+        if (GetTemplateChild(PartDescriptionContentPresenter) is ContentPresenter descriptionContentPresenter)
+        {
+            descriptionContentPresenter.Content = Description;
+            descriptionContentPresenter.Visibility = string.IsNullOrEmpty(Description?.ToString())
+                ? Visibility.Collapsed
+                : Visibility.Visible;
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿<ResourceDictionary x:Class="Ecierge.Uno.Controls.Styles.NullableNumberBoxStyle"
-                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="using:Ecierge.Uno.Controls">
 
@@ -58,56 +57,73 @@
               </VisualStateGroup>
             </VisualStateManager.VisualStateGroups>
 
-            <ContentPresenter x:Name="HeaderContentPresenter" Grid.Row="0" Grid.Column="0" Content="{TemplateBinding Header}"
-                              ContentTemplate="{TemplateBinding HeaderTemplate}" FontWeight="Normal"
-                              Foreground="{ThemeResource TextControlHeaderForeground}" Margin="{ThemeResource TextBoxTopHeaderMargin}"
-                              TextWrapping="Wrap" VerticalAlignment="Top" Visibility="Collapsed" />
-            <Border x:Name="BorderElement"
-                    Grid.Row="1"
-                    CornerRadius="{TemplateBinding CornerRadius}"
-                    Control.IsTemplateFocusTarget="True"
-                    MinWidth="{TemplateBinding MinWidth}"
-                    MinHeight="{TemplateBinding MinHeight}">
-              <Grid>
-                <NumberBox x:Name="NumberBox"
-                           Padding="34,6,6,6"
-                           HorizontalContentAlignment="Right"
-                           SmallChange="{TemplateBinding SmallChange}"
-                           LargeChange="{TemplateBinding LargeChange}"
-                           Header="{TemplateBinding Header}"
-                           HeaderTemplate="{TemplateBinding HeaderTemplate}"
-                           Description="{TemplateBinding Description}"
-                           Value="{TemplateBinding Value}"
-                           IsWrapEnabled="{TemplateBinding IsWrapEnabled}"
-                           IsEnabled="{TemplateBinding IsEnabled1}"
-                           SelectionFlyout="{TemplateBinding SelectionFlyout}"
-                           SpinButtonPlacementMode="{TemplateBinding SpinButtonPlacementMode}"
-                           PreventKeyboardDisplayOnProgrammaticFocus="{TemplateBinding PreventKeyboardDisplayOnProgrammaticFocus}"
-                           PlaceholderText="{TemplateBinding PlaceholderText}"
-                           NumberFormatter="{TemplateBinding NumberFormatter}"
-                           Minimum="{TemplateBinding Minimum}"
-                           Maximum="{TemplateBinding Maximum}"
-                           TextReadingOrder="{TemplateBinding TextReadingOrder}"
-                           Text="{TemplateBinding Text}"
-                           ValidationMode="{TemplateBinding ValidationMode}"
-                           IsTabStop="False"
-                           CornerRadius="{ThemeResource ControlCornerRadius}"
-                           Background="{ThemeResource TextControlBackground}"
-                           BorderThickness="{ThemeResource TextControlBorderThemeThickness}"
-                           BorderBrush="{ThemeResource TextControlBorderBrush}"
-                           Foreground="{ThemeResource TextControlForeground}"
-                           />
-                <CheckBox x:Name="CheckBox" Style="{StaticResource DefaultCheckBoxStyle}"
-                          HorizontalContentAlignment="Left"
-                          Margin="8,0,0,0"
-                          BorderBrush="{x:Null}"
-                          MinWidth="32"
-                          Background="Transparent"
-                          IsChecked="{TemplateBinding IsChecked}"
-                          />
-              </Grid>
-            </Border>
+            <Grid>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+              <ContentPresenter x:Name="HeaderContentPresenter"
+                                Grid.Row="0"
+                                Content="{TemplateBinding Header}"
+                                ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                FontWeight="Normal"
+                                Foreground="{ThemeResource TextControlHeaderForeground}"
+                                Margin="{ThemeResource TextBoxTopHeaderMargin}"
+                                Padding="8,0,0,0"
+                                TextWrapping="Wrap"
+                                VerticalAlignment="Top" />
+              <Border x:Name="BorderElement"
+                      Grid.Row="1"
+                      CornerRadius="{TemplateBinding CornerRadius}"
+                      Control.IsTemplateFocusTarget="True"
+                      MinWidth="{TemplateBinding MinWidth}"
+                      MinHeight="{TemplateBinding MinHeight}">
+                <Grid ColumnDefinitions="Auto,*">
+                  <CheckBox x:Name="CheckBox"
+                            Style="{StaticResource DefaultCheckBoxStyle}"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Center"
+                            Margin="0,0,-45,0"
+                            IsChecked="{TemplateBinding IsChecked}"
+                            BorderBrush="{x:Null}"
+                            Background="Transparent"
+                            Canvas.ZIndex="1"
+                            MinWidth="24" />
+                  <NumberBox x:Name="NumberBox"
+                             Grid.Column="1"
+                             Padding="38,10,0,0"
+                             SmallChange="{TemplateBinding SmallChange}"
+                             LargeChange="{TemplateBinding LargeChange}"
+                             Value="{TemplateBinding Value}"
+                             IsWrapEnabled="{TemplateBinding IsWrapEnabled}"
+                             IsEnabled="{TemplateBinding IsEnabled}"
+                             SpinButtonPlacementMode="{TemplateBinding SpinButtonPlacementMode}"
+                             PreventKeyboardDisplayOnProgrammaticFocus="{TemplateBinding PreventKeyboardDisplayOnProgrammaticFocus}"
+                             PlaceholderText="{TemplateBinding PlaceholderText}"
+                             NumberFormatter="{TemplateBinding NumberFormatter}"
+                             Minimum="{TemplateBinding Minimum}"
+                             Maximum="{TemplateBinding Maximum}"
+                             TextReadingOrder="{TemplateBinding TextReadingOrder}"
+                             Text="{TemplateBinding Text}"
+                             ValidationMode="{TemplateBinding ValidationMode}"
+                             IsTabStop="False"
+                             CornerRadius="{ThemeResource ControlCornerRadius}"
+                             Background="{ThemeResource TextControlBackground}"
+                             BorderThickness="{ThemeResource TextControlBorderThemeThickness}"
+                             BorderBrush="{ThemeResource TextControlBorderBrush}"
+                             Foreground="{ThemeResource TextControlForeground}" />
+                </Grid>
+              </Border>
+              <ContentPresenter x:Name="DescriptionContentPresenter"
+                         Grid.Row="2"
+                         Content="{TemplateBinding Description}"
+                         FontSize="12"
+                         Margin="8,4,0,0"
+                         TextWrapping="Wrap" />
+            </Grid>
           </Grid>
+
         </ControlTemplate>
       </Setter.Value>
     </Setter>

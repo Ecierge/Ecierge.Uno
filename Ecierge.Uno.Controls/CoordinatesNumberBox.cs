@@ -43,7 +43,7 @@ public sealed partial class CoordinatesNumberBox : Control
     //{
     //}
 
-    #endregion
+    #endregion Header
 
     #region HeaderTemplate
 
@@ -64,7 +64,7 @@ public sealed partial class CoordinatesNumberBox : Control
         set => SetValue(HeaderTemplateProperty, value);
     }
 
-    #endregion
+    #endregion HeaderTemplate
 
     #region SetCurrentPositionCommand
 
@@ -85,7 +85,7 @@ public sealed partial class CoordinatesNumberBox : Control
         set => SetValue(SetCurrentPositionCommandProperty, value);
     }
 
-    #endregion
+    #endregion SetCurrentPositionCommand
 
     #region SelectPositionCommand
 
@@ -106,7 +106,7 @@ public sealed partial class CoordinatesNumberBox : Control
         set => SetValue(SelectPositionCommandProperty, value);
     }
 
-    #endregion
+    #endregion SelectPositionCommand
 
     #region Latitude
 
@@ -127,7 +127,7 @@ public sealed partial class CoordinatesNumberBox : Control
         set => SetValue(LatitudeProperty, value);
     }
 
-    #endregion
+    #endregion Latitude
 
     #region Longitude
 
@@ -148,7 +148,7 @@ public sealed partial class CoordinatesNumberBox : Control
         set => SetValue(LongitudeProperty, value);
     }
 
-    #endregion
+    #endregion Longitude
 
     public CoordinatesNumberBox()
     {
