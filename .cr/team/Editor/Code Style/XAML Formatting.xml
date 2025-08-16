@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Root Type="DevExpress.CodeAnalysis.Formatting.XamlFormattingOptions">
+  <Options Language="XAML">
+    <KeepFirstAttributeOnSameLine>True</KeepFirstAttributeOnSameLine>
+    <AlignWithFirstAttribute>True</AlignWithFirstAttribute>
+    <AttributeGroups>
+      <Item>x:Class</Item>
+      <Item>x:Name</Item>
+      <Item>xmlns, xmlns:x, xmlns:d, xmlns:mc</Item>
+      <Item>xmlns:win, xmlns:not_win, xmlns:android, xmlns:not_android, xmlns:ios, xmlns:not_ios, xmlns:macos, xmlns:not_macos, xmlns:skia, xmlns:not_skia, xmlns:wasm, xmlns:not_wasm</Item>
+      <Item>xmlns:ct*, xmlns:i, xmlns:ic</Item>
+      <Item>xmlns:*</Item>
+      <Item>Key, x:Key, Uid, x:Uid</Item>
+      <Item>Grid.Row, Grid.RowSpan, Grid.Column, Grid.ColumnSpan, Canvas.Left, Canvas.Top, Canvas.Right, Canvas.Bottom</Item>
+      <Item>RowDefinitions, ColumnDefinitions</Item>
+      <Item>Width, Height, MinWidth, MinHeight, MaxWidth, MaxHeight, Margin</Item>
+      <Item>HorizontalAlignment, VerticalAlignment, HorizontalContentAlignment, VerticalContentAlignment, Panel.ZIndex</Item>
+      <Item>PageSource, PageIndex, Offset, Color, Target, TargetName, Storyboard.TargetName, Storyboard.TargetProperty, KeyTime, KeySpline, Property, To, Duration, StartPoint, EndPoint, Value</Item>
+      <Item>TargetType, BasedOn</Item>
+      <Item>mc:Ignorable, d:IsDataSource, d:LayoutOverrides, d:IsStaticText</Item>
+    </AttributeGroups>
+    <UseVSBlankLinesOptions>False</UseVSBlankLinesOptions>
+    <UseVSBlankLinesTextOptions>False</UseVSBlankLinesTextOptions>
+    <FormatMarkupExtensions>True</FormatMarkupExtensions>
+    <AlignWithFirstArgument>True</AlignWithFirstArgument>
+  </Options>
+</Root>
