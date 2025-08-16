@@ -78,8 +78,7 @@ public sealed partial class NullableNumberBox : Control
     /// </summary>
     public static readonly DependencyProperty HeaderProperty =
         DependencyProperty.Register(nameof(Header), typeof(object), typeof(NullableNumberBox),
-             new PropertyMetadata(NumberBox.HeaderProperty.GetMetadata(typeof(NumberBox)).DefaultValue));
-           // new PropertyMetadata((object?)null, new PropertyChangedCallback(OnHeaderChanged)));
+             new (null));
 
     /// <summary>
     /// Gets or sets the Header property. This dependency property
@@ -100,7 +99,7 @@ public sealed partial class NullableNumberBox : Control
     /// </summary>
     public static readonly DependencyProperty HeaderTemplateProperty =
         DependencyProperty.Register(nameof(HeaderTemplate), typeof(DataTemplate), typeof(NullableNumberBox),
-            new PropertyMetadata((DataTemplate?)NumberBox.HeaderTemplateProperty.GetMetadata(typeof(NumberBox)).DefaultValue));
+            new (null));
 
     /// <summary>
     /// Gets or sets the HeaderTemplate property. This dependency property
@@ -141,7 +140,7 @@ public sealed partial class NullableNumberBox : Control
     /// </summary>
     public static readonly DependencyProperty IsCheckBoxCheckedProperty =
         DependencyProperty.Register(nameof(IsChecked), typeof(bool), typeof(NullableNumberBox),
-            new PropertyMetadata(false));
+            new (false));
 
     /// <summary>
     /// Gets or sets the IsCheckBoxChecked property. This dependency property
@@ -444,7 +443,7 @@ public sealed partial class NullableNumberBox : Control
     /// </summary>
     public static readonly DependencyProperty ValueProperty =
         DependencyProperty.Register(nameof(Value), typeof(double?), typeof(NullableNumberBox),
-            new PropertyMetadata(null));
+            new((double?)null));
 
     /// <summary>
     /// Gets or sets the Value property. This dependency property
