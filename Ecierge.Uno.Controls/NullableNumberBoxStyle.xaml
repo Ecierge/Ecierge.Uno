@@ -116,11 +116,11 @@
                 </Grid>
               </Border>
               <ContentPresenter x:Name="DescriptionContentPresenter"
-                         Grid.Row="2"
-                         Content="{TemplateBinding Description}"
-                         FontSize="12"
-                         Margin="8,4,0,0"
-                         TextWrapping="Wrap" />
+                                Grid.Row="2"
+                                Content="{TemplateBinding Description}"
+                                FontSize="12"
+                                Margin="8,4,0,0"
+                                TextWrapping="Wrap" />
             </Grid>
           </Grid>
 

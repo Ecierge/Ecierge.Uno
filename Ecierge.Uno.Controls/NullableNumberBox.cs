@@ -1,18 +1,8 @@
 namespace Ecierge.Uno.Controls;
-
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.Globalization.NumberFormatting;
-using static CommunityToolkit.WinUI.TextBoxExtensions;
 
 [TemplatePart(Name = PartHeaderContentPresenter, Type = typeof(ContentPresenter))]
 [TemplatePart(Name = PartDescriptionContentPresenter, Type = typeof(ContentPresenter))]
@@ -77,8 +67,7 @@ public sealed partial class NullableNumberBox : Control
     /// Header Dependency Property
     /// </summary>
     public static readonly DependencyProperty HeaderProperty =
-        DependencyProperty.Register(nameof(Header), typeof(object), typeof(NullableNumberBox),
-             new (null));
+         DependencyProperty.Register(nameof(Header), typeof(object), typeof(NullableNumberBox), new(null));
 
     /// <summary>
     /// Gets or sets the Header property. This dependency property
@@ -98,8 +87,7 @@ public sealed partial class NullableNumberBox : Control
     /// HeaderTemplate Dependency Property
     /// </summary>
     public static readonly DependencyProperty HeaderTemplateProperty =
-        DependencyProperty.Register(nameof(HeaderTemplate), typeof(DataTemplate), typeof(NullableNumberBox),
-            new (null));
+        DependencyProperty.Register(nameof(HeaderTemplate), typeof(DataTemplate), typeof(NullableNumberBox), new(null));
 
     /// <summary>
     /// Gets or sets the HeaderTemplate property. This dependency property
@@ -140,7 +128,7 @@ public sealed partial class NullableNumberBox : Control
     /// </summary>
     public static readonly DependencyProperty IsCheckBoxCheckedProperty =
         DependencyProperty.Register(nameof(IsChecked), typeof(bool), typeof(NullableNumberBox),
-            new (false));
+            new(false));
 
     /// <summary>
     /// Gets or sets the IsCheckBoxChecked property. This dependency property
@@ -508,6 +496,7 @@ public sealed partial class NullableNumberBox : Control
             };
         }
     }
+
     private void SetHeaderVisibility()
     {
         if (GetTemplateChild(PartHeaderContentPresenter) is ContentPresenter headerPresenter)
