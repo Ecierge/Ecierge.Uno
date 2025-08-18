@@ -447,8 +447,6 @@ public sealed partial class NullableNumberBox : Control
     public NullableNumberBox()
     {
         DefaultStyleKey = typeof(NullableNumberBox);
-        SetHeaderVisibility();
-        SetDescriptionVisibility();
     }
 
     protected override void OnApplyTemplate()
@@ -494,28 +492,6 @@ public sealed partial class NullableNumberBox : Control
                 Value = numberBox.Value;
                 ValueChanged?.Invoke(this, e);
             };
-        }
-    }
-
-    private void SetHeaderVisibility()
-    {
-        if (GetTemplateChild(PartHeaderContentPresenter) is ContentPresenter headerPresenter)
-        {
-            headerPresenter.Content = Header;
-            headerPresenter.Visibility = string.IsNullOrEmpty(Description?.ToString())
-                ? Visibility.Collapsed
-                : Visibility.Visible;
-        }
-    }
-
-    private void SetDescriptionVisibility()
-    {
-        if (GetTemplateChild(PartDescriptionContentPresenter) is ContentPresenter descriptionContentPresenter)
-        {
-            descriptionContentPresenter.Content = Description;
-            descriptionContentPresenter.Visibility = string.IsNullOrEmpty(Description?.ToString())
-                ? Visibility.Collapsed
-                : Visibility.Visible;
         }
     }
 }
