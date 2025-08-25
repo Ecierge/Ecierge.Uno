@@ -4,19 +4,42 @@ using Microsoft.UI.Xaml.Controls.Primitives;
 using Windows.Foundation;
 using Windows.Globalization.NumberFormatting;
 
-[TemplatePart(Name = PartHeaderContentPresenter, Type = typeof(ContentPresenter))]
-[TemplatePart(Name = PartDescriptionContentPresenter, Type = typeof(ContentPresenter))]
 [TemplatePart(Name = PartCheckBox, Type = typeof(CheckBox))]
 [TemplatePart(Name = PartNumberBox, Type = typeof(NumberBox))]
 public sealed partial class NullableNumberBox : Control
 {
-    private const string PartHeaderContentPresenter = "HeaderContentPresenter";
-    private const string PartDescriptionContentPresenter = "DescriptionContentPresenter";
     private const string PartNumberBox = "NumberBox";
     private const string PartCheckBox = "CheckBox";
 
     private NumberBox? numberBox;
     private CheckBox? checkBox;
+
+    private void OnCheckBoxChecked(object sender, RoutedEventArgs e)
+    {
+        if (numberBox is not null)
+        {
+            numberBox.IsEnabled = true;
+            Value = numberBox.Value;
+        }
+    }
+
+    private void OnCheckBoxUnchecked(object sender, RoutedEventArgs e)
+    {
+        if (numberBox is not null)
+        {
+            numberBox.IsEnabled = false;
+            Value = null;
+        }
+    }
+
+    private void OnNumberBoxValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs e)
+    {
+        if (numberBox is not null)
+        {
+            Value = numberBox.Value;
+            ValueChanged?.Invoke(this, e);
+        }
+    }
 
     public event TypedEventHandler<NullableNumberBox, NumberBoxValueChangedEventArgs>? ValueChanged;
 
@@ -450,9 +473,21 @@ public sealed partial class NullableNumberBox : Control
 
     protected override void OnApplyTemplate()
     {
+        if (checkBox is not null)
+        {
+            checkBox.Checked -= OnCheckBoxChecked;
+            checkBox.Unchecked -= OnCheckBoxUnchecked;
+        }
+
+        if (numberBox is not null)
+        {
+            numberBox.ValueChanged -= OnNumberBoxValueChanged;
+        }
+
         base.OnApplyTemplate();
-        this.numberBox = GetTemplateChild(PartNumberBox) as NumberBox;
-        this.checkBox = GetTemplateChild(PartCheckBox) as CheckBox;
+        numberBox = GetTemplateChild(PartNumberBox) as NumberBox;
+        checkBox = GetTemplateChild(PartCheckBox) as CheckBox;
+
         if (checkBox is not null && numberBox is not null)
         {
             if (Value is not null)
@@ -466,31 +501,15 @@ public sealed partial class NullableNumberBox : Control
                 checkBox.IsChecked = false;
                 numberBox.IsEnabled = false;
             }
-            checkBox.Checked += (s, e) =>
-            {
-                if (numberBox is not null)
-                {
-                    numberBox.IsEnabled = true;
-                    Value = numberBox.Value;
-                }
-            };
-            checkBox.Unchecked += (s, e) =>
-            {
-                if (numberBox is not null)
-                {
-                    numberBox.IsEnabled = false;
-                    Value = null;
-                }
-            };
+
+            checkBox.Checked += OnCheckBoxChecked;
+            checkBox.Unchecked += OnCheckBoxUnchecked;
         }
 
         if (numberBox is not null)
         {
-            numberBox.ValueChanged += (s, e) =>
-            {
-                Value = numberBox.Value;
-                ValueChanged?.Invoke(this, e);
-            };
+            Value = numberBox.Value;
+            numberBox.ValueChanged += OnNumberBoxValueChanged;
         }
     }
 }
