@@ -127,8 +127,7 @@ public sealed partial class NullableNumberBox : Control
     /// CheckBoxChecked Dependency Property
     /// </summary>
     public static readonly DependencyProperty IsCheckBoxCheckedProperty =
-        DependencyProperty.Register(nameof(IsChecked), typeof(bool), typeof(NullableNumberBox),
-            new(false));
+        DependencyProperty.Register(nameof(IsChecked), typeof(bool), typeof(NullableNumberBox), new(false));
 
     /// <summary>
     /// Gets or sets the IsCheckBoxChecked property. This dependency property
@@ -485,7 +484,7 @@ public sealed partial class NullableNumberBox : Control
             };
         }
 
-        if (numberBox != null)
+        if (numberBox is not null)
         {
             numberBox.ValueChanged += (s, e) =>
             {

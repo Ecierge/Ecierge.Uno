@@ -55,30 +55,6 @@
                   </VisualState.Setters>
                 </VisualState>
               </VisualStateGroup>
-              <VisualStateGroup x:Name="DescriptionStates">
-                <VisualState x:Name="HasDescription">
-                  <VisualState.Setters>
-                    <Setter Target="PartDescriptionContentPresenter.Visibility" Value="Visible"/>
-                  </VisualState.Setters>
-                </VisualState>
-                <VisualState x:Name="NoDescription">
-                  <VisualState.Setters>
-                    <Setter Target="PartDescriptionContentPresenter.Visibility" Value="Collapsed"/>
-                  </VisualState.Setters>
-                </VisualState>
-              </VisualStateGroup>
-              <VisualStateGroup x:Name="HeaderStates">
-                  <VisualState x:Name="HasHeader">
-                    <VisualState.Setters>
-                      <Setter Target="PartHeaderContentPresenter.Visibility" Value="Visible"/>
-                    </VisualState.Setters>
-                  </VisualState>
-                  <VisualState x:Name="NoHeader">
-                    <VisualState.Setters>
-                      <Setter Target="PartHeaderContentPresenter.Visibility" Value="Collapsed"/>
-                    </VisualState.Setters>
-                  </VisualState>
-                </VisualStateGroup>
             </VisualStateManager.VisualStateGroups>
             <Grid>
               <Grid.RowDefinitions>
@@ -95,7 +71,8 @@
                                 Margin="{ThemeResource TextBoxTopHeaderMargin}"
                                 Padding="8,0,0,0"
                                 TextWrapping="Wrap"
-                                VerticalAlignment="Top" />
+                                VerticalAlignment="Top"
+                                Visibility="{Binding TargetNullValue=Collapsed}"/>
               <Border x:Name="BorderElement"
                       Grid.Row="1"
                       CornerRadius="{TemplateBinding CornerRadius}"
@@ -143,7 +120,8 @@
                                 Content="{TemplateBinding Description}"
                                 FontSize="12"
                                 Margin="8,4,0,0"
-                                TextWrapping="Wrap" />
+                                TextWrapping="Wrap"
+                                Visibility="{Binding TargetNullValue=Collapsed}"/>
             </Grid>
           </Grid>
 
