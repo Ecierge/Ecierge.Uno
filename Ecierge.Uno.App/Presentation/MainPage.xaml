@@ -1,25 +1,24 @@
 ﻿<Page x:Class="Ecierge.Uno.App.Presentation.MainPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:i="using:Microsoft.Xaml.Interactivity"
-      xmlns:local="using:Ecierge.Uno.App.Presentation"
       xmlns:ct="using:CommunityToolkit.WinUI"
       xmlns:ctrl="using:Ecierge.Uno.Controls"
-      xmlns:nav="using:Ecierge.Uno.Navigation"
-      xmlns:utu="using:Uno.Toolkit.UI"
-      xmlns:um="using:Uno.Material"
+      xmlns:i="using:Microsoft.Xaml.Interactivity"
       xmlns:developerTools="using:CommunityToolkit.WinUI.DeveloperTools"
-      NavigationCacheMode="Required"
-      Background="{ThemeResource BackgroundBrush}">
+      xmlns:local="using:Ecierge.Uno.App.Presentation"
+      xmlns:nav="using:Ecierge.Uno.Navigation"
+      xmlns:um="using:Uno.Material"
+      xmlns:utu="using:Uno.Toolkit.UI"
+      Background="{ThemeResource BackgroundBrush}"
+      NavigationCacheMode="Required">
   <ScrollViewer>
     <VisualStateManager.VisualStateGroups>
       <VisualStateGroup x:Name="NavigationRegionStates">
         <VisualState x:Name="Tab1State">
           <VisualState.StateTriggers>
-            <ct:IsEqualStateTrigger Value="{Binding Path=(nav:NavigationRegion.NestedSegmentName), ElementName=SelectorBar}"
-                                    To="{x:Bind SelectorBarItem1.Text}" />
-            <!--<nav:SegmentNameTrigger TargetNavigationRegion="{x:Bind SelectorBar}"
-                                    SegmentName="{x:Bind SelectorBarItem1.Text}" />-->
+            <ct:IsEqualStateTrigger Value="{Binding Path=(nav:NavigationRegion.NestedSegmentName), ElementName=SelectorBar}" To="{x:Bind SelectorBarItem1.Text}" />
+            <!-- <nav:SegmentNameTrigger TargetNavigationRegion="{x:Bind SelectorBar}"
+                                    SegmentName="{x:Bind SelectorBarItem1.Text}" /> -->
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="Tab1Content.Visibility" Value="Visible" />
@@ -28,11 +27,10 @@
         </VisualState>
         <VisualState x:Name="Tab2State">
           <VisualState.StateTriggers>
-            <ct:IsEqualStateTrigger Value="{Binding Path=(nav:NavigationRegion.NestedSegmentName), ElementName=SelectorBar}"
-                                    To="{x:Bind SelectorBarItem2.Text}" />
+            <ct:IsEqualStateTrigger Value="{Binding Path=(nav:NavigationRegion.NestedSegmentName), ElementName=SelectorBar}" To="{x:Bind SelectorBarItem2.Text}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="Tab1Content.Visibility"  Value="Collapsed" />
+            <Setter Target="Tab1Content.Visibility" Value="Collapsed" />
             <Setter Target="Tab2Content.Visibility" Value="Visible" />
           </VisualState.Setters>
         </VisualState>
@@ -53,10 +51,10 @@
         <ctrl:InlineEdit x:Name="InlineEdit" Content="{Binding}">
           <ctrl:InlineEdit.ViewContentTemplate>
             <DataTemplate>
-              <HyperlinkButton Content="{Binding Name}"
-                               IsEnabled="{Binding IsEditable, ElementName=InlineEdit}"
-                               HorizontalAlignment="Stretch"
-                               HorizontalContentAlignment="Stretch">
+              <HyperlinkButton HorizontalAlignment="Stretch"
+                               HorizontalContentAlignment="Stretch"
+                               Content="{Binding Name}"
+                               IsEnabled="{Binding IsEditable, ElementName=InlineEdit}">
                 <i:Interaction.Behaviors>
                   <i:EventTriggerBehavior EventName="Click">
                     <i:ChangePropertyAction TargetObject="{Binding ElementName=InlineEdit}" PropertyName="IsEditing" Value="True" />
@@ -76,21 +74,32 @@
           <ctrl:InlineEdit.PrimaryEditCommand>
             <XamlUICommand IconSource="{ct:SymbolIconSource Symbol=Accept}" />
           </ctrl:InlineEdit.PrimaryEditCommand>
-          <!--<ctrl:InlineEdit.SecondaryEditCommand>
+          <!-- <ctrl:InlineEdit.SecondaryEditCommand>
             <XamlUICommand IconSource="{ct:SymbolIconSource Symbol=Cancel}" />
-          </ctrl:InlineEdit.SecondaryEditCommand>-->
+          </ctrl:InlineEdit.SecondaryEditCommand> -->
         </ctrl:InlineEdit>
-        <CheckBox Content="IsEditable" IsChecked="{Binding IsEditable, ElementName=InlineEdit, Mode=TwoWay}" />
+        <CheckBox Content="IsEditable" IsChecked="{Binding IsEditable,
+                                                           ElementName=InlineEdit,
+                                                           Mode=TwoWay}" />
         <developerTools:FocusTracker IsActive="True" />
-        <TextBox Text="{Binding Name, Mode=TwoWay}"
-            PlaceholderText="Enter your name:" />
+        <TextBox PlaceholderText="Enter your name:" Text="{Binding Name, Mode=TwoWay}" />
 
-        <ctrl:CoordinatesNumberBox/>
+        <ctrl:CoordinatesNumberBox />
 
-        <ctrl:GroupedComboBox Width="200" ItemsSource="{Binding GropedItemsSource.View}" PlaceholderText="Placeholder" >
+        <ctrl:NullableNumberBox x:Name="NumberBox"
+                                Value="3.5"
+                                Description=""
+                                Header="NullableNumberBox"
+                                SpinButtonPlacementMode="Inline" />
+        <TextBlock Grid.Column="1"
+                   HorizontalAlignment="Center"
+                   FontSize="16"
+                   Text="{Binding ElementName=NumberBox, Path=Value}" />
+
+        <ctrl:GroupedComboBox Width="200" ItemsSource="{Binding GropedItemsSource.View}" PlaceholderText="Placeholder">
           <ctrl:GroupedComboBox.ItemTemplate>
             <DataTemplate>
-              <TextBlock Text="{Binding}"/>
+              <TextBlock Text="{Binding}" />
             </DataTemplate>
           </ctrl:GroupedComboBox.ItemTemplate>
           <ctrl:GroupedComboBox.GroupStyle>
@@ -104,9 +113,7 @@
           </ctrl:GroupedComboBox.GroupStyle>
         </ctrl:GroupedComboBox>
 
-        <Button Content="Go to Second Page"
-            AutomationProperties.AutomationId="SecondPageButton"
-            Command="{Binding GoToSecond}" />
+        <Button AutomationProperties.AutomationId="SecondPageButton" Command="{Binding GoToSecond}" Content="Go to Second Page" />
         <Button Content="Go to Second Page with target">
           <i:Interaction.Behaviors>
             <i:EventTriggerBehavior EventName="Click">
