@@ -35,13 +35,13 @@ public sealed class NavigationScope : IServiceScope, IDisposable
         element = element ?? throw new ArgumentNullException(nameof(element));
 
         var serviceProvider = this.ServiceProvider;
-        serviceProvider.AddScopedInstance(WindowType, window);
-        serviceProvider.AddScopedInstance(DispatcherType, window.DispatcherQueue);
-        serviceProvider.AddScopedInstance(NameSegmentType, segment);
-        serviceProvider.AddScopedInstance(NavigationScopeType, this);
-        serviceProvider.AddScopedInstance(IServiceScopeType, this);
-        serviceProvider.AddScopedInstance(FrameworkElementType, element);
-        serviceProvider.AddScopedInstance(NavigatorType, GetNavigator(element, null));
+        serviceProvider.SetScopedInstance(WindowType, window);
+        serviceProvider.SetScopedInstance(DispatcherType, window.DispatcherQueue);
+        serviceProvider.SetScopedInstance(NameSegmentType, segment);
+        serviceProvider.SetScopedInstance(NavigationScopeType, this);
+        serviceProvider.SetScopedInstance(IServiceScopeType, this);
+        serviceProvider.SetScopedInstance(FrameworkElementType, element);
+        serviceProvider.SetScopedInstance(NavigatorType, GetNavigator(element, null));
     }
 
     private NavigationScope(Navigator parentNavigator, NameSegment segment)
@@ -51,9 +51,9 @@ public sealed class NavigationScope : IServiceScope, IDisposable
 
         serviceScope = parentNavigator.ServiceProvider.CreateScope();
         var serviceProvider = this.ServiceProvider;
-        serviceProvider.AddScopedInstance(NavigationScopeType, this);
-        serviceProvider.AddScopedInstance(IServiceScopeType, this);
-        serviceProvider.AddScopedInstance(NameSegmentType, segment);
+        serviceProvider.SetScopedInstance(NavigationScopeType, this);
+        serviceProvider.SetScopedInstance(IServiceScopeType, this);
+        serviceProvider.SetScopedInstance(NameSegmentType, segment);
         var scopedInstanceOptions = serviceProvider.GetService<IOptions<ScopedInstanceRepositoryOptions>>()?.Value;
         if (scopedInstanceOptions is not null)
         {
@@ -69,8 +69,8 @@ public sealed class NavigationScope : IServiceScope, IDisposable
     {
         element = element ?? throw new ArgumentNullException(nameof(element));
         var serviceProvider = this.ServiceProvider;
-        serviceProvider.AddScopedInstance(FrameworkElementType, element);
-        serviceProvider.AddScopedInstance(NavigatorType, GetNavigator(element, parentNavigator));
+        serviceProvider.SetScopedInstance(FrameworkElementType, element);
+        serviceProvider.SetScopedInstance(NavigatorType, GetNavigator(element, parentNavigator));
     }
 
     public void Dispose() => serviceScope.Dispose();
@@ -105,7 +105,7 @@ public sealed class NavigationScope : IServiceScope, IDisposable
         }
         Navigator navigator = (Navigator)serviceProvider.GetRequiredService(navigatorType);
         AssignNavigators(lastNavigator, navigator);
-        serviceProvider.AddScopedInstance(NavigatorType, navigator);
+        serviceProvider.SetScopedInstance(NavigatorType, navigator);
         lastNavigator.ChildNavigator = navigator;
         return navigationScope;
     }
@@ -181,7 +181,7 @@ public sealed class NavigationScope : IServiceScope, IDisposable
                 navData = AddOrUpdateValue(navData, dataRequest.Segment.Name, dataRequest.RouteDataTask, dataRequest.Segment.DataMap);
                 break;
         }
-        ServiceProvider.AddScopedInstance<INavigationData>(navData);
+        ServiceProvider.SetScopedInstance<INavigationData>(navData);
 
         try
         {
