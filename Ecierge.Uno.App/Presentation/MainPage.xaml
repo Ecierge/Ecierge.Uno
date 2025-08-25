@@ -87,10 +87,17 @@
 
         <ctrl:CoordinatesNumberBox/>
 
-        <ctrl:GroupedComboBox Width="200" ItemsSource="{Binding GropedItemsSource.View}" PlaceholderText="Placeholder" >
+        <ctrl:NullableNumberBox x:Name="NumberBox"
+                                Header="NullableNumberBox"
+                                Description=""
+                                Value="3.5"
+                                SpinButtonPlacementMode="Inline"/>
+        <TextBlock Grid.Column="1" Text="{Binding ElementName=NumberBox, Path=Value}" HorizontalAlignment="Center" FontSize="16" />
+
+        <ctrl:GroupedComboBox Width="200" ItemsSource="{Binding GropedItemsSource.View}" PlaceholderText="Placeholder">
           <ctrl:GroupedComboBox.ItemTemplate>
             <DataTemplate>
-              <TextBlock Text="{Binding}"/>
+              <TextBlock Text="{Binding}" />
             </DataTemplate>
           </ctrl:GroupedComboBox.ItemTemplate>
           <ctrl:GroupedComboBox.GroupStyle>
