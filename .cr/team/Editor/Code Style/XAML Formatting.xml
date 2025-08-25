@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Root Type="DevExpress.CodeAnalysis.Formatting.XamlFormattingOptions">
   <Options Language="XAML">
     <KeepFirstAttributeOnSameLine>True</KeepFirstAttributeOnSameLine>
@@ -15,7 +15,8 @@
       <Item>RowDefinitions, ColumnDefinitions</Item>
       <Item>Width, Height, MinWidth, MinHeight, MaxWidth, MaxHeight, Margin</Item>
       <Item>HorizontalAlignment, VerticalAlignment, HorizontalContentAlignment, VerticalContentAlignment, Panel.ZIndex</Item>
-      <Item>PageSource, PageIndex, Offset, Color, Target, TargetName, Storyboard.TargetName, Storyboard.TargetProperty, KeyTime, KeySpline, Property, To, Duration, StartPoint, EndPoint, Value</Item>
+      <Item>PageSource, PageIndex, Offset, Color, Target, TargetObject, TargetElement, TargetName, PropertyName, Storyboard.TargetName, Storyboard.TargetProperty, KeyTime, KeySpline, Property, Value, To, Duration, StartPoint, EndPoint</Item>
+      <Item>SegmentName, SegmentData</Item>
       <Item>TargetType, BasedOn</Item>
       <Item>mc:Ignorable, d:IsDataSource, d:LayoutOverrides, d:IsStaticText</Item>
     </AttributeGroups>
