@@ -56,9 +56,9 @@ public sealed partial class NullableNumberBox : Control
     /// Toggles whether the control will accept and evaluate a basic formulaic expression
     /// entered as input.
     /// </summary>
-    public bool? AcceptsExpression
+    public bool AcceptsExpression
     {
-        get => (bool?)GetValue(AcceptsExpressionProperty);
+        get => (bool)GetValue(AcceptsExpressionProperty);
         set => SetValue(AcceptsExpressionProperty, value);
     }
 

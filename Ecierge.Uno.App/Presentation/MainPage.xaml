@@ -87,9 +87,11 @@
 
         <ctrl:CoordinatesNumberBox/>
 
-        <ctrl:NullableNumberBox x:Name="NumberBox" SpinButtonPlacementMode="Inline"
+        <ctrl:NullableNumberBox x:Name="NumberBox"
                                 Header="NullableNumberBox"
-                                Value="3.5" Description="" />
+                                Description=""
+                                Value="3.5"
+                                SpinButtonPlacementMode="Inline"/>
         <TextBlock Grid.Column="1" Text="{Binding ElementName=NumberBox, Path=Value}" HorizontalAlignment="Center" FontSize="16" />
 
         <ctrl:GroupedComboBox Width="200" ItemsSource="{Binding GropedItemsSource.View}" PlaceholderText="Placeholder">
