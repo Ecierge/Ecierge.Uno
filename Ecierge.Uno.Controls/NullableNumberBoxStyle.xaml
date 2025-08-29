@@ -11,7 +11,7 @@
     <Setter Property="Background" Value="{ThemeResource TextControlBackground}" />
     <Setter Property="BackgroundSizing" Value="InnerBorderEdge" />
     <Setter Property="BorderBrush" Value="{ThemeResource TextControlBorderBrush}" />
-    <Setter Property="BorderThickness" Value="0,0,0,2" />
+    <Setter Property="BorderThickness" Value="{ThemeResource TextControlBorderThemeThickness}" />
     <Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
     <Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}" />
     <Setter Property="FontSize" Value="{ThemeResource ControlContentThemeFontSize}" />
@@ -25,80 +25,73 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="local:NullableNumberBox">
-          <Grid RowDefinitions="Auto,*,Auto">
-            <Grid>
-              <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-              </Grid.RowDefinitions>
-              <ContentPresenter x:Name="HeaderContentPresenter"
-                                Grid.Row="0"
-                                Margin="{ThemeResource TextBoxTopHeaderMargin}"
-                                VerticalAlignment="Top"
-                                Content="{TemplateBinding Header}"
-                                ContentTemplate="{TemplateBinding HeaderTemplate}"
-                                FontWeight="Normal"
-                                Foreground="{ThemeResource TextControlHeaderForeground}"
-                                Padding="4,0,4,0"
-                                TextWrapping="Wrap"
-                                Visibility="{Binding Header, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource NullToVisibilityConverter}}" />
-              <Border x:Name="BorderElement"
-                      Grid.Row="1"
-                      MinWidth="{TemplateBinding MinWidth}"
-                      MinHeight="{TemplateBinding MinHeight}"
-                      Control.IsTemplateFocusTarget="True"
-                      CornerRadius="{TemplateBinding CornerRadius}">
-                <Grid ColumnDefinitions="Auto,*">
-                  <CheckBox x:Name="CheckBox"
-                            MinWidth="24"
-                            Margin="0,0,-45,0"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            Background="Transparent"
-                            BorderBrush="{x:Null}"
-                            Canvas.ZIndex="1"
-                            IsChecked="{TemplateBinding IsChecked}"
-                            Style="{StaticResource DefaultCheckBoxStyle}" />
-                  <NumberBox x:Name="NumberBox"
-                             Grid.Column="1"
-                             Value="{TemplateBinding Value}"
-                             Background="{ThemeResource TextControlBackground}"
-                             BorderBrush="{ThemeResource TextControlBorderBrush}"
-                             BorderThickness="{ThemeResource TextControlBorderThemeThickness}"
-                             CornerRadius="{ThemeResource ControlCornerRadius}"
-                             Foreground="{ThemeResource TextControlForeground}"
-                             IsEnabled="{TemplateBinding IsEnabled}"
-                             IsTabStop="False"
-                             IsWrapEnabled="{TemplateBinding IsWrapEnabled}"
-                             LargeChange="{TemplateBinding LargeChange}"
-                             Maximum="{Binding Maximum,
-                                               RelativeSource={RelativeSource TemplatedParent},
-                                               Mode=TwoWay}"
-                             Minimum="{Binding Minimum,
-                                               RelativeSource={RelativeSource TemplatedParent},
-                                               Mode=TwoWay}"
-                             NumberFormatter="{TemplateBinding NumberFormatter}"
-                             Padding="38,4,4,0"
-                             PlaceholderText="{TemplateBinding PlaceholderText}"
-                             PreventKeyboardDisplayOnProgrammaticFocus="{TemplateBinding PreventKeyboardDisplayOnProgrammaticFocus}"
-                             SmallChange="{TemplateBinding SmallChange}"
-                             SpinButtonPlacementMode="{TemplateBinding SpinButtonPlacementMode}"
-                             Text="{Binding Text,
-                                            RelativeSource={RelativeSource TemplatedParent},
-                                            Mode=TwoWay}"
-                             TextReadingOrder="{TemplateBinding TextReadingOrder}"
-                             ValidationMode="{TemplateBinding ValidationMode}" />
-                </Grid>
-              </Border>
-              <ContentPresenter x:Name="DescriptionContentPresenter"
-                                Grid.Row="2"
-                                Margin="4,4,4,0"
-                                Content="{TemplateBinding Description}"
-                                FontSize="12"
-                                TextWrapping="Wrap"
-                                Visibility="{Binding Description, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource NullToVisibilityConverter}}" />
-            </Grid>
+          <Grid x:Name="Root" RowDefinitions="Auto,*,Auto">
+            <ContentPresenter x:Name="HeaderContentPresenter"
+                              Grid.Row="0"
+                              Margin="{ThemeResource TextBoxTopHeaderMargin}"
+                              VerticalAlignment="Top"
+                              Content="{TemplateBinding Header}"
+                              ContentTemplate="{TemplateBinding HeaderTemplate}"
+                              FontWeight="Normal"
+                              Foreground="{ThemeResource TextControlHeaderForeground}"
+                              Padding="4,0,4,0"
+                              TextWrapping="Wrap"
+                              Visibility="{Binding Header, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource NullToVisibilityConverter}}" />
+            <Border x:Name="BorderElement"
+                    Grid.Row="1"
+                    MinWidth="{TemplateBinding MinWidth}"
+                    MinHeight="{TemplateBinding MinHeight}"
+                    Control.IsTemplateFocusTarget="True"
+                    CornerRadius="{TemplateBinding CornerRadius}">
+              <Grid ColumnDefinitions="Auto,*">
+                <CheckBox x:Name="CheckBox"
+                          MinWidth="24"
+                          Margin="0,0,-45,0"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center"
+                          Background="Transparent"
+                          BorderBrush="{x:Null}"
+                          Canvas.ZIndex="1"
+                          IsChecked="{TemplateBinding IsChecked}"
+                          Style="{StaticResource DefaultCheckBoxStyle}" />
+                <NumberBox x:Name="NumberBox"
+                            Grid.Column="1"
+                            Value="{TemplateBinding Value}"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{TemplateBinding CornerRadius}"
+                            Foreground="{TemplateBinding Foreground}"
+                            IsEnabled="{TemplateBinding IsEnabled}"
+                            IsTabStop="False"
+                            IsWrapEnabled="{TemplateBinding IsWrapEnabled}"
+                            LargeChange="{TemplateBinding LargeChange}"
+                            Maximum="{Binding Maximum,
+                                              RelativeSource={RelativeSource TemplatedParent},
+                                              Mode=TwoWay}"
+                            Minimum="{Binding Minimum,
+                                              RelativeSource={RelativeSource TemplatedParent},
+                                              Mode=TwoWay}"
+                            NumberFormatter="{TemplateBinding NumberFormatter}"
+                            Padding="38,4,4,0"
+                            PlaceholderText="{TemplateBinding PlaceholderText}"
+                            PreventKeyboardDisplayOnProgrammaticFocus="{TemplateBinding PreventKeyboardDisplayOnProgrammaticFocus}"
+                            SmallChange="{TemplateBinding SmallChange}"
+                            SpinButtonPlacementMode="{TemplateBinding SpinButtonPlacementMode}"
+                            Text="{Binding Text,
+                                          RelativeSource={RelativeSource TemplatedParent},
+                                          Mode=TwoWay}"
+                            TextReadingOrder="{TemplateBinding TextReadingOrder}"
+                            ValidationMode="{TemplateBinding ValidationMode}"
+                            VerticalAlignment="Stretch" />
+              </Grid>
+            </Border>
+            <ContentPresenter x:Name="DescriptionContentPresenter"
+                              Grid.Row="2"
+                              Content="{TemplateBinding Description}"
+                              FontSize="12"
+                              TextWrapping="Wrap"
+                              Visibility="{Binding Description, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource NullToVisibilityConverter}}" />
           </Grid>
 
         </ControlTemplate>
