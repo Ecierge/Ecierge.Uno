@@ -9,7 +9,6 @@
       xmlns:nav="using:Ecierge.Uno.Navigation"
       xmlns:um="using:Uno.Material"
       xmlns:utu="using:Uno.Toolkit.UI"
-      Background="{ThemeResource BackgroundBrush}"
       NavigationCacheMode="Required">
   <ScrollViewer>
     <VisualStateManager.VisualStateGroups>
@@ -96,7 +95,8 @@
                    FontSize="16"
                    Text="{Binding ElementName=NumberBox, Path=Value}" />
 
-        <ctrl:GroupedComboBox Width="200" ItemsSource="{Binding GropedItemsSource.View}" PlaceholderText="Placeholder">
+        <ctrl:GroupedComboBox Width="200" ItemsSource="{Binding GropedItemsSource.View, Mode=TwoWay}" PlaceholderText="Select Floor"
+                              IsEditable="True">
           <ctrl:GroupedComboBox.ItemTemplate>
             <DataTemplate>
               <TextBlock Text="{Binding}" />

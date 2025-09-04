@@ -7,8 +7,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:nav="using:Ecierge.Uno.Navigation"
       xmlns:utu="using:Uno.Toolkit.UI"
-      xmlns:um="using:Uno.Material"
-      Background="{ThemeResource BackgroundBrush}">
+      xmlns:um="using:Uno.Material">
 
   <Grid utu:SafeArea.Insets="VisibleBounds">
     <Grid.RowDefinitions>
