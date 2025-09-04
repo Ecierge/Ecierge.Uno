@@ -110,6 +110,28 @@ public partial class GroupedComboBox : ListView
 
     #endregion SelectedValue
 
+
+    #region IsEditable
+
+    /// <summary>
+    /// Identifies the IsEditable dependency property.
+    /// </summary>
+    public static readonly DependencyProperty IsEditableProperty =
+         DependencyProperty.Register(nameof(IsEditable), typeof(bool), typeof(GroupedComboBox),
+            new(false));
+
+    /// <summary>
+    /// Gets or sets a value that indicates whether the ComboBox is editable.
+    /// </summary>
+    public bool IsEditable
+    {
+        get => (bool)GetValue(IsEditableProperty);
+        set => SetValue(IsEditableProperty, value);
+    }
+
+    #endregion IsEditable
+
+
     public GroupedComboBox()
     {
         DefaultStyleKey = typeof(GroupedComboBox);
@@ -122,6 +144,7 @@ public partial class GroupedComboBox : ListView
 
         popup = GetTemplateChild("Popup") as Popup;
         textBox = GetTemplateChild("EditableText") as TextBox;
+        Button? dropDownButton = GetTemplateChild("DropDownButton") as Button;
         var mainGrid = GetTemplateChild("MainGrid") as Grid;
         var contentPresenter = GetTemplateChild("ContentPresenter") as ContentPresenter;
 
@@ -130,45 +153,51 @@ public partial class GroupedComboBox : ListView
 
         popup.IsOpen = IsDropDownOpen;
 
-        textBox.Tapped -= OnTextBoxTapped;
-        textBox.Tapped += OnTextBoxTapped;
+        contentPresenter.Content = PlaceholderText;
 
-        mainGrid.RemoveHandler(UIElement.PointerPressedEvent, new PointerEventHandler(TextBox_PointerPressed));
-        mainGrid.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler(TextBox_PointerPressed), true);
+        //textBox.Tapped -= OnTextBoxTapped;
+        //textBox.Tapped += OnTextBoxTapped;
+        if (dropDownButton is not null)
+        {
+            dropDownButton.Click -= (s, e) => IsDropDownOpen = !IsDropDownOpen;
+            dropDownButton.Click += (s, e) => IsDropDownOpen = !IsDropDownOpen;
+        }
 
-        contentPresenter.RemoveHandler(UIElement.PointerPressedEvent, new PointerEventHandler(TextBox_PointerPressed));
-        contentPresenter.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler(TextBox_PointerPressed), true);
+        //mainGrid.RemoveHandler(UIElement.PointerPressedEvent, new PointerEventHandler(TextBox_PointerPressed));
+        //mainGrid.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler(TextBox_PointerPressed), true);
 
-        contentPresenter.Tapped -= OnTextBoxTapped;
-        contentPresenter.Tapped += OnTextBoxTapped;
+        //contentPresenter.RemoveHandler(UIElement.PointerPressedEvent, new PointerEventHandler(TextBox_PointerPressed));
+        //contentPresenter.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler(TextBox_PointerPressed), true);
 
-        textBox.GotFocus -= TextBox_GotFocus;
-        textBox.GotFocus += TextBox_GotFocus;
+        //contentPresenter.Tapped -= OnTextBoxTapped;
+        //contentPresenter.Tapped += OnTextBoxTapped;
 
-        popup.XamlRoot.Content!.PointerPressed -= Content_PointerPressed;
-        popup.XamlRoot.Content!.PointerPressed += Content_PointerPressed;
+        //textBox.GotFocus -= TextBox_GotFocus;
+        //textBox.GotFocus += TextBox_GotFocus;
 
-        FocusManager.GotFocus -= FocusManager_GotFocus;
-        FocusManager.GotFocus += FocusManager_GotFocus;
+        //popup.XamlRoot.Content!.PointerPressed -= Content_PointerPressed;
+        //popup.XamlRoot.Content!.PointerPressed += Content_PointerPressed;
+
+        //FocusManager.GotFocus -= FocusManager_GotFocus;
+        //FocusManager.GotFocus += FocusManager_GotFocus;
 
         this.SelectionChanged -= GropedComboBox_SelectionChanged;
         this.SelectionChanged += GropedComboBox_SelectionChanged;
 
-        this.Unloaded -= OnUnloaded;
-        this.Unloaded += OnUnloaded;
+        //this.Unloaded -= OnUnloaded;
+        //this.Unloaded += OnUnloaded;
     }
 
-    private void OnUnloaded(object sender, RoutedEventArgs e) => FocusManager.GotFocus -= FocusManager_GotFocus;
+    //private void OnUnloaded(object sender, RoutedEventArgs e) => FocusManager.GotFocus -= FocusManager_GotFocus;
 
     protected override void OnItemsChanged(object e)
     {
         if (isDropDownOpenedOnce)
             base.OnItemsChanged(e);
     }
+    //private void TextBox_PointerPressed(object sender, PointerRoutedEventArgs e) => IsDropDownOpen = true;
 
-    private void TextBox_PointerPressed(object sender, PointerRoutedEventArgs e) => IsDropDownOpen = true;
-
-    private void TextBox_GotFocus(object sender, RoutedEventArgs e) => IsDropDownOpen = true;
+    //private void TextBox_GotFocus(object sender, RoutedEventArgs e) => IsDropDownOpen = true;
 
     private void GropedComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
@@ -186,22 +215,23 @@ public partial class GroupedComboBox : ListView
         }
     }
 
-    private void FocusManager_GotFocus(object? sender, FocusManagerGotFocusEventArgs e)
-    {
-        if (e.NewFocusedElement is FrameworkElement element)
-        {
-            if (!(this == element || element is ListViewItem || element == textBox) && this != element)
-            {
-                IsDropDownOpen = false;
-            }
-        }
-        else
-        {
-            IsDropDownOpen = false;
-        }
-    }
+    //private void FocusManager_GotFocus(object? sender, FocusManagerGotFocusEventArgs e)
+    //{
+    //    if (e.NewFocusedElement is FrameworkElement element)
+    //    {
+    //        if (!(this == element || element is ListViewItem || element == textBox) && this != element)
+    //        {
+    //            IsDropDownOpen = false;
+    //        }
+    //    }
+    //    else
+    //    {
+    //        IsDropDownOpen = false;
+    //    }
+    //}
 
-    private void Content_PointerPressed(object sender, PointerRoutedEventArgs e) => IsDropDownOpen = false;
+    //  private void Content_PointerPressed(object sender, PointerRoutedEventArgs e) => IsDropDownOpen = false;
 
-    private void OnTextBoxTapped(object sender, TappedRoutedEventArgs e) => IsDropDownOpen = true;
+    // private void OnTextBoxTapped(object sender, TappedRoutedEventArgs e) => IsDropDownOpen = true;
+
 }
