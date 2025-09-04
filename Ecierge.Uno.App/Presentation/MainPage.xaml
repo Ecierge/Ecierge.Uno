@@ -95,8 +95,11 @@
                    FontSize="16"
                    Text="{Binding ElementName=NumberBox, Path=Value}" />
 
-        <ctrl:GroupedComboBox Width="200" ItemsSource="{Binding GropedItemsSource.View, Mode=TwoWay}" PlaceholderText="Select Floor"
-                              IsEditable="True">
+        <ComboBox ItemsSource="{Binding ItemsSource}" PlaceholderText="Select Floor"
+                  IsEditable="True" />
+
+        <ctrl:GroupedComboBox Width="200" ItemsSource="{Binding GropedItemsSource.View}" PlaceholderText="Select Floor"
+                              IsEditable="False">
           <ctrl:GroupedComboBox.ItemTemplate>
             <DataTemplate>
               <TextBlock Text="{Binding}" />
