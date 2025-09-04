@@ -12,5 +12,48 @@
       <Visibility>Visible</Visibility>
     </ctc:EmptyObjectToObjectConverter.NotEmptyValue>
   </ctc:EmptyObjectToObjectConverter>
+  <ctc:BoolToObjectConverter x:Key="InverseBoolToVisibilityConverter">
+    <ctc:BoolToObjectConverter.TrueValue>
+      <Visibility>Collapsed</Visibility>
+    </ctc:BoolToObjectConverter.TrueValue>
+    <ctc:BoolToObjectConverter.FalseValue>
+      <Visibility>Visible</Visibility>
+    </ctc:BoolToObjectConverter.FalseValue>
+  </ctc:BoolToObjectConverter>
+  
+  <Style x:Key="NoClearButtonTextBoxStyle" TargetType="TextBox"
+       BasedOn="{StaticResource DefaultTextBoxStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="TextBox">
+          <Grid>
+
+            <VisualStateManager.VisualStateGroups>
+              <VisualStateGroup x:Name="CommonStates">
+                <VisualState x:Name="Normal"/>
+                <VisualState x:Name="PointerOver"/>
+                <VisualState x:Name="Focused"/>
+                <VisualState x:Name="Disabled"/>
+              </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
+
+            <Grid>
+              <ScrollViewer x:Name="ContentElement"
+                            AutomationProperties.Name="{TemplateBinding AutomationProperties.Name}"
+                            BorderBrush="{StaticResource TextControlElevationBorderBrush}"
+                            BorderThickness="0.5"
+                            CornerRadius="4"
+                            Padding="{TemplateBinding Padding}"
+                            HorizontalScrollBarVisibility="Hidden"
+                            VerticalScrollBarVisibility="Hidden"
+                            IsTabStop="False"
+                            Margin="0"/>
+
+            </Grid>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
 
 </ResourceDictionary>
