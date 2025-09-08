@@ -3,9 +3,11 @@ namespace Ecierge.Uno.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 
-public partial class GroupedComboBox : ListView
+public partial class GroupedComboBox : GridView
 {
-    private Popup? popup;
+    private Popup? popupIfEditable;
+    private Popup? popupIfNotEditable;
+    private Button? dropDownButton;
     private TextBox? textBox;
     private bool isDropDownOpenedOnce = false;
 
@@ -16,7 +18,7 @@ public partial class GroupedComboBox : ListView
     /// </summary>
     public static readonly DependencyProperty IsDropDownOpenProperty =
         DependencyProperty.Register(nameof(IsDropDownOpen), typeof(bool), typeof(GroupedComboBox),
-            new (false, new PropertyChangedCallback(OnIsDropDownOpenChanged)));
+            new(false, new PropertyChangedCallback(OnIsDropDownOpenChanged)));
 
     /// <summary>
     /// Gets or sets a value that indicates whether the drop-down portion of the GroupedComboBox
@@ -46,8 +48,10 @@ public partial class GroupedComboBox : ListView
     {
         if (newIsDropDownOpen)
             isDropDownOpenedOnce = true;
-        if (popup is not null)
-            popup.IsOpen = newIsDropDownOpen;
+        if (popupIfEditable is not null && IsEditable)
+            popupIfEditable.IsOpen = newIsDropDownOpen;
+        if (popupIfNotEditable is not null && !IsEditable)
+            popupIfNotEditable.IsOpen = newIsDropDownOpen;
     }
 
     #endregion IsDropDownOpen
@@ -142,62 +146,60 @@ public partial class GroupedComboBox : ListView
     {
         base.OnApplyTemplate();
 
-        popup = GetTemplateChild("Popup") as Popup;
+        popupIfEditable = GetTemplateChild("PopupIfEditable") as Popup;
+        popupIfNotEditable = GetTemplateChild("PopupIfNotEditable") as Popup;
         textBox = GetTemplateChild("EditableText") as TextBox;
-        Button? dropDownButton = GetTemplateChild("DropDownButton") as Button;
+        dropDownButton = GetTemplateChild("DropDownButton") as Button;
         var mainGrid = GetTemplateChild("MainGrid") as Grid;
         var contentPresenter = GetTemplateChild("ContentPresenter") as ContentPresenter;
 
-        if (popup is null || textBox is null || mainGrid is null || contentPresenter is null)
+        if (popupIfEditable is null || popupIfNotEditable is null || textBox is null || mainGrid is null || contentPresenter is null || dropDownButton is null)
             return;
 
-        popup.IsOpen = IsDropDownOpen;
+        if (IsEditable)
+            popupIfEditable.IsOpen = IsDropDownOpen;
+        else
+            popupIfNotEditable.IsOpen = IsDropDownOpen;
 
         contentPresenter.Content = PlaceholderText;
+        textBox.PlaceholderText = PlaceholderText;
 
-        //textBox.Tapped -= OnTextBoxTapped;
-        //textBox.Tapped += OnTextBoxTapped;
-        if (dropDownButton is not null)
-        {
-            dropDownButton.Click -= (s, e) => IsDropDownOpen = !IsDropDownOpen;
-            dropDownButton.Click += (s, e) => IsDropDownOpen = !IsDropDownOpen;
-        }
+        dropDownButton.Click -= (s, e) => IsDropDownOpen = !IsDropDownOpen;
+        dropDownButton.Click += (s, e) => IsDropDownOpen = !IsDropDownOpen;
 
-        //mainGrid.RemoveHandler(UIElement.PointerPressedEvent, new PointerEventHandler(TextBox_PointerPressed));
-        //mainGrid.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler(TextBox_PointerPressed), true);
+        contentPresenter.Tapped -= (s, e) => IsDropDownOpen = !IsDropDownOpen;
+        contentPresenter.Tapped += (s, e) => IsDropDownOpen = !IsDropDownOpen;
 
-        //contentPresenter.RemoveHandler(UIElement.PointerPressedEvent, new PointerEventHandler(TextBox_PointerPressed));
-        //contentPresenter.AddHandler(UIElement.PointerPressedEvent, new PointerEventHandler(TextBox_PointerPressed), true);
+        popupIfEditable.Opened -= (s, e) => FocusManager.TryFocusAsync(textBox, FocusState.Programmatic);
+        popupIfEditable.Opened += (s, e) => FocusManager.TryFocusAsync(textBox, FocusState.Programmatic);
 
-        //contentPresenter.Tapped -= OnTextBoxTapped;
-        //contentPresenter.Tapped += OnTextBoxTapped;
+        popupIfNotEditable.Closed -= (s, e) => IsDropDownOpen = false;
+        popupIfNotEditable.Closed += (s, e) => IsDropDownOpen = false;
 
-        //textBox.GotFocus -= TextBox_GotFocus;
-        //textBox.GotFocus += TextBox_GotFocus;
-
-        //popup.XamlRoot.Content!.PointerPressed -= Content_PointerPressed;
-        //popup.XamlRoot.Content!.PointerPressed += Content_PointerPressed;
-
-        //FocusManager.GotFocus -= FocusManager_GotFocus;
-        //FocusManager.GotFocus += FocusManager_GotFocus;
+        textBox.TextChanged -= FindItems;
+        textBox.TextChanged += FindItems;
 
         this.SelectionChanged -= GropedComboBox_SelectionChanged;
         this.SelectionChanged += GropedComboBox_SelectionChanged;
 
-        //this.Unloaded -= OnUnloaded;
-        //this.Unloaded += OnUnloaded;
-    }
+        this.LostFocus -= (s, e) =>
+        {
+            if (textBox.FocusState == FocusState.Unfocused && dropDownButton.FocusState == FocusState.Unfocused && IsEditable)
+                IsDropDownOpen = false;
+        };
+        this.LostFocus += (s, e) =>
+        {
+            if (textBox.FocusState == FocusState.Unfocused && dropDownButton.FocusState == FocusState.Unfocused && IsEditable)
+                IsDropDownOpen = false;
+        };
 
-    //private void OnUnloaded(object sender, RoutedEventArgs e) => FocusManager.GotFocus -= FocusManager_GotFocus;
+    }
 
     protected override void OnItemsChanged(object e)
     {
         if (isDropDownOpenedOnce)
             base.OnItemsChanged(e);
     }
-    //private void TextBox_PointerPressed(object sender, PointerRoutedEventArgs e) => IsDropDownOpen = true;
-
-    //private void TextBox_GotFocus(object sender, RoutedEventArgs e) => IsDropDownOpen = true;
 
     private void GropedComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
@@ -210,28 +212,49 @@ public partial class GroupedComboBox : ListView
         }
         else
         {
-            IsDropDownOpen = false;
-            SelectedValue = this.SelectedItem;
+            if (textBox.FocusState == FocusState.Unfocused)
+            {
+                IsDropDownOpen = false;
+                SelectedValue = this.SelectedItem;
+                if (this.SelectedValue is null)
+                    textBox!.Text = String.Empty;
+            }
+        }
+        this.Focus(FocusState.Programmatic);
+    }
+
+    private void FindItems(object sender, RoutedEventArgs e)
+    {
+        var s = sender as TextBox;
+        if (s is null) return;
+        if (string.IsNullOrEmpty(s.Text))
+        {
+            this.SelectedItem = null;
+        }
+        else
+        {
+            var item = this.Items.FirstOrDefault(i => string.Equals(i?.ToString(), s.Text, StringComparison.InvariantCultureIgnoreCase));
+            if (item is not null)
+            {
+                if (this.SelectedItem != item)
+                    this.SelectedItem = item;
+            }
+            else
+            {
+                this.SelectedItem = null;
+            }
         }
     }
 
-    //private void FocusManager_GotFocus(object? sender, FocusManagerGotFocusEventArgs e)
-    //{
-    //    if (e.NewFocusedElement is FrameworkElement element)
-    //    {
-    //        if (!(this == element || element is ListViewItem || element == textBox) && this != element)
-    //        {
-    //            IsDropDownOpen = false;
-    //        }
-    //    }
-    //    else
-    //    {
-    //        IsDropDownOpen = false;
-    //    }
-    //}
+    protected override void OnGotFocus(RoutedEventArgs e)
+    {
+        base.OnGotFocus(e);
+        VisualStateManager.GoToState(this, "Focused", true);
+    }
 
-    //  private void Content_PointerPressed(object sender, PointerRoutedEventArgs e) => IsDropDownOpen = false;
-
-    // private void OnTextBoxTapped(object sender, TappedRoutedEventArgs e) => IsDropDownOpen = true;
-
+    protected override void OnLostFocus(RoutedEventArgs e)
+    {
+        base.OnLostFocus(e);
+        VisualStateManager.GoToState(this, "Unfocused", true);
+    }
 }
