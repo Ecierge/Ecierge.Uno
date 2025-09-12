@@ -2,49 +2,48 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:ctc="using:CommunityToolkit.WinUI.Converters">
 
-    <ctc:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-    <ctc:EmptyObjectToObjectConverter x:Key="NullToVisibilityConverter">
-        <ctc:EmptyObjectToObjectConverter.EmptyValue>
-            <Visibility>Collapsed</Visibility>
-        </ctc:EmptyObjectToObjectConverter.EmptyValue>
-        <ctc:EmptyObjectToObjectConverter.NotEmptyValue>
-            <Visibility>Visible</Visibility>
-        </ctc:EmptyObjectToObjectConverter.NotEmptyValue>
-    </ctc:EmptyObjectToObjectConverter>
-    <ctc:BoolToObjectConverter x:Key="InverseBoolToVisibilityConverter">
-        <ctc:BoolToObjectConverter.TrueValue>
-            <Visibility>Collapsed</Visibility>
-        </ctc:BoolToObjectConverter.TrueValue>
-        <ctc:BoolToObjectConverter.FalseValue>
-            <Visibility>Visible</Visibility>
-        </ctc:BoolToObjectConverter.FalseValue>
-    </ctc:BoolToObjectConverter>
+  <ctc:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+  <ctc:EmptyObjectToObjectConverter x:Key="NullToVisibilityConverter">
+    <ctc:EmptyObjectToObjectConverter.EmptyValue>
+      <Visibility>Collapsed</Visibility>
+    </ctc:EmptyObjectToObjectConverter.EmptyValue>
+    <ctc:EmptyObjectToObjectConverter.NotEmptyValue>
+      <Visibility>Visible</Visibility>
+    </ctc:EmptyObjectToObjectConverter.NotEmptyValue>
+  </ctc:EmptyObjectToObjectConverter>
+  <ctc:BoolToObjectConverter x:Key="InverseBoolToVisibilityConverter">
+    <ctc:BoolToObjectConverter.TrueValue>
+      <Visibility>Collapsed</Visibility>
+    </ctc:BoolToObjectConverter.TrueValue>
+    <ctc:BoolToObjectConverter.FalseValue>
+      <Visibility>Visible</Visibility>
+    </ctc:BoolToObjectConverter.FalseValue>
+  </ctc:BoolToObjectConverter>
 
-    <Style x:Key="NoClearButtonTextBoxStyle"
-           TargetType="TextBox"
-           BasedOn="{StaticResource DefaultTextBoxStyle}">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="TextBox">
-                    <Grid>
-                        <Border x:Name="BorderElement"
-                                Margin="0"
-                                CornerRadius="4">
-                            <ScrollViewer x:Name="ContentElement"
-                                          Margin="0"
-                                          AutomationProperties.Name="{TemplateBinding AutomationProperties.Name}"
-                                          BorderBrush="{StaticResource ComboBoxBorderThemeBrush}"
-                                          BorderThickness="0.5"
-                                          CornerRadius="4"
-                                          HorizontalScrollBarVisibility="Hidden"
-                                          IsTabStop="False"
-                                          Padding="{TemplateBinding Padding}"
-                                          VerticalScrollBarVisibility="Hidden" />
-                        </Border>
-                    </Grid>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
+  <Style x:Key="NoClearButtonTextBoxStyle"
+         TargetType="TextBox"
+         BasedOn="{StaticResource DefaultTextBoxStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="TextBox">
+          <Grid>
+            <Border x:Name="BorderElement"
+                    CornerRadius="4">
+              <ScrollViewer x:Name="ContentElement"
+                            Margin="0"
+                            AutomationProperties.Name="{TemplateBinding AutomationProperties.Name}"
+                            BorderBrush="{StaticResource ComboBoxBorderThemeBrush}"
+                            BorderThickness="0.5"
+                            CornerRadius="4"
+                            HorizontalScrollBarVisibility="Hidden"
+                            IsTabStop="False"
+                            Padding="{TemplateBinding Padding}"
+                            VerticalScrollBarVisibility="Hidden" />
+            </Border>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
 
 </ResourceDictionary>
