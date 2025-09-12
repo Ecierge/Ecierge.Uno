@@ -1,7 +1,12 @@
 namespace Ecierge.Uno.Controls;
 
+using System;
+using System.Linq;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
+using Windows.System;
 
 public partial class GroupedComboBox : GridView
 {
@@ -9,7 +14,10 @@ public partial class GroupedComboBox : GridView
     private Popup? popupIfNotEditable;
     private Button? dropDownButton;
     private TextBox? textBox;
+    private Grid? mainGrid;
     private bool isDropDownOpenedOnce = false;
+    private bool isKeyDown = false;
+    private ContentPresenter? contentPresenter;
 
     #region IsDropDownOpen
 
@@ -47,11 +55,28 @@ public partial class GroupedComboBox : GridView
     protected virtual void OnIsDropDownOpenChanged(bool oldIsDropDownOpen, bool newIsDropDownOpen)
     {
         if (newIsDropDownOpen)
+        {
             isDropDownOpenedOnce = true;
+        }
         if (popupIfEditable is not null && IsEditable)
             popupIfEditable.IsOpen = newIsDropDownOpen;
         if (popupIfNotEditable is not null && !IsEditable)
             popupIfNotEditable.IsOpen = newIsDropDownOpen;
+        if (isKeyDown && !IsDropDownOpen)
+        {
+            if (IsEditable && textBox.FocusState != FocusState.Unfocused)
+                popupIfEditable.IsOpen = true;
+            else
+                popupIfNotEditable.IsOpen = true;
+            IsDropDownOpen = true;
+        }
+        if (IsEditable && popupIfEditable.FocusState != FocusState.Unfocused)
+            textBox.Focus(FocusState.Programmatic);
+        else
+        {
+            if (!IsDropDownOpen)
+                contentPresenter.Focus(FocusState.Programmatic);
+        }
     }
 
     #endregion IsDropDownOpen
@@ -144,17 +169,26 @@ public partial class GroupedComboBox : GridView
     /// <inheritdoc/>
     protected override void OnApplyTemplate()
     {
-        base.OnApplyTemplate();
-
+        mainGrid = GetTemplateChild("MainGrid") as Grid;
         popupIfEditable = GetTemplateChild("PopupIfEditable") as Popup;
         popupIfNotEditable = GetTemplateChild("PopupIfNotEditable") as Popup;
         textBox = GetTemplateChild("EditableText") as TextBox;
         dropDownButton = GetTemplateChild("DropDownButton") as Button;
-        var mainGrid = GetTemplateChild("MainGrid") as Grid;
-        var contentPresenter = GetTemplateChild("ContentPresenter") as ContentPresenter;
+        contentPresenter = GetTemplateChild("ContentPresenter") as ContentPresenter;
 
         if (popupIfEditable is null || popupIfNotEditable is null || textBox is null || mainGrid is null || contentPresenter is null || dropDownButton is null)
-            return;
+        return;
+
+        textBox.TextChanged -= FindItems;
+        this.SelectionChanged -= GropedComboBox_SelectionChanged;
+        contentPresenter.RemoveHandler(KeyDownEvent, new KeyEventHandler(ItemsHost_KeyDown));
+        textBox.RemoveHandler(KeyDownEvent, new KeyEventHandler(ItemsHost_KeyDown));
+        popupIfNotEditable.KeyDown -= ItemsHost_KeyDown;
+        popupIfEditable.KeyDown -= ItemsHost_KeyDown;
+        mainGrid.KeyDown -= ItemsHost_KeyDown;
+        dropDownButton.KeyDown -= ItemsHost_KeyDown;
+
+        base.OnApplyTemplate();
 
         if (IsEditable)
             popupIfEditable.IsOpen = IsDropDownOpen;
@@ -164,35 +198,36 @@ public partial class GroupedComboBox : GridView
         contentPresenter.Content = PlaceholderText;
         textBox.PlaceholderText = PlaceholderText;
 
-        dropDownButton.Click -= (s, e) => IsDropDownOpen = !IsDropDownOpen;
-        dropDownButton.Click += (s, e) => IsDropDownOpen = !IsDropDownOpen;
+        dropDownButton.Click += (s, e) => { isKeyDown = false; IsDropDownOpen = !IsDropDownOpen; };
 
-        contentPresenter.Tapped -= (s, e) => IsDropDownOpen = !IsDropDownOpen;
-        contentPresenter.Tapped += (s, e) => IsDropDownOpen = !IsDropDownOpen;
+        contentPresenter.Tapped += (s, e) => { isKeyDown = false; IsDropDownOpen = !IsDropDownOpen; };
 
-        popupIfEditable.Opened -= (s, e) => FocusManager.TryFocusAsync(textBox, FocusState.Programmatic);
-        popupIfEditable.Opened += (s, e) => FocusManager.TryFocusAsync(textBox, FocusState.Programmatic);
-
-        popupIfNotEditable.Closed -= (s, e) => IsDropDownOpen = false;
-        popupIfNotEditable.Closed += (s, e) => IsDropDownOpen = false;
-
-        textBox.TextChanged -= FindItems;
         textBox.TextChanged += FindItems;
 
-        this.SelectionChanged -= GropedComboBox_SelectionChanged;
         this.SelectionChanged += GropedComboBox_SelectionChanged;
 
-        this.LostFocus -= (s, e) =>
-        {
-            if (textBox.FocusState == FocusState.Unfocused && dropDownButton.FocusState == FocusState.Unfocused && IsEditable)
-                IsDropDownOpen = false;
-        };
         this.LostFocus += (s, e) =>
         {
-            if (textBox.FocusState == FocusState.Unfocused && dropDownButton.FocusState == FocusState.Unfocused && IsEditable)
-                IsDropDownOpen = false;
+            if (textBox.FocusState == FocusState.Unfocused && dropDownButton.FocusState == FocusState.Unfocused && IsEditable && popupIfEditable.FocusState == FocusState.Unfocused)
+            {
+                popupIfEditable.IsOpen = false;
+                popupIfNotEditable.IsOpen = false;
+                isKeyDown = false;
+            }
         };
 
+        if (IsEditable)
+        {
+            textBox.AddHandler(KeyDownEvent, new KeyEventHandler(ItemsHost_KeyDown), true);
+        }
+        else
+        {
+            contentPresenter.AddHandler(KeyDownEvent, new KeyEventHandler(ItemsHost_KeyDown), true);
+        }
+        popupIfNotEditable.KeyDown += ItemsHost_KeyDown;
+        popupIfEditable.KeyDown += ItemsHost_KeyDown;
+        mainGrid.KeyDown += ItemsHost_KeyDown;
+        dropDownButton.KeyDown += ItemsHost_KeyDown;
     }
 
     protected override void OnItemsChanged(object e)
@@ -220,7 +255,8 @@ public partial class GroupedComboBox : GridView
                     textBox!.Text = String.Empty;
             }
         }
-        this.Focus(FocusState.Programmatic);
+        if (IsEditable)
+            textBox.Focus(FocusState.Programmatic);
     }
 
     private void FindItems(object sender, RoutedEventArgs e)
@@ -256,5 +292,89 @@ public partial class GroupedComboBox : GridView
     {
         base.OnLostFocus(e);
         VisualStateManager.GoToState(this, "Unfocused", true);
+    }
+
+    private void ItemsHost_KeyDown(object sender, KeyRoutedEventArgs e)
+    {
+        int count = this.Items.Count;
+        int index = this.SelectedIndex;
+        bool handled = false;
+        switch (e.Key)
+        {
+            case Windows.System.VirtualKey.Down:
+                if ((!popupIfEditable.IsOpen || !popupIfNotEditable.IsOpen) && !isKeyDown)
+                {
+                    IsDropDownOpen = true;
+                    isKeyDown = true;
+                    handled = true;
+                }
+                else if (count > 0)
+                {
+                    isKeyDown = true;
+                    if (index < count - 1)
+                    {
+                        this.SelectedIndex = index + 1;
+                    }
+                    else
+                        this.SelectedIndex = 0;
+                }
+                handled = true;
+                break;
+            case Windows.System.VirtualKey.Up:
+                if ((!popupIfEditable.IsOpen || !popupIfNotEditable.IsOpen) && !isKeyDown)
+                {
+                    IsDropDownOpen = true;
+                    isKeyDown = true;
+                    handled = true;
+                }
+                else if (count > 0)
+                {
+                    isKeyDown = true;
+                    if (index > 0)
+                    {
+                        this.SelectedIndex = index - 1;
+                    }
+                    else
+                    {
+                        this.SelectedIndex = count - 1;
+                    }
+                    handled = true;
+                }
+                break;
+            case Windows.System.VirtualKey.Enter:
+                isKeyDown = false;
+                IsDropDownOpen = false;
+                handled = true;
+                break;
+            case Windows.System.VirtualKey.Home:
+                if (count > 0)
+                {
+                    this.SelectedIndex = 0;
+                    handled = true;
+                }
+                break;
+            case Windows.System.VirtualKey.End:
+                if (count > 0)
+                {
+                    this.SelectedIndex = count - 1;
+                    handled = true;
+                }
+                break;
+            case Windows.System.VirtualKey.Escape:
+                if (IsDropDownOpen)
+                {
+                    isKeyDown = false;
+                    IsDropDownOpen = false;
+                    handled = true;
+                }
+                break;
+            case Windows.System.VirtualKey.F4:
+                isKeyDown = !isKeyDown;
+                IsDropDownOpen = !IsDropDownOpen;
+                handled = true;
+                break;
+        }
+        if (handled)
+            e.Handled = true;
     }
 }

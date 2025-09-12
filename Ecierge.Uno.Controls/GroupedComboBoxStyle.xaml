@@ -10,240 +10,229 @@
                     xmlns:controls="using:Microsoft.UI.Xaml.Controls"
                     xmlns:converters="using:CommunityToolkit.WinUI.Converters">
 
-    <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/Resources.xaml" />
-    </ResourceDictionary.MergedDictionaries>
+  <ResourceDictionary.MergedDictionaries>
+    <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/Resources.xaml" />
+    <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/DefaultGroupedComboBoxItemStyle.xaml" />
+  </ResourceDictionary.MergedDictionaries>
 
-    <Style x:Key="DefaultGroupedComboBoxStyle" TargetType="comp:GroupedComboBox">
-        <Setter Property="CornerRadius" Value="{ThemeResource OverlayCornerRadius}" />
-        <Setter Property="TextBoxStyle" Value="{StaticResource ComboBoxTextBoxStyle}" />
-        <Setter Property="IsTabStop" Value="False" />
-        <Setter Property="TabNavigation" Value="Once" />
-        <Setter Property="IsSwipeEnabled" Value="True" />
-        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
-        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
-        <Setter Property="ScrollViewer.HorizontalScrollMode" Value="Disabled" />
-        <Setter Property="ScrollViewer.IsHorizontalRailEnabled" Value="False" />
-        <Setter Property="ScrollViewer.VerticalScrollMode" Value="Enabled" />
-        <Setter Property="ScrollViewer.IsVerticalRailEnabled" Value="True" />
-        <Setter Property="ScrollViewer.ZoomMode" Value="Disabled" />
-        <Setter Property="ScrollViewer.IsDeferredScrollingEnabled" Value="False" />
-        <Setter Property="ScrollViewer.BringIntoViewOnFocusChange" Value="True" />
-        <Setter Property="UseSystemFocusVisuals" Value="{StaticResource UseSystemFocusVisuals}" />
+  <Style x:Key="DefaultGroupedComboBoxStyle" TargetType="comp:GroupedComboBox">
+    <Setter Property="CornerRadius" Value="{ThemeResource OverlayCornerRadius}" />
+    <Setter Property="IsSwipeEnabled" Value="True" />
+    <Setter Property="IsTabStop" Value="False" />
+    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultGroupedComboBoxItemStyle}" />
 
-        <Setter Property="ItemContainerTransitions">
-            <Setter.Value>
-                <TransitionCollection>
-                    <AddDeleteThemeTransition />
-                    <ContentThemeTransition />
-                    <ReorderThemeTransition />
-                    <EntranceThemeTransition IsStaggeringEnabled="False" />
-                </TransitionCollection>
-            </Setter.Value>
-        </Setter>
-        <Setter Property="ItemsPanel">
-            <Setter.Value>
-                <ItemsPanelTemplate>
-                    <ctc:StaggeredPanel MaxWidth="600"
-                                        Margin="0,4,0,4"
-                                        DesiredColumnWidth="160" />
-                </ItemsPanelTemplate>
+    <Setter Property="ItemContainerTransitions">
+      <Setter.Value>
+        <TransitionCollection>
+          <AddDeleteThemeTransition />
+          <ContentThemeTransition />
+          <ReorderThemeTransition />
+          <EntranceThemeTransition IsStaggeringEnabled="False" />
+        </TransitionCollection>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <ctc:StaggeredPanel MaxWidth="600"
+                              Margin="0,4,0,4"
+                              DesiredColumnWidth="160" />
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
 
-            </Setter.Value>
-        </Setter>
+    <Setter Property="ScrollViewer.BringIntoViewOnFocusChange" Value="True" />
+    <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
+    <Setter Property="ScrollViewer.HorizontalScrollMode" Value="Disabled" />
+    <Setter Property="ScrollViewer.IsDeferredScrollingEnabled" Value="False" />
+    <Setter Property="ScrollViewer.IsHorizontalRailEnabled" Value="False" />
+    <Setter Property="ScrollViewer.IsVerticalRailEnabled" Value="True" />
+    <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+    <Setter Property="ScrollViewer.VerticalScrollMode" Value="Enabled" />
+    <Setter Property="ScrollViewer.ZoomMode" Value="Disabled" />
+    <Setter Property="TabNavigation" Value="Once" />
 
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="comp:GroupedComboBox">
-                    <Border x:Name="RootBorder"
-                            BorderBrush="{ThemeResource TextControlBorderBrushFocused}"
-                            CornerRadius="4">
-                        <VisualStateManager.VisualStateGroups>
-                            <VisualStateGroup x:Name="CommonStates">
-                                <VisualState x:Name="Focused">
-                                    <VisualState.Setters>
-                                        <Setter Target="RootBorder.BorderThickness" Value="0,0,0,2" />
-                                    </VisualState.Setters>
-                                </VisualState>
-                                <VisualState x:Name="Unfocused">
-                                    <VisualState.Setters>
-                                        <Setter Target="RootBorder.BorderThickness" Value="0" />
-                                    </VisualState.Setters>
-                                </VisualState>
-                            </VisualStateGroup>
-                        </VisualStateManager.VisualStateGroups>
+    <Setter Property="Template">
+      <Setter.Value>
 
-                        <Grid x:Name="MainGrid">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="38" />
-                            </Grid.ColumnDefinitions>
-                            <TextBox x:Name="EditableText"
-                                     Grid.Column="0"
-                                     Grid.ColumnSpan="2"
-                                     Width="{TemplateBinding Width}"
-                                     HorizontalAlignment="{TemplateBinding Height}"
-                                     VerticalAlignment="Center"
-                                     FontWeight="{ThemeResource ComboBoxHeaderThemeFontWeight}"
-                                     Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                     Header="{TemplateBinding Header}"
-                                     Padding="{ThemeResource ComboBoxEditableTextPadding}"
-                                     PlaceholderText="{TemplateBinding PlaceholderText}"
-                                     Style="{StaticResource NoClearButtonTextBoxStyle}"
-                                     Text="{Binding SelectedValue,
-                                                    RelativeSource={RelativeSource TemplatedParent},
-                                                    Mode=OneWay,
-                                                    UpdateSourceTrigger=PropertyChanged}"
-                                     Visibility="{Binding IsEditable,
-                                                          RelativeSource={RelativeSource TemplatedParent},
-                                                          Converter={StaticResource BoolToVisibilityConverter}}" />
-                            <ContentPresenter x:Name="ContentPresenter"
-                                              Grid.Row="0"
-                                              Grid.Column="0"
-                                              Grid.ColumnSpan="2"
-                                              Width="{TemplateBinding Width}"
-                                              Height="{TemplateBinding Height}"
-                                              VerticalContentAlignment="Center"
-                                              AutomationProperties.Name="{TemplateBinding AutomationProperties.Name}"
-                                              BorderBrush="{StaticResource TextControlElevationBorderBrush}"
-                                              BorderThickness="0.5"
-                                              Content="{Binding SelectedValue,
-                                                                RelativeSource={RelativeSource TemplatedParent},
-                                                                Mode=TwoWay,
-                                                                UpdateSourceTrigger=PropertyChanged}"
-                                              ContentTemplate="{TemplateBinding ItemTemplate}"
-                                              CornerRadius="4"
-                                              FlowDirection="{TemplateBinding FlowDirection}"
-                                              FontWeight="{ThemeResource ComboBoxHeaderThemeFontWeight}"
-                                              Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                              Padding="{ThemeResource ComboBoxEditableTextPadding}"
-                                              Visibility="{Binding IsEditable,
-                                                                   RelativeSource={RelativeSource TemplatedParent},
-                                                                   Converter={StaticResource InverseBoolToVisibilityConverter}}" />
+        <ControlTemplate TargetType="comp:GroupedComboBox">
+          <Border x:Name="RootBorder"
+                  BorderBrush="{ThemeResource TextControlBorderBrushFocused}"
+                  CornerRadius="4">
+            <VisualStateManager.VisualStateGroups>
+              <VisualStateGroup x:Name="CommonStates">
+                <VisualState x:Name="Focused">
+                  <VisualState.Setters>
+                    <Setter Target="RootBorder.BorderThickness" Value="0,0,0,2" />
+                  </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Unfocused">
+                  <VisualState.Setters>
+                    <Setter Target="RootBorder.BorderThickness" Value="0" />
+                  </VisualState.Setters>
+                </VisualState>
+              </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
 
-                            <Button x:Name="DropDownButton"
-                                    Grid.Column="1"
-                                    Width="20"
-                                    MinWidth="20"
-                                    MinHeight="20"
-                                    Margin="4"
-                                    HorizontalAlignment="Right"
-                                    VerticalAlignment="Center"
-                                    BorderThickness="0"
-                                    CornerRadius="0"
-                                    IsEnabled="True"
-                                    Padding="0">
+            <Grid x:Name="MainGrid">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="38" />
+              </Grid.ColumnDefinitions>
+              <Popup x:Name="PopupIfEditable"
+                     IsLightDismissEnabled="True"
+                     Visibility="{Binding IsEditable, RelativeSource={RelativeSource TemplatedParent},
+                                          Converter={StaticResource BoolToVisibilityConverter}}">
+                <Border MinWidth="{TemplateBinding Width}"
+                        MaxHeight="500"
+                        Margin="0,32,0,0"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Top"
+                        Background="{ThemeResource ComboBoxDropDownBackground}"
+                        BackgroundSizing="InnerBorderEdge"
+                        BorderBrush="{StaticResource TextControlElevationBorderBrush}"
+                        BorderThickness="{ThemeResource ComboBoxPopupBorderThemeThickness}"
+                        CornerRadius="{ThemeResource OverlayCornerRadius}"
+                        Padding="{ThemeResource ComboBoxDropdownBorderPadding}">
+                  <ScrollViewer x:Name="ScrollViewer"
+                                AutomationProperties.AccessibilityView="Raw"
+                                BringIntoViewOnFocusChange="{TemplateBinding ScrollViewer.BringIntoViewOnFocusChange}"
+                                HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+                                HorizontalScrollMode="{TemplateBinding ScrollViewer.HorizontalScrollMode}"
+                                IsDeferredScrollingEnabled="{TemplateBinding ScrollViewer.IsDeferredScrollingEnabled}"
+                                IsHorizontalRailEnabled="{TemplateBinding ScrollViewer.IsHorizontalRailEnabled}"
+                                IsHorizontalScrollChainingEnabled="{TemplateBinding ScrollViewer.IsHorizontalScrollChainingEnabled}"
+                                IsVerticalRailEnabled="{TemplateBinding ScrollViewer.IsVerticalRailEnabled}"
+                                IsVerticalScrollChainingEnabled="{TemplateBinding ScrollViewer.IsVerticalScrollChainingEnabled}"
+                                TabNavigation="{TemplateBinding TabNavigation}"
+                                VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
+                                VerticalScrollMode="{TemplateBinding ScrollViewer.VerticalScrollMode}"
+                                ZoomMode="{TemplateBinding ScrollViewer.ZoomMode}">
+                    <ItemsPresenter Footer="{TemplateBinding Footer}"
+                                    FooterTemplate="{TemplateBinding FooterTemplate}"
+                                    FooterTransitions="{TemplateBinding FooterTransitions}"
+                                    Header="{TemplateBinding Header}"
+                                    HeaderTemplate="{TemplateBinding HeaderTemplate}"
+                                    HeaderTransitions="{TemplateBinding HeaderTransitions}"
+                                    Padding="4" />
 
-                                <StackPanel>
-                                    <FontIcon FontSize="14"
-                                              Foreground="{ThemeResource ComboBoxArrowForegroundThemeBrush}"
-                                              Glyph="&#xE70D;"
-                                              Visibility="{Binding IsDropDownOpen,
-                                                                   RelativeSource={RelativeSource TemplatedParent},
-                                                                   Converter={StaticResource InverseBoolToVisibilityConverter}}" />
-                                    <FontIcon FontSize="14"
-                                              Foreground="{ThemeResource ComboBoxArrowForegroundThemeBrush}"
-                                              Glyph="&#xE70E;"
-                                              Visibility="{Binding IsDropDownOpen,
-                                                                   RelativeSource={RelativeSource TemplatedParent},
-                                                                   Converter={StaticResource BoolToVisibilityConverter}}" />
-                                </StackPanel>
-                            </Button>
+                  </ScrollViewer>
+                </Border>
+              </Popup>
+              <Popup x:Name="PopupIfNotEditable"
+                     IsLightDismissEnabled="True"
+                     Visibility="{Binding IsEditable, RelativeSource={RelativeSource TemplatedParent},
+                                          Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                <Border MinWidth="{TemplateBinding Width}"
+                        MaxHeight="500"
+                        Margin="-1,0,0,0"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Top"
+                        Background="{ThemeResource ComboBoxDropDownBackground}"
+                        BackgroundSizing="InnerBorderEdge"
+                        BorderBrush="{StaticResource TextControlElevationBorderBrush}"
+                        BorderThickness="{ThemeResource ComboBoxPopupBorderThemeThickness}"
+                        CornerRadius="{ThemeResource OverlayCornerRadius}"
+                        Padding="{ThemeResource ComboBoxDropdownBorderPadding}">
+                  <ScrollViewer x:Name="ScrollViewerIfNotEditable"
+                                AutomationProperties.AccessibilityView="Raw"
+                                BringIntoViewOnFocusChange="{TemplateBinding ScrollViewer.BringIntoViewOnFocusChange}"
+                                HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+                                HorizontalScrollMode="{TemplateBinding ScrollViewer.HorizontalScrollMode}"
+                                IsDeferredScrollingEnabled="{TemplateBinding ScrollViewer.IsDeferredScrollingEnabled}"
+                                IsHorizontalRailEnabled="{TemplateBinding ScrollViewer.IsHorizontalRailEnabled}"
+                                IsHorizontalScrollChainingEnabled="{TemplateBinding ScrollViewer.IsHorizontalScrollChainingEnabled}"
+                                IsVerticalRailEnabled="{TemplateBinding ScrollViewer.IsVerticalRailEnabled}"
+                                IsVerticalScrollChainingEnabled="{TemplateBinding ScrollViewer.IsVerticalScrollChainingEnabled}"
+                                TabNavigation="{TemplateBinding TabNavigation}"
+                                VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
+                                VerticalScrollMode="{TemplateBinding ScrollViewer.VerticalScrollMode}"
+                                ZoomMode="{TemplateBinding ScrollViewer.ZoomMode}">
+                    <ItemsPresenter Footer="{TemplateBinding Footer}"
+                                    FooterTemplate="{TemplateBinding FooterTemplate}"
+                                    FooterTransitions="{TemplateBinding FooterTransitions}"
+                                    Header="{TemplateBinding Header}"
+                                    HeaderTemplate="{TemplateBinding HeaderTemplate}"
+                                    HeaderTransitions="{TemplateBinding HeaderTransitions}"
+                                    Padding="4" />
+                  </ScrollViewer>
+                </Border>
+              </Popup>
+              <TextBox x:Name="EditableText"
+                       Grid.Column="0"
+                       Grid.ColumnSpan="2"
+                       Width="{TemplateBinding Width}"
+                       HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+                       VerticalAlignment="Center"
+                       FontWeight="{ThemeResource ComboBoxHeaderThemeFontWeight}"
+                       Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                       Header="{TemplateBinding Header}"
+                       Padding="{ThemeResource ComboBoxEditableTextPadding}"
+                       PlaceholderText="{TemplateBinding PlaceholderText}"
+                       Style="{StaticResource NoClearButtonTextBoxStyle}"
+                       Text="{Binding SelectedValue, RelativeSource={RelativeSource TemplatedParent},
+                                      Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                       Visibility="{Binding IsEditable, RelativeSource={RelativeSource TemplatedParent},
+                                            Converter={StaticResource BoolToVisibilityConverter}}" />
 
-                            <Border x:Name="DropDownOverlay"
-                                    Grid.Column="1"
-                                    Width="30"
-                                    HorizontalAlignment="Right"
-                                    Background="Transparent"
-                                    CornerRadius="{StaticResource ComboBoxDropDownButtonBackgroundCornerRadius}"
-                                    x:Load="False" />
-                            <Popup x:Name="PopupIfEditable" Visibility="{Binding IsEditable,
-                                                                                 RelativeSource={RelativeSource TemplatedParent},
-                                                                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                                <Border MinWidth="{TemplateBinding Width}"
-                                        MaxHeight="500"
-                                        Margin="0,32,0,0"
-                                        HorizontalAlignment="Stretch"
-                                        VerticalAlignment="Top"
-                                        Background="{ThemeResource ComboBoxDropDownBackground}"
-                                        BackgroundSizing="InnerBorderEdge"
-                                        BorderBrush="{StaticResource TextControlElevationBorderBrush}"
-                                        BorderThickness="{ThemeResource ComboBoxPopupBorderThemeThickness}"
-                                        CornerRadius="{ThemeResource OverlayCornerRadius}"
-                                        Padding="{ThemeResource ComboBoxDropdownBorderPadding}">
-                                    <ScrollViewer x:Name="ScrollViewer"
-                                                  AutomationProperties.AccessibilityView="Raw"
-                                                  BringIntoViewOnFocusChange="{TemplateBinding ScrollViewer.BringIntoViewOnFocusChange}"
-                                                  HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
-                                                  HorizontalScrollMode="{TemplateBinding ScrollViewer.HorizontalScrollMode}"
-                                                  IsDeferredScrollingEnabled="{TemplateBinding ScrollViewer.IsDeferredScrollingEnabled}"
-                                                  IsHorizontalRailEnabled="{TemplateBinding ScrollViewer.IsHorizontalRailEnabled}"
-                                                  IsHorizontalScrollChainingEnabled="{TemplateBinding ScrollViewer.IsHorizontalScrollChainingEnabled}"
-                                                  IsVerticalRailEnabled="{TemplateBinding ScrollViewer.IsVerticalRailEnabled}"
-                                                  IsVerticalScrollChainingEnabled="{TemplateBinding ScrollViewer.IsVerticalScrollChainingEnabled}"
-                                                  TabNavigation="{TemplateBinding TabNavigation}"
-                                                  VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
-                                                  VerticalScrollMode="{TemplateBinding ScrollViewer.VerticalScrollMode}"
-                                                  ZoomMode="{TemplateBinding ScrollViewer.ZoomMode}">
-                                        <ItemsPresenter Footer="{TemplateBinding Footer}"
-                                                        FooterTemplate="{TemplateBinding FooterTemplate}"
-                                                        FooterTransitions="{TemplateBinding FooterTransitions}"
-                                                        Header="{TemplateBinding Header}"
-                                                        HeaderTemplate="{TemplateBinding HeaderTemplate}"
-                                                        HeaderTransitions="{TemplateBinding HeaderTransitions}"
-                                                        Padding="4" />
+              <Button x:Name="DropDownButton"
+                      Grid.Column="1"
+                      Width="20"
+                      MinWidth="20"
+                      MinHeight="20"
+                      Margin="4"
+                      HorizontalAlignment="Right"
+                      VerticalAlignment="Center"
+                      BorderBrush="Transparent"
+                      BorderThickness="0"
+                      CornerRadius="0"
+                      IsEnabled="True"
+                      Padding="0">
 
-                                    </ScrollViewer>
-                                </Border>
-                            </Popup>
-                            <Popup x:Name="PopupIfNotEditable"
-                                   IsLightDismissEnabled="True"
-                                   Visibility="{Binding IsEditable,
-                                                        RelativeSource={RelativeSource TemplatedParent},
-                                                        Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                <Border MinWidth="{TemplateBinding Width}"
-                                        MaxHeight="500"
-                                        Margin="-1,0,0,0"
-                                        HorizontalAlignment="Stretch"
-                                        VerticalAlignment="Top"
-                                        Background="{ThemeResource ComboBoxDropDownBackground}"
-                                        BackgroundSizing="InnerBorderEdge"
-                                        BorderBrush="{StaticResource TextControlElevationBorderBrush}"
-                                        BorderThickness="{ThemeResource ComboBoxPopupBorderThemeThickness}"
-                                        CornerRadius="{ThemeResource OverlayCornerRadius}"
-                                        Padding="{ThemeResource ComboBoxDropdownBorderPadding}">
-                                    <ScrollViewer x:Name="ScrollViewerIfNotEditable"
-                                                  AutomationProperties.AccessibilityView="Raw"
-                                                  BringIntoViewOnFocusChange="{TemplateBinding ScrollViewer.BringIntoViewOnFocusChange}"
-                                                  HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
-                                                  HorizontalScrollMode="{TemplateBinding ScrollViewer.HorizontalScrollMode}"
-                                                  IsDeferredScrollingEnabled="{TemplateBinding ScrollViewer.IsDeferredScrollingEnabled}"
-                                                  IsHorizontalRailEnabled="{TemplateBinding ScrollViewer.IsHorizontalRailEnabled}"
-                                                  IsHorizontalScrollChainingEnabled="{TemplateBinding ScrollViewer.IsHorizontalScrollChainingEnabled}"
-                                                  IsVerticalRailEnabled="{TemplateBinding ScrollViewer.IsVerticalRailEnabled}"
-                                                  IsVerticalScrollChainingEnabled="{TemplateBinding ScrollViewer.IsVerticalScrollChainingEnabled}"
-                                                  TabNavigation="{TemplateBinding TabNavigation}"
-                                                  VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
-                                                  VerticalScrollMode="{TemplateBinding ScrollViewer.VerticalScrollMode}"
-                                                  ZoomMode="{TemplateBinding ScrollViewer.ZoomMode}">
-                                        <ItemsPresenter Footer="{TemplateBinding Footer}"
-                                                        FooterTemplate="{TemplateBinding FooterTemplate}"
-                                                        FooterTransitions="{TemplateBinding FooterTransitions}"
-                                                        Header="{TemplateBinding Header}"
-                                                        HeaderTemplate="{TemplateBinding HeaderTemplate}"
-                                                        HeaderTransitions="{TemplateBinding HeaderTransitions}"
-                                                        Padding="4" />
-                                    </ScrollViewer>
-                                </Border>
-                            </Popup>
+                <StackPanel>
+                  <FontIcon FontSize="14"
+                            Foreground="{ThemeResource ComboBoxArrowForegroundThemeBrush}"
+                            Glyph="&#xE70D;" />
+                </StackPanel>
+              </Button>
 
-                        </Grid>
-                    </Border>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
+              <Border x:Name="DropDownOverlay"
+                      Grid.Column="1"
+                      Width="30"
+                      HorizontalAlignment="Right"
+                      Background="Transparent"
+                      CornerRadius="{StaticResource ComboBoxDropDownButtonBackgroundCornerRadius}"
+                      x:Load="False" />
+              <ContentPresenter x:Name="ContentPresenter"
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Grid.ColumnSpan="2"
+                                Width="{TemplateBinding Width}"
+                                Height="{TemplateBinding Height}"
+                                VerticalContentAlignment="Center"
+                                AutomationProperties.Name="{TemplateBinding AutomationProperties.Name}"
+                                BorderBrush="{StaticResource TextControlElevationBorderBrush}"
+                                BorderThickness="0.5"
+                                Content="{Binding SelectedValue, RelativeSource={RelativeSource TemplatedParent},
+                                                  Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                ContentTemplate="{TemplateBinding ItemTemplate}"
+                                CornerRadius="4"
+                                FlowDirection="{TemplateBinding FlowDirection}"
+                                FontWeight="{ThemeResource ComboBoxHeaderThemeFontWeight}"
+                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                Padding="{ThemeResource ComboBoxEditableTextPadding}"
+                                Visibility="{Binding IsEditable, RelativeSource={RelativeSource TemplatedParent},
+                                                     Converter={StaticResource InverseBoolToVisibilityConverter}}" />
 
-    <Style TargetType="comp:GroupedComboBox" BasedOn="{StaticResource DefaultGroupedComboBoxStyle}" />
+            </Grid>
+          </Border>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="TextBoxStyle" Value="{StaticResource ComboBoxTextBoxStyle}" />
+    <Setter Property="UseSystemFocusVisuals" Value="{StaticResource UseSystemFocusVisuals}" />
+  </Style>
+
+  <Style TargetType="comp:GroupedComboBox" BasedOn="{StaticResource DefaultGroupedComboBoxStyle}" />
 
 </ResourceDictionary>
