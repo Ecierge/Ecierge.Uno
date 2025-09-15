@@ -6,7 +6,6 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
-using Windows.System;
 
 public partial class GroupedComboBox : GridView
 {
@@ -18,6 +17,11 @@ public partial class GroupedComboBox : GridView
     private bool isDropDownOpenedOnce = false;
     private bool isKeyDown = false;
     private ContentPresenter? contentPresenter;
+    private TextBlock? header;
+    private TextBlock? description;
+    private Border? border;
+    private ScrollViewer? contentElementIfEditable;
+    private string placeholderTextCache = string.Empty;
 
     #region IsDropDownOpen
 
@@ -64,17 +68,17 @@ public partial class GroupedComboBox : GridView
             popupIfNotEditable.IsOpen = newIsDropDownOpen;
         if (isKeyDown && !IsDropDownOpen)
         {
-            if (IsEditable && textBox.FocusState != FocusState.Unfocused)
+            if (IsEditable && textBox is not null && popupIfEditable is not null && textBox.FocusState != FocusState.Unfocused)
                 popupIfEditable.IsOpen = true;
-            else
+            else if (popupIfNotEditable is not null)
                 popupIfNotEditable.IsOpen = true;
             IsDropDownOpen = true;
         }
-        if (IsEditable && popupIfEditable.FocusState != FocusState.Unfocused)
+        if (IsEditable && textBox is not null && popupIfEditable is not null && popupIfEditable.FocusState != FocusState.Unfocused)
             textBox.Focus(FocusState.Programmatic);
         else
         {
-            if (!IsDropDownOpen)
+            if (!IsDropDownOpen && contentPresenter is not null)
                 contentPresenter.Focus(FocusState.Programmatic);
         }
     }
@@ -160,6 +164,103 @@ public partial class GroupedComboBox : GridView
 
     #endregion IsEditable
 
+    #region Description
+
+    /// <summary>
+    /// Identifies the Description dependency property.
+    /// </summary>
+    public static readonly DependencyProperty DescriptionProperty =
+        DependencyProperty.Register(nameof(Description), typeof(object), typeof(GroupedComboBox), new(null));
+
+    /// <summary>
+    /// Gets or sets the text that is displayed in the control until the value is changed
+    /// by a user action or some other operation.
+    /// </summary>
+    public object? Description
+    {
+        get => (object?)GetValue(DescriptionProperty);
+        set => SetValue(DescriptionProperty, value);
+    }
+
+    #endregion Description
+
+    #region Header
+
+    /// <summary>
+    /// Header Dependency Property
+    /// </summary>
+    public static readonly DependencyProperty HeaderProperty =
+         DependencyProperty.Register(nameof(Header), typeof(object), typeof(GroupedComboBox), new(null));
+
+    /// <summary>
+    /// Gets or sets the Header property. This dependency property
+    /// indicates header.
+    /// </summary>
+    public object? Header
+    {
+        get => (object?)GetValue(HeaderProperty);
+        set => SetValue(HeaderProperty, value);
+    }
+
+    #endregion Header
+
+    #region HeaderTemplate
+
+    /// <summary>
+    /// Identifies the HeaderTemplate dependency property.
+    /// </summary>
+    public static readonly DependencyProperty HeaderTemplateProperty =
+        DependencyProperty.Register(nameof(HeaderTemplate), typeof(DataTemplate), typeof(GroupedComboBox), new((DataTemplate?)null));
+
+    /// <summary>
+    /// Gets or sets the template used to display the header.
+    /// </summary>
+    public DataTemplate? HeaderTemplate
+    {
+        get => (DataTemplate?)GetValue(HeaderTemplateProperty);
+        set => SetValue(HeaderTemplateProperty, value);
+    }
+
+    #endregion HeaderTemplate
+
+    #region LightDismissOverlayMode
+
+    /// <summary>
+	/// Gets or sets a value that specifies whether the area outside of a light-dismiss UI is darkened.
+	/// </summary>
+    public LightDismissOverlayMode LightDismissOverlayMode
+    {
+        get => (LightDismissOverlayMode)GetValue(LightDismissOverlayModeProperty);
+        set => SetValue(LightDismissOverlayModeProperty, value);
+    }
+
+    /// <summary>
+    /// Identifies the LightDismissOverlayMode dependency property.
+    /// </summary>
+    public static DependencyProperty LightDismissOverlayModeProperty { get; } =
+        DependencyProperty.Register(
+            nameof(LightDismissOverlayMode), typeof(object), typeof(GroupedComboBox), new(null));
+
+    #endregion LightDismissOverlayMode
+
+    #region PlaceholderForeground
+
+    /// <summary>
+    /// Identifies the PlaceholderForeground dependency property.
+    /// </summary>
+    public static DependencyProperty PlaceholderForegroundProperty =
+         DependencyProperty.Register(nameof(PlaceholderForeground), typeof(Brush), typeof(GroupedComboBox), new(null));
+
+    /// <summary>
+    /// Gets or sets a brush that describes the color of placeholder text.
+    /// </summary>
+    public Brush? PlaceholderForeground
+    {
+        get => (Brush?)GetValue(PlaceholderForegroundProperty);
+        set => SetValue(PlaceholderForegroundProperty, value);
+    }
+
+    #endregion
 
     public GroupedComboBox()
     {
@@ -169,34 +270,84 @@ public partial class GroupedComboBox : GridView
     /// <inheritdoc/>
     protected override void OnApplyTemplate()
     {
+        this.SelectionChanged -= GropedComboBox_SelectionChanged;
+        this.LostFocus -= (s, e) =>
+        {
+            if (textBox is null || dropDownButton is null || popupIfEditable is null || popupIfNotEditable is null)
+                return;
+            if (textBox.FocusState == FocusState.Unfocused && dropDownButton.FocusState == FocusState.Unfocused && IsEditable && popupIfEditable.FocusState == FocusState.Unfocused)
+            {
+                popupIfEditable.IsOpen = false;
+                popupIfNotEditable.IsOpen = false;
+                isKeyDown = false;
+            }
+        };
+        if (textBox is not null)
+        {
+            textBox.RemoveHandler(KeyDownEvent, new KeyEventHandler(ItemsHost_KeyDown));
+            textBox.TextChanged -= FindItems;
+        }
+        if (contentPresenter is not null)
+            contentPresenter.RemoveHandler(KeyDownEvent, new KeyEventHandler(ItemsHost_KeyDown));
+        if (popupIfNotEditable is not null)
+        {
+            popupIfNotEditable.KeyDown -= ItemsHost_KeyDown;
+            if (border is not null)
+                popupIfNotEditable.Opened += (s, e) =>
+                {
+                    border.CornerRadius = new CornerRadius(4, 4, 0, 0);
+                    if (contentElementIfEditable is not null)
+                        contentElementIfEditable.CornerRadius = new CornerRadius(4, 4, 0, 0);
+                };
+        }
+        if (popupIfEditable is not null)
+        {
+            popupIfEditable.KeyDown -= ItemsHost_KeyDown;
+            if (border is not null)
+                popupIfEditable.Opened += (s, e) =>
+                {
+                    border.CornerRadius = new CornerRadius(4, 4, 0, 0);
+                    if (contentElementIfEditable is not null)
+                        contentElementIfEditable.CornerRadius = new CornerRadius(4, 4, 0, 0);
+                };
+        }
+        if (mainGrid is not null)
+            mainGrid.KeyDown -= ItemsHost_KeyDown;
+        if (dropDownButton is not null)
+            dropDownButton.KeyDown -= ItemsHost_KeyDown;
+
+        base.OnApplyTemplate();
+
         mainGrid = GetTemplateChild("MainGrid") as Grid;
         popupIfEditable = GetTemplateChild("PopupIfEditable") as Popup;
         popupIfNotEditable = GetTemplateChild("PopupIfNotEditable") as Popup;
         textBox = GetTemplateChild("EditableText") as TextBox;
         dropDownButton = GetTemplateChild("DropDownButton") as Button;
         contentPresenter = GetTemplateChild("ContentPresenter") as ContentPresenter;
+        header = GetTemplateChild("Header") as TextBlock;
+        description = GetTemplateChild("Description") as TextBlock;
+        border = GetTemplateChild("RootBorder") as Border;
+        contentElementIfEditable = GetTemplateChild("ContentElement") as ScrollViewer;
 
-        if (popupIfEditable is null || popupIfNotEditable is null || textBox is null || mainGrid is null || contentPresenter is null || dropDownButton is null)
-        return;
+        placeholderTextCache = PlaceholderText;
 
-        textBox.TextChanged -= FindItems;
-        this.SelectionChanged -= GropedComboBox_SelectionChanged;
-        contentPresenter.RemoveHandler(KeyDownEvent, new KeyEventHandler(ItemsHost_KeyDown));
-        textBox.RemoveHandler(KeyDownEvent, new KeyEventHandler(ItemsHost_KeyDown));
-        popupIfNotEditable.KeyDown -= ItemsHost_KeyDown;
-        popupIfEditable.KeyDown -= ItemsHost_KeyDown;
-        mainGrid.KeyDown -= ItemsHost_KeyDown;
-        dropDownButton.KeyDown -= ItemsHost_KeyDown;
+        if (Header is not null && header is not null)
+            header.Text = Header.ToString();
+        if (Description is not null && description is not null)
+        {
+            description.Text = Description.ToString();
+        }
 
-        base.OnApplyTemplate();
+        if (popupIfEditable is null || popupIfNotEditable is null || textBox is null || mainGrid is null || contentPresenter is null || dropDownButton is null || border is null)
+            return;
 
         if (IsEditable)
             popupIfEditable.IsOpen = IsDropDownOpen;
         else
+        {
             popupIfNotEditable.IsOpen = IsDropDownOpen;
-
-        contentPresenter.Content = PlaceholderText;
-        textBox.PlaceholderText = PlaceholderText;
+            contentPresenter.Content = PlaceholderText;
+        }
 
         dropDownButton.Click += (s, e) => { isKeyDown = false; IsDropDownOpen = !IsDropDownOpen; };
 
@@ -205,6 +356,20 @@ public partial class GroupedComboBox : GridView
         textBox.TextChanged += FindItems;
 
         this.SelectionChanged += GropedComboBox_SelectionChanged;
+
+        popupIfEditable.Opened += (s, e) =>
+        {
+            border.CornerRadius = new CornerRadius(4, 4, 0, 0);
+            if (contentElementIfEditable is not null)
+                contentElementIfEditable.CornerRadius = new CornerRadius(4, 4, 0, 0);
+        };
+
+        popupIfEditable.Closed += (s, e) =>
+        {
+            border.CornerRadius = new CornerRadius(4);
+            if (contentElementIfEditable is not null)
+                contentElementIfEditable.CornerRadius = new CornerRadius(4);
+        };
 
         this.LostFocus += (s, e) =>
         {
@@ -215,6 +380,8 @@ public partial class GroupedComboBox : GridView
                 isKeyDown = false;
             }
         };
+
+        textBox.LostFocus += (s, e) => SelectedValue = this.SelectedItem;
 
         if (IsEditable)
         {
@@ -243,19 +410,23 @@ public partial class GroupedComboBox : GridView
             if (this.SelectedItem != SelectedValue)
             {
                 this.SelectedItem = SelectedValue;
+                PlaceholderText = string.Empty;
             }
         }
         else
         {
-            if (textBox.FocusState == FocusState.Unfocused)
+            if (textBox is not null && textBox.FocusState == FocusState.Unfocused)
             {
                 IsDropDownOpen = false;
                 SelectedValue = this.SelectedItem;
                 if (this.SelectedValue is null)
-                    textBox!.Text = String.Empty;
+                    textBox.Text = string.Empty;
             }
         }
-        if (IsEditable)
+        if (SelectedValue is not null)
+            PlaceholderText = string.Empty;
+
+        if (textBox is not null && IsEditable)
             textBox.Focus(FocusState.Programmatic);
     }
 
@@ -266,6 +437,7 @@ public partial class GroupedComboBox : GridView
         if (string.IsNullOrEmpty(s.Text))
         {
             this.SelectedItem = null;
+            PlaceholderText = placeholderTextCache;
         }
         else
         {
@@ -278,6 +450,7 @@ public partial class GroupedComboBox : GridView
             else
             {
                 this.SelectedItem = null;
+                PlaceholderText = placeholderTextCache;
             }
         }
     }
@@ -302,7 +475,7 @@ public partial class GroupedComboBox : GridView
         switch (e.Key)
         {
             case Windows.System.VirtualKey.Down:
-                if ((!popupIfEditable.IsOpen || !popupIfNotEditable.IsOpen) && !isKeyDown)
+                if (((popupIfEditable is not null && !popupIfEditable.IsOpen) || (popupIfNotEditable is not null && !popupIfNotEditable.IsOpen)) && !isKeyDown)
                 {
                     IsDropDownOpen = true;
                     isKeyDown = true;
@@ -321,7 +494,8 @@ public partial class GroupedComboBox : GridView
                 handled = true;
                 break;
             case Windows.System.VirtualKey.Up:
-                if ((!popupIfEditable.IsOpen || !popupIfNotEditable.IsOpen) && !isKeyDown)
+                if (((popupIfEditable is not null && !popupIfEditable.IsOpen) || (popupIfNotEditable is not null && !popupIfNotEditable.IsOpen)) && !isKeyDown)
+
                 {
                     IsDropDownOpen = true;
                     isKeyDown = true;
