@@ -3,14 +3,6 @@
                     xmlns:ctc="using:CommunityToolkit.WinUI.Converters">
 
   <ctc:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-  <ctc:EmptyObjectToObjectConverter x:Key="NullToVisibilityConverter">
-    <ctc:EmptyObjectToObjectConverter.EmptyValue>
-      <Visibility>Collapsed</Visibility>
-    </ctc:EmptyObjectToObjectConverter.EmptyValue>
-    <ctc:EmptyObjectToObjectConverter.NotEmptyValue>
-      <Visibility>Visible</Visibility>
-    </ctc:EmptyObjectToObjectConverter.NotEmptyValue>
-  </ctc:EmptyObjectToObjectConverter>
   <ctc:BoolToObjectConverter x:Key="InverseBoolToVisibilityConverter">
     <ctc:BoolToObjectConverter.TrueValue>
       <Visibility>Collapsed</Visibility>
@@ -19,6 +11,22 @@
       <Visibility>Visible</Visibility>
     </ctc:BoolToObjectConverter.FalseValue>
   </ctc:BoolToObjectConverter>
+  <ctc:EmptyObjectToObjectConverter x:Key="NullToVisibilityConverter">
+    <ctc:EmptyObjectToObjectConverter.EmptyValue>
+      <Visibility>Collapsed</Visibility>
+    </ctc:EmptyObjectToObjectConverter.EmptyValue>
+    <ctc:EmptyObjectToObjectConverter.NotEmptyValue>
+      <Visibility>Visible</Visibility>
+    </ctc:EmptyObjectToObjectConverter.NotEmptyValue>
+  </ctc:EmptyObjectToObjectConverter>
+  <ctc:EmptyObjectToObjectConverter x:Key="InverseNullToVisibilityConverter">
+    <ctc:EmptyObjectToObjectConverter.EmptyValue>
+      <Visibility>Visible</Visibility>
+    </ctc:EmptyObjectToObjectConverter.EmptyValue>
+    <ctc:EmptyObjectToObjectConverter.NotEmptyValue>
+      <Visibility>Collapsed</Visibility>
+    </ctc:EmptyObjectToObjectConverter.NotEmptyValue>
+  </ctc:EmptyObjectToObjectConverter>
 
   <Style x:Key="NoClearButtonTextBoxStyle"
          TargetType="TextBox"
@@ -27,19 +35,16 @@
       <Setter.Value>
         <ControlTemplate TargetType="TextBox">
           <Grid>
-            <Border x:Name="BorderElement"
-                    CornerRadius="4">
-              <ScrollViewer x:Name="ContentElement"
-                            Margin="0"
-                            AutomationProperties.Name="{TemplateBinding AutomationProperties.Name}"
-                            BorderBrush="{StaticResource ComboBoxBorderThemeBrush}"
-                            BorderThickness="0.5"
-                            CornerRadius="4"
-                            HorizontalScrollBarVisibility="Hidden"
-                            IsTabStop="False"
-                            Padding="{TemplateBinding Padding}"
-                            VerticalScrollBarVisibility="Hidden" />
-            </Border>
+            <ScrollViewer x:Name="ContentElement"
+                          Margin="0"
+                          AutomationProperties.Name="{TemplateBinding AutomationProperties.Name}"
+                          BorderBrush="{StaticResource TextControlElevationBorderBrush}"
+                          BorderThickness="0.5"
+                          CornerRadius="4,4,0,0"
+                          HorizontalScrollBarVisibility="Hidden"
+                          IsTabStop="False"
+                          Padding="{TemplateBinding Padding}"
+                          VerticalScrollBarVisibility="Hidden" />
           </Grid>
         </ControlTemplate>
       </Setter.Value>
