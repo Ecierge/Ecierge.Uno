@@ -8,7 +8,8 @@
                     xmlns:animatedvisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
                     xmlns:comp="using:Ecierge.Uno.Controls"
                     xmlns:controls="using:Microsoft.UI.Xaml.Controls"
-                    xmlns:converters="using:CommunityToolkit.WinUI.Converters">
+                    xmlns:converters="using:CommunityToolkit.WinUI.Converters"
+                    xmlns:local="using:Ecierge.Uno.Controls">
 
   <ResourceDictionary.MergedDictionaries>
     <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/Resources.xaml" />
@@ -60,10 +61,10 @@
               <VisualStateGroup x:Name="CommonStates">
                 <VisualState x:Name="Focused">
                   <VisualState.Setters>
-                    <Setter Target="RootBorder.BorderThickness" Value="0,0,0,1.5" />
+                    <Setter Target="RootBorder.BorderThickness" Value="0,0,0,3" />
                     <Setter Target="RootBorder.BorderBrush" Value="{ThemeResource TextControlBorderBrushFocused}" />
-                    <Setter Target="EditableText.Margin" Value="0,0,0,-2" />
-                    <Setter Target="ContentPresenter.Margin" Value="0,0,0,-2" />
+                    <Setter Target="EditableText.Margin" Value="0,0,0,-3" />
+                    <Setter Target="ContentPresenter.Margin" Value="0,0,0,-3" />
                   </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="Unfocused">
@@ -77,11 +78,18 @@
                     BorderBrush="{ThemeResource TextControlBorderBrushFocused}"
                     CornerRadius="4">
               <StackPanel>
-                <TextBlock x:Name="Header"
-                           Margin="0,0,0,4"
-                           Padding="4,0,0,0"
-                           Visibility="{Binding Header, RelativeSource={RelativeSource TemplatedParent},
-                                                Converter={StaticResource NullToVisibilityConverter}}" />
+                <ContentPresenter x:Name="HeaderContentPresenter"
+                                  Grid.Row="0"
+                                  Margin="{ThemeResource TextBoxTopHeaderMargin}"
+                                  VerticalAlignment="Top"
+                                  Content="{TemplateBinding Header}"
+                                  ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                  FontWeight="Normal"
+                                  Foreground="{ThemeResource TextControlHeaderForeground}"
+                                  Padding="4,0,4,0"
+                                  TextWrapping="Wrap"
+                                  Visibility="{Binding Header, RelativeSource={RelativeSource TemplatedParent},
+                                                       Converter={StaticResource NullToVisibilityConverter}}" />
 
                 <Grid x:Name="MainGrid">
                   <Grid.ColumnDefinitions>
@@ -89,12 +97,10 @@
                     <ColumnDefinition Width="38" />
                   </Grid.ColumnDefinitions>
 
-                  <Popup x:Name="PopupIfEditable"
+                  <Popup x:Name="Popup"
                          IsLightDismissEnabled="True"
-                         LightDismissOverlayMode="{TemplateBinding LightDismissOverlayMode}"
-                         Visibility="{Binding IsEditable, RelativeSource={RelativeSource TemplatedParent},
-                                              Converter={StaticResource BoolToVisibilityConverter}}">
-                    <Border x:Name="PopupIfEditableBorder"
+                         LightDismissOverlayMode="{TemplateBinding LightDismissOverlayMode}">
+                    <Border x:Name="PopupBorder"
                             MinWidth="{TemplateBinding Width}"
                             MaxHeight="500"
                             Margin="0,32,0,0"
@@ -104,7 +110,7 @@
                             BackgroundSizing="InnerBorderEdge"
                             BorderBrush="{StaticResource TextControlElevationBorderBrush}"
                             BorderThickness="1"
-                            CornerRadius="0,0,8,8"
+                            CornerRadius="0,0,4,4"
                             Padding="{ThemeResource ComboBoxDropdownBorderPadding}">
                       <ScrollViewer x:Name="ScrollViewer"
                                     AutomationProperties.AccessibilityView="Raw"
@@ -123,7 +129,6 @@
                         <ItemsPresenter Footer="{TemplateBinding Footer}"
                                         FooterTemplate="{TemplateBinding FooterTemplate}"
                                         FooterTransitions="{TemplateBinding FooterTransitions}"
-                                        Header="{TemplateBinding Header}"
                                         HeaderTemplate="{TemplateBinding HeaderTemplate}"
                                         HeaderTransitions="{TemplateBinding HeaderTransitions}"
                                         Padding="4" />
@@ -131,61 +136,44 @@
                       </ScrollViewer>
                     </Border>
                   </Popup>
-                  <Popup x:Name="PopupIfNotEditable"
-                         IsLightDismissEnabled="True"
-                         LightDismissOverlayMode="{TemplateBinding LightDismissOverlayMode}"
-                         Visibility="{Binding IsEditable, RelativeSource={RelativeSource TemplatedParent},
-                                              Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                    <Border x:Name="PopupIfNotEditableBorder"
-                            MinWidth="{TemplateBinding Width}"
-                            MaxHeight="500"
-                            Margin="-1,0,0,0"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Top"
-                            Background="{ThemeResource ComboBoxDropDownBackground}"
-                            BackgroundSizing="InnerBorderEdge"
-                            BorderBrush="{StaticResource TextControlElevationBorderBrush}"
-                            BorderThickness="1"
-                            CornerRadius="{ThemeResource OverlayCornerRadius}"
-                            Padding="{ThemeResource ComboBoxDropdownBorderPadding}">
-                      <ScrollViewer x:Name="ScrollViewerIfNotEditable"
-                                    AutomationProperties.AccessibilityView="Raw"
-                                    BringIntoViewOnFocusChange="{TemplateBinding ScrollViewer.BringIntoViewOnFocusChange}"
-                                    HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
-                                    HorizontalScrollMode="{TemplateBinding ScrollViewer.HorizontalScrollMode}"
-                                    IsDeferredScrollingEnabled="{TemplateBinding ScrollViewer.IsDeferredScrollingEnabled}"
-                                    IsHorizontalRailEnabled="{TemplateBinding ScrollViewer.IsHorizontalRailEnabled}"
-                                    IsHorizontalScrollChainingEnabled="{TemplateBinding ScrollViewer.IsHorizontalScrollChainingEnabled}"
-                                    IsVerticalRailEnabled="{TemplateBinding ScrollViewer.IsVerticalRailEnabled}"
-                                    IsVerticalScrollChainingEnabled="{TemplateBinding ScrollViewer.IsVerticalScrollChainingEnabled}"
-                                    TabNavigation="{TemplateBinding TabNavigation}"
-                                    VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
-                                    VerticalScrollMode="{TemplateBinding ScrollViewer.VerticalScrollMode}"
-                                    ZoomMode="{TemplateBinding ScrollViewer.ZoomMode}">
-                        <ItemsPresenter Footer="{TemplateBinding Footer}"
-                                        FooterTemplate="{TemplateBinding FooterTemplate}"
-                                        FooterTransitions="{TemplateBinding FooterTransitions}"
-                                        Header="{TemplateBinding Header}"
-                                        HeaderTemplate="{TemplateBinding HeaderTemplate}"
-                                        HeaderTransitions="{TemplateBinding HeaderTransitions}"
-                                        Padding="4" />
-                      </ScrollViewer>
-                    </Border>
-                  </Popup>
                   <TextBox x:Name="EditableText"
                            Grid.Column="0"
                            Grid.ColumnSpan="2"
                            Width="{TemplateBinding Width}"
+                           Height="{TemplateBinding Height}"
                            HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
                            VerticalAlignment="Center"
                            CornerRadius="4"
-                           FontWeight="{ThemeResource ComboBoxHeaderThemeFontWeight}"
+                           FontFamily="{TemplateBinding FontFamily}"
+                           FontWeight="{TemplateBinding FontWeight}"
                            Padding="{ThemeResource ComboBoxEditableTextPadding}"
                            Style="{TemplateBinding TextBoxStyle}"
                            Text="{Binding SelectedValue, RelativeSource={RelativeSource TemplatedParent},
                                           Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
                            Visibility="{Binding IsEditable, RelativeSource={RelativeSource TemplatedParent},
                                                 Converter={StaticResource BoolToVisibilityConverter}}" />
+                  <ContentPresenter x:Name="ContentPresenter"
+                                    Grid.Column="0"
+                                    Grid.ColumnSpan="2"
+                                    Width="{TemplateBinding Width}"
+                                    Height="{TemplateBinding Height}"
+                                    MinHeight="32"
+                                    VerticalContentAlignment="Center"
+                                    AutomationProperties.Name="{TemplateBinding AutomationProperties.Name}"
+                                    BorderBrush="{StaticResource TextControlElevationBorderBrush}"
+                                    BorderThickness="0.5"
+                                    Content="{Binding SelectedValue, RelativeSource={RelativeSource TemplatedParent},
+                                                      Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    ContentTemplate="{TemplateBinding ItemTemplate}"
+                                    CornerRadius="4"
+                                    FlowDirection="{TemplateBinding FlowDirection}"
+                                    FontFamily="{TemplateBinding FontFamily}"
+                                    FontSize="14"
+                                    FontWeight="{TemplateBinding FontWeight}"
+                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                    Padding="{ThemeResource ComboBoxEditableTextPadding}"
+                                    Visibility="{Binding IsEditable, RelativeSource={RelativeSource TemplatedParent},
+                                                         Converter={StaticResource InverseBoolToVisibilityConverter}}" />
 
                   <Button x:Name="DropDownButton"
                           Grid.Column="1"
@@ -215,40 +203,18 @@
                           Background="Transparent"
                           CornerRadius="{StaticResource ComboBoxDropDownButtonBackgroundCornerRadius}"
                           x:Load="False" />
-                  <ContentPresenter x:Name="ContentPresenter"
-                                    Grid.Row="0"
-                                    Grid.Column="0"
-                                    Grid.ColumnSpan="2"
-                                    Width="{TemplateBinding Width}"
-                                    Height="{TemplateBinding Height}"
-                                    VerticalContentAlignment="Center"
-                                    AutomationProperties.Name="{TemplateBinding AutomationProperties.Name}"
-                                    BorderBrush="{StaticResource TextControlElevationBorderBrush}"
-                                    BorderThickness="0.5"
-                                    Content="{Binding SelectedValue, RelativeSource={RelativeSource TemplatedParent},
-                                                      Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                    ContentTemplate="{TemplateBinding ItemTemplate}"
-                                    CornerRadius="4"
-                                    FlowDirection="{TemplateBinding FlowDirection}"
-                                    FontWeight="{ThemeResource ComboBoxHeaderThemeFontWeight}"
-                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                    Padding="{ThemeResource ComboBoxEditableTextPadding}"
-                                    Visibility="{Binding IsEditable, RelativeSource={RelativeSource TemplatedParent},
-                                                         Converter={StaticResource InverseBoolToVisibilityConverter}}" />
                   <ContentPresenter x:Name="PlaceholderContentPresenter"
                                     Grid.Row="1"
                                     Grid.Column="0"
                                     Margin="{TemplateBinding Padding}"
                                     HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                     VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                    Foreground="{TemplateBinding Foreground}">
+                                    Foreground="{TemplateBinding PlaceholderForeground}">
                     <TextBlock x:Name="PlaceholderTextBlock"
-                               Foreground="{Binding PlaceholderForeground, RelativeSource={RelativeSource TemplatedParent},
-                                                    TargetNullValue={ThemeResource ComboBoxPlaceHolderForeground}}"
-                               Opacity="1"
+                               Foreground="{TemplateBinding PlaceholderForeground}"
                                Text="{TemplateBinding PlaceholderText}"
                                Visibility="{Binding SelectedValue, RelativeSource={RelativeSource TemplatedParent},
-                                                         Converter={StaticResource InverseNullToVisibilityConverter}}"/>
+                                                    Converter={StaticResource InverseNullToVisibilityConverter}}" />
                   </ContentPresenter>
 
                 </Grid>
@@ -256,17 +222,18 @@
               </StackPanel>
 
             </Border>
-            <TextBlock x:Name="Description"
-                       Margin="0,4,0,0"
-                       FontSize="12"
-                       Padding="4,0,0,0"
-                       Visibility="{Binding Description, RelativeSource={RelativeSource TemplatedParent},
-                                            Converter={StaticResource NullToVisibilityConverter}}" />
+            <ContentPresenter x:Name="DescriptionContentPresenter"
+                              Grid.Row="2"
+                              Content="{TemplateBinding Description}"
+                              FontSize="12"
+                              Padding="4,0,4,0"
+                              TextWrapping="Wrap"
+                              Visibility="{Binding Description, RelativeSource={RelativeSource TemplatedParent},
+                                                   Converter={StaticResource NullToVisibilityConverter}}" />
           </StackPanel>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
-    <Setter Property="TextBoxStyle" Value="{StaticResource ComboBoxTextBoxStyle}" />
 
     <Setter Property="TextBoxStyle" Value="{StaticResource ComboBoxTextBoxStyle}" />
     <Setter Property="UseSystemFocusVisuals" Value="{StaticResource UseSystemFocusVisuals}" />
