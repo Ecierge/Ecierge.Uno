@@ -28,27 +28,4 @@
     </ctc:EmptyObjectToObjectConverter.NotEmptyValue>
   </ctc:EmptyObjectToObjectConverter>
 
-  <Style x:Key="NoClearButtonTextBoxStyle"
-         TargetType="TextBox"
-         BasedOn="{StaticResource DefaultTextBoxStyle}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="TextBox">
-          <Grid>
-            <ScrollViewer x:Name="ContentElement"
-                          Margin="0"
-                          AutomationProperties.Name="{TemplateBinding AutomationProperties.Name}"
-                          BorderBrush="{StaticResource TextControlElevationBorderBrush}"
-                          BorderThickness="0.5"
-                          CornerRadius="4,4,0,0"
-                          HorizontalScrollBarVisibility="Hidden"
-                          IsTabStop="False"
-                          Padding="{TemplateBinding Padding}"
-                          VerticalScrollBarVisibility="Hidden" />
-          </Grid>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
 </ResourceDictionary>
