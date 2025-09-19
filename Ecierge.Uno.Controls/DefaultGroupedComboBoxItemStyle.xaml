@@ -25,7 +25,6 @@
                 <VisualState x:Name="Normal" />
 
                 <VisualState x:Name="PointerOver">
-
                   <Storyboard>
                     <ObjectAnimationUsingKeyFrames Storyboard.TargetName="LayoutRoot" Storyboard.TargetProperty="Background">
                       <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource ComboBoxItemBackgroundPointerOver}" />
@@ -160,7 +159,9 @@
               </VisualStateGroup>
 
               <VisualStateGroup x:Name="InputModeStates">
+
                 <VisualState x:Name="InputModeDefault" />
+
                 <VisualState x:Name="TouchInputMode">
                   <Storyboard>
                     <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Margin">

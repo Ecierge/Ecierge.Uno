@@ -96,10 +96,15 @@
                    Text="{Binding ElementName=NumberBox, Path=Value}" />
 
         <ComboBox ItemsSource="{Binding ItemsSource}" PlaceholderText="Select Floor"
-                  IsEditable="True" PlaceholderForeground="Red" />
+                  IsEditable="{Binding IsChecked, ElementName=EditCheckBox}"
+                  PlaceholderForeground="Red" />
 
-        <ctrl:GroupedComboBox Width="200" ItemsSource="{Binding GropedItemsSource.View}" PlaceholderText="Select Floor"
-                              IsEditable="True" Header="GroupedComboBox" Description=""
+        <CheckBox x:Name="EditCheckBox" Content="Allow editing GroupedComboBox" IsChecked="True"/>
+
+        <ctrl:GroupedComboBox Width="200" ItemsSource="{Binding GropedItemsSource.View}"
+                              PlaceholderText="Select Floor"
+                              IsEditable="{Binding IsChecked, ElementName=EditCheckBox}"
+                              Header="GroupedComboBox" Description=""
                               PlaceholderForeground="Red" >
           <ctrl:GroupedComboBox.ItemTemplate>
             <DataTemplate>
