@@ -73,7 +73,7 @@ public partial class GroupedComboBox : GridView
         }
         else
         {
-            if(contentPresenter is not null)
+            if (contentPresenter is not null)
                 contentPresenter.Focus(FocusState.Programmatic);
             VisualStateManager.GoToState(this, "Focused", true);
         }
@@ -165,6 +165,11 @@ public partial class GroupedComboBox : GridView
     {
         get => (bool)GetValue(IsEditableProperty);
         set => SetValue(IsEditableProperty, value);
+    }
+
+    protected virtual void OnIsEditableChanged(bool oldValue, bool newValue)
+    {
+        ReAttachEventHandlersOnIsEditableChanged();
     }
 
     #endregion IsEditable
@@ -285,6 +290,7 @@ public partial class GroupedComboBox : GridView
             mainGrid.RemoveHandler(KeyDownEvent, new KeyEventHandler(ItemsHost_KeyDown));
         if (dropDownButton is not null)
             dropDownButton.Click -= ButtonOrContentClick;
+        RemoveSpecificEventHandlers();
 
         base.OnApplyTemplate();
 
@@ -299,11 +305,6 @@ public partial class GroupedComboBox : GridView
 
         placeholderTextCache = PlaceholderText;
 
-        //if (Header is not null && header is not null)
-        //    header.Text = Header.ToString();
-        if (Description is not null && description is not null)
-            description.Text = Description.ToString();
-
         if (popup is null || textBox is null || mainGrid is null || contentPresenter is null || dropDownButton is null)
             return;
 
@@ -314,7 +315,7 @@ public partial class GroupedComboBox : GridView
         popup.Opened += PopupOpened;
         popup.Closed += PopupClosed;
 
-        CheckIsEditable();
+        ReAttachEventHandlersOnIsEditableChanged();
     }
 
     protected override void OnItemsChanged(object e)
@@ -493,47 +494,44 @@ public partial class GroupedComboBox : GridView
 
     private void PopupClosed(object? sender, object? e)
     {
-        this.Focus(FocusState.Programmatic);
+        if (IsEditable)
+            this.Focus(FocusState.Programmatic);
+        else
+            contentPresenter?.Focus(FocusState.Programmatic);
         VisualStateManager.GoToState(this, "Focused", true);
     }
 
-    protected virtual void OnIsEditableChanged(bool oldValue, bool newValue)
-    {
-        CheckIsEditable();
-    }
 
-    protected virtual void CheckIsEditable()
+
+    protected virtual void ReAttachEventHandlersOnIsEditableChanged()
     {
-        if (contentPresenter is not null)
-            contentPresenter.RemoveHandler(TappedEvent, new TappedEventHandler(ButtonOrContentClick));
-        if (textBox is not null)
-            textBox.RemoveHandler(KeyDownEvent, new KeyEventHandler(ItemsHost_KeyDown));
-        if (placeholderTextBlock is not null)
-            placeholderTextBlock.Tapped -= PlaceholderTextBlockTapped;
+        RemoveSpecificEventHandlers();
         if (IsEditable)
         {
             if (placeholderTextBlock is not null)
-            {
                 placeholderTextBlock.Tapped += PlaceholderTextBlockTapped;
-                if (this.SelectedItem is not null)
-                    SelectedValue = this.SelectedItem;
-                else
-                    SelectedValue = null;
-            }
+            if (this.SelectedItem is not null)
+                SelectedValue = this.SelectedItem;
+            else
+                SelectedValue = null;
         }
         else
         {
             if (contentPresenter is not null)
-                contentPresenter.AddHandler(TappedEvent, new TappedEventHandler(ButtonOrContentClick), true);
-            if (placeholderTextBlock is not null)
             {
-                placeholderTextBlock.Tapped += PlaceholderTextBlockTapped;
-                placeholderTextBlock.AddHandler(KeyDownEvent, new KeyEventHandler(ItemsHost_KeyDown), true);
+                contentPresenter.AddHandler(TappedEvent, new TappedEventHandler(ButtonOrContentClick), true);
+                if (this.SelectedItem is null && contentPresenter is not null)
+                    contentPresenter.Content = PlaceholderText;
+                else if (this.SelectedItem is null)
+                    SelectedValue = this.SelectedItem;
             }
-            if (this.SelectedItem is null && contentPresenter is not null)
-                contentPresenter.Content = PlaceholderText;
-            else if (this.SelectedItem is null)
-                SelectedValue = this.SelectedItem;
         }
+    }
+    protected void RemoveSpecificEventHandlers()
+    {
+        if (contentPresenter is not null)
+            contentPresenter.RemoveHandler(TappedEvent, new TappedEventHandler(ButtonOrContentClick));
+        if (placeholderTextBlock is not null)
+            placeholderTextBlock.Tapped -= PlaceholderTextBlockTapped;
     }
 }
