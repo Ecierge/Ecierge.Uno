@@ -169,6 +169,7 @@ public partial class GroupedComboBox : GridView
 
     protected virtual void OnIsEditableChanged(bool oldValue, bool newValue)
     {
+        DetachSpecificEventHandlers();
         ReAttachEventHandlersOnIsEditableChanged();
     }
 
@@ -290,7 +291,7 @@ public partial class GroupedComboBox : GridView
             mainGrid.RemoveHandler(KeyDownEvent, new KeyEventHandler(ItemsHost_KeyDown));
         if (dropDownButton is not null)
             dropDownButton.Click -= ButtonOrContentClick;
-        RemoveSpecificEventHandlers();
+        DetachSpecificEventHandlers();
 
         base.OnApplyTemplate();
 
@@ -501,11 +502,8 @@ public partial class GroupedComboBox : GridView
         VisualStateManager.GoToState(this, "Focused", true);
     }
 
-
-
     protected virtual void ReAttachEventHandlersOnIsEditableChanged()
     {
-        RemoveSpecificEventHandlers();
         if (IsEditable)
         {
             if (placeholderTextBlock is not null)
@@ -527,7 +525,7 @@ public partial class GroupedComboBox : GridView
             }
         }
     }
-    protected void RemoveSpecificEventHandlers()
+    protected void DetachSpecificEventHandlers()
     {
         if (contentPresenter is not null)
             contentPresenter.RemoveHandler(TappedEvent, new TappedEventHandler(ButtonOrContentClick));
