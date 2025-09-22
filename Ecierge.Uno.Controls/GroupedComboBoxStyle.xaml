@@ -86,7 +86,6 @@
                                   ContentTemplate="{TemplateBinding HeaderTemplate}"
                                   FontWeight="Normal"
                                   Foreground="{ThemeResource TextControlHeaderForeground}"
-                                  Padding="4,0,4,0"
                                   TextWrapping="Wrap"
                                   Visibility="{Binding Header, RelativeSource={RelativeSource TemplatedParent},
                                                        Converter={StaticResource NullToVisibilityConverter}}" />
@@ -226,7 +225,6 @@
                               Grid.Row="2"
                               Content="{TemplateBinding Description}"
                               FontSize="12"
-                              Padding="4,0,4,0"
                               TextWrapping="Wrap"
                               Visibility="{Binding Description, RelativeSource={RelativeSource TemplatedParent},
                                                    Converter={StaticResource NullToVisibilityConverter}}" />
