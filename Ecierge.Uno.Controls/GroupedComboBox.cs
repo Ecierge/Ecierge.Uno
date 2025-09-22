@@ -139,7 +139,6 @@ public partial class GroupedComboBox : GridView
 
     #endregion SelectedValue
 
-
     #region IsEditable
 
     /// <summary>
@@ -194,45 +193,6 @@ public partial class GroupedComboBox : GridView
     }
 
     #endregion Description
-
-    //#region Header
-
-    ///// <summary>
-    ///// Header Dependency Property
-    ///// </summary>
-    //public static readonly DependencyProperty HeaderProperty =
-    //     DependencyProperty.Register(nameof(Header), typeof(object), typeof(GroupedComboBox), new(null));
-
-    ///// <summary>
-    ///// Gets or sets the Header property. This dependency property
-    ///// indicates header.
-    ///// </summary>
-    //public object? Header
-    //{
-    //    get => (object?)GetValue(HeaderProperty);
-    //    set => SetValue(HeaderProperty, value);
-    //}
-
-    //#endregion Header
-
-    #region HeaderTemplate
-
-    /// <summary>
-    /// Identifies the HeaderTemplate dependency property.
-    /// </summary>
-    public static readonly DependencyProperty HeaderTemplateProperty =
-        DependencyProperty.Register(nameof(HeaderTemplate), typeof(DataTemplate), typeof(GroupedComboBox), new((DataTemplate?)null));
-
-    /// <summary>
-    /// Gets or sets the template used to display the header.
-    /// </summary>
-    public DataTemplate? HeaderTemplate
-    {
-        get => (DataTemplate?)GetValue(HeaderTemplateProperty);
-        set => SetValue(HeaderTemplateProperty, value);
-    }
-
-    #endregion HeaderTemplate
 
     #region LightDismissOverlayMode
 
