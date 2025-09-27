@@ -2,7 +2,10 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:ctc="using:CommunityToolkit.WinUI.Controls"
                     xmlns:i="using:Microsoft.Xaml.Interactivity"
-                    xmlns:comp="using:Ecierge.Uno.Controls">
+                    xmlns:animatedvisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
+                    xmlns:comp="using:Ecierge.Uno.Controls"
+                    xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+                    xmlns:converters="using:CommunityToolkit.WinUI.Converters">
 
   <ResourceDictionary.MergedDictionaries>
     <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/Resources.xaml" />
@@ -44,6 +47,12 @@
     <Setter Property="ScrollViewer.VerticalScrollMode" Value="Enabled" />
     <Setter Property="ScrollViewer.ZoomMode" Value="Disabled" />
     <Setter Property="TabNavigation" Value="Once" />
+
+    <Setter Property="GroupStyleSelector">
+      <Setter.Value>
+        <comp:GroupedComboBoxGroupStyleSelector DefaultStyle="{StaticResource GroupedComboBoxGroupStyle}" />
+      </Setter.Value>
+    </Setter>
 
     <Setter Property="Template">
       <Setter.Value>
