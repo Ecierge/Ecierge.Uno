@@ -9,6 +9,10 @@
     <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/InlineEditStyle.xaml" />
     <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/ValidationControlStyle.xaml" />
     <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/GroupedComboBoxStyle.xaml"/>
+    <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/GroupedComboBoxGridViewItemStyle.xaml"/>
+    <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/DefaultGroupedComboBoxItemStyle.xaml"/>
+    <!--<ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/GroupedComboBoxGroupHeaderTemplate.xaml"/>-->
+
   </ResourceDictionary.MergedDictionaries>
 
 </ResourceDictionary>

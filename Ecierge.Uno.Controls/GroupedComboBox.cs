@@ -13,7 +13,8 @@ using Microsoft.UI.Xaml.Input;
 [TemplatePart(Name = DropDownButton, Type = typeof(Button))]
 [TemplatePart(Name = ContentPresenter, Type = typeof(ContentPresenter))]
 [TemplatePart(Name = PlaceholderTextBlock, Type = typeof(TextBlock))]
-public partial class GroupedComboBox : GridView
+
+public partial class GroupedComboBox : ListViewBase
 {
     #region TemplatePartNames
 
@@ -506,4 +507,14 @@ public partial class GroupedComboBox : GridView
         if (placeholderTextBlock is not null)
             placeholderTextBlock.Tapped -= PlaceholderTextBlockTapped;
     }
+    protected override bool IsItemItsOwnContainerOverride(object item)
+    {
+        return item is GroupedComboBoxGridViewItem;
+    }
+
+    protected override DependencyObject GetContainerForItemOverride()
+    {
+        return new GroupedComboBoxGridViewItem();
+    }
+
 }
