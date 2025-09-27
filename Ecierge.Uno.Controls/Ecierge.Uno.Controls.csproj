@@ -52,13 +52,4 @@
     <PackageReference Include="CommunityToolkit.WinUI.Triggers" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Page Update="GroupedComboBoxGroupHeaderTemplate.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="GroupedComboBoxGridViewItemStyle.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-
 </Project>

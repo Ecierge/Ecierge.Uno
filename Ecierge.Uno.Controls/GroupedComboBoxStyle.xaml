@@ -53,7 +53,7 @@
 
     <Setter Property="GroupStyleSelector">
       <Setter.Value>
-        <comp:GroupedComboBoxGroupStyleSelector />
+        <comp:GroupedComboBoxGroupStyleSelector DefaultStyle="{StaticResource GroupedComboBoxGroupStyle}" />
       </Setter.Value>
     </Setter>
 
