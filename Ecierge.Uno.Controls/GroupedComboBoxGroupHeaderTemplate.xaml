@@ -5,6 +5,9 @@
                     xmlns:local="using:Ecierge.Uno.Controls"
                     mc:Ignorable="d">
 
+  <GroupStyle x:Key="GroupedComboBoxGroupStyle"
+              HidesIfEmpty="True"
+              HeaderTemplate="{StaticResource GroupedComboBoxGroupHeaderTemplate}" />
   <DataTemplate x:Key="GroupedComboBoxGroupHeaderTemplate">
     <TextBlock FontWeight="Bold"
                Style="{ThemeResource SubtitleTextBlockStyle}"
