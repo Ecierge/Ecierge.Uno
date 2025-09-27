@@ -6,10 +6,10 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	mc:Ignorable="d">
 
-  <Style TargetType="local:GroupedComboBoxGridViewItem">
+  <Style TargetType="local:GroupedComboBoxItem">
     <Setter Property="Template">
       <Setter.Value>
-        <ControlTemplate TargetType="local:GroupedComboBoxGridViewItem">
+        <ControlTemplate TargetType="local:GroupedComboBoxItem">
           <TextBlock Text="{Binding}" />
         </ControlTemplate>
       </Setter.Value>

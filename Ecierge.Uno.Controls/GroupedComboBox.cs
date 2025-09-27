@@ -507,14 +507,14 @@ public partial class GroupedComboBox : ListViewBase
         if (placeholderTextBlock is not null)
             placeholderTextBlock.Tapped -= PlaceholderTextBlockTapped;
     }
+
     protected override bool IsItemItsOwnContainerOverride(object item)
     {
-        return item is GroupedComboBoxGridViewItem;
+        return item is GroupedComboBoxItem;
     }
 
     protected override DependencyObject GetContainerForItemOverride()
     {
-        return new GroupedComboBoxGridViewItem();
+        return new GroupedComboBoxItem();
     }
-
 }
