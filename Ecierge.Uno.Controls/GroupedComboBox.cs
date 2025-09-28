@@ -247,6 +247,9 @@ public partial class GroupedComboBox : ListViewBase
     /// <inheritdoc/>
     protected override void OnApplyTemplate()
     {
+        if (!GroupStyle.Any())
+            GroupStyle.Add((GroupStyle)Application.Current.Resources["GroupedComboBoxGroupStyle"]);
+
         this.SelectionChanged -= GroupedComboBox_SelectionChanged;
         if (popup is not null)
         {
@@ -336,6 +339,7 @@ public partial class GroupedComboBox : ListViewBase
         }
         else
         {
+            // TODO: Use DisplaymemberPath
             var item = this.Items.FirstOrDefault(i => string.Equals(i?.ToString(), senderAsTextBox.Text, StringComparison.InvariantCultureIgnoreCase));
             if (item is not null)
             {
