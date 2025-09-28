@@ -9,8 +9,7 @@
               HidesIfEmpty="True"
               HeaderTemplate="{StaticResource GroupedComboBoxGroupHeaderTemplate}" />
   <DataTemplate x:Key="GroupedComboBoxGroupHeaderTemplate">
-    <TextBlock FontWeight="Bold"
-               Style="{ThemeResource SubtitleTextBlockStyle}"
+    <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}"
                Text="{Binding Key}" />
   </DataTemplate>
 

@@ -51,12 +51,6 @@
     <Setter Property="ScrollViewer.ZoomMode" Value="Disabled" />
     <Setter Property="TabNavigation" Value="Once" />
 
-    <Setter Property="GroupStyleSelector">
-      <Setter.Value>
-        <comp:GroupedComboBoxGroupStyleSelector DefaultStyle="{StaticResource GroupedComboBoxGroupStyle}" />
-      </Setter.Value>
-    </Setter>
-
     <Setter Property="Template">
       <Setter.Value>
 

@@ -9,5 +9,5 @@ public class GroupedComboBoxGroupStyleSelector : GroupStyleSelector
 {
     public GroupStyle DefaultStyle { get; set; }
     protected override GroupStyle SelectGroupStyleCore(object group, uint level)
-        => DefaultStyle;
+        => DefaultStyle ?? base.SelectGroupStyleCore(group, level);
 }
