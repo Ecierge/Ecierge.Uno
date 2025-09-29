@@ -19,7 +19,7 @@
     <Setter Property="CornerRadius" Value="{ThemeResource OverlayCornerRadius}" />
     <Setter Property="IsSwipeEnabled" Value="True" />
     <Setter Property="IsTabStop" Value="False" />
-    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultGroupedComboBoxItemStyle}" />
+    <Setter Property="ItemContainerStyle" Value="{StaticResource GroupedComboBoxItemStyle}" />
 
     <Setter Property="ItemContainerTransitions">
       <Setter.Value>
