@@ -788,4 +788,19 @@ public class OpenIddictUnoTokenStore<TToken> : IOpenIddictTokenStore<TToken>
         var identifier = Options.CurrentValue.TokenIdentifierPrefix + token.Id;
         return KeyValueStorage.SetAsync(identifier, token, cancellationToken);
     }
+
+    public ValueTask<long> RevokeAsync(string? subject, string? client, string? status, string? type, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
+    public ValueTask<long> RevokeByApplicationIdAsync(string identifier, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public ValueTask<long> RevokeBySubjectAsync(string subject, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
 }
