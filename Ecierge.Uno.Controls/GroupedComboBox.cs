@@ -264,7 +264,7 @@ public partial class GroupedComboBox : ListViewBase
     protected override void OnApplyTemplate()
     {
         if (!GroupStyle.Any())
-            GroupStyle.Add((GroupStyle)Application.Current.Resources["GroupedComboBoxGroupStyle"]);
+            GroupStyle.Add((GroupStyle)Application.Current.Resources["DefaultGroupedComboBoxGroupStyle"]);
 
         this.SelectionChanged -= GroupedComboBox_SelectionChanged;
         if (popup is not null)
@@ -497,7 +497,7 @@ public partial class GroupedComboBox : ListViewBase
             else
                 SelectedValue = null;
         }
-        if (contentPresenter is not null)
+        else if (contentPresenter is not null)
         {
             contentPresenter.AddHandler(TappedEvent, new TappedEventHandler(ButtonOrContentClick), true);
             if (this.SelectedItem is null && contentPresenter is not null)

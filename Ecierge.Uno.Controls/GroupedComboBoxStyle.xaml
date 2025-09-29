@@ -12,14 +12,14 @@
 
   <ResourceDictionary.MergedDictionaries>
     <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/Resources.xaml" />
-    <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/DefaultGroupedComboBoxItemStyle.xaml" />
+    <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/GroupedComboBoxItemStyle.xaml" />
   </ResourceDictionary.MergedDictionaries>
 
   <Style x:Key="DefaultGroupedComboBoxStyle" TargetType="comp:GroupedComboBox">
     <Setter Property="CornerRadius" Value="{ThemeResource OverlayCornerRadius}" />
     <Setter Property="IsSwipeEnabled" Value="True" />
     <Setter Property="IsTabStop" Value="False" />
-    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultGroupedComboBoxItemStyle}" />
+    <Setter Property="ItemContainerStyle" Value="{StaticResource GroupedComboBoxItemStyle}" />
 
     <Setter Property="ItemContainerTransitions">
       <Setter.Value>
