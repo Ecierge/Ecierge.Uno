@@ -7,19 +7,32 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 
+[TemplatePart(Name = EditableText, Type = typeof(TextBox))]
+[TemplatePart(Name = MainGrid, Type = typeof(Grid))]
+[TemplatePart(Name = Popup, Type = typeof(Popup))]
+[TemplatePart(Name = DropDownButton, Type = typeof(Button))]
+[TemplatePart(Name = ContentPresenter, Type = typeof(ContentPresenter))]
+[TemplatePart(Name = PlaceholderTextBlock, Type = typeof(TextBlock))]
+
 public partial class GroupedComboBox : GridView
 {
+    private const string EditableText = "EditableText";
+    private const string MainGrid = "MainGrid";
+    private const string Popup = "Popup";
+    private const string DropDownButton = "DropDownButton";
+    private const string ContentPresenter = "ContentPresenter";
+    private const string PlaceholderTextBlock = "PlaceholderTextBlock";
+
     private Popup? popup;
     private Button? dropDownButton;
     private TextBox? textBox;
     private Grid? mainGrid;
+    private ContentPresenter? contentPresenter;
+    private TextBlock? placeholderTextBlock;
+
     private bool isDropDownOpenedOnce = false;
     private bool isKeyDown = false;
-    private ContentPresenter? contentPresenter;
-    private TextBlock? header;
-    private TextBlock? description;
     private string placeholderTextCache = string.Empty;
-    private TextBlock? placeholderTextBlock;
 
     #region IsDropDownOpen
 
@@ -255,14 +268,12 @@ public partial class GroupedComboBox : GridView
 
         base.OnApplyTemplate();
 
-        mainGrid = GetTemplateChild("MainGrid") as Grid;
-        popup = GetTemplateChild("Popup") as Popup;
-        textBox = GetTemplateChild("EditableText") as TextBox;
-        dropDownButton = GetTemplateChild("DropDownButton") as Button;
-        contentPresenter = GetTemplateChild("ContentPresenter") as ContentPresenter;
-        header = GetTemplateChild("Header") as TextBlock;
-        description = GetTemplateChild("Description") as TextBlock;
-        placeholderTextBlock = GetTemplateChild("PlaceholderTextBlock") as TextBlock;
+        mainGrid = GetTemplateChild(MainGrid) as Grid;
+        popup = GetTemplateChild(Popup) as Popup;
+        textBox = GetTemplateChild(EditableText) as TextBox;
+        dropDownButton = GetTemplateChild(DropDownButton) as Button;
+        contentPresenter = GetTemplateChild(ContentPresenter) as ContentPresenter;
+        placeholderTextBlock = GetTemplateChild(PlaceholderTextBlock) as TextBlock;
 
         placeholderTextCache = PlaceholderText;
 
@@ -350,11 +361,22 @@ public partial class GroupedComboBox : GridView
     {
         base.OnLostFocus(e);
         VisualStateManager.GoToState(this, "Unfocused", true);
-        if (IsEditable && textBox is not null && textBox.FocusState == FocusState.Unfocused && dropDownButton is not null && dropDownButton.FocusState == FocusState.Unfocused && popup is not null && popup.FocusState == FocusState.Unfocused)
+        if (IsAllControlsLostFocus())
         {
             popup.IsOpen = false;
             isKeyDown = false;
         }
+    }
+
+    private bool IsAllControlsLostFocus()
+    {
+        return IsEditable
+            && textBox is not null
+            && textBox.FocusState == FocusState.Unfocused
+            && dropDownButton is not null
+            && dropDownButton.FocusState == FocusState.Unfocused
+            && popup is not null
+            && popup.FocusState == FocusState.Unfocused;
     }
 
     private void ItemsHost_KeyDown(object sender, KeyRoutedEventArgs e)
@@ -473,16 +495,11 @@ public partial class GroupedComboBox : GridView
             else
                 SelectedValue = null;
         }
-        else
+        if (contentPresenter is not null)
         {
-            if (contentPresenter is not null)
-            {
-                contentPresenter.AddHandler(TappedEvent, new TappedEventHandler(ButtonOrContentClick), true);
-                if (this.SelectedItem is null && contentPresenter is not null)
-                    contentPresenter.Content = PlaceholderText;
-                else if (this.SelectedItem is null)
-                    SelectedValue = this.SelectedItem;
-            }
+            contentPresenter.AddHandler(TappedEvent, new TappedEventHandler(ButtonOrContentClick), true);
+            if (this.SelectedItem is null && contentPresenter is not null)
+                contentPresenter.Content = PlaceholderText;
         }
     }
     protected void DetachSpecificEventHandlers()
