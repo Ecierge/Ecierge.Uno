@@ -248,7 +248,7 @@ public partial class GroupedComboBox : ListViewBase
     protected override void OnApplyTemplate()
     {
         if (!GroupStyle.Any())
-            GroupStyle.Add((GroupStyle)Application.Current.Resources["GroupedComboBoxGroupStyle"]);
+            GroupStyle.Add((GroupStyle)Application.Current.Resources["DefaultGroupedComboBoxGroupStyle"]);
 
         this.SelectionChanged -= GroupedComboBox_SelectionChanged;
         if (popup is not null)
