@@ -40,6 +40,8 @@ public static class OpenIddictUnoTokenPersistenceExtensions
 
         builder.SetDefaultTokenEntity<OpenIddictUnoToken>();
 
+        builder.ReplaceTokenStore<OpenIddictUnoToken, OpenIddictUnoTokenStore<OpenIddictUnoToken> > (ServiceLifetime.Singleton);
+
         builder.Services.TryAddSingleton(typeof(OpenIddictUnoTokenStore<>));
 
         return new OpenIddictUnoTokenPersistenceBuilder(builder.Services);
