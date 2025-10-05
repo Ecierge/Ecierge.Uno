@@ -2,10 +2,13 @@ namespace Ecierge.Uno.Controls;
 
 using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
+using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
+using Windows.Devices.Display.Core;
 
 [TemplatePart(Name = EditableText, Type = typeof(TextBox))]
 [TemplatePart(Name = MainGrid, Type = typeof(Grid))]
@@ -44,6 +47,15 @@ public partial class GroupedComboBox : ListViewBase
         && textBox is not null && textBox.FocusState == FocusState.Unfocused
         && dropDownButton is not null && dropDownButton.FocusState == FocusState.Unfocused
         && popup is not null && popup.FocusState == FocusState.Unfocused;
+
+    private Dictionary<string, object> itemsLookup = new(StringComparer.OrdinalIgnoreCase);
+    private HashSet<object> prevItemsSet = new(new ReferenceEqualityComparer());
+
+    private sealed class ReferenceEqualityComparer : IEqualityComparer<object>
+    {
+        public new bool Equals(object? x, object? y) => ReferenceEquals(x, y);
+        public int GetHashCode(object obj) => RuntimeHelpers.GetHashCode(obj);
+    }
 
     #region IsDropDownOpen
 
@@ -287,10 +299,76 @@ public partial class GroupedComboBox : ListViewBase
         ReAttachEventHandlersOnIsEditableChanged();
     }
 
+    public string? GetDisplayMemberValue(object item)
+    {
+        if (item == null)
+            return null;
+        if (!string.IsNullOrEmpty(DisplayMemberPath))
+        {
+            var value = BindingEvaluator.Evaluate(item, DisplayMemberPath);
+            if (value != null)
+                return value.ToString();
+        }
+        return item.ToString();
+    }
+
+    private void AddItemToLookup(object item)
+    {
+        var key = GetDisplayMemberValue(item);
+        if (key != null)
+            itemsLookup[key] = item;
+    }
+
+    private void RemoveItemFromLookup(object item)
+    {
+        var key = GetDisplayMemberValue(item);
+        if (key != null)
+            itemsLookup.Remove(key);
+    }
+
+    private void RebuildLookup()
+    {
+        itemsLookup.Clear();
+        prevItemsSet.Clear();
+
+        var items = Items.Cast<object>().Where(x => x != null).ToList();
+        foreach (var it in items) AddItemToLookup(it);
+        foreach (var it in items) prevItemsSet.Add(it);
+    }
+
     protected override void OnItemsChanged(object e)
     {
         if (isDropDownOpenedOnce)
             base.OnItemsChanged(e);
+
+        OnItemsChanged();
+    }
+
+    private void OnItemsChanged()
+    {
+        var currentItems = Items.Cast<object>().Where(x => x != null).ToList();
+        var newSet = new HashSet<object>(currentItems, new ReferenceEqualityComparer());
+
+        if (prevItemsSet.Count == 0)
+        {
+            RebuildLookup();
+            return;
+        }
+
+        var added = newSet.Where(it => !prevItemsSet.Contains(it)).ToList();
+        var removed = prevItemsSet.Where(it => !newSet.Contains(it)).ToList();
+
+        int changes = added.Count + removed.Count;
+        if (changes == 0) return;
+
+        if (changes <= Math.Max(1, prevItemsSet.Count / 2))
+        {
+            foreach (var r in removed) RemoveItemFromLookup(r);
+            foreach (var a in added) AddItemToLookup(a);
+            prevItemsSet = newSet;
+        }
+        else
+            RebuildLookup();
     }
 
     private void GroupedComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -298,18 +376,18 @@ public partial class GroupedComboBox : ListViewBase
         if (!isDropDownOpenedOnce)
         {
             if (this.SelectedItem != SelectedValue)
-            {
-                this.SelectedItem = SelectedValue;
                 PlaceholderText = string.Empty;
-            }
         }
         else
         {
-            IsDropDownOpen = false;
-            if (this.SelectedItem is null && textBox is not null)
-                textBox.Text = string.Empty;
-            else
-                SelectedValue = this.SelectedItem;
+            if (textBox is not null && textBox.FocusState == FocusState.Unfocused)
+            {
+                IsDropDownOpen = false;
+                if (this.SelectedItem is null)
+                    textBox.Text = string.Empty;
+                else
+                    SelectedValue = GetDisplayMemberValue(this.SelectedItem);
+            }
         }
         if (SelectedValue is not null)
         {
@@ -339,12 +417,12 @@ public partial class GroupedComboBox : ListViewBase
         }
         else
         {
-            // TODO: Use DisplaymemberPath
-            var item = this.Items.FirstOrDefault(i => string.Equals(i?.ToString(), senderAsTextBox.Text, StringComparison.InvariantCultureIgnoreCase));
-            if (item is not null)
+            string text = senderAsTextBox.Text;
+
+            if (itemsLookup.TryGetValue(text, out var item))
             {
                 if (this.SelectedItem != item)
-                    this.SelectedItem = item;
+                    SelectedItem = item;
             }
             else
             {

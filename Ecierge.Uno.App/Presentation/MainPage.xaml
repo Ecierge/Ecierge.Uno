@@ -101,11 +101,11 @@
 
         <CheckBox x:Name="EditCheckBox" Content="Allow editing GroupedComboBox" IsChecked="True"/>
 
-        <ctrl:GroupedComboBox Width="200" ItemsSource="{Binding GropedItemsSource.View}"
+        <ctrl:GroupedComboBox Width="200" ItemsSource="{Binding GropedItemsSource2.View}"
                               PlaceholderText="Select Floor"
                               IsEditable="{Binding IsChecked, ElementName=EditCheckBox}"
                               Header="GroupedComboBox" Description=""
-                              PlaceholderForeground="Red" />
+                              PlaceholderForeground="Red" DisplayMemberPath="Name"/>
 
         <Button AutomationProperties.AutomationId="SecondPageButton" Command="{Binding GoToSecond}" Content="Go to Second Page" />
         <Button Content="Go to Second Page with target">

@@ -21,7 +21,21 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     private CollectionViewSource gropedItemsSource;
+
+    [ObservableProperty]
+    private CollectionViewSource gropedItemsSource2;
 #pragma warning restore MVVMTK0045 // Using [ObservableProperty] on fields is not AOT compatible for WinRT
+
+    public class Person
+    {
+        public Person(string name, int age)
+        {
+            Name = name;
+            Age = age;
+        }
+        public string Name { get; }
+        public int Age { get; }
+    }
 
     public MainViewModel(
         IStringLocalizer localizer,
@@ -50,6 +64,24 @@ public partial class MainViewModel : ObservableObject
             IsSourceGrouped = true,
             Source = groups.GroupBy(x => x.Item1)
                            .ToList()
+        };
+        gropedItemsSource2 = new CollectionViewSource()
+        {
+            IsSourceGrouped = true,
+            Source = new List<Person>()
+            {
+                new Person("Alice", 30),
+                new Person("Bob", 25),
+                new Person("Charlie", 35),
+                new Person("David", 28),
+                new Person("Eve", 22),
+                new Person("Frank", 40),
+                new Person("Grace", 27),
+                new Person("Heidi", 32),
+                new Person("Ivan", 29),
+                new Person("Judy", 24)
+            }.GroupBy(p => p.Age < 30 ? "Under 30" : "30 and Over")
+             .ToList()
         };
     }
     public string? Title { get; }
