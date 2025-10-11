@@ -141,25 +141,6 @@ public partial class GroupedComboBox : GridView
 
     #endregion TextBoxStyle
 
-    #region SelectedValue
-
-    /// <summary>
-    /// Identifies the  SelectedValue dependency property.
-    /// </summary>
-    public static readonly DependencyProperty SelectedValueProperty =
-        DependencyProperty.Register(nameof(SelectedValue), typeof(object), typeof(GroupedComboBox), new(null));
-
-    /// <summary>
-    /// Gets or sets the value of the selected item, obtained by using the SelectedValuePath.
-    /// </summary>
-    public object? SelectedValue
-    {
-        get => (object?)GetValue(SelectedValueProperty);
-        set => SetValue(SelectedValueProperty, value);
-    }
-
-    #endregion SelectedValue
-
     #region IsEditable
 
     /// <summary>
@@ -371,7 +352,8 @@ public partial class GroupedComboBox : GridView
         VisualStateManager.GoToState(this, "Unfocused", true);
         if (AreAllControlsUnfocused)
         {
-            popup.IsOpen = false;
+            if (popup is not null)
+                popup.IsOpen = false;
             isKeyDown = false;
         }
     }
