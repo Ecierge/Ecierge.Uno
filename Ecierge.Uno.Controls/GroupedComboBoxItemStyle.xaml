@@ -1,8 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:comp="using:Ecierge.Uno.Controls"
-
-                    xmlns:ctc="using:CommunityToolkit.WinUI.Converters">
+                    xmlns:comp="using:Ecierge.Uno.Controls">
 
   <Style x:Key="GroupedComboBoxItemStyle" TargetType="comp:GroupedComboBoxItem">
     <Setter Property="Background" Value="{ThemeResource ComboBoxItemBackground}" />
