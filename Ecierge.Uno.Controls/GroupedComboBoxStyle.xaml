@@ -13,7 +13,7 @@
 
   <ResourceDictionary.MergedDictionaries>
     <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/Resources.xaml" />
-    <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/DefaultGroupedComboBoxItemStyle.xaml" />
+    <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/GroupedComboBoxItemStyle.xaml" />
   </ResourceDictionary.MergedDictionaries>
 
   <Style x:Key="DefaultGroupedComboBoxStyle" TargetType="comp:GroupedComboBox">
