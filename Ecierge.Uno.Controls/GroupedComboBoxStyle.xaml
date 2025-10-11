@@ -1,14 +1,8 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:ct="using:CommunityToolkit.WinUI"
-                    xmlns:ctb="using:CommunityToolkit.WinUI.Behaviors"
                     xmlns:ctc="using:CommunityToolkit.WinUI.Controls"
-                    xmlns:ctconv="using:CommunityToolkit.WinUI.Converters"
                     xmlns:i="using:Microsoft.Xaml.Interactivity"
-                    xmlns:animatedvisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
-                    xmlns:comp="using:Ecierge.Uno.Controls"
-                    xmlns:controls="using:Microsoft.UI.Xaml.Controls"
-                    xmlns:converters="using:CommunityToolkit.WinUI.Converters">
+                    xmlns:comp="using:Ecierge.Uno.Controls">
 
   <ResourceDictionary.MergedDictionaries>
     <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/Resources.xaml" />
