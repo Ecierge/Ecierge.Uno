@@ -301,12 +301,12 @@ public partial class GroupedComboBox : ListViewBase
 
     public string? GetDisplayMemberValue(object item)
     {
-        if (item == null)
+        if (item is null)
             return null;
         if (!string.IsNullOrEmpty(DisplayMemberPath))
         {
             var value = BindingEvaluator.Evaluate(item, DisplayMemberPath);
-            if (value != null)
+            if (value is not null)
                 return value.ToString();
         }
         return item.ToString();
@@ -315,14 +315,14 @@ public partial class GroupedComboBox : ListViewBase
     private void AddItemToLookup(object item)
     {
         var key = GetDisplayMemberValue(item);
-        if (key != null)
+        if (key is not null)
             itemsLookup[key] = item;
     }
 
     private void RemoveItemFromLookup(object item)
     {
         var key = GetDisplayMemberValue(item);
-        if (key != null)
+        if (key is not null)
             itemsLookup.Remove(key);
     }
 
