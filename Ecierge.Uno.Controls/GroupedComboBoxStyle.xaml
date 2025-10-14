@@ -59,7 +59,10 @@
           <StackPanel>
             <VisualStateManager.VisualStateGroups>
               <VisualStateGroup x:Name="CommonStates">
-                <VisualState x:Name="Focused">
+                <VisualState x:Name="FocusedEditable">
+                  <VisualState.StateTriggers>
+                    <StateTrigger IsActive="{TemplateBinding IsEditable}" />
+                  </VisualState.StateTriggers>
                   <VisualState.Setters>
                     <Setter Target="RootBorder.BorderThickness" Value="0,0,0,3" />
                     <Setter Target="RootBorder.BorderBrush" Value="{ThemeResource TextControlBorderBrushFocused}" />
@@ -147,8 +150,6 @@
                            FontWeight="{TemplateBinding FontWeight}"
                            Padding="{ThemeResource ComboBoxEditableTextPadding}"
                            Style="{TemplateBinding TextBoxStyle}"
-                           Text="{Binding SelectedValue, RelativeSource={RelativeSource TemplatedParent},
-                                          Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
                            Visibility="{Binding IsEditable, RelativeSource={RelativeSource TemplatedParent},
                                                 Converter={StaticResource BoolToVisibilityConverter}}" />
                   <ContentPresenter x:Name="ContentPresenter"
@@ -161,8 +162,6 @@
                                     AutomationProperties.Name="{TemplateBinding AutomationProperties.Name}"
                                     BorderBrush="{StaticResource TextControlElevationBorderBrush}"
                                     BorderThickness="0.5"
-                                    Content="{Binding SelectedValue, RelativeSource={RelativeSource TemplatedParent},
-                                                      Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                     ContentTemplate="{TemplateBinding ItemTemplate}"
                                     CornerRadius="4"
                                     FlowDirection="{TemplateBinding FlowDirection}"
@@ -208,7 +207,9 @@
                                     Margin="{TemplateBinding Padding}"
                                     HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                     VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                    Foreground="{TemplateBinding PlaceholderForeground}">
+                                    Foreground="{TemplateBinding PlaceholderForeground}"
+                                    Visibility="{Binding IsEditable, RelativeSource={RelativeSource TemplatedParent},
+                                                         Converter={StaticResource BoolToVisibilityConverter}}" >
                     <TextBlock x:Name="PlaceholderTextBlock"
                                Foreground="{TemplateBinding PlaceholderForeground}"
                                Text="{TemplateBinding PlaceholderText}"

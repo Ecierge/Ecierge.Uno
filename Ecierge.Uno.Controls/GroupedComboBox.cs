@@ -34,8 +34,10 @@ public partial class GroupedComboBox : GridView
     private TextBlock? placeholderTextBlock;
 
     private string placeholderTextCache = string.Empty;
+    private string SelectedValueCache = string.Empty;
     private bool isDropDownOpenedOnce = false;
     private bool isKeyDown = false;
+
     private bool AreAllControlsUnfocused =>
         IsEditable
         && textBox is not null && textBox.FocusState == FocusState.Unfocused
@@ -172,6 +174,7 @@ public partial class GroupedComboBox : GridView
     {
         DetachSpecificEventHandlers();
         ReAttachEventHandlersOnIsEditableChanged();
+        isKeyDown = true;
     }
 
     #endregion IsEditable
@@ -271,6 +274,7 @@ public partial class GroupedComboBox : GridView
 
         this.SelectionChanged += GroupedComboBox_SelectionChanged;
         mainGrid.AddHandler(KeyDownEvent, new KeyEventHandler(ItemsHost_KeyDown), true);
+        mainGrid.Tapped += (s, e) => isKeyDown = false;
         dropDownButton.Click += ButtonOrContentClick;
         textBox.TextChanged += FindItems;
         popup.Opened += PopupOpened;
@@ -297,26 +301,34 @@ public partial class GroupedComboBox : GridView
         }
         else
         {
-            if (textBox is not null && textBox.FocusState == FocusState.Unfocused)
-            {
-                IsDropDownOpen = false;
-                if (this.SelectedItem is null)
-                    textBox.Text = string.Empty;
-                else
-                    SelectedValue = this.SelectedItem;
-            }
+            IsDropDownOpen = false;
+            if (this.SelectedItem is null && textBox is not null)
+                textBox.Text = string.Empty;
+            else
+                SelectedValue = this.SelectedItem;
         }
         if (SelectedValue is not null)
+        {
             PlaceholderText = string.Empty;
-
+            if (textBox is not null && IsEditable)
+                textBox.Text = SelectedValue?.ToString() ?? string.Empty;
+            if (contentPresenter is not null && !IsEditable)
+                contentPresenter.Content = SelectedValue?.ToString() ?? string.Empty;
+        }
+        else if (textBox is not null && IsEditable)
+            textBox.Text = SelectedValueCache;
+        else if (contentPresenter is not null && !string.IsNullOrEmpty(SelectedValueCache) && !IsEditable)
+            contentPresenter.Content = SelectedValueCache;
         if (textBox is not null && IsEditable)
             textBox.Focus(FocusState.Programmatic);
+        IsDropDownOpen = false;
     }
 
     private void FindItems(object sender, RoutedEventArgs e)
     {
         var senderAsTextBox = sender as TextBox;
         if (senderAsTextBox is null) return;
+        SelectedValueCache = senderAsTextBox.Text;
         if (string.IsNullOrEmpty(senderAsTextBox.Text))
         {
             this.SelectedItem = null;
@@ -438,9 +450,8 @@ public partial class GroupedComboBox : GridView
 
     private void ButtonOrContentClick(object sender, RoutedEventArgs e)
     {
-        isKeyDown = false;
+        isKeyDown = !isKeyDown;
         IsDropDownOpen = !IsDropDownOpen;
-        VisualStateManager.GoToState(this, "Focused", true);
 
     }
     private void PlaceholderTextBlockTapped(object sender, TappedRoutedEventArgs e)
@@ -465,21 +476,20 @@ public partial class GroupedComboBox : GridView
 
     protected virtual void ReAttachEventHandlersOnIsEditableChanged()
     {
-        if (IsEditable)
-        {
-            if (placeholderTextBlock is not null)
-                placeholderTextBlock.Tapped += PlaceholderTextBlockTapped;
-            if (this.SelectedItem is not null)
-                SelectedValue = this.SelectedItem;
-            else
-                SelectedValue = null;
-        }
+        if (placeholderTextBlock is not null)
+            placeholderTextBlock.Tapped += PlaceholderTextBlockTapped;
+        if (this.SelectedItem is not null)
+            SelectedValue = this.SelectedItem;
+        else
+            SelectedValue = null;
+        if (textBox is not null && !string.IsNullOrEmpty(SelectedValueCache))
+            textBox.Text = SelectedValueCache;
         if (contentPresenter is not null)
-        {
             contentPresenter.AddHandler(TappedEvent, new TappedEventHandler(ButtonOrContentClick), true);
-            if (this.SelectedItem is null && contentPresenter is not null)
-                contentPresenter.Content = PlaceholderText;
-        }
+        if (this.SelectedItem is null && contentPresenter is not null)
+            contentPresenter.Content = PlaceholderText;
+        if (contentPresenter is not null && !string.IsNullOrEmpty(SelectedValueCache))
+            contentPresenter.Content = SelectedValueCache;
     }
     protected void DetachSpecificEventHandlers()
     {
