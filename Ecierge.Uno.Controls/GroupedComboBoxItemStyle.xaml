@@ -1,8 +1,8 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:ctc="using:CommunityToolkit.WinUI.Converters">
+                    xmlns:comp="using:Ecierge.Uno.Controls">
 
-  <Style x:Key="DefaultGroupedComboBoxItemStyle" TargetType="GridViewItem">
+  <Style x:Key="GroupedComboBoxItemStyle" TargetType="comp:GroupedComboBoxItem">
     <Setter Property="Background" Value="{ThemeResource ComboBoxItemBackground}" />
     <Setter Property="CornerRadius" Value="{StaticResource ComboBoxItemCornerRadius}" />
     <Setter Property="FocusVisualMargin" Value="-3" />
@@ -12,7 +12,7 @@
     <Setter Property="TabNavigation" Value="Local" />
     <Setter Property="Template">
       <Setter.Value>
-        <ControlTemplate TargetType="GridViewItem">
+        <ControlTemplate TargetType="comp:GroupedComboBoxItem">
           <Grid x:Name="LayoutRoot"
                 Background="{TemplateBinding Background}"
                 BorderBrush="{TemplateBinding BorderBrush}"
