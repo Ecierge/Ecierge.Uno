@@ -162,6 +162,7 @@
                                     AutomationProperties.Name="{TemplateBinding AutomationProperties.Name}"
                                     BorderBrush="{StaticResource TextControlElevationBorderBrush}"
                                     BorderThickness="0.5"
+                                    Background="Transparent"
                                     ContentTemplate="{TemplateBinding ItemTemplate}"
                                     CornerRadius="4"
                                     FlowDirection="{TemplateBinding FlowDirection}"

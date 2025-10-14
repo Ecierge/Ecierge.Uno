@@ -174,7 +174,7 @@ public partial class GroupedComboBox : GridView
     {
         DetachSpecificEventHandlers();
         ReAttachEventHandlersOnIsEditableChanged();
-        isKeyDown = true;
+        isKeyDown = false;
     }
 
     #endregion IsEditable
@@ -321,7 +321,6 @@ public partial class GroupedComboBox : GridView
             contentPresenter.Content = SelectedValueCache;
         if (textBox is not null && IsEditable)
             textBox.Focus(FocusState.Programmatic);
-        IsDropDownOpen = false;
     }
 
     private void FindItems(object sender, RoutedEventArgs e)
@@ -391,8 +390,8 @@ public partial class GroupedComboBox : GridView
                         this.SelectedIndex = index + 1;
                     else
                         this.SelectedIndex = 0;
+                    handled = true;
                 }
-                handled = true;
                 break;
             case Windows.System.VirtualKey.Up:
                 if (popup is not null && !popup.IsOpen && !isKeyDown)
@@ -452,8 +451,10 @@ public partial class GroupedComboBox : GridView
     {
         isKeyDown = !isKeyDown;
         IsDropDownOpen = !IsDropDownOpen;
-
+        if (!IsEditable && contentPresenter is not null && popup is not null && popup.IsOpen == false)
+            IsDropDownOpen = true;
     }
+
     private void PlaceholderTextBlockTapped(object sender, TappedRoutedEventArgs e)
     {
         if (textBox is not null && IsEditable)
@@ -471,7 +472,6 @@ public partial class GroupedComboBox : GridView
             this.Focus(FocusState.Programmatic);
         else
             contentPresenter?.Focus(FocusState.Programmatic);
-        VisualStateManager.GoToState(this, "Focused", true);
     }
 
     protected virtual void ReAttachEventHandlersOnIsEditableChanged()
