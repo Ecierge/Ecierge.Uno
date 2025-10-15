@@ -2,6 +2,7 @@ namespace Ecierge.Uno.Controls;
 
 using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -44,6 +45,30 @@ public partial class GroupedComboBox : ListViewBase
         && textBox is not null && textBox.FocusState == FocusState.Unfocused
         && dropDownButton is not null && dropDownButton.FocusState == FocusState.Unfocused
         && popup is not null && popup.FocusState == FocusState.Unfocused;
+
+    /// <summary>
+    /// Lookup dictionary used for fast case-insensitive access to items by their string key.
+    /// The key is usually derived from the item's <see cref="DisplayMemberPath"/> or its <see cref="object.ToString()"/> value.
+    /// </summary>
+    private Dictionary<string, object> itemsLookup = new(StringComparer.OrdinalIgnoreCase);
+    /// <summary>
+    /// Keeps a reference-based snapshot of the current items collection.
+    /// Used to efficiently detect added or removed items without rebuilding the entire lookup.
+    /// </summary>
+    private HashSet<object> prevItemsSet = new(new ReferenceEqualityComparer());
+
+    /// <summary>
+    /// Provides reference equality comparison for objects.
+    /// This ensures that object identity (not logical equality) is used when comparing items.
+    /// </summary>
+    private sealed class ReferenceEqualityComparer : IEqualityComparer<object>
+    {
+        public new bool Equals(object? x, object? y) => ReferenceEquals(x, y);
+        public int GetHashCode(object obj) => RuntimeHelpers.GetHashCode(obj);
+    }
+
+    private BindingEvaluator bindingEvaluator = new();
+
 
     #region IsDropDownOpen
 
@@ -242,6 +267,11 @@ public partial class GroupedComboBox : ListViewBase
     public GroupedComboBox()
     {
         DefaultStyleKey = typeof(GroupedComboBox);
+        this.RegisterPropertyChangedCallback(ItemsControl.DisplayMemberPathProperty, (d, dp) =>
+        {
+            var control = (GroupedComboBox)d;
+            control.OnDisplayMemberPathChanged(d, EventArgs.Empty);
+        });
     }
 
     /// <inheritdoc/>
@@ -286,11 +316,81 @@ public partial class GroupedComboBox : ListViewBase
 
         ReAttachEventHandlersOnIsEditableChanged();
     }
+    private void OnDisplayMemberPathChanged(object? sender, EventArgs e)
+    {
+        bindingEvaluator = new();
+    }
+
+    public string? GetDisplayMemberValue(object item)
+    {
+        if (item is null)
+            return null;
+        if (!string.IsNullOrEmpty(DisplayMemberPath))
+        {
+            var value = bindingEvaluator.Evaluate(item, DisplayMemberPath);
+            if (value is not null)
+                return value.ToString();
+        }
+        return item.ToString();
+    }
+
+    private void AddItemToLookup(object item)
+    {
+        var key = GetDisplayMemberValue(item);
+        if (key is not null)
+            itemsLookup[key] = item;
+    }
+
+    private void RemoveItemFromLookup(object item)
+    {
+        var key = GetDisplayMemberValue(item);
+        if (key is not null)
+            itemsLookup.Remove(key);
+    }
+
+    private void RebuildLookup()
+    {
+        itemsLookup.Clear();
+        prevItemsSet.Clear();
+
+        var items = Items.Cast<object>().Where(x => x is not null).ToList();
+        foreach (var it in items) AddItemToLookup(it);
+        foreach (var it in items) prevItemsSet.Add(it);
+    }
 
     protected override void OnItemsChanged(object e)
     {
         if (isDropDownOpenedOnce)
             base.OnItemsChanged(e);
+
+        OnItemsChanged();
+    }
+
+    private void OnItemsChanged()
+    {
+        var currentItems = Items.Cast<object>().Where(x => x is not null).ToList();
+        var newSet = new HashSet<object>(currentItems, new ReferenceEqualityComparer());
+
+        if (prevItemsSet.Count == 0)
+        {
+            RebuildLookup();
+            return;
+        }
+
+        var added = newSet.Where(it => !prevItemsSet.Contains(it)).ToList();
+        var removed = prevItemsSet.Where(it => !newSet.Contains(it)).ToList();
+
+        int changes = added.Count + removed.Count;
+        if (changes == 0) return;
+
+        if (changes <= Math.Max(1, prevItemsSet.Count / 2))
+        {
+            foreach (var r in removed) RemoveItemFromLookup(r);
+            foreach (var a in added) AddItemToLookup(a);
+            prevItemsSet = newSet;
+        }
+        else
+            RebuildLookup();
     }
 
     private void GroupedComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -298,31 +398,19 @@ public partial class GroupedComboBox : ListViewBase
         if (!isDropDownOpenedOnce)
         {
             if (this.SelectedItem != SelectedValue)
-            {
-                this.SelectedItem = SelectedValue;
                 PlaceholderText = string.Empty;
-            }
         }
-        else
+        else if (textBox is not null && textBox.FocusState == FocusState.Unfocused)
         {
             IsDropDownOpen = false;
-            if (this.SelectedItem is null && textBox is not null)
+            if (this.SelectedItem is null)
                 textBox.Text = string.Empty;
             else
                 SelectedValue = this.SelectedItem;
         }
-        if (SelectedValue is not null)
-        {
-            PlaceholderText = string.Empty;
-            if (textBox is not null && IsEditable)
-                textBox.Text = SelectedValue?.ToString() ?? string.Empty;
-            if (contentPresenter is not null && !IsEditable)
-                contentPresenter.Content = SelectedValue?.ToString() ?? string.Empty;
-        }
-        else if (textBox is not null && IsEditable)
-            textBox.Text = SelectedValueCache;
-        else if (contentPresenter is not null && !string.IsNullOrEmpty(SelectedValueCache) && !IsEditable)
-            contentPresenter.Content = SelectedValueCache;
+
+        SetDisplayForSelectedItem();
+
         if (textBox is not null && IsEditable)
             textBox.Focus(FocusState.Programmatic);
     }
@@ -339,12 +427,12 @@ public partial class GroupedComboBox : ListViewBase
         }
         else
         {
-            // TODO: Use DisplaymemberPath
-            var item = this.Items.FirstOrDefault(i => string.Equals(i?.ToString(), senderAsTextBox.Text, StringComparison.InvariantCultureIgnoreCase));
-            if (item is not null)
+            string text = senderAsTextBox.Text;
+
+            if (itemsLookup.TryGetValue(text, out var item))
             {
                 if (this.SelectedItem != item)
-                    this.SelectedItem = item;
+                    SelectedItem = item;
             }
             else
             {
@@ -483,18 +571,10 @@ public partial class GroupedComboBox : ListViewBase
     {
         if (placeholderTextBlock is not null)
             placeholderTextBlock.Tapped += PlaceholderTextBlockTapped;
-        if (this.SelectedItem is not null)
-            SelectedValue = this.SelectedItem;
-        else
-            SelectedValue = null;
-        if (textBox is not null && !string.IsNullOrEmpty(SelectedValueCache))
-            textBox.Text = SelectedValueCache;
         if (contentPresenter is not null)
             contentPresenter.AddHandler(TappedEvent, new TappedEventHandler(ButtonOrContentClick), true);
-        if (this.SelectedItem is null && contentPresenter is not null)
-            contentPresenter.Content = PlaceholderText;
-        if (contentPresenter is not null && !string.IsNullOrEmpty(SelectedValueCache))
-            contentPresenter.Content = SelectedValueCache;
+        SelectedValue = this.SelectedItem;
+        SetDisplayForSelectedItem();
     }
     protected void DetachSpecificEventHandlers()
     {
@@ -512,5 +592,23 @@ public partial class GroupedComboBox : ListViewBase
     protected override DependencyObject GetContainerForItemOverride()
     {
         return new GroupedComboBoxItem();
+    }
+
+    protected void SetDisplayForSelectedItem()
+    {
+        if (this.SelectedItem is not null)
+        {
+            PlaceholderText = string.Empty;
+            if (textBox is not null && IsEditable)
+                textBox.Text = GetDisplayMemberValue(SelectedItem);
+            if (contentPresenter is not null && !IsEditable)
+                contentPresenter.Content = GetDisplayMemberValue(SelectedItem);
+        }
+        else if (textBox is not null && IsEditable && !string.IsNullOrEmpty(SelectedValueCache))
+            textBox.Text = SelectedValueCache;
+        else if (contentPresenter is not null && !string.IsNullOrEmpty(SelectedValueCache) && !IsEditable)
+            contentPresenter.Content = SelectedValueCache;
+        else if (contentPresenter is not null && string.IsNullOrEmpty(SelectedValueCache) && !IsEditable)
+            contentPresenter.Content = placeholderTextCache;
     }
 }

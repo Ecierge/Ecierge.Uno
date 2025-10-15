@@ -2,7 +2,10 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:ctc="using:CommunityToolkit.WinUI.Controls"
                     xmlns:i="using:Microsoft.Xaml.Interactivity"
-                    xmlns:comp="using:Ecierge.Uno.Controls">
+                    xmlns:animatedvisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
+                    xmlns:comp="using:Ecierge.Uno.Controls"
+                    xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+                    xmlns:converters="using:CommunityToolkit.WinUI.Converters">
 
   <ResourceDictionary.MergedDictionaries>
     <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/Resources.xaml" />
@@ -153,9 +156,9 @@
                                     MinHeight="32"
                                     VerticalContentAlignment="Center"
                                     AutomationProperties.Name="{TemplateBinding AutomationProperties.Name}"
+                                    Background="Transparent"
                                     BorderBrush="{StaticResource TextControlElevationBorderBrush}"
                                     BorderThickness="0.5"
-                                    Background="Transparent"
                                     ContentTemplate="{TemplateBinding ItemTemplate}"
                                     CornerRadius="4"
                                     FlowDirection="{TemplateBinding FlowDirection}"
@@ -203,7 +206,7 @@
                                     VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                     Foreground="{TemplateBinding PlaceholderForeground}"
                                     Visibility="{Binding IsEditable, RelativeSource={RelativeSource TemplatedParent},
-                                                         Converter={StaticResource BoolToVisibilityConverter}}" >
+                                                         Converter={StaticResource BoolToVisibilityConverter}}">
                     <TextBlock x:Name="PlaceholderTextBlock"
                                Foreground="{TemplateBinding PlaceholderForeground}"
                                Text="{TemplateBinding PlaceholderText}"
