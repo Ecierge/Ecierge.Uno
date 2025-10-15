@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Licensed under the Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * See https://github.com/openiddict/openiddict-core for more information concerning
  * the license and the contributors participating to this project.
@@ -6,8 +6,10 @@
 
 using System.ComponentModel;
 
-using OpenIddict.Core;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+
 using OpenIddict.Client.UnoTokenPersistence;
+using OpenIddict.Core;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -54,7 +56,15 @@ public sealed class OpenIddictUnoTokenPersistenceBuilder
     public OpenIddictUnoTokenPersistenceBuilder ReplaceDefaultTokenEntity<TToken>()
         where TToken : OpenIddictUnoToken
     {
-        Services.Configure<OpenIddictCoreOptions>(options => options.DefaultTokenType = typeof(TToken));
+        Services.Replace(
+            ServiceDescriptor.Scoped<IOpenIddictTokenManager>(static provider =>
+                provider.GetRequiredService<OpenIddictTokenManager<TToken>>()
+            )
+        );
+
+        Services.Replace(
+            ServiceDescriptor.Scoped<IOpenIddictTokenStore<TToken>, OpenIddictUnoTokenStore<TToken>>()
+        );
 
         return this;
     }
