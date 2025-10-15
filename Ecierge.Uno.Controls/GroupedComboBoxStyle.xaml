@@ -48,12 +48,6 @@
     <Setter Property="ScrollViewer.ZoomMode" Value="Disabled" />
     <Setter Property="TabNavigation" Value="Once" />
 
-    <Setter Property="GroupStyleSelector">
-      <Setter.Value>
-        <comp:GroupedComboBoxGroupStyleSelector DefaultStyle="{StaticResource GroupedComboBoxGroupStyle}" />
-      </Setter.Value>
-    </Setter>
-
     <Setter Property="Template">
       <Setter.Value>
 
@@ -162,9 +156,9 @@
                                     MinHeight="32"
                                     VerticalContentAlignment="Center"
                                     AutomationProperties.Name="{TemplateBinding AutomationProperties.Name}"
+                                    Background="Transparent"
                                     BorderBrush="{StaticResource TextControlElevationBorderBrush}"
                                     BorderThickness="0.5"
-                                    Background="Transparent"
                                     ContentTemplate="{TemplateBinding ItemTemplate}"
                                     CornerRadius="4"
                                     FlowDirection="{TemplateBinding FlowDirection}"
@@ -212,7 +206,7 @@
                                     VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                     Foreground="{TemplateBinding PlaceholderForeground}"
                                     Visibility="{Binding IsEditable, RelativeSource={RelativeSource TemplatedParent},
-                                                         Converter={StaticResource BoolToVisibilityConverter}}" >
+                                                         Converter={StaticResource BoolToVisibilityConverter}}">
                     <TextBlock x:Name="PlaceholderTextBlock"
                                Foreground="{TemplateBinding PlaceholderForeground}"
                                Text="{TemplateBinding PlaceholderText}"

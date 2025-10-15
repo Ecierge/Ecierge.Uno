@@ -6,9 +6,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
-using Windows.Devices.Display.Core;
 
 [TemplatePart(Name = EditableText, Type = typeof(TextBox))]
 [TemplatePart(Name = MainGrid, Type = typeof(Grid))]
@@ -378,29 +376,17 @@ public partial class GroupedComboBox : ListViewBase
             if (this.SelectedItem != SelectedValue)
                 PlaceholderText = string.Empty;
         }
-        else
+        else if (textBox is not null && textBox.FocusState == FocusState.Unfocused)
         {
-            if (textBox is not null && textBox.FocusState == FocusState.Unfocused)
-            {
-                IsDropDownOpen = false;
-                if (this.SelectedItem is null)
-                    textBox.Text = string.Empty;
-                else
-                    SelectedValue = GetDisplayMemberValue(this.SelectedItem);
-            }
+            IsDropDownOpen = false;
+            if (this.SelectedItem is null)
+                textBox.Text = string.Empty;
+            else
+                SelectedValue = this.SelectedItem;
         }
-        if (SelectedValue is not null)
-        {
-            PlaceholderText = string.Empty;
-            if (textBox is not null && IsEditable)
-                textBox.Text = SelectedValue?.ToString() ?? string.Empty;
-            if (contentPresenter is not null && !IsEditable)
-                contentPresenter.Content = SelectedValue?.ToString() ?? string.Empty;
-        }
-        else if (textBox is not null && IsEditable)
-            textBox.Text = SelectedValueCache;
-        else if (contentPresenter is not null && !string.IsNullOrEmpty(SelectedValueCache) && !IsEditable)
-            contentPresenter.Content = SelectedValueCache;
+
+        SetDisplayForSelectedItem();
+
         if (textBox is not null && IsEditable)
             textBox.Focus(FocusState.Programmatic);
     }
@@ -561,18 +547,10 @@ public partial class GroupedComboBox : ListViewBase
     {
         if (placeholderTextBlock is not null)
             placeholderTextBlock.Tapped += PlaceholderTextBlockTapped;
-        if (this.SelectedItem is not null)
-            SelectedValue = this.SelectedItem;
-        else
-            SelectedValue = null;
-        if (textBox is not null && !string.IsNullOrEmpty(SelectedValueCache))
-            textBox.Text = SelectedValueCache;
         if (contentPresenter is not null)
             contentPresenter.AddHandler(TappedEvent, new TappedEventHandler(ButtonOrContentClick), true);
-        if (this.SelectedItem is null && contentPresenter is not null)
-            contentPresenter.Content = PlaceholderText;
-        if (contentPresenter is not null && !string.IsNullOrEmpty(SelectedValueCache))
-            contentPresenter.Content = SelectedValueCache;
+        SelectedValue = this.SelectedItem;
+        SetDisplayForSelectedItem();
     }
     protected void DetachSpecificEventHandlers()
     {
@@ -590,5 +568,23 @@ public partial class GroupedComboBox : ListViewBase
     protected override DependencyObject GetContainerForItemOverride()
     {
         return new GroupedComboBoxItem();
+    }
+
+    protected void SetDisplayForSelectedItem()
+    {
+        if (this.SelectedItem is not null)
+        {
+            PlaceholderText = string.Empty;
+            if (textBox is not null && IsEditable)
+                textBox.Text = GetDisplayMemberValue(SelectedItem);
+            if (contentPresenter is not null && !IsEditable)
+                contentPresenter.Content = GetDisplayMemberValue(SelectedItem);
+        }
+        else if (textBox is not null && IsEditable && !string.IsNullOrEmpty(SelectedValueCache))
+            textBox.Text = SelectedValueCache;
+        else if (contentPresenter is not null && !string.IsNullOrEmpty(SelectedValueCache) && !IsEditable)
+            contentPresenter.Content = SelectedValueCache;
+        else if (contentPresenter is not null && string.IsNullOrEmpty(SelectedValueCache) && !IsEditable)
+            contentPresenter.Content = placeholderTextCache;
     }
 }
