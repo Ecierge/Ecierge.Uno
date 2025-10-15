@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using Microsoft.UI.Xaml.Data;
 
 namespace Ecierge.Uno.Controls;
-public static class BindingEvaluator
+public class BindingEvaluator
 {
-    public static object? Evaluate(object source, string path)
+    public object? Evaluate(object source, string path)
     {
         var tb = new TextBlock();
 

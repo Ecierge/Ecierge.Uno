@@ -46,14 +46,29 @@ public partial class GroupedComboBox : ListViewBase
         && dropDownButton is not null && dropDownButton.FocusState == FocusState.Unfocused
         && popup is not null && popup.FocusState == FocusState.Unfocused;
 
+    /// <summary>
+    /// Lookup dictionary used for fast case-insensitive access to items by their string key.
+    /// The key is usually derived from the item's <see cref="DisplayMemberPath"/> or its <see cref="object.ToString()"/> value.
+    /// </summary>
     private Dictionary<string, object> itemsLookup = new(StringComparer.OrdinalIgnoreCase);
+    /// <summary>
+    /// Keeps a reference-based snapshot of the current items collection.
+    /// Used to efficiently detect added or removed items without rebuilding the entire lookup.
+    /// </summary>
     private HashSet<object> prevItemsSet = new(new ReferenceEqualityComparer());
 
+    /// <summary>
+    /// Provides reference equality comparison for objects.
+    /// This ensures that object identity (not logical equality) is used when comparing items.
+    /// </summary>
     private sealed class ReferenceEqualityComparer : IEqualityComparer<object>
     {
         public new bool Equals(object? x, object? y) => ReferenceEquals(x, y);
         public int GetHashCode(object obj) => RuntimeHelpers.GetHashCode(obj);
     }
+
+    private BindingEvaluator bindingEvaluator = new();
+
 
     #region IsDropDownOpen
 
@@ -252,6 +267,11 @@ public partial class GroupedComboBox : ListViewBase
     public GroupedComboBox()
     {
         DefaultStyleKey = typeof(GroupedComboBox);
+        this.RegisterPropertyChangedCallback(ItemsControl.DisplayMemberPathProperty, (d, dp) =>
+        {
+            var control = (GroupedComboBox)d;
+            control.OnDisplayMemberPathChanged(d, EventArgs.Empty);
+        });
     }
 
     /// <inheritdoc/>
@@ -296,6 +316,10 @@ public partial class GroupedComboBox : ListViewBase
 
         ReAttachEventHandlersOnIsEditableChanged();
     }
+    private void OnDisplayMemberPathChanged(object? sender, EventArgs e)
+    {
+        bindingEvaluator = new();
+    }
 
     public string? GetDisplayMemberValue(object item)
     {
@@ -303,7 +327,7 @@ public partial class GroupedComboBox : ListViewBase
             return null;
         if (!string.IsNullOrEmpty(DisplayMemberPath))
         {
-            var value = BindingEvaluator.Evaluate(item, DisplayMemberPath);
+            var value = bindingEvaluator.Evaluate(item, DisplayMemberPath);
             if (value is not null)
                 return value.ToString();
         }
@@ -329,7 +353,7 @@ public partial class GroupedComboBox : ListViewBase
         itemsLookup.Clear();
         prevItemsSet.Clear();
 
-        var items = Items.Cast<object>().Where(x => x != null).ToList();
+        var items = Items.Cast<object>().Where(x => x is not null).ToList();
         foreach (var it in items) AddItemToLookup(it);
         foreach (var it in items) prevItemsSet.Add(it);
     }
@@ -344,7 +368,7 @@ public partial class GroupedComboBox : ListViewBase
 
     private void OnItemsChanged()
     {
-        var currentItems = Items.Cast<object>().Where(x => x != null).ToList();
+        var currentItems = Items.Cast<object>().Where(x => x is not null).ToList();
         var newSet = new HashSet<object>(currentItems, new ReferenceEqualityComparer());
 
         if (prevItemsSet.Count == 0)
