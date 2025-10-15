@@ -1,8 +1,7 @@
 namespace Ecierge.Uno.Navigation.Routing;
 
-using System.Diagnostics;
 using System.Collections.Immutable;
-
+using System.Diagnostics;
 using MoreLinq;
 
 public abstract record RouteSegmentInstance()
@@ -33,6 +32,7 @@ public record Route
     public ImmutableArray<RouteSegmentInstance> Segments { get; init; }
     public INavigationData? Data { get; init; }
     public bool Refresh { get; init; }
+    public RouteSegmentInstance this[int index] => Segments[index];
 
     public static Route Empty => new Route(ImmutableArray<RouteSegmentInstance>.Empty);
 

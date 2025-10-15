@@ -7,8 +7,8 @@ public abstract partial record NavigationRequest(object Sender, Routing.Route Ro
 {
     public Guid Id { get; } = Guid.NewGuid();
 
-    public abstract NameSegment NameSegment { get; }
-    public abstract RouteSegment RouteSegment { get; }
+    public abstract NameSegment? NameSegment { get; }
+    public abstract RouteSegment? RouteSegment { get; }
     internal abstract ViewMapBase? View { get; }
 }
 
@@ -16,8 +16,8 @@ public abstract partial record NavigationRequest(object Sender, Routing.Route Ro
 public record BackNavigationRequest(object Sender, Routing.Route Route) : NavigationRequest(Sender, Route)
 {
     // TODO: Implement correctly
-    public override NameSegment NameSegment => throw new NotSupportedException("Back navigation does not have a name segment.");
-    public override RouteSegment RouteSegment => throw new NotSupportedException("Back navigation does not have a route segment.");
+    public override NameSegment? NameSegment => null;
+    public override RouteSegment? RouteSegment => null;
     internal override ViewMapBase? View => null;
 }
 

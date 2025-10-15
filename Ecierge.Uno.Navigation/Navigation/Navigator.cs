@@ -79,7 +79,7 @@ public abstract class Navigator
         NavigationStatus = ServiceProvider.GetRequiredService<INavigationStatus>();
     }
 
-    public async Task<NavigationRuleResult> IsAllowedToNavigateAsync(string route)
+    public async Task<NavigationRuleResult> IsAllowedToNavigateAsync(Routing.Route route)
     {
         var checkers = ServiceProvider.GetServices<INavigationRuleChecker>().ToList();
         bool isAllowed = true;
@@ -152,7 +152,7 @@ public abstract class Navigator
     /// <returns>The navigation response (awaitable)</returns>
     public async ValueTask<NavigationResult> NavigateAsync(NavigationRequest request)
     {
-        var navigationRuleResult = await IsAllowedToNavigateAsync(request.Route.ToString());
+        var navigationRuleResult = await IsAllowedToNavigateAsync(request.Route);
         if (!navigationRuleResult.IsAllowed)
         {
             return new NavigationResult(navigationRuleResult.Reasons);
