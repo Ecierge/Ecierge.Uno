@@ -336,7 +336,13 @@ public static class NavigatorExtensions
                         break;
                     case DataSegmentInstance dataSegmentInstance:
                         if (dataSegmentInstance.Data is { } task)
+                        {
+                            // If data is not task we need to replace it so that all child navigators receive it during navigation
+                            var key = dataSegmentInstance.DataSegment.Name;
+                            var newData = route.Data.SetItem(key, dataSegmentInstance.Data!);
+                            route = route with { Data = newData };
                             result = await currentNavigator.NavigateAsync(new TaskDataSegmentNavigationRequest(initiator, dataSegmentInstance.DataSegment, dataSegmentInstance.Primitive, task, route));
+                        }
                         else
                             result = await currentNavigator.NavigateAsync(new PrimitiveDataSegmentNavigationRequest(initiator, dataSegmentInstance.DataSegment, dataSegmentInstance.Primitive, route));
                         break;
@@ -352,6 +358,8 @@ public static class NavigatorExtensions
                     default:
                         throw new NotSupportedException("Unknown segment type.");
                 }
+                // TODO: Handle case then navigation is failed due to permission check
+                // Introduce denied result subclass and short-circuit in that case
                 if (!result.Success)
                 {
                     var effectiveRoute = route.TrimTill(segment);
