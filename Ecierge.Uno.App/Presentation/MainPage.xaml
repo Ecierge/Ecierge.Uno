@@ -142,6 +142,7 @@
             </i:EventTriggerBehavior>
           </i:Interaction.Behaviors>
         </Button>
+        <Button AutomationProperties.AutomationId="ThirdPageButton" Command="{Binding GoToThird}" Content="Go to Third Page with new control" />
         <Button Content="Navigate nested to Tab2">
           <i:Interaction.Behaviors>
             <i:EventTriggerBehavior EventName="Click">
