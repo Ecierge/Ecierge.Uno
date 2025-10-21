@@ -82,18 +82,40 @@ public abstract class Navigator
     public async Task<NavigationRuleResult> IsAllowedToNavigateAsync(Routing.Route route)
     {
         var checkers = ServiceProvider.GetServices<INavigationRuleChecker>().ToList();
-        bool isAllowed = true;
+        bool isProhibited = false;
+        bool isAllowed = false;
         var errors = new List<string>();
+        var exceptions = new List<Exception>();
         foreach (var checker in checkers)
         {
-            var ruleResult = await checker.CanNavigateAsync(route);
-            if (!ruleResult.IsAllowed)
+            try
             {
-                isAllowed = false;
-                errors.AddRange(ruleResult.Reasons);
+                var ruleResult = await checker.CanNavigateAsync(route);
+                if (!ruleResult.IsAllowed)
+                {
+                    isProhibited = true;
+                    errors.AddRange(ruleResult.Reasons);
+                }
+                else
+                {
+                    isAllowed = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                exceptions.Add(ex);
+                Logger.LogError(ex, "Navigation rule checker of type {type} crashed", checker.GetType());
             }
         }
 
+        if (isProhibited && !isAllowed)
+        {
+            return NavigationRuleResult.Deny(errors);
+        }
+        if (!isAllowed && exceptions.Any())
+        {
+            return NavigationRuleResult.Deny("All rule checkers crashed");
+        }
         if (isAllowed)
         {
             return NavigationRuleResult.Allow();
