@@ -113,7 +113,8 @@ public partial class App : Application
             new ViewMap<Shell, ShellViewModel>(),
             new ViewMap<MainPage, MainViewModel>(),
             new ViewMap<MainContentDialog, MainViewModel>(),
-            new ViewMap<SecondPage, SecondViewModel>()
+            new ViewMap<SecondPage, SecondViewModel>(),
+            new ViewMap<ThirdPage, ThirdViewModel>()
         );
 
         data.Register<EntityNavigationDataMap>();
@@ -134,7 +135,8 @@ public partial class App : Application
                     new DialogSegment("ContentDialog", views[typeof(MainContentDialog)], nested:[
                             new ("Tab1", isDefault: true),
                             new ("Tab2"),
-                        ])
+                        ]),
+                    new ("Third", views[typeof(ThirdPage)], new DataSegment("name", data[typeof(Entity)]))
             //    ]
             //)
             ]
