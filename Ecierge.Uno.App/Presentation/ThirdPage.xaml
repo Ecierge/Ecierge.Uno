@@ -1,0 +1,99 @@
+﻿<Page x:Class="Ecierge.Uno.App.Presentation.ThirdPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:i="using:Microsoft.Xaml.Interactivity"
+      xmlns:local="using:Ecierge.Uno.App.Presentation"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:nav="using:Ecierge.Uno.Navigation"
+      xmlns:ctrl="using:Ecierge.Uno.Controls"
+      xmlns:utu="using:Uno.Toolkit.UI"
+      xmlns:um="using:Uno.Material"
+      Background="{ThemeResource BackgroundBrush}">
+  <Grid utu:SafeArea.Insets="VisibleBounds">
+
+      <ctrl:PageContentControl >
+        <ctrl:PageContentControl.Title>
+          <TextBlock Text="Items Page" FontSize="20" FontWeight="Bold" Padding="8"/>
+        </ctrl:PageContentControl.Title>
+
+        <ctrl:PageContentControl.HeaderContent>
+        <CommandBar DefaultLabelPosition="Right" Background="Transparent">
+            <AppBarButton Icon="Back" Label="Go back to Main">
+              <i:Interaction.Behaviors>
+                <i:EventTriggerBehavior EventName="Click">
+                  <nav:NavigateRootRouteAction Route="Main" />
+                </i:EventTriggerBehavior>
+              </i:Interaction.Behaviors>
+            </AppBarButton>
+              <AppBarButton Icon="Add" />
+          </CommandBar>
+        </ctrl:PageContentControl.HeaderContent>
+
+        <ctrl:PageContentControl.FooterContent>
+          <CommandBar  VerticalAlignment="Center" Background="Transparent">
+          <AppBarButton Icon="Save" />
+          <AppBarButton Icon="Delete" />
+        </CommandBar>
+        </ctrl:PageContentControl.FooterContent>
+
+        <ctrl:PageContentControl.Content>
+          <StackPanel Background="Orange">
+          <ItemsControl>
+            <TextBlock Foreground="White">Some element or some content 1</TextBlock>
+            <TextBlock Foreground="White">Some element or some content 2</TextBlock>
+            <TextBlock Foreground="White">Some element or some content 3</TextBlock>
+            <TextBlock Foreground="White">Some element or some content 4</TextBlock>
+            <TextBlock Foreground="White">Some element or some content 5</TextBlock>
+            <TextBlock Foreground="White">Some element or some content 6</TextBlock>
+            <TextBlock Foreground="White">Some element or some content 7</TextBlock>
+            <TextBlock>Some element or some content 8</TextBlock>
+            <TextBlock>Some element or some content 9</TextBlock>
+            <TextBlock>Some element or some content 10</TextBlock>
+            <TextBlock>Some element or some content 11</TextBlock>
+            <TextBlock>Some element or some content 12</TextBlock>
+            <TextBlock>Some element or some content 13</TextBlock>
+            <TextBlock>Some element or some content 14</TextBlock>
+            <TextBlock>Some element or some content 15</TextBlock>
+            <TextBlock>Some element or some content 16</TextBlock>
+            <TextBlock>Some element or some content 17</TextBlock>
+            <TextBlock>Some element or some content 18</TextBlock>
+            <TextBlock>Some element or some content 19</TextBlock>
+            <TextBlock>Some element or some content 20</TextBlock>
+            <TextBlock>Some element or some content 21</TextBlock>
+            <TextBlock>Some element or some content 22</TextBlock>
+            <TextBlock>Some element or some content 23</TextBlock>
+            <TextBlock>Some element or some content 24</TextBlock>
+            <TextBlock>Some element or some content 25</TextBlock>
+            <TextBlock>Some element or some content 26</TextBlock>
+            <TextBlock>Some element or some content 27</TextBlock>
+            <TextBlock>Some element or some content 28</TextBlock>
+            <TextBlock>Some element or some content 29</TextBlock>
+            <TextBlock>Some element or some content 30</TextBlock>
+            <TextBlock>Some element or some content 31</TextBlock>
+            <TextBlock>Some element or some content 32</TextBlock>
+            <TextBlock>Some element or some content 33</TextBlock>
+            <TextBlock>Some element or some content 34</TextBlock>
+            <TextBlock>Some element or some content 35</TextBlock>
+            <TextBlock>Some element or some content 36</TextBlock>
+            <TextBlock>Some element or some content 37</TextBlock>
+            <TextBlock>Some element or some content 38</TextBlock>
+            <TextBlock>Some element or some content 39</TextBlock>
+            <TextBlock>Some element or some content 40</TextBlock>
+            <TextBlock>Some element or some content 41</TextBlock>
+            <TextBlock>Some element or some content 42</TextBlock>
+            <TextBlock>Some element or some content 43</TextBlock>
+            <TextBlock>Some element or some content 44</TextBlock>
+            <TextBlock>Some element or some content 45</TextBlock>
+            <TextBlock>Some element or some content 46</TextBlock>
+            <TextBlock>Some element or some content 47</TextBlock>
+            <TextBlock>Some element or some content 48</TextBlock>
+            <TextBlock>Some element or some content 49</TextBlock>
+            <TextBlock>Some element or some content 50</TextBlock>
+          </ItemsControl>
+        </StackPanel>
+        </ctrl:PageContentControl.Content>
+      </ctrl:PageContentControl>
+
+    </Grid>
+</Page>
