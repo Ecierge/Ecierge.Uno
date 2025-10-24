@@ -13,9 +13,9 @@
     All features: https://platform.uno/docs/articles/features/using-the-uno-sdk.html?tabs=uno-packages#uno-platform-features
   -->
   <PropertyGroup>
-    <WinAppSdkVersion>1.7.250606001</WinAppSdkVersion> <!-- https://www.nuget.org/packages/Microsoft.WindowsAppSDK -->
-    <WinAppSdkBuildToolsVersion>10.0.26100.4948</WinAppSdkBuildToolsVersion > <!-- https://www.nuget.org/packages/Microsoft.Windows.SDK.BuildTools -->
-    <WindowsSdkPackageVersion>10.0.26100.71</WindowsSdkPackageVersion> <!-- https://www.nuget.org/packages/Microsoft.Windows.SDK.NET.Ref -->
+    <WinAppSdkVersion>1.7.251014001</WinAppSdkVersion> <!-- https://www.nuget.org/packages/Microsoft.WindowsAppSDK -->
+    <WinAppSdkBuildToolsVersion>10.0.26100.6584</WinAppSdkBuildToolsVersion> <!-- https://www.nuget.org/packages/Microsoft.Windows.SDK.BuildTools -->
+    <WindowsSdkPackageVersion>10.0.26100.78</WindowsSdkPackageVersion> <!-- https://www.nuget.org/packages/Microsoft.Windows.SDK.NET.Ref -->
     <!--<UnoExtensionsVersion>5.1.2</UnoExtensionsVersion> --><!-- https://www.nuget.org/packages/Uno.Extensions.Core -->
     <!--<UnoLoggingVersion>1.7.0</UnoLoggingVersion> --><!-- https://www.nuget.org/packages/Uno.Extensions.Logging.OSLog -->
     <!--<UnoCoreLoggingSingletonVersion>4.1.1</UnoCoreLoggingSingletonVersion> --><!-- https://www.nuget.org/packages/Uno.Core.Extensions.Logging -->
