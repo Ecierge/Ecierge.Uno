@@ -140,6 +140,52 @@ public sealed partial class PageContentControl : Control
 
     #endregion
 
+    #region FooterCornerRadius
+
+    /// <summary>
+    /// FooterCornerRadius Dependency Property
+    /// </summary>
+    public CornerRadius FooterCornerRadius
+    {
+        get => (CornerRadius)GetValue(FooterCornerRadiusProperty);
+        set => SetValue(FooterCornerRadiusProperty, value);
+    }
+
+    /// <summary>
+    /// Gets or sets the FooterCornerRadius property. This dependency property
+    /// </summary>
+    public static readonly DependencyProperty FooterCornerRadiusProperty =
+        DependencyProperty.Register(
+            nameof(FooterCornerRadius),
+            typeof(CornerRadius),
+            typeof(PageContentControl),
+            new PropertyMetadata(new CornerRadius(0)));
+
+    #endregion
+
+    #region HeaderCornerRadius
+
+    /// <summary>
+    /// HeaderCornerRadius Dependency Property
+    /// </summary>
+    public CornerRadius HeaderCornerRadius
+    {
+        get => (CornerRadius)GetValue(HeaderCornerRadiusProperty);
+        set => SetValue(HeaderCornerRadiusProperty, value);
+    }
+
+    /// <summary>
+    /// Gets or sets the HeaderCornerRadius property. This dependency property
+    /// </summary>
+    public static readonly DependencyProperty HeaderCornerRadiusProperty =
+        DependencyProperty.Register(
+            nameof(HeaderCornerRadius),
+            typeof(CornerRadius),
+            typeof(PageContentControl),
+            new PropertyMetadata(new CornerRadius(0)));
+
+    #endregion
+
     public PageContentControl()
     {
         DefaultStyleKey = typeof(PageContentControl);
@@ -163,9 +209,9 @@ public sealed partial class PageContentControl : Control
             scrollViewer.LayoutUpdated += OnScrollViewerLayoutUpdated;
         }
 
-        if (header != null)
+        if (header is not null)
             header.SizeChanged += OnHeaderFooterSizeChanged;
-        if (footer != null)
+        if (footer is not null)
             footer.SizeChanged += OnHeaderFooterSizeChanged;
 
         UpdateScrollBarMargin();
@@ -192,7 +238,7 @@ public sealed partial class PageContentControl : Control
 
         UpdateScrollBar();
 
-        if (scrollBar != null && scrollViewer != null && Math.Abs(scrollBar.Value - scrollViewer.VerticalOffset) > 0.5)
+        if (scrollBar is not null && scrollViewer is not null && Math.Abs(scrollBar.Value - scrollViewer.VerticalOffset) > 0.5)
             scrollBar.Value = scrollViewer.VerticalOffset;
 
         isSyncing = false;
@@ -203,7 +249,7 @@ public sealed partial class PageContentControl : Control
         if (isSyncing) return;
         isSyncing = true;
 
-        if (scrollViewer != null && Math.Abs(e.NewValue - scrollViewer.VerticalOffset) > 0.5)
+        if (scrollViewer is not null && Math.Abs(e.NewValue - scrollViewer.VerticalOffset) > 0.5)
             scrollViewer.ChangeView(null, e.NewValue, null, disableAnimation: true);
 
         isSyncing = false;
@@ -211,7 +257,7 @@ public sealed partial class PageContentControl : Control
 
     private void UpdateScrollBar()
     {
-        if (scrollViewer == null || scrollBar == null)
+        if (scrollViewer is null || scrollBar is null)
             return;
 
         double scrollable = scrollViewer.ScrollableHeight;
@@ -231,16 +277,16 @@ public sealed partial class PageContentControl : Control
 
     private void UpdateScrollBarMargin()
     {
-        if (scrollBar == null)
+        if (scrollBar is null)
             return;
 
         double topOffset = 0;
         double bottomOffset = 0;
 
-        if (header != null && header.ActualHeight > 0)
+        if (header is not null && header.ActualHeight > 0)
             topOffset = header.ActualHeight;
 
-        if (footer != null && footer.ActualHeight > 0)
+        if (footer is not null && footer.ActualHeight > 0)
             bottomOffset = footer.ActualHeight;
 
         scrollBar.Margin = new Thickness(0, topOffset, 0, bottomOffset);
@@ -254,15 +300,15 @@ public sealed partial class PageContentControl : Control
         double topOffset = 0;
         double bottomOffset = 0;
 
-        if (header != null && header.ActualHeight > 0)
+        if (header is not null && header.ActualHeight > 0)
             topOffset = header.ActualHeight;
 
-        if (footer != null && footer.ActualHeight > 0)
+        if (footer is not null && footer.ActualHeight > 0)
             bottomOffset = footer.ActualHeight;
 
         contentPresenter.Padding = new Thickness(0, topOffset, 0, bottomOffset);
 
-        if (scrollViewer == null || scrollBar == null)
+        if (scrollViewer is null || scrollBar is null)
             return;
 
         scrollBar.Maximum = scrollViewer.ScrollableHeight;
@@ -272,16 +318,16 @@ public sealed partial class PageContentControl : Control
 
     private void DetachHandlers()
     {
-        if (scrollViewer != null)
+        if (scrollViewer is not null)
         {
             scrollViewer.ViewChanged -= OnScrollViewerViewChanged;
             scrollViewer.LayoutUpdated -= OnScrollViewerLayoutUpdated;
         }
-        if (scrollBar != null)
+        if (scrollBar is not null)
             scrollBar.ValueChanged -= OnScrollBarValueChanged;
-        if (header != null)
+        if (header is not null)
             header.SizeChanged -= OnHeaderFooterSizeChanged;
-        if (footer != null)
+        if (footer is not null)
             footer.SizeChanged -= OnHeaderFooterSizeChanged;
     }
 }
