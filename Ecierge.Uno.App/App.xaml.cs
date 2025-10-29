@@ -114,7 +114,7 @@ public partial class App : Application
             new ViewMap<MainPage, MainViewModel>(),
             new ViewMap<MainContentDialog, MainViewModel>(),
             new ViewMap<SecondPage, SecondViewModel>(),
-            new ViewMap<ThirdPage, ThirdViewModel>()
+            new ViewMap<PageContentControl, PageContentControlViewModel>()
         );
 
         data.Register<EntityNavigationDataMap>();
@@ -136,7 +136,7 @@ public partial class App : Application
                             new ("Tab1", isDefault: true),
                             new ("Tab2"),
                         ]),
-                    new ("Third", views[typeof(ThirdPage)], new DataSegment("name", data[typeof(Entity)]))
+                    new ("PageContentControl", views[typeof(PageContentControl)], new DataSegment("name", data[typeof(Entity)]))
             //    ]
             //)
             ]

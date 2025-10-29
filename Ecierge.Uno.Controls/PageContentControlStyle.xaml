@@ -48,8 +48,9 @@
 
               <Grid x:Name="Header"
                     Height="Auto"
+                    CornerRadius="{TemplateBinding HeaderCornerRadius}"
                     VerticalAlignment="Top"
-                    Background="{ThemeResource CustomAcrylicBrush1}">
+                    Background="{ThemeResource CustomAcrylicBrush2}">
                 <ContentPresenter HorizontalAlignment="Stretch"
                                   VerticalAlignment="Stretch"
                                   Background="Transparent"
@@ -57,6 +58,7 @@
               </Grid>
               <Grid x:Name="Footer"
                     Height="Auto"
+                    CornerRadius="{TemplateBinding FooterCornerRadius}"
                     VerticalAlignment="Bottom"
                     Background="{ThemeResource CustomAcrylicBrush2}">
                 <ContentPresenter HorizontalAlignment="Stretch"
