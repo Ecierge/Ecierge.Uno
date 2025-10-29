@@ -2,9 +2,9 @@ namespace Ecierge.Uno.App.Presentation;
 
 using Microsoft.UI.Xaml.Controls;
 
-public sealed partial class ThirdPage : Page
+public sealed partial class PageContentControl : Page
 {
-    public ThirdPage()
+    public PageContentControl()
     {
         this.InitializeComponent();
     }
