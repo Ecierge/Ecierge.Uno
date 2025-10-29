@@ -2,13 +2,13 @@ namespace Ecierge.Uno.App.Presentation;
 
 using System.Threading.Tasks;
 
-public partial class ThirdViewModel : ObservableObject
+public partial class PageContentControlViewModel : ObservableObject
 {
     [ObservableProperty]
     private string name;
-    public string Title { get; } = "Third";
+    public string Title { get; } = "PageContentControl";
 
-    public ThirdViewModel(Task<Entity> name)
+    public PageContentControlViewModel(Task<Entity> name)
     {
         LoadData(name);
     }
