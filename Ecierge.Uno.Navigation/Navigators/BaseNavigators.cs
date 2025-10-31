@@ -35,6 +35,14 @@ public abstract class FactoryNavigator<TTarget> : Navigator<TTarget>
             {
                 var viewModel = result.Result;
                 view.DataContext = viewModel;
+                view.Unloaded += (_, _) =>
+                {
+                    if (viewModel is IDisposable disposable)
+                    {
+                        view.DataContext = null;
+                        disposable.Dispose();
+                    }
+                };
             }
             else return result;
         }
