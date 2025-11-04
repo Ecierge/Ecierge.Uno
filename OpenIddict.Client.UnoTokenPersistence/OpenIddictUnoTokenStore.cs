@@ -600,31 +600,6 @@ public class OpenIddictUnoTokenStore<TToken> : IOpenIddictTokenStore<TToken>
     }
 
     /// <inheritdoc/>
-    public virtual async ValueTask<long> RevokeByAuthorizationIdAsync(string identifier, CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrEmpty(identifier))
-        {
-            throw new ArgumentException(SR.GetResourceString(SR.ID0195), nameof(identifier));
-        }
-
-        var keys = await KeyValueStorage.GetKeysAsync(cancellationToken);
-        keys = keys.Where(TokenPrefixPredicate).ToArray();
-        long count = 0L;
-        foreach (var key in keys)
-        {
-            var token = await KeyValueStorage.GetAsync<TToken>(key, cancellationToken);
-            if (token is not null && token.AuthorizationId == identifier)
-            {
-                token.Status = Statuses.Revoked;
-                var tokenIdentifier = Options.CurrentValue.TokenIdentifierPrefix + token.Id;
-                await KeyValueStorage.SetAsync(tokenIdentifier, token, cancellationToken);
-                count++;
-            }
-        }
-        return count;
-    }
-
-    /// <inheritdoc/>
     public virtual ValueTask SetApplicationIdAsync(TToken token, string? identifier, CancellationToken cancellationToken)
     {
         if (token is null)
@@ -789,18 +764,105 @@ public class OpenIddictUnoTokenStore<TToken> : IOpenIddictTokenStore<TToken>
         return KeyValueStorage.SetAsync(identifier, token, cancellationToken);
     }
 
-    public ValueTask<long> RevokeAsync(string? subject, string? client, string? status, string? type, CancellationToken cancellationToken)
+    public async ValueTask<long> RevokeAsync(string? subject, string? client, string? status, string? type, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var keys = await KeyValueStorage.GetKeysAsync(cancellationToken);
+        keys = keys.Where(TokenPrefixPredicate).ToArray();
+        long count = 0L;
+
+        foreach (var key in keys)
+        {
+            var token = await KeyValueStorage.GetAsync<TToken>(key, cancellationToken);
+            if (token is null)
+            {
+                continue;
+            }
+
+            var matches =
+                (subject is null || token.Subject == subject) &&
+                (client is null || token.AuthorizationId == client) &&
+                (status is null || token.Status == status) &&
+                (type is null || token.Type == type);
+
+            if (matches)
+            {
+                token.Status = Statuses.Revoked;
+                var tokenIdentifier = Options.CurrentValue.TokenIdentifierPrefix + token.Id;
+                await KeyValueStorage.SetAsync(tokenIdentifier, token, cancellationToken);
+                count++;
+            }
+        }
+
+        return count;
     }
 
-    public ValueTask<long> RevokeByApplicationIdAsync(string identifier, CancellationToken cancellationToken = default)
+    /// <inheritdoc/>
+    public virtual async ValueTask<long> RevokeByApplicationIdAsync(string identifier, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        if (string.IsNullOrEmpty(identifier))
+        {
+            throw new ArgumentException(SR.GetResourceString(SR.ID0195), nameof(identifier));
+        }
+        var keys = await KeyValueStorage.GetKeysAsync(cancellationToken);
+        keys = keys.Where(TokenPrefixPredicate).ToArray();
+        long count = 0L;
+        foreach (var key in keys)
+        {
+            var token = await KeyValueStorage.GetAsync<TToken>(key, cancellationToken);
+            if (token is not null && token.ApplicationId == identifier)
+            {
+                token.Status = Statuses.Revoked;
+                var tokenIdentifier = Options.CurrentValue.TokenIdentifierPrefix + token.Id;
+                await KeyValueStorage.SetAsync(tokenIdentifier, token, cancellationToken);
+                count++;
+            }
+        }
+        return count;
     }
-
-    public ValueTask<long> RevokeBySubjectAsync(string subject, CancellationToken cancellationToken = default)
+    public virtual async ValueTask<long> RevokeByAuthorizationIdAsync(string identifier, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        if (string.IsNullOrEmpty(identifier))
+        {
+            throw new ArgumentException(SR.GetResourceString(SR.ID0195), nameof(identifier));
+        }
+
+        var keys = await KeyValueStorage.GetKeysAsync(cancellationToken);
+        keys = keys.Where(TokenPrefixPredicate).ToArray();
+        long count = 0L;
+        foreach (var key in keys)
+        {
+            var token = await KeyValueStorage.GetAsync<TToken>(key, cancellationToken);
+            if (token is not null && token.AuthorizationId == identifier)
+            {
+                token.Status = Statuses.Revoked;
+                var tokenIdentifier = Options.CurrentValue.TokenIdentifierPrefix + token.Id;
+                await KeyValueStorage.SetAsync(tokenIdentifier, token, cancellationToken);
+                count++;
+            }
+        }
+        return count;
+    }
+    public virtual async ValueTask<long> RevokeBySubjectAsync(string subject, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrEmpty(subject))
+        {
+            throw new ArgumentException(SR.GetResourceString(SR.ID0195), nameof(subject));
+        }
+
+        var keys = await KeyValueStorage.GetKeysAsync(cancellationToken);
+        keys = keys.Where(TokenPrefixPredicate).ToArray();
+        long count = 0L;
+        foreach (var key in keys)
+        {
+            var token = await KeyValueStorage.GetAsync<TToken>(key, cancellationToken);
+            if (token is not null && token.Subject == subject)
+            {
+                token.Status = Statuses.Revoked;
+                var tokenIdentifier = Options.CurrentValue.TokenIdentifierPrefix + token.Id;
+                await KeyValueStorage.SetAsync(tokenIdentifier, token, cancellationToken);
+                count++;
+            }
+        }
+        return count;
     }
 }
