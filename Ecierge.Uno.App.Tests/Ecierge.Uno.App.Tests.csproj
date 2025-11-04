@@ -19,5 +19,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Ecierge.Uno.App\Ecierge.Uno.App.csproj" />
+    <ProjectReference Include="..\OpenIddict.Client.UnoTokenPersistence\OpenIddict.Client.UnoTokenPersistence.csproj" />
   </ItemGroup>
 </Project>
