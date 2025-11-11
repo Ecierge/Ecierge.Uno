@@ -764,7 +764,8 @@ public class OpenIddictUnoTokenStore<TToken> : IOpenIddictTokenStore<TToken>
         return KeyValueStorage.SetAsync(identifier, token, cancellationToken);
     }
 
-    public async ValueTask<long> RevokeAsync(string? subject, string? client, string? status, string? type, CancellationToken cancellationToken)
+    /// <inheritdoc/>
+    public virtual async ValueTask<long> RevokeAsync(string? subject, string? client, string? status, string? type, CancellationToken cancellationToken)
     {
         var keys = await KeyValueStorage.GetKeysAsync(cancellationToken);
         keys = keys.Where(TokenPrefixPredicate).ToArray();
@@ -773,10 +774,7 @@ public class OpenIddictUnoTokenStore<TToken> : IOpenIddictTokenStore<TToken>
         foreach (var key in keys)
         {
             var token = await KeyValueStorage.GetAsync<TToken>(key, cancellationToken);
-            if (token is null)
-            {
-                continue;
-            }
+            if (token is null) continue;
 
             var matches =
                 (subject is null || token.Subject == subject) &&
@@ -799,10 +797,8 @@ public class OpenIddictUnoTokenStore<TToken> : IOpenIddictTokenStore<TToken>
     /// <inheritdoc/>
     public virtual async ValueTask<long> RevokeByApplicationIdAsync(string identifier, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrEmpty(identifier))
-        {
-            throw new ArgumentException(SR.GetResourceString(SR.ID0195), nameof(identifier));
-        }
+        if (string.IsNullOrEmpty(identifier)) throw new ArgumentException(SR.GetResourceString(SR.ID0195), nameof(identifier));
+
         var keys = await KeyValueStorage.GetKeysAsync(cancellationToken);
         keys = keys.Where(TokenPrefixPredicate).ToArray();
         long count = 0L;
@@ -819,12 +815,11 @@ public class OpenIddictUnoTokenStore<TToken> : IOpenIddictTokenStore<TToken>
         }
         return count;
     }
+
+    /// <inheritdoc/>
     public virtual async ValueTask<long> RevokeByAuthorizationIdAsync(string identifier, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(identifier))
-        {
-            throw new ArgumentException(SR.GetResourceString(SR.ID0195), nameof(identifier));
-        }
+        if (string.IsNullOrEmpty(identifier)) throw new ArgumentException(SR.GetResourceString(SR.ID0195), nameof(identifier));
 
         var keys = await KeyValueStorage.GetKeysAsync(cancellationToken);
         keys = keys.Where(TokenPrefixPredicate).ToArray();
@@ -842,12 +837,11 @@ public class OpenIddictUnoTokenStore<TToken> : IOpenIddictTokenStore<TToken>
         }
         return count;
     }
+
+    /// <inheritdoc/>
     public virtual async ValueTask<long> RevokeBySubjectAsync(string subject, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrEmpty(subject))
-        {
-            throw new ArgumentException(SR.GetResourceString(SR.ID0195), nameof(subject));
-        }
+        if (string.IsNullOrEmpty(subject)) throw new ArgumentException(SR.GetResourceString(SR.ID0195), nameof(subject));
 
         var keys = await KeyValueStorage.GetKeysAsync(cancellationToken);
         keys = keys.Where(TokenPrefixPredicate).ToArray();

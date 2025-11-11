@@ -37,7 +37,7 @@ public class RevokeTokenTests
 
     public record RevokeTokenTestCase(string? Subject, string? AuthorizationId, string? Status, string? Type);
 
-    private static RevokeTokenTestCase[] revokeTokenTestCases = new[]
+    private readonly static RevokeTokenTestCase[] revokeTokenTestCases = new[]
     {
         new RevokeTokenTestCase(null, "test-Auth", OpenIddictConstants.Statuses.Valid, OpenIddictConstants.TokenTypes.Bearer),
         new RevokeTokenTestCase("test-user", null, OpenIddictConstants.Statuses.Valid, OpenIddictConstants.TokenTypes.Bearer),
@@ -50,8 +50,6 @@ public class RevokeTokenTests
     {
         var loggerFactory = _provider.GetRequiredService<ILoggerFactory>();
         var logger = loggerFactory.CreateLogger<InMemoryKeyValueStorage>();
-
-        var kvs = new InMemoryKeyValueStorage(logger);
 
         var tokenStore = _provider.GetRequiredService<IOpenIddictTokenStore<OpenIddictUnoToken>>();
 
@@ -94,8 +92,6 @@ public class RevokeTokenTests
     {
         var loggerFactory = _provider.GetRequiredService<ILoggerFactory>();
         var logger = loggerFactory.CreateLogger<InMemoryKeyValueStorage>();
-
-        var kvs = new InMemoryKeyValueStorage(logger);
 
         var tokenStore = _provider.GetRequiredService<IOpenIddictTokenStore<OpenIddictUnoToken>>();
 
@@ -140,8 +136,6 @@ public class RevokeTokenTests
         var loggerFactory = _provider.GetRequiredService<ILoggerFactory>();
         var logger = loggerFactory.CreateLogger<InMemoryKeyValueStorage>();
 
-        var kvs = new InMemoryKeyValueStorage(logger);
-
         var tokenStore = _provider.GetRequiredService<IOpenIddictTokenStore<OpenIddictUnoToken>>();
 
         var token1 = new OpenIddictUnoToken
@@ -181,8 +175,6 @@ public class RevokeTokenTests
     {
         var loggerFactory = _provider.GetRequiredService<ILoggerFactory>();
         var logger = loggerFactory.CreateLogger<InMemoryKeyValueStorage>();
-
-        var kvs = new InMemoryKeyValueStorage(logger);
 
         var tokenStore = _provider.GetRequiredService<IOpenIddictTokenStore<OpenIddictUnoToken>>();
 

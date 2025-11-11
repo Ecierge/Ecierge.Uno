@@ -15,8 +15,8 @@ internal record InMemoryKeyValueStorage(ILogger<InMemoryKeyValueStorage> Logger)
 {
     public const string Name = "InMemory";
 
-    private readonly FastAsyncLock _lock = new FastAsyncLock();
-    private readonly Dictionary<string, object> _values = new Dictionary<string, object>();
+    private readonly FastAsyncLock @lock = new FastAsyncLock();
+    private readonly Dictionary<string, object> values = new Dictionary<string, object>();
 
     /// <inheritdoc />
     public bool IsEncrypted => false;
@@ -29,15 +29,15 @@ internal record InMemoryKeyValueStorage(ILogger<InMemoryKeyValueStorage> Logger)
             Logger.LogDebugMessage($"Clearing value for key '{name}'.");
         }
 
-        using (await _lock.LockAsync(ct))
+        using (await @lock.LockAsync(ct))
         {
             if (name is not null)
             {
-                _values.Remove(name);
+                values.Remove(name);
             }
             else
             {
-                _values.Clear();
+                values.Clear();
             }
         }
 
@@ -55,11 +55,11 @@ internal record InMemoryKeyValueStorage(ILogger<InMemoryKeyValueStorage> Logger)
             Logger.LogDebugMessage($"Getting value for key '{name}'.");
         }
 
-        using (await _lock.LockAsync(ct))
+        using (await @lock.LockAsync(ct))
         {
-            if (_values.ContainsKey(name))
+            if (values.TryGetValue(name, out var obj))
             {
-                var value = (T)_values[name];
+                var value = (T)obj;
 
                 if (Logger.IsEnabled(LogLevel.Information))
                 {
@@ -86,9 +86,9 @@ internal record InMemoryKeyValueStorage(ILogger<InMemoryKeyValueStorage> Logger)
             Logger.LogDebugMessage($"Setting value for key '{name}'.");
         }
 
-        using (await _lock.LockAsync(ct))
+        using (await @lock.LockAsync(ct))
         {
-            _values[name] = value;
+            values[name] = value;
         }
 
         if (Logger.IsEnabled(LogLevel.Information))
@@ -100,9 +100,9 @@ internal record InMemoryKeyValueStorage(ILogger<InMemoryKeyValueStorage> Logger)
     /// <inheritdoc />
     public async ValueTask<string[]> GetKeysAsync(CancellationToken ct)
     {
-        using (await _lock.LockAsync(ct))
+        using (await @lock.LockAsync(ct))
         {
-            return _values.Keys.ToArray();
+            return values.Keys.ToArray();
         }
     }
 
