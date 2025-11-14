@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml.Controls;
 
-public static class WindowExtensions
+public static partial class WindowExtensions
 {
     public static async Task NavigateAsync<TShell>(
         [NotNull] this Window window,
