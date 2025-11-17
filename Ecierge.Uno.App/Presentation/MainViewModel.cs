@@ -16,7 +16,10 @@ public partial class MainViewModel : ObservableObject
     private string? name;
 
     [ObservableProperty]
-    private CollectionViewSource? gropedItemsSource;
+    private List<(string, string)> itemsSource;
+
+    [ObservableProperty]
+    private CollectionViewSource gropedItemsSource;
 
     public MainViewModel(
         IStringLocalizer localizer,
@@ -37,6 +40,8 @@ public partial class MainViewModel : ObservableObject
                 groups.Add(($"Group {i}", $"Item {j}"));
             }
         }
+
+        itemsSource = groups;
 
         gropedItemsSource = new CollectionViewSource()
         {
