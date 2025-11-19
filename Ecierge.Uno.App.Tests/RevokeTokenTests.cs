@@ -49,9 +49,6 @@ public class RevokeTokenTests
     [TestCaseSource(nameof(revokeTokenTestCases))]
     public async Task RevokeAsyncTest(RevokeTokenTestCase ca)
     {
-        var loggerFactory = provider.GetRequiredService<ILoggerFactory>();
-        var logger = loggerFactory.CreateLogger<InMemoryKeyValueStorage>();
-
         var tokenStore = provider.GetRequiredService<IOpenIddictTokenStore<OpenIddictUnoToken>>();
 
         var token1 = new OpenIddictUnoToken
@@ -89,9 +86,6 @@ public class RevokeTokenTests
     [Test]
     public async Task RevokeByApplicationIdAsyncTest()
     {
-        var loggerFactory = provider.GetRequiredService<ILoggerFactory>();
-        var logger = loggerFactory.CreateLogger<InMemoryKeyValueStorage>();
-
         var tokenStore = provider.GetRequiredService<IOpenIddictTokenStore<OpenIddictUnoToken>>();
 
         var token1 = new OpenIddictUnoToken
@@ -132,9 +126,6 @@ public class RevokeTokenTests
     [Test]
     public async Task RevokeByAuthorizationIdAsyncTest()
     {
-        var loggerFactory = provider.GetRequiredService<ILoggerFactory>();
-        var logger = loggerFactory.CreateLogger<InMemoryKeyValueStorage>();
-
         var tokenStore = provider.GetRequiredService<IOpenIddictTokenStore<OpenIddictUnoToken>>();
 
         var token1 = new OpenIddictUnoToken
@@ -172,9 +163,6 @@ public class RevokeTokenTests
     [Test]
     public async Task RevokeBySubjectAsyncTest()
     {
-        var loggerFactory = provider.GetRequiredService<ILoggerFactory>();
-        var logger = loggerFactory.CreateLogger<InMemoryKeyValueStorage>();
-
         var tokenStore = provider.GetRequiredService<IOpenIddictTokenStore<OpenIddictUnoToken>>();
 
         var token1 = new OpenIddictUnoToken
