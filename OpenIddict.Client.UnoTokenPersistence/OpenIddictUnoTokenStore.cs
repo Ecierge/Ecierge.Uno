@@ -1,8 +1,4 @@
-/*
- * Licensed under the Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * See https://github.com/openiddict/openiddict-core for more information concerning
- * the license and the contributors participating to this project.
- */
+namespace OpenIddict.Client.UnoTokenPersistence;
 
 using System.Collections.Immutable;
 using System.Data;
@@ -11,8 +7,6 @@ using System.Text.Json;
 
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
-
-namespace OpenIddict.Client.UnoTokenPersistence;
 
 /// <summary>
 /// Provides methods allowing to manage the tokens stored in a <see cref="IKeyValueStorage"/>.
@@ -600,31 +594,6 @@ public class OpenIddictUnoTokenStore<TToken> : IOpenIddictTokenStore<TToken>
     }
 
     /// <inheritdoc/>
-    public virtual async ValueTask<long> RevokeByAuthorizationIdAsync(string identifier, CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrEmpty(identifier))
-        {
-            throw new ArgumentException(SR.GetResourceString(SR.ID0195), nameof(identifier));
-        }
-
-        var keys = await KeyValueStorage.GetKeysAsync(cancellationToken);
-        keys = keys.Where(TokenPrefixPredicate).ToArray();
-        long count = 0L;
-        foreach (var key in keys)
-        {
-            var token = await KeyValueStorage.GetAsync<TToken>(key, cancellationToken);
-            if (token is not null && token.AuthorizationId == identifier)
-            {
-                token.Status = Statuses.Revoked;
-                var tokenIdentifier = Options.CurrentValue.TokenIdentifierPrefix + token.Id;
-                await KeyValueStorage.SetAsync(tokenIdentifier, token, cancellationToken);
-                count++;
-            }
-        }
-        return count;
-    }
-
-    /// <inheritdoc/>
     public virtual ValueTask SetApplicationIdAsync(TToken token, string? identifier, CancellationToken cancellationToken)
     {
         if (token is null)
@@ -787,5 +756,101 @@ public class OpenIddictUnoTokenStore<TToken> : IOpenIddictTokenStore<TToken>
 
         var identifier = Options.CurrentValue.TokenIdentifierPrefix + token.Id;
         return KeyValueStorage.SetAsync(identifier, token, cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public virtual async ValueTask<long> RevokeAsync(string? subject, string? client, string? status, string? type, CancellationToken cancellationToken)
+    {
+        var keys = await KeyValueStorage.GetKeysAsync(cancellationToken);
+        keys = keys.Where(TokenPrefixPredicate).ToArray();
+        long count = 0L;
+
+        foreach (var key in keys)
+        {
+            var token = await KeyValueStorage.GetAsync<TToken>(key, cancellationToken);
+            if (token is null) continue;
+
+            var matches =
+                (subject is null || token.Subject == subject) &&
+                (client is null || token.ApplicationId == client) &&
+                (status is null || token.Status == status) &&
+                (type is null || token.Type == type);
+
+            if (matches)
+            {
+                token.Status = Statuses.Revoked;
+                var tokenIdentifier = Options.CurrentValue.TokenIdentifierPrefix + token.Id;
+                await KeyValueStorage.SetAsync(tokenIdentifier, token, cancellationToken);
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    /// <inheritdoc/>
+    public virtual async ValueTask<long> RevokeByApplicationIdAsync(string identifier, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrEmpty(identifier)) throw new ArgumentException(SR.GetResourceString(SR.ID0195), nameof(identifier));
+
+        var keys = await KeyValueStorage.GetKeysAsync(cancellationToken);
+        keys = keys.Where(TokenPrefixPredicate).ToArray();
+        long count = 0L;
+        foreach (var key in keys)
+        {
+            var token = await KeyValueStorage.GetAsync<TToken>(key, cancellationToken);
+            if (token is not null && token.ApplicationId == identifier)
+            {
+                token.Status = Statuses.Revoked;
+                var tokenIdentifier = Options.CurrentValue.TokenIdentifierPrefix + token.Id;
+                await KeyValueStorage.SetAsync(tokenIdentifier, token, cancellationToken);
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /// <inheritdoc/>
+    public virtual async ValueTask<long> RevokeByAuthorizationIdAsync(string identifier, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrEmpty(identifier)) throw new ArgumentException(SR.GetResourceString(SR.ID0195), nameof(identifier));
+
+        var keys = await KeyValueStorage.GetKeysAsync(cancellationToken);
+        keys = keys.Where(TokenPrefixPredicate).ToArray();
+        long count = 0L;
+        foreach (var key in keys)
+        {
+            var token = await KeyValueStorage.GetAsync<TToken>(key, cancellationToken);
+            if (token is not null && token.AuthorizationId == identifier)
+            {
+                token.Status = Statuses.Revoked;
+                var tokenIdentifier = Options.CurrentValue.TokenIdentifierPrefix + token.Id;
+                await KeyValueStorage.SetAsync(tokenIdentifier, token, cancellationToken);
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /// <inheritdoc/>
+    public virtual async ValueTask<long> RevokeBySubjectAsync(string subject, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrEmpty(subject)) throw new ArgumentException(SR.GetResourceString(SR.ID0195), nameof(subject));
+
+        var keys = await KeyValueStorage.GetKeysAsync(cancellationToken);
+        keys = keys.Where(TokenPrefixPredicate).ToArray();
+        long count = 0L;
+        foreach (var key in keys)
+        {
+            var token = await KeyValueStorage.GetAsync<TToken>(key, cancellationToken);
+            if (token is not null && token.Subject == subject)
+            {
+                token.Status = Statuses.Revoked;
+                var tokenIdentifier = Options.CurrentValue.TokenIdentifierPrefix + token.Id;
+                await KeyValueStorage.SetAsync(tokenIdentifier, token, cancellationToken);
+                count++;
+            }
+        }
+        return count;
     }
 }

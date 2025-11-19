@@ -14,18 +14,24 @@
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
     <PackageVersion Include="FluentAssertions" Version="8.5.0" />
     <PackageVersion Include="FSharp.Core" Version="9.0.200" />
-    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="9.0.8" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="9.0.9" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageVersion Include="morelinq" Version="4.4.0" />
     <PackageVersion Include="NUnit" Version="4.4.0" />
     <PackageVersion Include="NUnit3TestAdapter" Version="5.1.0" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageVersion Include="OpenIddict.Abstractions" Version="5.8.0" />
-    <PackageVersion Include="OpenIddict.Client" Version="5.8.0" />
-    <PackageVersion Include="OpenIddict.Core" Version="5.8.0" />
+    <PackageVersion Include="OpenIddict.Abstractions" Version="7.1.0" />
+    <PackageVersion Include="OpenIddict.Client" Version="7.1.0" />
+    <PackageVersion Include="OpenIddict.Core" Version="7.1.0" />
     <PackageVersion Include="System.Private.Uri" Version="4.3.2" />
     <PackageVersion Include="System.Text.Json" Version="9.0.8" />
     <PackageVersion Include="Uno.UITest.Helpers" Version="1.1.0-dev.82" />
     <PackageVersion Include="Xamarin.UITest" Version="4.4.2" />
+    <PackageVersion Include="Xamarin.AndroidX.Browser" Version="1.9.0" />
+    <PackageVersion Include="Xamarin.AndroidX.Lifecycle.Common" Version="2.8.7.1" />
+    <PackageVersion Include="Xamarin.AndroidX.Lifecycle.LiveData.Core" Version="2.8.7.1" />
+    <PackageVersion Include="Xamarin.AndroidX.Lifecycle.Process" Version="2.8.7.1" />
+    <PackageVersion Include="Xamarin.AndroidX.Lifecycle.Runtime" Version="2.8.7.1" />
+    <PackageVersion Include="Xamarin.AndroidX.Lifecycle.ViewModelSavedState" Version="2.8.7.1" />
   </ItemGroup>
 </Project>

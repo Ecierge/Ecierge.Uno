@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Licensed under the Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
  * See https://github.com/openiddict/openiddict-core for more information concerning
  * the license and the contributors participating to this project.
@@ -40,9 +40,7 @@ public static class OpenIddictUnoTokenPersistenceExtensions
 
         builder.SetDefaultTokenEntity<OpenIddictUnoToken>();
 
-        // Note: the Mongo stores/resolvers don't depend on scoped/transient services and thus
-        // can be safely registered as singleton services and shared/reused across requests.
-        builder.ReplaceTokenStoreResolver<OpenIddictUnoTokenStoreResolver>(ServiceLifetime.Singleton);
+        builder.ReplaceTokenStore<OpenIddictUnoToken, OpenIddictUnoTokenStore<OpenIddictUnoToken>> (ServiceLifetime.Singleton);
 
         builder.Services.TryAddSingleton(typeof(OpenIddictUnoTokenStore<>));
 
