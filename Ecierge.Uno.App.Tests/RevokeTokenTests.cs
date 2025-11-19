@@ -36,7 +36,7 @@ public class RevokeTokenTests
         provider = services.BuildServiceProvider();
     }
 
-    public record RevokeTokenTestCase(string? Subject, string? AuthorizationId, string? Status, string? Type);
+    public record RevokeTokenTestCase(string? Subject, string? ApplicationId, string? Status, string? Type);
 
     private readonly static RevokeTokenTestCase[] revokeTokenTestCases = new[]
     {
@@ -56,9 +56,8 @@ public class RevokeTokenTests
 
         var token1 = new OpenIddictUnoToken
         {
-
             Subject = ca.Subject,
-            AuthorizationId = ca.AuthorizationId,
+            ApplicationId = ca.ApplicationId,
             Status = ca.Status,
             Type = ca.Type
         };
@@ -66,7 +65,7 @@ public class RevokeTokenTests
         var token2 = new OpenIddictUnoToken
         {
             Subject = ca.Subject,
-            AuthorizationId = ca.AuthorizationId,
+            ApplicationId = ca.ApplicationId,
             Status = ca.Status,
             Type = ca.Type
         };
@@ -74,7 +73,6 @@ public class RevokeTokenTests
         var token3 = new OpenIddictUnoToken
         {
             ApplicationId = "test-AppOther",
-            AuthorizationId = "test-AuthOther",
             Subject = "test-userOther",
             Status = OpenIddictConstants.Statuses.Valid,
             Type = OpenIddictConstants.TokenTypes.NotApplicable
@@ -83,7 +81,7 @@ public class RevokeTokenTests
         await tokenStore.CreateAsync(token2, CancellationToken.None);
         await tokenStore.CreateAsync(token3, CancellationToken.None);
 
-        var revokedCount = await tokenStore.RevokeAsync(ca.Subject, ca.AuthorizationId, ca.Status, ca.Type, CancellationToken.None);
+        var revokedCount = await tokenStore.RevokeAsync(ca.Subject, ca.ApplicationId, ca.Status, ca.Type, CancellationToken.None);
 
         Assert.That(revokedCount, Is.EqualTo(2));
     }
@@ -207,5 +205,4 @@ public class RevokeTokenTests
 
         Assert.That(revokedCount, Is.EqualTo(2));
     }
-
 }

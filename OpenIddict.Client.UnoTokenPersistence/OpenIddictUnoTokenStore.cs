@@ -1,8 +1,4 @@
-/*
- * Licensed under the Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
- * See https://github.com/openiddict/openiddict-core for more information concerning
- * the license and the contributors participating to this project.
- */
+namespace OpenIddict.Client.UnoTokenPersistence;
 
 using System.Collections.Immutable;
 using System.Data;
@@ -11,8 +7,6 @@ using System.Text.Json;
 
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
-
-namespace OpenIddict.Client.UnoTokenPersistence;
 
 /// <summary>
 /// Provides methods allowing to manage the tokens stored in a <see cref="IKeyValueStorage"/>.
@@ -778,7 +772,7 @@ public class OpenIddictUnoTokenStore<TToken> : IOpenIddictTokenStore<TToken>
 
             var matches =
                 (subject is null || token.Subject == subject) &&
-                (client is null || token.AuthorizationId == client) &&
+                (client is null || token.ApplicationId == client) &&
                 (status is null || token.Status == status) &&
                 (type is null || token.Type == type);
 

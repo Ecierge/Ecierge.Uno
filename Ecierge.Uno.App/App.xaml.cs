@@ -94,7 +94,7 @@ public partial class App : Application
         MainWindow = builder.Window;
 
 #if DEBUG
-        MainWindow.UseStudio();
+        //MainWindow.UseStudio();
 #endif
         MainWindow.SetWindowIcon();
 
