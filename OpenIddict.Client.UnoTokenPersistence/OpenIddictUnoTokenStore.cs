@@ -154,8 +154,8 @@ public class OpenIddictUnoTokenStore<TToken> : IOpenIddictTokenStore<TToken>
 
     /// <inheritdoc/>
     public virtual IAsyncEnumerable<TToken> FindAsync(
-        string subject, string client,
-        string status, string type, CancellationToken cancellationToken)
+        string? subject, string? client,
+        string? status, string? type, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(subject))
         {
