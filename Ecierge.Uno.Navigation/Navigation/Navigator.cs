@@ -26,7 +26,7 @@ public abstract class Navigator
     public Navigator RootNavigator { get; internal set; } = default!;
 
     public IServiceProvider ServiceProvider { get; }
-    public FrameworkElement? Target => ServiceProvider.GetService<FrameworkElement>();
+    public FrameworkElement Target => ServiceProvider.GetRequiredService<FrameworkElement>();
     protected NavigationScope Scope => ServiceProvider.GetService<NavigationScope>()!;
     public INavigationStatus NavigationStatus { get; private set; }
 
@@ -196,6 +196,7 @@ public abstract class Navigator
         if (dispatcherQueue is null)
             Debug.Fail("Must be at least a parent with DispatcherQueue");
 #endif
+        // TODO: Back request must be resolved into named before passing
         var result = await dispatcherQueue!.EnqueueAsync(() => { return NavigateCoreAsync(request); });
 
         if (result.IsSkipped)
