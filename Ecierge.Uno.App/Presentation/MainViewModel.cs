@@ -12,11 +12,13 @@ public partial class MainViewModel : ObservableObject
 {
     private Navigator navigator;
 
+#pragma warning disable MVVMTK0045 // Using [ObservableProperty] on fields is not AOT compatible for WinRT
     [ObservableProperty]
     private string? name;
 
     [ObservableProperty]
     private CollectionViewSource? gropedItemsSource;
+#pragma warning restore MVVMTK0045 // Using [ObservableProperty] on fields is not AOT compatible for WinRT
 
     public MainViewModel(
         IStringLocalizer localizer,

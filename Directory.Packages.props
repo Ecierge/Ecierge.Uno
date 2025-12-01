@@ -23,7 +23,6 @@
     <PackageVersion Include="OpenIddict.Abstractions" Version="7.2.0" />
     <PackageVersion Include="OpenIddict.Client" Version="7.2.0" />
     <PackageVersion Include="OpenIddict.Core" Version="7.2.0" />
-    <PackageVersion Include="System.Text.Json" Version="10.0.0" />
     <PackageVersion Include="Uno.UITest.Helpers" Version="1.1.0-dev.82" />
     <PackageVersion Include="Xamarin.UITest" Version="4.4.2" />
     <PackageVersion Include="Xamarin.AndroidX.Browser" Version="1.9.0" />
