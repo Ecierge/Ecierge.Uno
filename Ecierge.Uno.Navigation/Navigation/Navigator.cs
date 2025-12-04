@@ -174,7 +174,14 @@ public abstract class Navigator
     /// <returns>The navigation response (awaitable)</returns>
     public async ValueTask<NavigationResult> NavigateAsync(NavigationRequest request)
     {
-        var navigationRuleResult = await IsAllowedToNavigateAsync(request.Route);
+        // Merge navigation data first, so rules see non-null Data
+        var mergedRoute = request.Route with
+        {
+            Data = (this.Parent?.Route.Data ?? NavigationData.Empty).Union(request.Route.Data)
+        };
+        request = request with { Route = mergedRoute };
+
+        var navigationRuleResult = await IsAllowedToNavigateAsync(mergedRoute);
         if (!navigationRuleResult.IsAllowed)
         {
             return new NavigationResult(navigationRuleResult.Reasons);
@@ -264,12 +271,14 @@ public static class NavigatorExtensions
 {
     public static Routing.Route ParseRoute([NotNull] this Navigator navigator, string route, INavigationData? navigationData = null)
     {
+        navigationData = (navigator.Parent?.Route.Data ?? NavigationData.Empty).Union(navigationData);
+
         DataSegmentInstance CreateDataSegment(DataSegment segment, string primitive)
         {
             Task? data = null;
-            if (navigationData is not null)
+            var dataMap = segment.DataMap is null ? null : (INavigationDataMap)navigator.ServiceProvider.GetRequiredService(segment.DataMap);
+            if (dataMap is not null)
             {
-                var dataMap = (INavigationDataMap)navigator.ServiceProvider.GetRequiredService(segment.DataMap!);
                 dataMap.TryGetEntityTask(navigationData, segment.Name, out data);
             }
             return new(segment, primitive, data);
@@ -284,10 +293,12 @@ public static class NavigatorExtensions
             NameSegment nameSegment when nameSegment.DataSegment is DataSegment nestedDataSegment => nestedDataSegment,
             RouteSegment routeSegment => routeSegment
         };
+
         foreach (var segmentName in segmentNames)
         {
             nextSegment = ProcessSegmentName(nextSegment, segmentName);
         }
+
         while ((nextSegment = nextSegment?.Nested.FirstOrDefault(s => s.IsDefault)) is not null)
         {
             RouteSegmentInstance instance = nextSegment switch
@@ -295,11 +306,12 @@ public static class NavigatorExtensions
                 NameSegment nameSegment => new NameSegmentInstance(nameSegment),
                 // TODO: Handle data segments with default values
                 //CreateDataSegment(dataSegment, null),
-                DataSegment dataSegment => throw new NotSupportedException("Impossible case as nested for name segment with data is empty"),
+                DataSegment => throw new NotSupportedException("Impossible case as nested for name segment with data is empty"),
                 _ => throw new NotSupportedException("Not supported route segment")
             };
             parsedRoute.Add(instance);
         }
+
         return new Routing.Route(parsedRoute.ToImmutableArray(), navigationData);
 
         RouteSegment ProcessSegmentName(RouteSegment segment, string segmentName)
