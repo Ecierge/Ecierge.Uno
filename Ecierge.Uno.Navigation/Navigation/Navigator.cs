@@ -269,7 +269,7 @@ public abstract class Navigator
 
 public static class NavigatorExtensions
 {
-    public static Routing.Route ParseRoute(this Navigator navigator, string route, INavigationData? navigationData = null)
+    public static Routing.Route ParseRoute([NotNull] this Navigator navigator, string route, INavigationData? navigationData = null)
     {
         navigationData = (navigator.Parent?.Route.Data ?? NavigationData.Empty).Union(navigationData);
 
