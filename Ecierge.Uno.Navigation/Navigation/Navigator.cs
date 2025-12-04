@@ -271,7 +271,7 @@ public static class NavigatorExtensions
 {
     public static Routing.Route ParseRoute(this Navigator navigator, string route, INavigationData? navigationData = null)
     {
-        var effectiveData = (navigator.Parent?.Route.Data ?? NavigationData.Empty).Union(navigationData);
+        navigationData = (navigator.Parent?.Route.Data ?? NavigationData.Empty).Union(navigationData);
 
         DataSegmentInstance CreateDataSegment(DataSegment segment, string primitive)
         {
@@ -279,7 +279,7 @@ public static class NavigatorExtensions
             var dataMap = segment.DataMap is null ? null : (INavigationDataMap)navigator.ServiceProvider.GetRequiredService(segment.DataMap);
             if (dataMap is not null)
             {
-                dataMap.TryGetEntityTask(effectiveData, segment.Name, out data);
+                dataMap.TryGetEntityTask(navigationData, segment.Name, out data);
             }
             return new(segment, primitive, data);
         }
@@ -312,7 +312,7 @@ public static class NavigatorExtensions
             parsedRoute.Add(instance);
         }
 
-        return new Routing.Route(parsedRoute.ToImmutableArray(), effectiveData);
+        return new Routing.Route(parsedRoute.ToImmutableArray(), navigationData);
 
         RouteSegment ProcessSegmentName(RouteSegment segment, string segmentName)
         {
