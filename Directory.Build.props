@@ -11,6 +11,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <EnableCoreMrtTooling Condition="'$(MSBuildRuntimeType)' == 'Core' AND '$(OutputType)' != 'WinExe' AND '$(OutputType)' != 'Exe'">true</EnableCoreMrtTooling>
     <UnoDisableHotDesign>true</UnoDisableHotDesign>
     <UnoDisableMCPSupport>true</UnoDisableMCPSupport>
   </PropertyGroup>
