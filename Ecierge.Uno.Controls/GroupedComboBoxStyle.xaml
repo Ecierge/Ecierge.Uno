@@ -200,7 +200,8 @@
                     </Button.Style>
 
                     <StackPanel>
-                      <FontIcon FontSize="14"
+                      <FontIcon x:Name="DropDownIcon"
+                                FontSize="14"
                                 Foreground="{ThemeResource ComboBoxArrowForegroundThemeBrush}"
                                 Glyph="&#xE70D;" />
                     </StackPanel>
