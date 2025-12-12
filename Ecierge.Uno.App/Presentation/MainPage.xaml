@@ -105,7 +105,17 @@
                               PlaceholderText="Select Floor"
                               IsEditable="{Binding IsChecked, ElementName=EditCheckBox}"
                               Header="GroupedComboBox" Description=""
-                              PlaceholderForeground="Red" DisplayMemberPath="Name"/>
+                              PlaceholderForeground="Red" DisplayMemberPath="Name">
+          <ctrl:GroupedComboBox.GroupStyle>
+            <GroupStyle>
+              <GroupStyle.HeaderTemplate>
+                <DataTemplate>
+                  <TextBlock Padding="8" Style="{ThemeResource SubtitleTextBlockStyle}" Text="{Binding Key}" />
+                </DataTemplate>
+              </GroupStyle.HeaderTemplate>
+            </GroupStyle>
+          </ctrl:GroupedComboBox.GroupStyle>
+        </ctrl:GroupedComboBox>
 
         <Button AutomationProperties.AutomationId="SecondPageButton" Command="{Binding GoToSecond}" Content="Go to Second Page" />
         <Button Content="Go to Second Page with target">

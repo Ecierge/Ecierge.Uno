@@ -11,7 +11,7 @@ using Microsoft.UI.Xaml.Input;
 [TemplatePart(Name = EditableText, Type = typeof(TextBox))]
 [TemplatePart(Name = MainGrid, Type = typeof(Grid))]
 [TemplatePart(Name = Popup, Type = typeof(Popup))]
-[TemplatePart(Name = DropDownButton, Type = typeof(Button))]
+[TemplatePart(Name = DropDownIcon, Type = typeof(FontIcon))]
 [TemplatePart(Name = ContentPresenter, Type = typeof(ContentPresenter))]
 [TemplatePart(Name = PlaceholderTextBlock, Type = typeof(TextBlock))]
 
@@ -22,14 +22,14 @@ public partial class GroupedComboBox : ListViewBase
     private const string EditableText = "EditableText";
     private const string MainGrid = "MainGrid";
     private const string Popup = "Popup";
-    private const string DropDownButton = "DropDownButton";
+    private const string DropDownIcon = "DropDownIcon";
     private const string ContentPresenter = "ContentPresenter";
     private const string PlaceholderTextBlock = "PlaceholderTextBlock";
 
     #endregion TemplatePartNames
 
     private Popup? popup;
-    private Button? dropDownButton;
+    private FontIcon? dropDownIcon;
     private TextBox? textBox;
     private Grid? mainGrid;
     private ContentPresenter? contentPresenter;
@@ -43,7 +43,7 @@ public partial class GroupedComboBox : ListViewBase
     private bool AreAllControlsUnfocused =>
         IsEditable
         && textBox is not null && textBox.FocusState == FocusState.Unfocused
-        && dropDownButton is not null && dropDownButton.FocusState == FocusState.Unfocused
+        && dropDownIcon is not null && dropDownIcon.FocusState == FocusState.Unfocused
         && popup is not null && popup.FocusState == FocusState.Unfocused;
 
     /// <summary>
@@ -283,8 +283,10 @@ public partial class GroupedComboBox : ListViewBase
             popup.Opened -= PopupOpened;
             popup.Closed -= PopupClosed;
         }
-        if (dropDownButton is not null)
-            dropDownButton.Click -= ButtonOrContentClick;
+        if (dropDownIcon is not null)
+            dropDownIcon.Tapped -= ButtonOrContentClick;
+        mainGrid?.RemoveHandler(KeyDownEvent, new KeyEventHandler(ItemsHost_KeyDown));
+
         DetachSpecificEventHandlers();
 
         base.OnApplyTemplate();
@@ -292,18 +294,19 @@ public partial class GroupedComboBox : ListViewBase
         mainGrid = GetTemplateChild(MainGrid) as Grid;
         popup = GetTemplateChild(Popup) as Popup;
         textBox = GetTemplateChild(EditableText) as TextBox;
-        dropDownButton = GetTemplateChild(DropDownButton) as Button;
+        dropDownIcon = GetTemplateChild(DropDownIcon) as FontIcon;
         contentPresenter = GetTemplateChild(ContentPresenter) as ContentPresenter;
         placeholderTextBlock = GetTemplateChild(PlaceholderTextBlock) as TextBlock;
 
         placeholderTextCache = PlaceholderText;
 
-        if (popup is null || textBox is null || mainGrid is null || contentPresenter is null || dropDownButton is null)
+        if (popup is null || textBox is null || mainGrid is null || contentPresenter is null || dropDownIcon is null)
             return;
 
         this.SelectionChanged += GroupedComboBox_SelectionChanged;
+        mainGrid.AddHandler(KeyDownEvent, new KeyEventHandler(ItemsHost_KeyDown), true);
         mainGrid.Tapped += (s, e) => isKeyDown = false;
-        dropDownButton.Click += ButtonOrContentClick;
+        dropDownIcon.Tapped += ButtonOrContentClick;
         textBox.TextChanged += FindItems;
         popup.Opened += PopupOpened;
         popup.Closed += PopupClosed;
@@ -454,22 +457,15 @@ public partial class GroupedComboBox : ListViewBase
         isKeyDown = false;
     }
 
-    protected override void OnKeyDown(KeyRoutedEventArgs e)
+    private void ItemsHost_KeyDown(object sender, KeyRoutedEventArgs e)
     {
-        base.OnKeyDown(e);
         int count = this.Items.Count;
         int index = this.SelectedIndex;
         bool handled = false;
         switch (e.Key)
         {
             case Windows.System.VirtualKey.Down:
-                if (popup is not null && !popup.IsOpen && !isKeyDown)
-                {
-                    IsDropDownOpen = true;
-                    isKeyDown = true;
-                    handled = true;
-                }
-                else if (count > 0)
+                if (count > 0)
                 {
                     isKeyDown = true;
                     if (index < count - 1)
@@ -480,13 +476,7 @@ public partial class GroupedComboBox : ListViewBase
                 }
                 break;
             case Windows.System.VirtualKey.Up:
-                if (popup is not null && !popup.IsOpen && !isKeyDown)
-                {
-                    IsDropDownOpen = true;
-                    isKeyDown = true;
-                    handled = true;
-                }
-                else if (count > 0)
+                if (count > 0)
                 {
                     isKeyDown = true;
                     if (index > 0)
@@ -524,7 +514,7 @@ public partial class GroupedComboBox : ListViewBase
                 }
                 break;
             case Windows.System.VirtualKey.F4:
-                isKeyDown = false;
+                isKeyDown = !isKeyDown;
                 IsDropDownOpen = !IsDropDownOpen;
                 handled = true;
                 break;
@@ -538,7 +528,7 @@ public partial class GroupedComboBox : ListViewBase
         base.OnPointerPressed(e);
     }
 
-    private void ButtonOrContentClick(object sender, RoutedEventArgs e)
+    private void ButtonOrContentClick(object sender, TappedRoutedEventArgs e)
     {
         isKeyDown = !isKeyDown;
         IsDropDownOpen = !IsDropDownOpen;
