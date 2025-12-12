@@ -89,15 +89,15 @@
                                   Visibility="{Binding Header, RelativeSource={RelativeSource TemplatedParent},
                                                        Converter={StaticResource NullToVisibilityConverter}}" />
 
-                <Grid x:Name="MainGrid">
+                <Grid x:Name="MainGrid" UseLayoutRounding="True">
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="38" />
                   </Grid.ColumnDefinitions>
 
                   <Popup x:Name="Popup"
-                         IsLightDismissEnabled="True"
-                         LightDismissOverlayMode="{TemplateBinding LightDismissOverlayMode}">
+                         ShouldConstrainToRootBounds="True"
+                         IsLightDismissEnabled="True">
                     <Border x:Name="PopupBorder"
                             MinWidth="{TemplateBinding Width}"
                             MaxHeight="500"
@@ -176,13 +176,28 @@
                           MinWidth="20"
                           MinHeight="20"
                           Margin="4"
+                          FocusVisualPrimaryBrush="Transparent"
+                          FocusVisualSecondaryBrush="Transparent"
                           HorizontalAlignment="Right"
                           VerticalAlignment="Center"
-                          BorderBrush="Transparent"
-                          BorderThickness="0"
                           CornerRadius="0"
                           IsEnabled="True"
                           Padding="0">
+                    <Button.Style>
+                      <Style TargetType="Button">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="BorderBrush" Value="Transparent"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+
+                        <Setter Property="Template">
+                          <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                              <ContentPresenter/>
+                            </ControlTemplate>
+                          </Setter.Value>
+                        </Setter>
+                      </Style>
+                    </Button.Style>
 
                     <StackPanel>
                       <FontIcon FontSize="14"
