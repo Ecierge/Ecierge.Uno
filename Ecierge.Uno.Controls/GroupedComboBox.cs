@@ -112,13 +112,12 @@ public partial class GroupedComboBox : ListViewBase
         if (popup is not null)
         {
             popup.IsOpen = newIsDropDownOpen;
-            if (isKeyDown && !IsDropDownOpen)
-            {
-                popup.IsOpen = true;
+            if (isKeyDown && !IsDropDownOpen && !popup.IsOpen)
                 IsDropDownOpen = true;
-            }
             if (IsEditable && textBox is not null && popup.FocusState != FocusState.Unfocused)
                 textBox.Focus(FocusState.Programmatic);
+            if (!IsEditable)
+                this.Focus(FocusState.Programmatic);
         }
         else
         {
@@ -277,8 +276,6 @@ public partial class GroupedComboBox : ListViewBase
     /// <inheritdoc/>
     protected override void OnApplyTemplate()
     {
-        if (!GroupStyle.Any())
-            GroupStyle.Add((GroupStyle)Application.Current.Resources["DefaultGroupedComboBoxGroupStyle"]);
 
         this.SelectionChanged -= GroupedComboBox_SelectionChanged;
         if (popup is not null)
@@ -286,8 +283,6 @@ public partial class GroupedComboBox : ListViewBase
             popup.Opened -= PopupOpened;
             popup.Closed -= PopupClosed;
         }
-        if (mainGrid is not null)
-            mainGrid.RemoveHandler(KeyDownEvent, new KeyEventHandler(ItemsHost_KeyDown));
         if (dropDownButton is not null)
             dropDownButton.Click -= ButtonOrContentClick;
         DetachSpecificEventHandlers();
@@ -307,7 +302,6 @@ public partial class GroupedComboBox : ListViewBase
             return;
 
         this.SelectionChanged += GroupedComboBox_SelectionChanged;
-        mainGrid.AddHandler(KeyDownEvent, new KeyEventHandler(ItemsHost_KeyDown), true);
         mainGrid.Tapped += (s, e) => isKeyDown = false;
         dropDownButton.Click += ButtonOrContentClick;
         textBox.TextChanged += FindItems;
@@ -448,22 +442,21 @@ public partial class GroupedComboBox : ListViewBase
     {
         base.OnGotFocus(e);
         VisualStateManager.GoToState(this, "Focused", true);
+        mainGrid?.Focus(FocusState.Programmatic);
     }
 
     protected override void OnLostFocus(RoutedEventArgs e)
     {
         base.OnLostFocus(e);
         VisualStateManager.GoToState(this, "Unfocused", true);
-        if (AreAllControlsUnfocused)
-        {
-            if (popup is not null)
-                popup.IsOpen = false;
-            isKeyDown = false;
-        }
+        if (AreAllControlsUnfocused && popup is not null)
+            popup.IsOpen = false;
+        isKeyDown = false;
     }
 
-    private void ItemsHost_KeyDown(object sender, KeyRoutedEventArgs e)
+    protected override void OnKeyDown(KeyRoutedEventArgs e)
     {
+        base.OnKeyDown(e);
         int count = this.Items.Count;
         int index = this.SelectedIndex;
         bool handled = false;
@@ -531,13 +524,18 @@ public partial class GroupedComboBox : ListViewBase
                 }
                 break;
             case Windows.System.VirtualKey.F4:
-                isKeyDown = !isKeyDown;
+                isKeyDown = false;
                 IsDropDownOpen = !IsDropDownOpen;
                 handled = true;
                 break;
         }
         if (handled)
             e.Handled = true;
+    }
+
+    protected override void OnPointerPressed(PointerRoutedEventArgs e)
+    {
+        base.OnPointerPressed(e);
     }
 
     private void ButtonOrContentClick(object sender, RoutedEventArgs e)
