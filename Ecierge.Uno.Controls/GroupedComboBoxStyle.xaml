@@ -55,6 +55,13 @@
           <StackPanel>
             <VisualStateManager.VisualStateGroups>
               <VisualStateGroup x:Name="CommonStates">
+                <VisualState x:Name="Focused">
+                  <VisualState.Setters>
+                    <Setter Target="FocusedLine.Visibility"
+                            Value="{Binding IsEditable, RelativeSource={RelativeSource TemplatedParent},
+                                            Converter={StaticResource InverseBoolToVisibilityConverter}}" />
+                  </VisualState.Setters>
+                </VisualState>
                 <VisualState x:Name="FocusedEditable">
                   <VisualState.StateTriggers>
                     <StateTrigger IsActive="{TemplateBinding IsEditable}" />
@@ -64,18 +71,20 @@
                     <Setter Target="RootBorder.BorderBrush" Value="{ThemeResource TextControlBorderBrushFocused}" />
                     <Setter Target="EditableText.Margin" Value="0,0,0,-3" />
                     <Setter Target="ContentPresenter.Margin" Value="0,0,0,-3" />
+                    <Setter Target="ContentPresenter.CornerRadius" Value="4,4,0,0" />
+                    <Setter Target="FocusedLine.Visibility" Value="Collapsed" />
                   </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="Unfocused">
                   <VisualState.Setters>
                     <Setter Target="RootBorder.BorderThickness" Value="0" />
+                    <Setter Target="FocusedLine.Visibility" Value="Collapsed" />
                   </VisualState.Setters>
                 </VisualState>
               </VisualStateGroup>
             </VisualStateManager.VisualStateGroups>
             <Border x:Name="RootBorder"
-                    BorderBrush="{ThemeResource TextControlBorderBrushFocused}"
-                    CornerRadius="4">
+                    BorderBrush="{ThemeResource TextControlBorderBrushFocused}">
               <StackPanel>
                 <ContentPresenter x:Name="HeaderContentPresenter"
                                   Grid.Row="0"
@@ -96,7 +105,7 @@
                   </Grid.ColumnDefinitions>
 
                   <Popup x:Name="Popup"
-                         ShouldConstrainToRootBounds="True"
+                         ShouldConstrainToRootBounds="True"             
                          IsLightDismissEnabled="True">
                     <Border x:Name="PopupBorder"
                             MinWidth="{TemplateBinding Width}"
@@ -159,6 +168,7 @@
                                     Background="Transparent"
                                     BorderBrush="{StaticResource TextControlElevationBorderBrush}"
                                     BorderThickness="0.5"
+                                    Content="{TemplateBinding SelectedItem}"
                                     ContentTemplate="{TemplateBinding ItemTemplate}"
                                     CornerRadius="4"
                                     FlowDirection="{TemplateBinding FlowDirection}"
@@ -199,13 +209,19 @@
                       </Style>
                     </Button.Style>
 
-                    <StackPanel>
+                    <StackPanel VerticalAlignment="Center">
                       <FontIcon x:Name="DropDownIcon"
                                 FontSize="14"
                                 Foreground="{ThemeResource ComboBoxArrowForegroundThemeBrush}"
                                 Glyph="&#xE70D;" />
                     </StackPanel>
                   </Button>
+                  <Rectangle x:Name="FocusedLine"
+                             Margin="2"
+                             VerticalAlignment="Center"
+                             Style="{StaticResource ComboBoxItemPill}"
+                             HorizontalAlignment="Left"
+                             Visibility="Collapsed"/>
 
                   <Border x:Name="DropDownOverlay"
                           Grid.Column="1"

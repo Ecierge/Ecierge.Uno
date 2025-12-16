@@ -587,16 +587,51 @@ public partial class GroupedComboBox : ListViewBase
         if (this.SelectedItem is not null)
         {
             PlaceholderText = string.Empty;
+
             if (textBox is not null && IsEditable)
-                textBox.Text = GetDisplayMemberValue(SelectedItem);
+            {
+                if (!string.IsNullOrEmpty(DisplayMemberPath))
+                {
+                    textBox.Text = GetDisplayMemberValue(SelectedItem) ?? string.Empty;
+                }
+                else
+                {
+                    textBox.Text = SelectedItem?.ToString() ?? SelectedValueCache;
+                }
+            }
+
             if (contentPresenter is not null && !IsEditable)
-                contentPresenter.Content = GetDisplayMemberValue(SelectedItem);
+            {
+                if (this.ItemTemplate is not null)
+                {
+                    contentPresenter.ContentTemplate = this.ItemTemplate;
+                    contentPresenter.Content = SelectedItem;
+                }
+                else if (!string.IsNullOrEmpty(DisplayMemberPath))
+                {
+                    contentPresenter.ContentTemplate = null;
+                    contentPresenter.Content = GetDisplayMemberValue(SelectedItem);
+                }
+                else
+                {
+                    contentPresenter.ContentTemplate = null;
+                    contentPresenter.Content = SelectedItem;
+                }
+            }
         }
         else if (textBox is not null && IsEditable && !string.IsNullOrEmpty(SelectedValueCache))
+        {
             textBox.Text = SelectedValueCache;
+        }
         else if (contentPresenter is not null && !string.IsNullOrEmpty(SelectedValueCache) && !IsEditable)
+        {
+            contentPresenter.ContentTemplate = null;
             contentPresenter.Content = SelectedValueCache;
+        }
         else if (contentPresenter is not null && string.IsNullOrEmpty(SelectedValueCache) && !IsEditable)
+        {
+            contentPresenter.ContentTemplate = null;
             contentPresenter.Content = placeholderTextCache;
+        }
     }
 }

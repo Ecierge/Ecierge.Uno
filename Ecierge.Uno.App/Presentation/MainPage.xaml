@@ -102,10 +102,18 @@
         <CheckBox x:Name="EditCheckBox" Content="Allow editing GroupedComboBox" IsChecked="True"/>
 
         <ctrl:GroupedComboBox Width="200" ItemsSource="{Binding GropedItemsSource2.View}"
-                              PlaceholderText="Select Floor"
                               IsEditable="{Binding IsChecked, ElementName=EditCheckBox}"
                               Header="GroupedComboBox" Description=""
-                              PlaceholderForeground="Red" DisplayMemberPath="Name">
+                              DisplayMemberPath="Name"
+                              PlaceholderText="Person"
+                              PlaceholderForeground="Red" >
+          <!--<ctrl:GroupedComboBox.ItemTemplate>
+            <DataTemplate>
+              <TextBlock>
+                <Run Text="{Binding Name}" />
+              </TextBlock>
+            </DataTemplate>
+          </ctrl:GroupedComboBox.ItemTemplate>-->
           <ctrl:GroupedComboBox.GroupStyle>
             <GroupStyle>
               <GroupStyle.HeaderTemplate>
