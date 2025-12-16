@@ -26,7 +26,7 @@ public abstract class Navigator
     public Navigator RootNavigator { get; internal set; } = default!;
 
     public IServiceProvider ServiceProvider { get; }
-    public FrameworkElement Target => ServiceProvider.GetRequiredService<FrameworkElement>();
+    public FrameworkElement? Target => ServiceProvider.GetService<FrameworkElement>();
     protected NavigationScope Scope => ServiceProvider.GetService<NavigationScope>()!;
     public INavigationStatus NavigationStatus { get; private set; }
 
