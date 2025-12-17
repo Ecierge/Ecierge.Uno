@@ -17,6 +17,11 @@ using Microsoft.UI.Xaml.Markup;
 [ContentProperty(Name = nameof(Content))]
 public sealed class AuthorizedContent : Control
 {
+    /// <summary>
+    /// Reason string used by PermissionNavigationRuleChecker to indicate no authenticated user.
+    /// </summary>
+    private const string NoUserReason = "No user";
+    
     private NavigationRegion? _cachedRegion;
     private ILogger<AuthorizedContent>? _logger;
 
@@ -193,7 +198,9 @@ public sealed class AuthorizedContent : Control
     {
         if (d is AuthorizedContent control && control.IsLoaded)
         {
-            _ = control.PerformAuthorizationCheckAsync();
+            // Fire-and-forget is intentional here as we want the check to run in the background
+            // Exception handling is done within PerformAuthorizationCheckAsync
+            _ = control.PerformAuthorizationCheckAsync().ConfigureAwait(false);
         }
     }
 
@@ -224,7 +231,9 @@ public sealed class AuthorizedContent : Control
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        _ = PerformAuthorizationCheckAsync();
+        // Fire-and-forget is intentional here as we want the check to run in the background
+        // Exception handling is done within PerformAuthorizationCheckAsync
+        _ = PerformAuthorizationCheckAsync().ConfigureAwait(false);
     }
 
     private void OnUnloaded(object sender, RoutedEventArgs e)
@@ -334,7 +343,8 @@ public sealed class AuthorizedContent : Control
             return AuthorizationStatus.Authorized;
         
         // Check if denial reason indicates unauthenticated user
-        if (result.Reasons.Any(r => r.Contains("No user", StringComparison.OrdinalIgnoreCase)))
+        // This matches the reason string used by PermissionNavigationRuleChecker
+        if (result.Reasons.Any(r => r.Contains(NoUserReason, StringComparison.OrdinalIgnoreCase)))
             return AuthorizationStatus.Unauthenticated;
         
         return AuthorizationStatus.Unauthorized;
