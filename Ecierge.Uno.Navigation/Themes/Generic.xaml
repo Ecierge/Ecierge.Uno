@@ -1,0 +1,62 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Ecierge.Uno.Navigation.Controls"
+    xmlns:ctc="using:CommunityToolkit.WinUI.Controls">
+
+    <Style TargetType="controls:AuthorizedContent">
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="VerticalAlignment" Value="Stretch" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="controls:AuthorizedContent">
+                    <ctc:SwitchPresenter 
+                        TargetType="controls:AuthorizationStatus" 
+                        Value="{TemplateBinding AuthorizationStatus}">
+                        
+                        <!-- Authorized: Show main content -->
+                        <ctc:Case Value="Authorized">
+                            <ContentPresenter 
+                                Content="{TemplateBinding Content}"
+                                ContentTemplate="{TemplateBinding ContentTemplate}"
+                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                        </ctc:Case>
+                        
+                        <!-- Unauthenticated: Show unauthenticated content or nothing -->
+                        <ctc:Case Value="Unauthenticated">
+                            <ContentPresenter 
+                                Content="{TemplateBinding UnauthenticatedContent}"
+                                ContentTemplate="{TemplateBinding UnauthenticatedContentTemplate}"
+                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                        </ctc:Case>
+                        
+                        <!-- Unauthorized: Show unauthorized content or nothing -->
+                        <ctc:Case Value="Unauthorized">
+                            <ContentPresenter 
+                                Content="{TemplateBinding UnauthorizedContent}"
+                                ContentTemplate="{TemplateBinding UnauthorizedContentTemplate}"
+                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                        </ctc:Case>
+                        
+                        <!-- Unknown: Show loading indicator -->
+                        <ctc:Case Value="Unknown">
+                            <ProgressRing IsActive="True" />
+                        </ctc:Case>
+                        
+                        <!-- Error: Show nothing or could show error message -->
+                        <ctc:Case Value="Error">
+                            <!-- Show nothing on error, or could add an error message here if desired -->
+                        </ctc:Case>
+                        
+                    </ctc:SwitchPresenter>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

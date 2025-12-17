@@ -53,6 +53,7 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.WinUI.Behaviors" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" />
     <PackageReference Include="morelinq" />
   </ItemGroup>
 
