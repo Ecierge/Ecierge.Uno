@@ -135,7 +135,7 @@ public partial class GroupedComboBox : ListViewBase
     /// Identifies the PlaceholderText dependency property.
     /// </summary>
     public static readonly DependencyProperty PlaceholderTextProperty =
-        DependencyProperty.Register(nameof(PlaceholderText), typeof(string), typeof(GroupedComboBox), new(string.Empty));
+        DependencyProperty.Register(nameof(PlaceholderText), typeof(string), typeof(GroupedComboBox), new("Select"));
 
     /// <summary>
     /// Gets or sets the text that is displayed in the control until the value is changed

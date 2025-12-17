@@ -68,7 +68,7 @@
                   </VisualState.StateTriggers>
                   <VisualState.Setters>
                     <Setter Target="RootBorder.BorderThickness" Value="0,0,0,3" />
-                    <Setter Target="RootBorder.BorderBrush" Value="{ThemeResource TextControlBorderBrushFocused}" />
+                    <Setter Target="RootBorder.BorderBrush" Value="{ThemeResource ControlElevationBorderBrush}" />
                     <Setter Target="EditableText.Margin" Value="0,0,0,-3" />
                     <Setter Target="ContentPresenter.Margin" Value="0,0,0,-3" />
                     <Setter Target="ContentPresenter.CornerRadius" Value="4,4,0,0" />
@@ -98,7 +98,8 @@
                                   Visibility="{Binding Header, RelativeSource={RelativeSource TemplatedParent},
                                                        Converter={StaticResource NullToVisibilityConverter}}" />
 
-                <Grid x:Name="MainGrid" UseLayoutRounding="True">
+                <Grid x:Name="MainGrid" UseLayoutRounding="True"
+                      Background="{ThemeResource ControlFillColorDefaultBrush}">
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="38" />
@@ -115,11 +116,12 @@
                             VerticalAlignment="Top"
                             Background="{ThemeResource ComboBoxDropDownBackground}"
                             BackgroundSizing="InnerBorderEdge"
-                            BorderBrush="{StaticResource TextControlElevationBorderBrush}"
+                            BorderBrush="{ThemeResource ControlElevationBorderBrush}"
                             BorderThickness="1"
                             CornerRadius="0,0,4,4"
                             Padding="{ThemeResource ComboBoxDropdownBorderPadding}">
                       <ScrollViewer x:Name="ScrollViewer"
+                                    Background="{ThemeResource ControlFillColorDefaultBrush}"
                                     AutomationProperties.AccessibilityView="Raw"
                                     BringIntoViewOnFocusChange="{TemplateBinding ScrollViewer.BringIntoViewOnFocusChange}"
                                     HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
@@ -148,6 +150,7 @@
                            Grid.ColumnSpan="2"
                            Width="{TemplateBinding Width}"
                            Height="{TemplateBinding Height}"
+                           Background="Transparent"
                            HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
                            VerticalAlignment="Center"
                            CornerRadius="4"
@@ -233,6 +236,7 @@
                   <ContentPresenter x:Name="PlaceholderContentPresenter"
                                     Grid.Row="1"
                                     Grid.Column="0"
+                                    Background="Transparent"
                                     Margin="{TemplateBinding Padding}"
                                     HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                     VerticalAlignment="{TemplateBinding VerticalContentAlignment}"

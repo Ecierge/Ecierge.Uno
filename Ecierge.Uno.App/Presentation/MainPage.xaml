@@ -99,21 +99,22 @@
                   IsEditable="{Binding IsChecked, ElementName=EditCheckBox}"
                   PlaceholderForeground="Red" />
 
-        <CheckBox x:Name="EditCheckBox" Content="Allow editing GroupedComboBox" IsChecked="True"/>
-
+        <CheckBox x:Name="EditCheckBox" Content="Allow editing GroupedComboBox" IsChecked="False"/>
+        <!--For Editable GroupedComboBox only DisplayMemberPath, not ItemTemplate-->
         <ctrl:GroupedComboBox Width="200" ItemsSource="{Binding GropedItemsSource2.View}"
                               IsEditable="{Binding IsChecked, ElementName=EditCheckBox}"
                               Header="GroupedComboBox" Description=""
-                              DisplayMemberPath="Name"
                               PlaceholderText="Person"
                               PlaceholderForeground="Red" >
-          <!--<ctrl:GroupedComboBox.ItemTemplate>
+          <ctrl:GroupedComboBox.ItemTemplate>
             <DataTemplate>
               <TextBlock>
                 <Run Text="{Binding Name}" />
+                <Run Text="age:" />
+                <Run Text="{Binding Age}" />
               </TextBlock>
             </DataTemplate>
-          </ctrl:GroupedComboBox.ItemTemplate>-->
+          </ctrl:GroupedComboBox.ItemTemplate>
           <ctrl:GroupedComboBox.GroupStyle>
             <GroupStyle>
               <GroupStyle.HeaderTemplate>
