@@ -587,6 +587,7 @@ public partial class GroupedComboBox : ListViewBase
         if (this.SelectedItem is not null)
         {
             PlaceholderText = string.Empty;
+            contentPresenter?.Opacity = 1;
 
             if (textBox is not null && IsEditable)
             {
@@ -632,6 +633,7 @@ public partial class GroupedComboBox : ListViewBase
         {
             contentPresenter.ContentTemplate = null;
             contentPresenter.Content = placeholderTextCache;
+            contentPresenter.Opacity = 0.7;
         }
     }
 }
