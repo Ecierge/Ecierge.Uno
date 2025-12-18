@@ -84,7 +84,7 @@
               </VisualStateGroup>
             </VisualStateManager.VisualStateGroups>
             <Border x:Name="RootBorder"
-                    BorderBrush="{ThemeResource TextControlBorderBrushFocused}">
+                    BorderBrush="{ThemeResource ControlElevationBorderBrush}">
               <StackPanel>
                 <ContentPresenter x:Name="HeaderContentPresenter"
                                   Grid.Row="0"
@@ -99,6 +99,7 @@
                                                        Converter={StaticResource NullToVisibilityConverter}}" />
 
                 <Grid x:Name="MainGrid" UseLayoutRounding="True"
+                      CornerRadius="4"
                       Background="{ThemeResource ControlFillColorDefaultBrush}">
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -170,7 +171,7 @@
                                     AutomationProperties.Name="{TemplateBinding AutomationProperties.Name}"
                                     Background="Transparent"
                                     BorderBrush="{StaticResource TextControlElevationBorderBrush}"
-                                    BorderThickness="0.5"
+                                    BorderThickness="1"
                                     Content="{TemplateBinding SelectedItem}"
                                     ContentTemplate="{TemplateBinding ItemTemplate}"
                                     CornerRadius="4"
@@ -214,13 +215,14 @@
 
                     <StackPanel VerticalAlignment="Center">
                       <FontIcon x:Name="DropDownIcon"
-                                FontSize="14"
-                                Foreground="{ThemeResource ComboBoxArrowForegroundThemeBrush}"
+                                FontSize="10"
+                                FontWeight="Bold"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 Glyph="&#xE70D;" />
                     </StackPanel>
                   </Button>
                   <Rectangle x:Name="FocusedLine"
-                             Margin="2"
+                             Margin="1"
                              VerticalAlignment="Center"
                              Style="{StaticResource ComboBoxItemPill}"
                              HorizontalAlignment="Left"
