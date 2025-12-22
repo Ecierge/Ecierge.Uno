@@ -55,36 +55,27 @@
           <StackPanel>
             <VisualStateManager.VisualStateGroups>
               <VisualStateGroup x:Name="CommonStates">
-                <VisualState x:Name="Focused">
+                <VisualState x:Name="FocusedNotEditable">
                   <VisualState.Setters>
                     <Setter Target="FocusedLine.Visibility"
                             Value="{Binding IsEditable, RelativeSource={RelativeSource TemplatedParent},
                                             Converter={StaticResource InverseBoolToVisibilityConverter}}" />
+                    <Setter Target="PopupBorder.Margin" Value="0,30,0,0" />
                   </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="FocusedEditable">
-                  <VisualState.StateTriggers>
-                    <StateTrigger IsActive="{TemplateBinding IsEditable}" />
-                  </VisualState.StateTriggers>
                   <VisualState.Setters>
-                    <Setter Target="RootBorder.BorderThickness" Value="0,0,0,3" />
-                    <Setter Target="RootBorder.BorderBrush" Value="{ThemeResource ControlElevationBorderBrush}" />
-                    <Setter Target="EditableText.Margin" Value="0,0,0,-3" />
-                    <Setter Target="ContentPresenter.Margin" Value="0,0,0,-3" />
-                    <Setter Target="ContentPresenter.CornerRadius" Value="4,4,0,0" />
                     <Setter Target="FocusedLine.Visibility" Value="Collapsed" />
                   </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="Unfocused">
                   <VisualState.Setters>
-                    <Setter Target="RootBorder.BorderThickness" Value="0" />
                     <Setter Target="FocusedLine.Visibility" Value="Collapsed" />
                   </VisualState.Setters>
                 </VisualState>
               </VisualStateGroup>
             </VisualStateManager.VisualStateGroups>
-            <Border x:Name="RootBorder"
-                    BorderBrush="{ThemeResource ControlElevationBorderBrush}">
+            <Border x:Name="RootBorder">
               <StackPanel>
                 <ContentPresenter x:Name="HeaderContentPresenter"
                                   Grid.Row="0"
@@ -170,7 +161,7 @@
                                     VerticalContentAlignment="Center"
                                     AutomationProperties.Name="{TemplateBinding AutomationProperties.Name}"
                                     Background="Transparent"
-                                    BorderBrush="{StaticResource TextControlElevationBorderBrush}"
+                                    BorderBrush="{StaticResource CircleElevationBorderBrush}"
                                     BorderThickness="1"
                                     Content="{TemplateBinding SelectedItem}"
                                     ContentTemplate="{TemplateBinding ItemTemplate}"

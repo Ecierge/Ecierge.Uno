@@ -444,7 +444,7 @@ public partial class GroupedComboBox : ListViewBase
     protected override void OnGotFocus(RoutedEventArgs e)
     {
         base.OnGotFocus(e);
-        VisualStateManager.GoToState(this, "Focused", true);
+        VisualStateManager.GoToState(this, IsEditable ? "FocusedEditable" : "FocusedNotEditable", true);
         mainGrid?.Focus(FocusState.Programmatic);
     }
 
@@ -452,6 +452,7 @@ public partial class GroupedComboBox : ListViewBase
     {
         base.OnLostFocus(e);
         VisualStateManager.GoToState(this, "Unfocused", true);
+
         if (AreAllControlsUnfocused && popup is not null)
             popup.IsOpen = false;
         isKeyDown = false;
