@@ -1,6 +1,8 @@
 namespace Ecierge.Uno.Navigation.Controls;
 
 using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Ecierge.Uno.Navigation.Regions;
@@ -12,22 +14,14 @@ using Microsoft.UI.Xaml.Markup;
 
 /// <summary>
 /// A content control that displays different content based on authorization status.
-/// Uses INavigationRuleChecker to determine if the current user has access.
+/// Checks user permissions to determine if the current user has access.
 /// </summary>
 [ContentProperty(Name = nameof(Content))]
 public sealed class AuthorizedContent : Control
 {
-    /// <summary>
-    /// Reason string used by PermissionNavigationRuleChecker to indicate no authenticated user.
-    /// </summary>
-    private const string NoUserReason = "No user";
-    
     private NavigationRegion? _cachedRegion;
     private ILogger<AuthorizedContent>? _logger;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="AuthorizedContent"/> class.
-    /// </summary>
     public AuthorizedContent()
     {
         DefaultStyleKey = typeof(AuthorizedContent);
@@ -37,9 +31,6 @@ public sealed class AuthorizedContent : Control
 
     #region Content Dependency Property
 
-    /// <summary>
-    /// Identifies the Content dependency property.
-    /// </summary>
     public static readonly DependencyProperty ContentProperty =
         DependencyProperty.Register(
             nameof(Content),
@@ -60,9 +51,6 @@ public sealed class AuthorizedContent : Control
 
     #region ContentTemplate Dependency Property
 
-    /// <summary>
-    /// Identifies the ContentTemplate dependency property.
-    /// </summary>
     public static readonly DependencyProperty ContentTemplateProperty =
         DependencyProperty.Register(
             nameof(ContentTemplate),
@@ -70,9 +58,6 @@ public sealed class AuthorizedContent : Control
             typeof(AuthorizedContent),
             new PropertyMetadata(null));
 
-    /// <summary>
-    /// Gets or sets the template for authorized content.
-    /// </summary>
     public DataTemplate? ContentTemplate
     {
         get => (DataTemplate?)GetValue(ContentTemplateProperty);
@@ -83,9 +68,6 @@ public sealed class AuthorizedContent : Control
 
     #region UnauthorizedContent Dependency Property
 
-    /// <summary>
-    /// Identifies the UnauthorizedContent dependency property.
-    /// </summary>
     public static readonly DependencyProperty UnauthorizedContentProperty =
         DependencyProperty.Register(
             nameof(UnauthorizedContent),
@@ -106,9 +88,6 @@ public sealed class AuthorizedContent : Control
 
     #region UnauthorizedContentTemplate Dependency Property
 
-    /// <summary>
-    /// Identifies the UnauthorizedContentTemplate dependency property.
-    /// </summary>
     public static readonly DependencyProperty UnauthorizedContentTemplateProperty =
         DependencyProperty.Register(
             nameof(UnauthorizedContentTemplate),
@@ -116,9 +95,6 @@ public sealed class AuthorizedContent : Control
             typeof(AuthorizedContent),
             new PropertyMetadata(null));
 
-    /// <summary>
-    /// Gets or sets the template for unauthorized content.
-    /// </summary>
     public DataTemplate? UnauthorizedContentTemplate
     {
         get => (DataTemplate?)GetValue(UnauthorizedContentTemplateProperty);
@@ -129,9 +105,6 @@ public sealed class AuthorizedContent : Control
 
     #region UnauthenticatedContent Dependency Property
 
-    /// <summary>
-    /// Identifies the UnauthenticatedContent dependency property.
-    /// </summary>
     public static readonly DependencyProperty UnauthenticatedContentProperty =
         DependencyProperty.Register(
             nameof(UnauthenticatedContent),
@@ -152,9 +125,6 @@ public sealed class AuthorizedContent : Control
 
     #region UnauthenticatedContentTemplate Dependency Property
 
-    /// <summary>
-    /// Identifies the UnauthenticatedContentTemplate dependency property.
-    /// </summary>
     public static readonly DependencyProperty UnauthenticatedContentTemplateProperty =
         DependencyProperty.Register(
             nameof(UnauthenticatedContentTemplate),
@@ -162,9 +132,6 @@ public sealed class AuthorizedContent : Control
             typeof(AuthorizedContent),
             new PropertyMetadata(null));
 
-    /// <summary>
-    /// Gets or sets the template for unauthenticated content.
-    /// </summary>
     public DataTemplate? UnauthenticatedContentTemplate
     {
         get => (DataTemplate?)GetValue(UnauthenticatedContentTemplateProperty);
@@ -173,33 +140,28 @@ public sealed class AuthorizedContent : Control
 
     #endregion
 
-    #region RequiredRoute Dependency Property
+    #region Permissions Dependency Property
 
-    /// <summary>
-    /// Identifies the RequiredRoute dependency property.
-    /// </summary>
-    public static readonly DependencyProperty RequiredRouteProperty =
+    public static readonly DependencyProperty PermissionsProperty =
         DependencyProperty.Register(
-            nameof(RequiredRoute),
-            typeof(string),
+            nameof(Permissions),
+            typeof(IEnumerable<string>),
             typeof(AuthorizedContent),
-            new PropertyMetadata(string.Empty, OnRequiredRouteChanged));
+            new PropertyMetadata(null, OnPermissionsChanged));
 
     /// <summary>
-    /// Gets or sets the route path to check permissions against (e.g., "Administration/Staff").
+    /// Gets or sets the permissions required to access the content.
     /// </summary>
-    public string RequiredRoute
+    public IEnumerable<string>? Permissions
     {
-        get => (string)GetValue(RequiredRouteProperty);
-        set => SetValue(RequiredRouteProperty, value);
+        get => (IEnumerable<string>?)GetValue(PermissionsProperty);
+        set => SetValue(PermissionsProperty, value);
     }
 
-    private static void OnRequiredRouteChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    private static void OnPermissionsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (d is AuthorizedContent control && control.IsLoaded)
         {
-            // Fire-and-forget is intentional here as we want the check to run in the background
-            // Exception handling is done within PerformAuthorizationCheckAsync
             _ = control.PerformAuthorizationCheckAsync().ConfigureAwait(false);
         }
     }
@@ -208,9 +170,6 @@ public sealed class AuthorizedContent : Control
 
     #region AuthorizationStatus Dependency Property
 
-    /// <summary>
-    /// Identifies the AuthorizationStatus dependency property.
-    /// </summary>
     public static readonly DependencyProperty AuthorizationStatusProperty =
         DependencyProperty.Register(
             nameof(AuthorizationStatus),
@@ -231,8 +190,6 @@ public sealed class AuthorizedContent : Control
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        // Fire-and-forget is intentional here as we want the check to run in the background
-        // Exception handling is done within PerformAuthorizationCheckAsync
         _ = PerformAuthorizationCheckAsync().ConfigureAwait(false);
     }
 
@@ -241,9 +198,6 @@ public sealed class AuthorizedContent : Control
         _cachedRegion = null;
     }
 
-    /// <summary>
-    /// Performs the authorization check asynchronously.
-    /// </summary>
     private async Task PerformAuthorizationCheckAsync()
     {
         try
@@ -251,7 +205,6 @@ public sealed class AuthorizedContent : Control
             var result = await CheckAuthorizationAsync();
             var status = MapResultToStatus(result);
             
-            // Update on UI thread
             DispatcherQueue.TryEnqueue(() =>
             {
                 AuthorizationStatus = status;
@@ -267,10 +220,6 @@ public sealed class AuthorizedContent : Control
         }
     }
 
-    /// <summary>
-    /// Checks authorization by walking up the visual tree to find a NavigationRegion
-    /// and using its Navigator to check permissions.
-    /// </summary>
     private async ValueTask<NavigationRuleResult> CheckAuthorizationAsync()
     {
         var region = FindNavigationRegion();
@@ -282,37 +231,71 @@ public sealed class AuthorizedContent : Control
 
         var navigator = region.Navigator;
         
-        // Parse the RequiredRoute string into a Route object
-        Routing.Route route;
+        if (Permissions is not null && Permissions.Any())
+        {
+            return await CheckPermissionsDirectlyAsync(navigator);
+        }
+        
+        _logger?.LogWarning("No Permissions specified for AuthorizedContent");
+        return NavigationRuleResult.Deny("No authorization criteria specified");
+    }
+
+    private async ValueTask<NavigationRuleResult> CheckPermissionsDirectlyAsync(Navigator navigator)
+    {
         try
         {
-            route = string.IsNullOrEmpty(RequiredRoute) 
-                ? navigator.Route // Use current route
-                : navigator.ParseRoute(RequiredRoute);
+            var ruleCheckers = navigator.ServiceProvider.GetServices<IAuthorizationService>();
+            if (!ruleCheckers.Any())
+            {
+                _logger?.LogWarning("No INavigationRuleChecker services registered");
+                return NavigationRuleResult.Deny("Permission checker not configured");
+            }
+
+            var permissionList = Permissions!.ToArray();
+            
+            // Create a temporary route with these permissions to reuse existing logic
+            var tempSegment = new NameSegment(
+                name: "AuthorizedContent",
+                view: null,
+                isDefault: false,
+                permissions: ImmutableArray.Create(permissionList),
+                nested: ImmutableArray<NameSegment>.Empty
+            );
+            
+            var tempRoute = new Routing.Route(
+                ImmutableArray.Create<Routing.RouteSegmentInstance>(
+                    new Routing.NameSegmentInstance(tempSegment)
+                ),
+                data: navigator.ActualRoute.Data
+            );
+
+            // Use existing navigation rule checkers
+            foreach (var checker in ruleCheckers)
+            {
+                var result = await checker.CanNavigateAsync(tempRoute);
+                if (!result.IsAllowed)
+                {
+                    return result;
+                }
+            }
+
+            return NavigationRuleResult.Allow();
         }
         catch (Exception ex)
         {
-            _logger?.LogError(ex, "Failed to parse route: {Route}", RequiredRoute);
-            return NavigationRuleResult.Deny($"Failed to parse route: {ex.Message}");
+            _logger?.LogError(ex, "Failed to check permissions");
+            return NavigationRuleResult.Deny($"Permission check failed: {ex.Message}");
         }
-        
-        // Use existing Navigator.IsAllowedToNavigateAsync which calls all INavigationRuleChecker services
-        return await navigator.IsAllowedToNavigateAsync(route);
     }
 
-    /// <summary>
-    /// Finds the NavigationRegion by walking up the visual tree.
-    /// </summary>
     private NavigationRegion? FindNavigationRegion()
     {
-        // Return cached region if available
         if (_cachedRegion is not null)
             return _cachedRegion;
 
         DependencyObject? current = this;
         while (current is not null)
         {
-            // Use the existing attached property getter
             if (current is FrameworkElement element)
             {
                 var region = Navigation.GetNavigationRegion(element);
@@ -320,7 +303,6 @@ public sealed class AuthorizedContent : Control
                 {
                     _cachedRegion = region;
                     
-                    // Try to get logger from region's service provider
                     if (_logger is null)
                     {
                         _logger = region.Navigator.ServiceProvider.GetService<ILogger<AuthorizedContent>>();
@@ -334,17 +316,12 @@ public sealed class AuthorizedContent : Control
         return null;
     }
 
-    /// <summary>
-    /// Maps NavigationRuleResult to AuthorizationStatus.
-    /// </summary>
     private AuthorizationStatus MapResultToStatus(NavigationRuleResult result)
     {
         if (result.IsAllowed)
             return AuthorizationStatus.Authorized;
         
-        // Check if denial reason indicates unauthenticated user
-        // This matches the reason string used by PermissionNavigationRuleChecker
-        if (result.Reasons.Any(r => r.Contains(NoUserReason, StringComparison.OrdinalIgnoreCase)))
+        if (result.Reasons.Any(r => r.Contains("No user", StringComparison.OrdinalIgnoreCase)))
             return AuthorizationStatus.Unauthenticated;
         
         return AuthorizationStatus.Unauthorized;
