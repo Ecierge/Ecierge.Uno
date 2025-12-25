@@ -37,9 +37,8 @@
                                 ContentTemplate="{TemplateBinding UnauthorizedContentTemplate}" />
             </ctc:Case>
 
-            <!-- Unknown: Show loading indicator -->
+            <!-- Unknown: Show nothing -->
             <ctc:Case Value="Unknown">
-              <ProgressRing IsActive="True" />
             </ctc:Case>
 
             <!-- Error: Show nothing or could show error message -->

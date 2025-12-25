@@ -6,5 +6,5 @@ public interface IAuthorizationService
 {
     ValueTask<NavigationRuleResult> CanNavigateAsync(Routing.Route route);
 
-    ValueTask<bool> HasPermissionAsync(Routing.Route route);
+    ValueTask<bool> HasPermissionAsync(string permissionName);
 }

@@ -253,29 +253,15 @@ public sealed class AuthorizedContentControl : Control
 
             var permissionList = Permissions!.ToArray();
             
-            // Create a temporary route with these permissions to reuse existing logic
-            var tempSegment = new NameSegment(
-                name: "AuthorizedContent",
-                view: null,
-                isDefault: false,
-                permissions: ImmutableArray.Create(permissionList),
-                nested: ImmutableArray<NameSegment>.Empty
-            );
-            
-            var tempRoute = new Routing.Route(
-                ImmutableArray.Create<Routing.RouteSegmentInstance>(
-                    new Routing.NameSegmentInstance(tempSegment)
-                ),
-                data: navigator.ActualRoute.Data
-            );
-
-            // Use existing navigation rule checkers
             foreach (var checker in ruleCheckers)
             {
-                var result = await checker.CanNavigateAsync(tempRoute);
-                if (!result.IsAllowed)
+                foreach (var perm in permissionList)
                 {
-                    return result;
+                    var hasPermission = await checker.HasPermissionAsync(perm);
+                    if (!hasPermission)
+                    {
+                        return NavigationRuleResult.Deny($"Permission check failed");
+                    }
                 }
             }
 
