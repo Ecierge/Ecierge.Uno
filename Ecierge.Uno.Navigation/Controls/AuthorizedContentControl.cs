@@ -50,7 +50,6 @@ public sealed class AuthorizedContentControl : Control
     #endregion
 
     #region ContentTemplate Dependency Property
-
     public static readonly DependencyProperty ContentTemplateProperty =
         DependencyProperty.Register(
             nameof(ContentTemplate),
@@ -58,6 +57,9 @@ public sealed class AuthorizedContentControl : Control
             typeof(AuthorizedContentControl),
             new PropertyMetadata(null));
 
+    /// <summary>
+    /// Identifies the ContentTemplate dependency property.
+    /// </summary>
     public DataTemplate? ContentTemplate
     {
         get => (DataTemplate?)GetValue(ContentTemplateProperty);
@@ -88,13 +90,18 @@ public sealed class AuthorizedContentControl : Control
 
     #region UnauthorizedContentTemplate Dependency Property
 
+    /// <summary>
+    /// Identifies the UnauthorizedContentTemplate dependency property.
+    /// </summary>
     public static readonly DependencyProperty UnauthorizedContentTemplateProperty =
         DependencyProperty.Register(
             nameof(UnauthorizedContentTemplate),
             typeof(DataTemplate),
             typeof(AuthorizedContentControl),
             new PropertyMetadata(null));
-
+    /// <summary>
+    /// Gets or sets the template for unauthorized content.
+    /// </summary>
     public DataTemplate? UnauthorizedContentTemplate
     {
         get => (DataTemplate?)GetValue(UnauthorizedContentTemplateProperty);
@@ -104,7 +111,9 @@ public sealed class AuthorizedContentControl : Control
     #endregion
 
     #region UnauthenticatedContent Dependency Property
-
+    /// <summary>
+    /// Identifies the UnauthenticatedContent dependency property.
+    /// </summary>
     public static readonly DependencyProperty UnauthenticatedContentProperty =
         DependencyProperty.Register(
             nameof(UnauthenticatedContent),
@@ -124,14 +133,18 @@ public sealed class AuthorizedContentControl : Control
     #endregion
 
     #region UnauthenticatedContentTemplate Dependency Property
-
+    /// <summary>
+    /// Identifies the UnauthenticatedContentTemplateProperty dependency property.
+    /// </summary>
     public static readonly DependencyProperty UnauthenticatedContentTemplateProperty =
         DependencyProperty.Register(
             nameof(UnauthenticatedContentTemplate),
             typeof(DataTemplate),
             typeof(AuthorizedContentControl),
             new PropertyMetadata(null));
-
+    /// <summary>
+    /// Gets or sets the template for unauthenticated content.
+    /// </summary>
     public DataTemplate? UnauthenticatedContentTemplate
     {
         get => (DataTemplate?)GetValue(UnauthenticatedContentTemplateProperty);
@@ -141,7 +154,9 @@ public sealed class AuthorizedContentControl : Control
     #endregion
 
     #region Permissions Dependency Property
-
+    /// <summary>
+    /// Identifies the PermissionsProperty dependency property.
+    /// </summary>
     public static readonly DependencyProperty PermissionsProperty =
         DependencyProperty.Register(
             nameof(Permissions),
@@ -169,6 +184,9 @@ public sealed class AuthorizedContentControl : Control
     #endregion
 
     #region AuthorizationStatus Dependency Property
+    /// <summary>
+    /// Identifies the AuthorizationStatusProperty dependency property.
+    /// </summary>
 
     public static readonly DependencyProperty AuthorizationStatusProperty =
         DependencyProperty.Register(
@@ -247,7 +265,7 @@ public sealed class AuthorizedContentControl : Control
             var ruleCheckers = navigator.ServiceProvider.GetServices<IAuthorizationService>();
             if (!ruleCheckers.Any())
             {
-                _logger?.LogWarning("No INavigationRuleChecker services registered");
+                _logger?.LogWarning("No IAuthorizationService services registered");
                 return NavigationRuleResult.Deny("Permission checker not configured");
             }
 
