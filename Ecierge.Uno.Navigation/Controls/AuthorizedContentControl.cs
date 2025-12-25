@@ -17,14 +17,14 @@ using Microsoft.UI.Xaml.Markup;
 /// Checks user permissions to determine if the current user has access.
 /// </summary>
 [ContentProperty(Name = nameof(Content))]
-public sealed class AuthorizedContent : Control
+public sealed class AuthorizedContentControl : Control
 {
     private NavigationRegion? _cachedRegion;
-    private ILogger<AuthorizedContent>? _logger;
+    private ILogger<AuthorizedContentControl>? _logger;
 
-    public AuthorizedContent()
+    public AuthorizedContentControl()
     {
-        DefaultStyleKey = typeof(AuthorizedContent);
+        DefaultStyleKey = typeof(AuthorizedContentControl);
         Loaded += OnLoaded;
         Unloaded += OnUnloaded;
     }
@@ -35,7 +35,7 @@ public sealed class AuthorizedContent : Control
         DependencyProperty.Register(
             nameof(Content),
             typeof(object),
-            typeof(AuthorizedContent),
+            typeof(AuthorizedContentControl),
             new PropertyMetadata(null));
 
     /// <summary>
@@ -55,7 +55,7 @@ public sealed class AuthorizedContent : Control
         DependencyProperty.Register(
             nameof(ContentTemplate),
             typeof(DataTemplate),
-            typeof(AuthorizedContent),
+            typeof(AuthorizedContentControl),
             new PropertyMetadata(null));
 
     public DataTemplate? ContentTemplate
@@ -72,7 +72,7 @@ public sealed class AuthorizedContent : Control
         DependencyProperty.Register(
             nameof(UnauthorizedContent),
             typeof(object),
-            typeof(AuthorizedContent),
+            typeof(AuthorizedContentControl),
             new PropertyMetadata(null));
 
     /// <summary>
@@ -92,7 +92,7 @@ public sealed class AuthorizedContent : Control
         DependencyProperty.Register(
             nameof(UnauthorizedContentTemplate),
             typeof(DataTemplate),
-            typeof(AuthorizedContent),
+            typeof(AuthorizedContentControl),
             new PropertyMetadata(null));
 
     public DataTemplate? UnauthorizedContentTemplate
@@ -109,7 +109,7 @@ public sealed class AuthorizedContent : Control
         DependencyProperty.Register(
             nameof(UnauthenticatedContent),
             typeof(object),
-            typeof(AuthorizedContent),
+            typeof(AuthorizedContentControl),
             new PropertyMetadata(null));
 
     /// <summary>
@@ -129,7 +129,7 @@ public sealed class AuthorizedContent : Control
         DependencyProperty.Register(
             nameof(UnauthenticatedContentTemplate),
             typeof(DataTemplate),
-            typeof(AuthorizedContent),
+            typeof(AuthorizedContentControl),
             new PropertyMetadata(null));
 
     public DataTemplate? UnauthenticatedContentTemplate
@@ -146,7 +146,7 @@ public sealed class AuthorizedContent : Control
         DependencyProperty.Register(
             nameof(Permissions),
             typeof(IEnumerable<string>),
-            typeof(AuthorizedContent),
+            typeof(AuthorizedContentControl),
             new PropertyMetadata(null, OnPermissionsChanged));
 
     /// <summary>
@@ -160,7 +160,7 @@ public sealed class AuthorizedContent : Control
 
     private static void OnPermissionsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        if (d is AuthorizedContent control && control.IsLoaded)
+        if (d is AuthorizedContentControl control && control.IsLoaded)
         {
             _ = control.PerformAuthorizationCheckAsync().ConfigureAwait(false);
         }
@@ -174,7 +174,7 @@ public sealed class AuthorizedContent : Control
         DependencyProperty.Register(
             nameof(AuthorizationStatus),
             typeof(AuthorizationStatus),
-            typeof(AuthorizedContent),
+            typeof(AuthorizedContentControl),
             new PropertyMetadata(AuthorizationStatus.Unknown));
 
     /// <summary>
@@ -305,7 +305,7 @@ public sealed class AuthorizedContent : Control
                     
                     if (_logger is null)
                     {
-                        _logger = region.Navigator.ServiceProvider.GetService<ILogger<AuthorizedContent>>();
+                        _logger = region.Navigator.ServiceProvider.GetService<ILogger<AuthorizedContentControl>>();
                     }
                     
                     return region;
