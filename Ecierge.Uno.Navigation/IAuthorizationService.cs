@@ -1,6 +1,8 @@
 namespace Ecierge.Uno.Navigation;
 
-public interface INavigationRuleChecker
+public interface IAuthorizationService
 {
     ValueTask<NavigationRuleResult> CanNavigateAsync(Routing.Route route);
+
+    ValueTask<bool> HasPermissionAsync(string permissionName);
 }

@@ -81,7 +81,7 @@ public abstract class Navigator
 
     public async Task<NavigationRuleResult> IsAllowedToNavigateAsync(Routing.Route route)
     {
-        var checkers = ServiceProvider.GetServices<INavigationRuleChecker>().ToList();
+        var checkers = ServiceProvider.GetServices<IAuthorizationService>().ToList();
         bool isProhibited = false;
         bool isAllowed = false;
         var errors = new List<string>();
