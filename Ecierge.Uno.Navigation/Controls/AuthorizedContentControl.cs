@@ -19,8 +19,8 @@ using Microsoft.UI.Xaml.Markup;
 [ContentProperty(Name = nameof(Content))]
 public sealed class AuthorizedContentControl : Control
 {
-    private NavigationRegion? _cachedRegion;
-    private ILogger<AuthorizedContentControl>? _logger;
+    private NavigationRegion? cachedRegion;
+    private ILogger<AuthorizedContentControl>? logger;
 
     public AuthorizedContentControl()
     {
@@ -213,7 +213,7 @@ public sealed class AuthorizedContentControl : Control
 
     private void OnUnloaded(object sender, RoutedEventArgs e)
     {
-        _cachedRegion = null;
+        cachedRegion = null;
     }
 
     private async Task PerformAuthorizationCheckAsync()
@@ -230,7 +230,7 @@ public sealed class AuthorizedContentControl : Control
         }
         catch (Exception ex)
         {
-            _logger?.LogError(ex, "Authorization check failed for AuthorizedContent");
+            logger?.LogError(ex, "Authorization check failed for AuthorizedContent");
             DispatcherQueue.TryEnqueue(() =>
             {
                 AuthorizationStatus = AuthorizationStatus.Error;
@@ -243,7 +243,7 @@ public sealed class AuthorizedContentControl : Control
         var region = FindNavigationRegion();
         if (region is null)
         {
-            _logger?.LogWarning("No NavigationRegion found for AuthorizedContent");
+            logger?.LogWarning("No NavigationRegion found for AuthorizedContent");
             return NavigationRuleResult.Deny("No NavigationRegion found");
         }
 
@@ -254,7 +254,7 @@ public sealed class AuthorizedContentControl : Control
             return await CheckPermissionsDirectlyAsync(navigator);
         }
         
-        _logger?.LogWarning("No Permissions specified for AuthorizedContent");
+        logger?.LogWarning("No Permissions specified for AuthorizedContent");
         return NavigationRuleResult.Deny("No authorization criteria specified");
     }
 
@@ -265,7 +265,7 @@ public sealed class AuthorizedContentControl : Control
             var ruleCheckers = navigator.ServiceProvider.GetServices<IAuthorizationService>();
             if (!ruleCheckers.Any())
             {
-                _logger?.LogWarning("No IAuthorizationService services registered");
+                logger?.LogWarning("No IAuthorizationService services registered");
                 return NavigationRuleResult.Deny("Permission checker not configured");
             }
 
@@ -287,15 +287,15 @@ public sealed class AuthorizedContentControl : Control
         }
         catch (Exception ex)
         {
-            _logger?.LogError(ex, "Failed to check permissions");
+            logger?.LogError(ex, "Failed to check permissions");
             return NavigationRuleResult.Deny($"Permission check failed: {ex.Message}");
         }
     }
 
     private NavigationRegion? FindNavigationRegion()
     {
-        if (_cachedRegion is not null)
-            return _cachedRegion;
+        if (cachedRegion is not null)
+            return cachedRegion;
 
         DependencyObject? current = this;
         while (current is not null)
@@ -305,11 +305,11 @@ public sealed class AuthorizedContentControl : Control
                 var region = Navigation.GetNavigationRegion(element);
                 if (region is not null)
                 {
-                    _cachedRegion = region;
+                    cachedRegion = region;
                     
-                    if (_logger is null)
+                    if (logger is null)
                     {
-                        _logger = region.Navigator.ServiceProvider.GetService<ILogger<AuthorizedContentControl>>();
+                        logger = region.Navigator.ServiceProvider.GetService<ILogger<AuthorizedContentControl>>();
                     }
                     
                     return region;
