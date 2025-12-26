@@ -43,7 +43,7 @@
 
             <!-- Error: Show nothing or could show error message -->
             <ctc:Case Value="Error">
-              <InfoBar Severity="Error" Title="Authorization check failed for AuthorizedContent" />
+              <InfoBar Severity="Error" Title="Authorization check failed" />
             </ctc:Case>
 
           </ctc:SwitchPresenter>
