@@ -17,7 +17,7 @@ using Microsoft.UI.Xaml.Markup;
 /// Checks user permissions to determine if the current user has access.
 /// </summary>
 [ContentProperty(Name = nameof(Content))]
-public sealed class AuthorizedContentControl : Control
+public sealed partial class AuthorizedContentControl : Control
 {
     private NavigationRegion? cachedRegion;
     private ILogger<AuthorizedContentControl>? logger;
