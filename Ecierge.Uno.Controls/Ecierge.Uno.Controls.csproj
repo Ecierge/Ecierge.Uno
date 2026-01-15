@@ -52,4 +52,10 @@
     <PackageReference Include="CommunityToolkit.WinUI.Triggers" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Page Update="PageContentControlStyle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
 </Project>
