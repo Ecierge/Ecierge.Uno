@@ -333,7 +333,7 @@ public static class NavigatorExtensions
                     // The next is data
                     NameSegment nameSegment when nameSegment.DataSegment is DataSegment nestedDataSegment => nestedDataSegment,
                     // The next is dialog
-                    RouteSegment routeSegment when segmentName.StartsWith('!') => navigator.FindDialogSegmentToNavigate(segmentName[1..]),
+                    RouteSegment when segmentName.StartsWith('!') => navigator.FindDialogSegmentToNavigate(segmentName[1..]),
                     // The next is nested
                     RouteSegment routeSegment => routeSegment.Nested.FirstOrDefault(s => s.Name == segmentName),
                     _ => null
@@ -344,7 +344,6 @@ public static class NavigatorExtensions
 
                 RouteSegmentInstance? instance = nextSegment switch
                 {
-                    null => null,
                     DialogSegment dialogSegment => new DialogSegmentInstance(dialogSegment),
                     NameSegment nameSegment => new NameSegmentInstance(nameSegment),
                     DataSegment dataSegment => CreateDataSegment(dataSegment, segmentName),
@@ -363,8 +362,9 @@ public static class NavigatorExtensions
                 }
             }
         }
-        catch
+        catch(NotSupportedException ex)
         {
+            Debug.Fail($"Failed to parse route because of unsupported segment: {ex}");
             return false;
         }
     }
@@ -374,7 +374,7 @@ public static class NavigatorExtensions
 
     public static Routing.Route ParseRoute([NotNull] this Navigator navigator, string route, INavigationData? navigationData = null)
     {
-        void onNoSegmentFound (RouteSegment segment, string segmentName) => throw new NestedSegmentNotFoundException(segment, segmentName);
+        void onNoSegmentFound(RouteSegment segment, string segmentName) => throw new NestedSegmentNotFoundException(segment, segmentName);
         TryParseRoute(navigator, route, navigationData, onNoSegmentFound, out var parsedRoute);
         return parsedRoute!;
     }
