@@ -6,10 +6,9 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
-
+using Ecierge.Uno.Navigation;
 using Ecierge.Uno.Navigation.Navigators;
 using Ecierge.Uno.Navigation.Routing;
-
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Dispatching;
@@ -21,6 +20,7 @@ using MoreLinq;
 /// </summary>
 public abstract class Navigator
 {
+
     // Region is always set immediately after construction in the NavigationRegion constructor
     protected internal Regions.NavigationRegion Region { get; set; } = default!;
     public Navigator RootNavigator { get; internal set; } = default!;
@@ -41,10 +41,14 @@ public abstract class Navigator
         get { child.TryGetTarget(out var value); return value; }
         internal set
         {
+            child.TryGetTarget(out var oldNavigator);
             if (value is not null) value.Route = this.Route;
             child.SetTarget(value);
+
+            ChildNavigatorChanged?.Invoke(this, new NavigatorChangedEventArgs(oldNavigator, value));
         }
     }
+    public event EventHandler<NavigatorChangedEventArgs> ChildNavigatorChanged;
 
     public Navigator LeafNavigator
     {
@@ -104,6 +108,7 @@ public abstract class Navigator
             catch (Exception ex)
             {
                 exceptions.Add(ex);
+                Debugger.Break();
                 Logger.LogError(ex, "Navigation rule checker of type {type} crashed", checker.GetType());
             }
         }
