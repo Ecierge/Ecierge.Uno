@@ -124,26 +124,6 @@ public sealed partial class NullableNumberBox : Control
 
     #endregion HeaderTemplate
 
-    #region IsEnabled
-
-    /// <summary>
-    /// IsEnabled Dependency Property
-    /// </summary>
-    public static readonly DependencyProperty IsEnabledProperty =
-        DependencyProperty.Register(nameof(IsEnabled), typeof(bool), typeof(NullableNumberBox),
-            new PropertyMetadata(NumberBox.IsEnabledProperty.GetMetadata(typeof(NumberBox)).DefaultValue));
-
-    /// <summary>
-    /// Gets or sets the IsEnabled property. This dependency property
-    /// </summary>
-    public bool IsEnabled
-    {
-        get => (bool)GetValue(IsEnabledProperty);
-        set => SetValue(IsEnabledProperty, value);
-    }
-
-    #endregion IsEnabled
-
     #region IsChecked
 
     /// <summary>

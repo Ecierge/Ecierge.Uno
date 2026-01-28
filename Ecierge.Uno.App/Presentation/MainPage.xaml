@@ -9,7 +9,6 @@
       xmlns:nav="using:Ecierge.Uno.Navigation"
       xmlns:um="using:Uno.Material"
       xmlns:utu="using:Uno.Toolkit.UI"
-      Background="{ThemeResource BackgroundBrush}"
       NavigationCacheMode="Required">
   <ScrollViewer>
     <VisualStateManager.VisualStateGroups>
@@ -96,7 +95,17 @@
                    FontSize="16"
                    Text="{Binding ElementName=NumberBox, Path=Value}" />
 
-        <ctrl:GroupedComboBox Width="200" ItemsSource="{Binding GropedItemsSource.View}" PlaceholderText="Placeholder">
+        <ComboBox ItemsSource="{Binding ItemsSource}" PlaceholderText="Select Floor"
+                  IsEditable="{Binding IsChecked, ElementName=EditCheckBox}"
+                  PlaceholderForeground="Red" />
+
+        <CheckBox x:Name="EditCheckBox" Content="Allow editing GroupedComboBox" IsChecked="True"/>
+
+        <ctrl:GroupedComboBox Width="200" ItemsSource="{Binding GropedItemsSource.View}"
+                              PlaceholderText="Select Floor"
+                              IsEditable="{Binding IsChecked, ElementName=EditCheckBox}"
+                              Header="GroupedComboBox" Description=""
+                              PlaceholderForeground="Red" >
           <ctrl:GroupedComboBox.ItemTemplate>
             <DataTemplate>
               <TextBlock Text="{Binding}" />

@@ -34,7 +34,6 @@
                               ContentTemplate="{TemplateBinding HeaderTemplate}"
                               FontWeight="Normal"
                               Foreground="{ThemeResource TextControlHeaderForeground}"
-                              Padding="4,0,4,0"
                               TextWrapping="Wrap"
                               Visibility="{Binding Header, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource NullToVisibilityConverter}}" />
             <Border x:Name="BorderElement"

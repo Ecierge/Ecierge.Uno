@@ -1,15 +1,30 @@
-﻿<ResourceDictionary
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:ctc="using:CommunityToolkit.WinUI.Converters">
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:ctc="using:CommunityToolkit.WinUI.Converters">
 
   <ctc:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+  <ctc:BoolToObjectConverter x:Key="InverseBoolToVisibilityConverter">
+    <ctc:BoolToObjectConverter.TrueValue>
+      <Visibility>Collapsed</Visibility>
+    </ctc:BoolToObjectConverter.TrueValue>
+    <ctc:BoolToObjectConverter.FalseValue>
+      <Visibility>Visible</Visibility>
+    </ctc:BoolToObjectConverter.FalseValue>
+  </ctc:BoolToObjectConverter>
   <ctc:EmptyObjectToObjectConverter x:Key="NullToVisibilityConverter">
     <ctc:EmptyObjectToObjectConverter.EmptyValue>
       <Visibility>Collapsed</Visibility>
     </ctc:EmptyObjectToObjectConverter.EmptyValue>
     <ctc:EmptyObjectToObjectConverter.NotEmptyValue>
       <Visibility>Visible</Visibility>
+    </ctc:EmptyObjectToObjectConverter.NotEmptyValue>
+  </ctc:EmptyObjectToObjectConverter>
+  <ctc:EmptyObjectToObjectConverter x:Key="InverseNullToVisibilityConverter">
+    <ctc:EmptyObjectToObjectConverter.EmptyValue>
+      <Visibility>Visible</Visibility>
+    </ctc:EmptyObjectToObjectConverter.EmptyValue>
+    <ctc:EmptyObjectToObjectConverter.NotEmptyValue>
+      <Visibility>Collapsed</Visibility>
     </ctc:EmptyObjectToObjectConverter.NotEmptyValue>
   </ctc:EmptyObjectToObjectConverter>
 
