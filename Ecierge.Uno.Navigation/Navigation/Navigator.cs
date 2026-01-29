@@ -6,10 +6,9 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
-
+using Ecierge.Uno.Navigation;
 using Ecierge.Uno.Navigation.Navigators;
 using Ecierge.Uno.Navigation.Routing;
-
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Dispatching;
@@ -21,12 +20,13 @@ using MoreLinq;
 /// </summary>
 public abstract class Navigator
 {
+
     // Region is always set immediately after construction in the NavigationRegion constructor
     protected internal Regions.NavigationRegion Region { get; set; } = default!;
     public Navigator RootNavigator { get; internal set; } = default!;
 
     public IServiceProvider ServiceProvider { get; }
-    public FrameworkElement Target => ServiceProvider.GetRequiredService<FrameworkElement>();
+    public FrameworkElement? Target => ServiceProvider.GetService<FrameworkElement>();
     protected NavigationScope Scope => ServiceProvider.GetService<NavigationScope>()!;
     public INavigationStatus NavigationStatus { get; private set; }
 
@@ -41,10 +41,14 @@ public abstract class Navigator
         get { child.TryGetTarget(out var value); return value; }
         internal set
         {
+            child.TryGetTarget(out var oldNavigator);
             if (value is not null) value.Route = this.Route;
             child.SetTarget(value);
+
+            ChildNavigatorChanged?.Invoke(this, new NavigatorChangedEventArgs(oldNavigator, value));
         }
     }
+    public event EventHandler<NavigatorChangedEventArgs> ChildNavigatorChanged;
 
     public Navigator LeafNavigator
     {
@@ -81,7 +85,7 @@ public abstract class Navigator
 
     public async Task<NavigationRuleResult> IsAllowedToNavigateAsync(Routing.Route route)
     {
-        var checkers = ServiceProvider.GetServices<INavigationRuleChecker>().ToList();
+        var checkers = ServiceProvider.GetServices<IAuthorizationService>().ToList();
         bool isProhibited = false;
         bool isAllowed = false;
         var errors = new List<string>();
@@ -104,6 +108,7 @@ public abstract class Navigator
             catch (Exception ex)
             {
                 exceptions.Add(ex);
+                Debugger.Break();
                 Logger.LogError(ex, "Navigation rule checker of type {type} crashed", checker.GetType());
             }
         }
@@ -269,75 +274,114 @@ public abstract class Navigator
 
 public static class NavigatorExtensions
 {
+
+    private static bool TryParseRoute(
+        [NotNull] this Navigator navigator,
+        string route, INavigationData? navigationData,
+        Action<RouteSegment, string>? onNoSegmentFound,
+        [NotNullWhen(true)] out Routing.Route? parsedRoute
+    )
+    {
+        parsedRoute = null;
+
+        try
+        {
+            navigationData = (navigator.Parent?.Route.Data ?? NavigationData.Empty).Union(navigationData);
+
+            DataSegmentInstance CreateDataSegment(DataSegment segment, string primitive)
+            {
+                Task? data = null;
+                var dataMap = segment.DataMap is null ? null : (INavigationDataMap)navigator.ServiceProvider.GetRequiredService(segment.DataMap);
+                if (dataMap is not null)
+                {
+                    dataMap.TryGetEntityTask(navigationData, segment.Name, out data);
+                }
+                return new(segment, primitive, data);
+            }
+
+            var segmentNames = route.Split('/');
+            List<RouteSegmentInstance> parsedRouteList = new(segmentNames.Length);
+
+            // Get the last navigatable segment from which nested segments will be searched within
+            RouteSegment? nextSegment = navigator.Region.Segment switch
+            {
+                NameSegment nameSegment when nameSegment.DataSegment is DataSegment nestedDataSegment => nestedDataSegment,
+                RouteSegment routeSegment => routeSegment
+            };
+
+            foreach (var segmentName in segmentNames)
+            {
+                nextSegment = ProcessSegmentName(nextSegment, segmentName);
+                if (nextSegment is null)
+                    return false;
+            }
+
+            while ((nextSegment = nextSegment?.Nested.FirstOrDefault(s => s.IsDefault)) is not null)
+            {
+                if (nextSegment is NameSegment nameSegment)
+                {
+                    parsedRouteList.Add(new NameSegmentInstance(nameSegment));
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            parsedRoute = new Routing.Route(parsedRouteList.ToImmutableArray(), navigationData);
+            return true;
+
+            RouteSegment? ProcessSegmentName(RouteSegment segment, string segmentName)
+            {
+                RouteSegment? nextSegment = segment switch
+                {
+                    // The next is data
+                    NameSegment nameSegment when nameSegment.DataSegment is DataSegment nestedDataSegment => nestedDataSegment,
+                    // The next is dialog
+                    RouteSegment when segmentName.StartsWith('!') => navigator.FindDialogSegmentToNavigate(segmentName[1..]),
+                    // The next is nested
+                    RouteSegment routeSegment => routeSegment.Nested.FirstOrDefault(s => s.Name == segmentName),
+                    _ => null
+                };
+
+                if (nextSegment is null)
+                    return null;
+
+                RouteSegmentInstance? instance = nextSegment switch
+                {
+                    DialogSegment dialogSegment => new DialogSegmentInstance(dialogSegment),
+                    NameSegment nameSegment => new NameSegmentInstance(nameSegment),
+                    DataSegment dataSegment => CreateDataSegment(dataSegment, segmentName),
+                    _ => throw new NotSupportedException("Not supported route segment")
+                };
+
+                if (instance is null)
+                {
+                    onNoSegmentFound?.Invoke(segment, segmentName);
+                    return null;
+                }
+                else
+                {
+                    parsedRouteList.Add(instance);
+                    return nextSegment;
+                }
+            }
+        }
+        catch(NotSupportedException ex)
+        {
+            Debug.Fail($"Failed to parse route because of unsupported segment: {ex}");
+            return false;
+        }
+    }
+
+    public static bool TryParseRoute([NotNull] this Navigator navigator, string route, INavigationData? navigationData, [NotNullWhen(true)] out Routing.Route? parsedRoute)
+     => navigator.TryParseRoute(route, navigationData, null, out parsedRoute);
+
     public static Routing.Route ParseRoute([NotNull] this Navigator navigator, string route, INavigationData? navigationData = null)
     {
-        navigationData = (navigator.Parent?.Route.Data ?? NavigationData.Empty).Union(navigationData);
-
-        DataSegmentInstance CreateDataSegment(DataSegment segment, string primitive)
-        {
-            Task? data = null;
-            var dataMap = segment.DataMap is null ? null : (INavigationDataMap)navigator.ServiceProvider.GetRequiredService(segment.DataMap);
-            if (dataMap is not null)
-            {
-                dataMap.TryGetEntityTask(navigationData, segment.Name, out data);
-            }
-            return new(segment, primitive, data);
-        }
-
-        var segmentNames = route.Split('/');
-        List<RouteSegmentInstance> parsedRoute = new(segmentNames.Length);
-
-        // Get the last navigatable segment from which nested segments will be searched within
-        RouteSegment? nextSegment = navigator.Region.Segment switch
-        {
-            NameSegment nameSegment when nameSegment.DataSegment is DataSegment nestedDataSegment => nestedDataSegment,
-            RouteSegment routeSegment => routeSegment
-        };
-
-        foreach (var segmentName in segmentNames)
-        {
-            nextSegment = ProcessSegmentName(nextSegment, segmentName);
-        }
-
-        while ((nextSegment = nextSegment?.Nested.FirstOrDefault(s => s.IsDefault)) is not null)
-        {
-            RouteSegmentInstance instance = nextSegment switch
-            {
-                NameSegment nameSegment => new NameSegmentInstance(nameSegment),
-                // TODO: Handle data segments with default values
-                //CreateDataSegment(dataSegment, null),
-                DataSegment => throw new NotSupportedException("Impossible case as nested for name segment with data is empty"),
-                _ => throw new NotSupportedException("Not supported route segment")
-            };
-            parsedRoute.Add(instance);
-        }
-
-        return new Routing.Route(parsedRoute.ToImmutableArray(), navigationData);
-
-        RouteSegment ProcessSegmentName(RouteSegment segment, string segmentName)
-        {
-            RouteSegment? nextSegment = segment switch
-            {
-                // The next is data
-                NameSegment nameSegment when nameSegment.DataSegment is DataSegment nestedDataSegment => nestedDataSegment,
-                // The next is dialog
-                RouteSegment routeSegment when segmentName.StartsWith('!') => navigator.FindDialogSegmentToNavigate(segmentName[1..]),
-                // The next is nested
-                RouteSegment routeSegment => routeSegment.Nested.FirstOrDefault(s => s.Name == segmentName),
-                _ => throw new NotSupportedException("Not supported route segment")
-            };
-            RouteSegmentInstance instance = nextSegment switch
-            {
-                // Wrong route
-                null => throw new NestedSegmentNotFoundException(segment, segmentName),
-                DialogSegment dialogSegment => new DialogSegmentInstance(dialogSegment),
-                NameSegment nameSegment => new NameSegmentInstance(nameSegment),
-                DataSegment dataSegment => CreateDataSegment(dataSegment, segmentName),
-                _ => throw new NotSupportedException("Not supported route segment")
-            };
-            parsedRoute.Add(instance);
-            return nextSegment;
-        }
+        void onNoSegmentFound(RouteSegment segment, string segmentName) => throw new NestedSegmentNotFoundException(segment, segmentName);
+        TryParseRoute(navigator, route, navigationData, onNoSegmentFound, out var parsedRoute);
+        return parsedRoute!;
     }
 
     public static async ValueTask<NavigationResponse> NavigateRouteAsync([NotNull] this Navigator navigator, object initiator, string route, INavigationData? navigationData = null)

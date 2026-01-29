@@ -122,7 +122,7 @@ public partial class App : Application
             //new NameSegment("", views[typeof(Shell)],
             //    nested:
             //    [
-                    new ("Main", views[typeof(MainPage)], isDefault:true, [
+                    new ("Main", views[typeof(MainPage)], isDefault:true, nested:[
                             new ("Tab1", isDefault: true),
                             new ("Tab2"),
                             new DialogSegment("Dialog", views[typeof(MainPage)], nested:[

@@ -99,13 +99,32 @@
                   IsEditable="{Binding IsChecked, ElementName=EditCheckBox}"
                   PlaceholderForeground="Red" />
 
-        <CheckBox x:Name="EditCheckBox" Content="Allow editing GroupedComboBox" IsChecked="True"/>
-
-        <ctrl:GroupedComboBox Width="200" ItemsSource="{Binding GropedItemsSource.View}"
-                              PlaceholderText="Select Floor"
+        <CheckBox x:Name="EditCheckBox" Content="Allow editing GroupedComboBox" IsChecked="False"/>
+        <!--For Editable GroupedComboBox only DisplayMemberPath, not ItemTemplate-->
+        <ctrl:GroupedComboBox Width="200" ItemsSource="{Binding GropedItemsSource2.View}"
                               IsEditable="{Binding IsChecked, ElementName=EditCheckBox}"
                               Header="GroupedComboBox" Description=""
-                              PlaceholderForeground="Red" />
+                              PlaceholderText="Person"
+                              PlaceholderForeground="Red" >
+          <ctrl:GroupedComboBox.ItemTemplate>
+            <DataTemplate>
+              <TextBlock>
+                <Run Text="{Binding Name}" />
+                <Run Text="age:" />
+                <Run Text="{Binding Age}" />
+              </TextBlock>
+            </DataTemplate>
+          </ctrl:GroupedComboBox.ItemTemplate>
+          <ctrl:GroupedComboBox.GroupStyle>
+            <GroupStyle>
+              <GroupStyle.HeaderTemplate>
+                <DataTemplate>
+                  <TextBlock Padding="8" Style="{ThemeResource SubtitleTextBlockStyle}" Text="{Binding Key}" />
+                </DataTemplate>
+              </GroupStyle.HeaderTemplate>
+            </GroupStyle>
+          </ctrl:GroupedComboBox.GroupStyle>
+        </ctrl:GroupedComboBox>
 
         <Button AutomationProperties.AutomationId="SecondPageButton" Command="{Binding GoToSecond}" Content="Go to Second Page" />
         <Button Content="Go to Second Page with target">

@@ -2,7 +2,10 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:ctc="using:CommunityToolkit.WinUI.Controls"
                     xmlns:i="using:Microsoft.Xaml.Interactivity"
-                    xmlns:comp="using:Ecierge.Uno.Controls">
+                    xmlns:animatedvisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
+                    xmlns:comp="using:Ecierge.Uno.Controls"
+                    xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+                    xmlns:converters="using:CommunityToolkit.WinUI.Converters">
 
   <ResourceDictionary.MergedDictionaries>
     <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/Resources.xaml" />
@@ -52,24 +55,27 @@
           <StackPanel>
             <VisualStateManager.VisualStateGroups>
               <VisualStateGroup x:Name="CommonStates">
-                <VisualState x:Name="Focused">
+                <VisualState x:Name="FocusedNotEditable">
                   <VisualState.Setters>
-                    <Setter Target="RootBorder.BorderThickness" Value="0,0,0,3" />
-                    <Setter Target="RootBorder.BorderBrush" Value="{ThemeResource TextControlBorderBrushFocused}" />
-                    <Setter Target="EditableText.Margin" Value="0,0,0,-3" />
-                    <Setter Target="ContentPresenter.Margin" Value="0,0,0,-3" />
+                    <Setter Target="FocusedLine.Visibility"
+                            Value="{Binding IsEditable, RelativeSource={RelativeSource TemplatedParent},
+                                            Converter={StaticResource InverseBoolToVisibilityConverter}}" />
+                    <Setter Target="PopupBorder.Margin" Value="0,30,0,0" />
+                  </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="FocusedEditable">
+                  <VisualState.Setters>
+                    <Setter Target="FocusedLine.Visibility" Value="Collapsed" />
                   </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="Unfocused">
                   <VisualState.Setters>
-                    <Setter Target="RootBorder.BorderThickness" Value="0" />
+                    <Setter Target="FocusedLine.Visibility" Value="Collapsed" />
                   </VisualState.Setters>
                 </VisualState>
               </VisualStateGroup>
             </VisualStateManager.VisualStateGroups>
-            <Border x:Name="RootBorder"
-                    BorderBrush="{ThemeResource TextControlBorderBrushFocused}"
-                    CornerRadius="4">
+            <Border x:Name="RootBorder">
               <StackPanel>
                 <ContentPresenter x:Name="HeaderContentPresenter"
                                   Grid.Row="0"
@@ -83,15 +89,17 @@
                                   Visibility="{Binding Header, RelativeSource={RelativeSource TemplatedParent},
                                                        Converter={StaticResource NullToVisibilityConverter}}" />
 
-                <Grid x:Name="MainGrid">
+                <Grid x:Name="MainGrid" UseLayoutRounding="True"
+                      CornerRadius="4"
+                      Background="{ThemeResource ControlFillColorDefaultBrush}">
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="38" />
                   </Grid.ColumnDefinitions>
 
                   <Popup x:Name="Popup"
-                         IsLightDismissEnabled="True"
-                         LightDismissOverlayMode="{TemplateBinding LightDismissOverlayMode}">
+                         ShouldConstrainToRootBounds="True"             
+                         IsLightDismissEnabled="True">
                     <Border x:Name="PopupBorder"
                             MinWidth="{TemplateBinding Width}"
                             MaxHeight="500"
@@ -100,11 +108,12 @@
                             VerticalAlignment="Top"
                             Background="{ThemeResource ComboBoxDropDownBackground}"
                             BackgroundSizing="InnerBorderEdge"
-                            BorderBrush="{StaticResource TextControlElevationBorderBrush}"
+                            BorderBrush="{ThemeResource ControlElevationBorderBrush}"
                             BorderThickness="1"
                             CornerRadius="0,0,4,4"
                             Padding="{ThemeResource ComboBoxDropdownBorderPadding}">
                       <ScrollViewer x:Name="ScrollViewer"
+                                    Background="{ThemeResource ControlFillColorDefaultBrush}"
                                     AutomationProperties.AccessibilityView="Raw"
                                     BringIntoViewOnFocusChange="{TemplateBinding ScrollViewer.BringIntoViewOnFocusChange}"
                                     HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
@@ -133,6 +142,7 @@
                            Grid.ColumnSpan="2"
                            Width="{TemplateBinding Width}"
                            Height="{TemplateBinding Height}"
+                           Background="Transparent"
                            HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
                            VerticalAlignment="Center"
                            CornerRadius="4"
@@ -140,8 +150,6 @@
                            FontWeight="{TemplateBinding FontWeight}"
                            Padding="{ThemeResource ComboBoxEditableTextPadding}"
                            Style="{TemplateBinding TextBoxStyle}"
-                           Text="{Binding SelectedValue, RelativeSource={RelativeSource TemplatedParent},
-                                          Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
                            Visibility="{Binding IsEditable, RelativeSource={RelativeSource TemplatedParent},
                                                 Converter={StaticResource BoolToVisibilityConverter}}" />
                   <ContentPresenter x:Name="ContentPresenter"
@@ -152,10 +160,10 @@
                                     MinHeight="32"
                                     VerticalContentAlignment="Center"
                                     AutomationProperties.Name="{TemplateBinding AutomationProperties.Name}"
-                                    BorderBrush="{StaticResource TextControlElevationBorderBrush}"
-                                    BorderThickness="0.5"
-                                    Content="{Binding SelectedValue, RelativeSource={RelativeSource TemplatedParent},
-                                                      Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    Background="Transparent"
+                                    BorderBrush="{StaticResource CircleElevationBorderBrush}"
+                                    BorderThickness="1"
+                                    Content="{TemplateBinding SelectedItem}"
                                     ContentTemplate="{TemplateBinding ItemTemplate}"
                                     CornerRadius="4"
                                     FlowDirection="{TemplateBinding FlowDirection}"
@@ -173,20 +181,43 @@
                           MinWidth="20"
                           MinHeight="20"
                           Margin="4"
+                          FocusVisualPrimaryBrush="Transparent"
+                          FocusVisualSecondaryBrush="Transparent"
                           HorizontalAlignment="Right"
                           VerticalAlignment="Center"
-                          BorderBrush="Transparent"
-                          BorderThickness="0"
                           CornerRadius="0"
                           IsEnabled="True"
                           Padding="0">
+                    <Button.Style>
+                      <Style TargetType="Button">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="BorderBrush" Value="Transparent"/>
+                        <Setter Property="BorderThickness" Value="0"/>
 
-                    <StackPanel>
-                      <FontIcon FontSize="14"
-                                Foreground="{ThemeResource ComboBoxArrowForegroundThemeBrush}"
+                        <Setter Property="Template">
+                          <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                              <ContentPresenter/>
+                            </ControlTemplate>
+                          </Setter.Value>
+                        </Setter>
+                      </Style>
+                    </Button.Style>
+
+                    <StackPanel VerticalAlignment="Center">
+                      <FontIcon x:Name="DropDownIcon"
+                                FontSize="10"
+                                FontWeight="Bold"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 Glyph="&#xE70D;" />
                     </StackPanel>
                   </Button>
+                  <Rectangle x:Name="FocusedLine"
+                             Margin="1"
+                             VerticalAlignment="Center"
+                             Style="{StaticResource ComboBoxItemPill}"
+                             HorizontalAlignment="Left"
+                             Visibility="Collapsed"/>
 
                   <Border x:Name="DropDownOverlay"
                           Grid.Column="1"
@@ -198,10 +229,13 @@
                   <ContentPresenter x:Name="PlaceholderContentPresenter"
                                     Grid.Row="1"
                                     Grid.Column="0"
+                                    Background="Transparent"
                                     Margin="{TemplateBinding Padding}"
                                     HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                     VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                    Foreground="{TemplateBinding PlaceholderForeground}">
+                                    Foreground="{TemplateBinding PlaceholderForeground}"
+                                    Visibility="{Binding IsEditable, RelativeSource={RelativeSource TemplatedParent},
+                                                         Converter={StaticResource BoolToVisibilityConverter}}">
                     <TextBlock x:Name="PlaceholderTextBlock"
                                Foreground="{TemplateBinding PlaceholderForeground}"
                                Text="{TemplateBinding PlaceholderText}"

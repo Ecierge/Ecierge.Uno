@@ -1,0 +1,55 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:ctc="using:CommunityToolkit.WinUI.Controls"
+                    xmlns:controls="using:Ecierge.Uno.Navigation.Controls">
+
+  <Style TargetType="controls:AuthorizedContentControl">
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="VerticalAlignment" Value="Stretch" />
+    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    <Setter Property="VerticalContentAlignment" Value="Stretch" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="controls:AuthorizedContentControl">
+          <ctc:SwitchPresenter Value="{TemplateBinding AuthorizationStatus}" TargetType="controls:AuthorizationStatus">
+
+            <!-- Authorized: Show main content -->
+            <ctc:Case Value="Authorized">
+              <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                Content="{TemplateBinding Content}"
+                                ContentTemplate="{TemplateBinding ContentTemplate}" />
+            </ctc:Case>
+
+            <!-- Unauthenticated: Show unauthenticated content or nothing -->
+            <ctc:Case Value="Unauthenticated">
+              <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                Content="{TemplateBinding UnauthenticatedContent}"
+                                ContentTemplate="{TemplateBinding UnauthenticatedContentTemplate}" />
+            </ctc:Case>
+
+            <!-- Unauthorized: Show unauthorized content or nothing -->
+            <ctc:Case Value="Unauthorized">
+              <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                Content="{TemplateBinding UnauthorizedContent}"
+                                ContentTemplate="{TemplateBinding UnauthorizedContentTemplate}" />
+            </ctc:Case>
+
+            <!-- Unknown: Show nothing -->
+            <ctc:Case Value="Unknown">
+            </ctc:Case>
+
+            <!-- Error: Show nothing or could show error message -->
+            <ctc:Case Value="Error">
+              <InfoBar Severity="Error" Title="Authorization check failed" />
+            </ctc:Case>
+
+          </ctc:SwitchPresenter>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+</ResourceDictionary>

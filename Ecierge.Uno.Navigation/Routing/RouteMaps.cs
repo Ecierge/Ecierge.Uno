@@ -1,7 +1,4 @@
 using System.Collections.Immutable;
-
-using Ecierge.Uno.Navigation.Helpers;
-using Ecierge.Uno.Navigation.Navigators;
 using Ecierge.Uno.Navigation.Routing;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -42,12 +39,13 @@ namespace Ecierge.Uno.Navigation
         public bool IsDefault { get; init; } = false;
         public bool HasData => DataSegment is not null;
         public bool HasMandatoryData => DataSegment is not null && DataSegment.IsMandatory;
+        public ImmutableArray<string> Permissions { get; init; } = ImmutableArray<string>.Empty;
         public ViewMapBase? ViewMap { get; set; }
         public DataSegment? DataSegment { get; private init; }
         public override ImmutableArray<NameSegment> Nested { get; protected init; } = ImmutableArray<NameSegment>.Empty;
         public override ImmutableArray<NameSegment> NestedAfterData => DataSegment is not null ? DataSegment.Nested : Nested;
 
-        public NameSegment(string name, ViewMapBase? view, DataSegment dataSegment) : base(name)
+        public NameSegment(string name, ViewMapBase? view, DataSegment dataSegment, params ImmutableArray<string> permissions) : base(name)
         {
             ViewMap = view;
             dataSegment = dataSegment ?? throw new ArgumentNullException(nameof(dataSegment));
@@ -57,17 +55,26 @@ namespace Ecierge.Uno.Navigation
                 DataSegment = dataSegment;
                 dataSegment.ParentSegment = this;
             }
+            if (!permissions.IsDefaultOrEmpty)
+            {
+                Permissions = permissions;
+            }
         }
 
-        public NameSegment(string name, ViewMapBase? view = null, bool isDefault = false, ImmutableArray<NameSegment> nested = default) : base(name)
+        public NameSegment(string name, ViewMapBase? view = null, bool isDefault = false, ImmutableArray<string> permissions = default, ImmutableArray<NameSegment> nested = default) : base(name)
         {
             ViewMap = view;
             IsDefault = isDefault;
+            if (!permissions.IsDefaultOrEmpty)
+            {
+                Permissions = permissions;
+            }
             if (!nested.IsDefaultOrEmpty)
             {
                 Nested = nested;
                 foreach (var segment in nested) segment.ParentSegment = this;
             }
+
         }
 
         public Routing.Route BuildDefaultRoute(IServiceProvider serviceProvider, object? data = null)
@@ -138,7 +145,7 @@ namespace Ecierge.Uno.Navigation
     public record DialogSegment : NameSegment
     {
         public DialogSegment(string name, ViewMapBase view, DataSegment data) : base(name, view, data) { }
-        public DialogSegment(string name, ViewMapBase? view = null, ImmutableArray<NameSegment> nested = default) : base(name, view, false, nested) { }
+        public DialogSegment(string name, ViewMapBase? view = null, ImmutableArray<NameSegment> nested = default) : base(name, view, false, default, nested) { }
     }
 }
 
@@ -186,7 +193,7 @@ namespace Ecierge.Uno.Navigation.Helpers
             else
             {
                 var nested = a.Nested.Concat(b.Nested).ToImmutableArray();
-                return new NameSegment(a.Name, viewMap, a.IsDefault, nested);
+                return new NameSegment(a.Name, viewMap, a.IsDefault, default, nested);
             }
 
         }

@@ -2,6 +2,7 @@ namespace Ecierge.Uno.Controls;
 
 using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -10,7 +11,7 @@ using Microsoft.UI.Xaml.Input;
 [TemplatePart(Name = EditableText, Type = typeof(TextBox))]
 [TemplatePart(Name = MainGrid, Type = typeof(Grid))]
 [TemplatePart(Name = Popup, Type = typeof(Popup))]
-[TemplatePart(Name = DropDownButton, Type = typeof(Button))]
+[TemplatePart(Name = DropDownIcon, Type = typeof(FontIcon))]
 [TemplatePart(Name = ContentPresenter, Type = typeof(ContentPresenter))]
 [TemplatePart(Name = PlaceholderTextBlock, Type = typeof(TextBlock))]
 
@@ -21,27 +22,53 @@ public partial class GroupedComboBox : ListViewBase
     private const string EditableText = "EditableText";
     private const string MainGrid = "MainGrid";
     private const string Popup = "Popup";
-    private const string DropDownButton = "DropDownButton";
+    private const string DropDownIcon = "DropDownIcon";
     private const string ContentPresenter = "ContentPresenter";
     private const string PlaceholderTextBlock = "PlaceholderTextBlock";
 
     #endregion TemplatePartNames
 
     private Popup? popup;
-    private Button? dropDownButton;
+    private FontIcon? dropDownIcon;
     private TextBox? textBox;
     private Grid? mainGrid;
     private ContentPresenter? contentPresenter;
     private TextBlock? placeholderTextBlock;
 
     private string placeholderTextCache = string.Empty;
+    private string SelectedValueCache = string.Empty;
     private bool isDropDownOpenedOnce = false;
     private bool isKeyDown = false;
+
     private bool AreAllControlsUnfocused =>
         IsEditable
         && textBox is not null && textBox.FocusState == FocusState.Unfocused
-        && dropDownButton is not null && dropDownButton.FocusState == FocusState.Unfocused
+        && dropDownIcon is not null && dropDownIcon.FocusState == FocusState.Unfocused
         && popup is not null && popup.FocusState == FocusState.Unfocused;
+
+    /// <summary>
+    /// Lookup dictionary used for fast case-insensitive access to items by their string key.
+    /// The key is usually derived from the item's <see cref="DisplayMemberPath"/> or its <see cref="object.ToString()"/> value.
+    /// </summary>
+    private Dictionary<string, object> itemsLookup = new(StringComparer.OrdinalIgnoreCase);
+    /// <summary>
+    /// Keeps a reference-based snapshot of the current items collection.
+    /// Used to efficiently detect added or removed items without rebuilding the entire lookup.
+    /// </summary>
+    private HashSet<object> prevItemsSet = new(new ReferenceEqualityComparer());
+
+    /// <summary>
+    /// Provides reference equality comparison for objects.
+    /// This ensures that object identity (not logical equality) is used when comparing items.
+    /// </summary>
+    private sealed class ReferenceEqualityComparer : IEqualityComparer<object>
+    {
+        public new bool Equals(object? x, object? y) => ReferenceEquals(x, y);
+        public int GetHashCode(object obj) => RuntimeHelpers.GetHashCode(obj);
+    }
+
+    private BindingEvaluator bindingEvaluator = new();
+
 
     #region IsDropDownOpen
 
@@ -85,13 +112,12 @@ public partial class GroupedComboBox : ListViewBase
         if (popup is not null)
         {
             popup.IsOpen = newIsDropDownOpen;
-            if (isKeyDown && !IsDropDownOpen)
-            {
-                popup.IsOpen = true;
+            if (isKeyDown && !IsDropDownOpen && !popup.IsOpen)
                 IsDropDownOpen = true;
-            }
             if (IsEditable && textBox is not null && popup.FocusState != FocusState.Unfocused)
                 textBox.Focus(FocusState.Programmatic);
+            if (!IsEditable)
+                this.Focus(FocusState.Programmatic);
         }
         else
         {
@@ -109,7 +135,7 @@ public partial class GroupedComboBox : ListViewBase
     /// Identifies the PlaceholderText dependency property.
     /// </summary>
     public static readonly DependencyProperty PlaceholderTextProperty =
-        DependencyProperty.Register(nameof(PlaceholderText), typeof(string), typeof(GroupedComboBox), new(string.Empty));
+        DependencyProperty.Register(nameof(PlaceholderText), typeof(string), typeof(GroupedComboBox), new("Select"));
 
     /// <summary>
     /// Gets or sets the text that is displayed in the control until the value is changed
@@ -142,25 +168,6 @@ public partial class GroupedComboBox : ListViewBase
 
     #endregion TextBoxStyle
 
-    #region SelectedValue
-
-    /// <summary>
-    /// Identifies the  SelectedValue dependency property.
-    /// </summary>
-    public static readonly DependencyProperty SelectedValueProperty =
-        DependencyProperty.Register(nameof(SelectedValue), typeof(object), typeof(GroupedComboBox), new(null));
-
-    /// <summary>
-    /// Gets or sets the value of the selected item, obtained by using the SelectedValuePath.
-    /// </summary>
-    public object? SelectedValue
-    {
-        get => (object?)GetValue(SelectedValueProperty);
-        set => SetValue(SelectedValueProperty, value);
-    }
-
-    #endregion SelectedValue
-
     #region IsEditable
 
     /// <summary>
@@ -192,6 +199,7 @@ public partial class GroupedComboBox : ListViewBase
     {
         DetachSpecificEventHandlers();
         ReAttachEventHandlersOnIsEditableChanged();
+        isKeyDown = false;
     }
 
     #endregion IsEditable
@@ -255,16 +263,33 @@ public partial class GroupedComboBox : ListViewBase
 
     #endregion
 
-    public GroupedComboBox()
+    #region IsEditable
+
+    /// <summary>
+    /// Identifies the IsEditable dependency property.
+    /// </summary>
+    public static readonly DependencyProperty IsEditableProperty =
+     DependencyProperty.Register(
+         nameof(IsEditable),
+         typeof(bool),
+         typeof(GroupedComboBox),
+         new PropertyMetadata(true, OnIsEditableChanged));
+
+    private static void OnIsEditableChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         DefaultStyleKey = typeof(GroupedComboBox);
+        this.RegisterPropertyChangedCallback(ItemsControl.DisplayMemberPathProperty, (d, dp) =>
+        {
+            var control = (GroupedComboBox)d;
+            control.OnDisplayMemberPathChanged(d, EventArgs.Empty);
+        });
     }
 
-    /// <inheritdoc/>
-    protected override void OnApplyTemplate()
+    /// <summary>
+    /// Gets or sets a value that indicates whether the ComboBox is editable.
+    /// </summary>
+    public bool IsEditable
     {
-        if (!GroupStyle.Any())
-            GroupStyle.Add((GroupStyle)Application.Current.Resources["DefaultGroupedComboBoxGroupStyle"]);
 
         this.SelectionChanged -= GroupedComboBox_SelectionChanged;
         if (popup is not null)
@@ -272,10 +297,10 @@ public partial class GroupedComboBox : ListViewBase
             popup.Opened -= PopupOpened;
             popup.Closed -= PopupClosed;
         }
-        if (mainGrid is not null)
-            mainGrid.RemoveHandler(KeyDownEvent, new KeyEventHandler(ItemsHost_KeyDown));
-        if (dropDownButton is not null)
-            dropDownButton.Click -= ButtonOrContentClick;
+        if (dropDownIcon is not null)
+            dropDownIcon.Tapped -= ButtonOrContentClick;
+        mainGrid?.RemoveHandler(KeyDownEvent, new KeyEventHandler(ItemsHost_KeyDown));
+
         DetachSpecificEventHandlers();
 
         base.OnApplyTemplate();
@@ -283,29 +308,100 @@ public partial class GroupedComboBox : ListViewBase
         mainGrid = GetTemplateChild(MainGrid) as Grid;
         popup = GetTemplateChild(Popup) as Popup;
         textBox = GetTemplateChild(EditableText) as TextBox;
-        dropDownButton = GetTemplateChild(DropDownButton) as Button;
+        dropDownIcon = GetTemplateChild(DropDownIcon) as FontIcon;
         contentPresenter = GetTemplateChild(ContentPresenter) as ContentPresenter;
         placeholderTextBlock = GetTemplateChild(PlaceholderTextBlock) as TextBlock;
 
         placeholderTextCache = PlaceholderText;
 
-        if (popup is null || textBox is null || mainGrid is null || contentPresenter is null || dropDownButton is null)
+        if (popup is null || textBox is null || mainGrid is null || contentPresenter is null || dropDownIcon is null)
             return;
 
         this.SelectionChanged += GroupedComboBox_SelectionChanged;
         mainGrid.AddHandler(KeyDownEvent, new KeyEventHandler(ItemsHost_KeyDown), true);
-        dropDownButton.Click += ButtonOrContentClick;
+        mainGrid.Tapped += (s, e) => isKeyDown = false;
+        dropDownIcon.Tapped += ButtonOrContentClick;
         textBox.TextChanged += FindItems;
         popup.Opened += PopupOpened;
         popup.Closed += PopupClosed;
 
         ReAttachEventHandlersOnIsEditableChanged();
     }
+    private void OnDisplayMemberPathChanged(object? sender, EventArgs e)
+    {
+        bindingEvaluator = new();
+    }
+
+    public string? GetDisplayMemberValue(object item)
+    {
+        if (item is null)
+            return null;
+        if (!string.IsNullOrEmpty(DisplayMemberPath))
+        {
+            var value = bindingEvaluator.Evaluate(item, DisplayMemberPath);
+            if (value is not null)
+                return value.ToString();
+        }
+        return item.ToString();
+    }
+
+    private void AddItemToLookup(object item)
+    {
+        var key = GetDisplayMemberValue(item);
+        if (key is not null)
+            itemsLookup[key] = item;
+    }
+
+    private void RemoveItemFromLookup(object item)
+    {
+        var key = GetDisplayMemberValue(item);
+        if (key is not null)
+            itemsLookup.Remove(key);
+    }
+
+    private void RebuildLookup()
+    {
+        itemsLookup.Clear();
+        prevItemsSet.Clear();
+
+        var items = Items.Cast<object>().Where(x => x is not null).ToList();
+        foreach (var it in items) AddItemToLookup(it);
+        foreach (var it in items) prevItemsSet.Add(it);
+    }
 
     protected override void OnItemsChanged(object e)
     {
         if (isDropDownOpenedOnce)
             base.OnItemsChanged(e);
+
+        OnItemsChanged();
+    }
+
+    private void OnItemsChanged()
+    {
+        var currentItems = Items.Cast<object>().Where(x => x is not null).ToList();
+        var newSet = new HashSet<object>(currentItems, new ReferenceEqualityComparer());
+
+        if (prevItemsSet.Count == 0)
+        {
+            RebuildLookup();
+            return;
+        }
+
+        var added = newSet.Where(it => !prevItemsSet.Contains(it)).ToList();
+        var removed = prevItemsSet.Where(it => !newSet.Contains(it)).ToList();
+
+        int changes = added.Count + removed.Count;
+        if (changes == 0) return;
+
+        if (changes <= Math.Max(1, prevItemsSet.Count / 2))
+        {
+            foreach (var r in removed) RemoveItemFromLookup(r);
+            foreach (var a in added) AddItemToLookup(a);
+            prevItemsSet = newSet;
+        }
+        else
+            RebuildLookup();
     }
 
     private void GroupedComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -313,24 +409,18 @@ public partial class GroupedComboBox : ListViewBase
         if (!isDropDownOpenedOnce)
         {
             if (this.SelectedItem != SelectedValue)
-            {
-                this.SelectedItem = SelectedValue;
                 PlaceholderText = string.Empty;
-            }
         }
-        else
+        else if (textBox is not null && textBox.FocusState == FocusState.Unfocused)
         {
-            if (textBox is not null && textBox.FocusState == FocusState.Unfocused)
-            {
-                IsDropDownOpen = false;
-                if (this.SelectedItem is null)
-                    textBox.Text = string.Empty;
-                else
-                    SelectedValue = this.SelectedItem;
-            }
+            IsDropDownOpen = false;
+            if (this.SelectedItem is null)
+                textBox.Text = string.Empty;
+            else
+                SelectedValue = this.SelectedItem;
         }
-        if (SelectedValue is not null)
-            PlaceholderText = string.Empty;
+
+        SetDisplayForSelectedItem();
 
         if (textBox is not null && IsEditable)
             textBox.Focus(FocusState.Programmatic);
@@ -340,6 +430,7 @@ public partial class GroupedComboBox : ListViewBase
     {
         var senderAsTextBox = sender as TextBox;
         if (senderAsTextBox is null) return;
+        SelectedValueCache = senderAsTextBox.Text;
         if (string.IsNullOrEmpty(senderAsTextBox.Text))
         {
             this.SelectedItem = null;
@@ -347,12 +438,12 @@ public partial class GroupedComboBox : ListViewBase
         }
         else
         {
-            // TODO: Use DisplaymemberPath
-            var item = this.Items.FirstOrDefault(i => string.Equals(i?.ToString(), senderAsTextBox.Text, StringComparison.InvariantCultureIgnoreCase));
-            if (item is not null)
+            string text = senderAsTextBox.Text;
+
+            if (itemsLookup.TryGetValue(text, out var item))
             {
                 if (this.SelectedItem != item)
-                    this.SelectedItem = item;
+                    SelectedItem = item;
             }
             else
             {
@@ -367,18 +458,18 @@ public partial class GroupedComboBox : ListViewBase
     protected override void OnGotFocus(RoutedEventArgs e)
     {
         base.OnGotFocus(e);
-        VisualStateManager.GoToState(this, "Focused", true);
+        VisualStateManager.GoToState(this, IsEditable ? "FocusedEditable" : "FocusedNotEditable", true);
+        mainGrid?.Focus(FocusState.Programmatic);
     }
 
     protected override void OnLostFocus(RoutedEventArgs e)
     {
         base.OnLostFocus(e);
         VisualStateManager.GoToState(this, "Unfocused", true);
-        if (AreAllControlsUnfocused)
-        {
+
+        if (AreAllControlsUnfocused && popup is not null)
             popup.IsOpen = false;
-            isKeyDown = false;
-        }
+        isKeyDown = false;
     }
 
     private void ItemsHost_KeyDown(object sender, KeyRoutedEventArgs e)
@@ -389,30 +480,18 @@ public partial class GroupedComboBox : ListViewBase
         switch (e.Key)
         {
             case Windows.System.VirtualKey.Down:
-                if (popup is not null && !popup.IsOpen && !isKeyDown)
-                {
-                    IsDropDownOpen = true;
-                    isKeyDown = true;
-                    handled = true;
-                }
-                else if (count > 0)
+                if (count > 0)
                 {
                     isKeyDown = true;
                     if (index < count - 1)
                         this.SelectedIndex = index + 1;
                     else
                         this.SelectedIndex = 0;
-                }
-                handled = true;
-                break;
-            case Windows.System.VirtualKey.Up:
-                if (popup is not null && !popup.IsOpen && !isKeyDown)
-                {
-                    IsDropDownOpen = true;
-                    isKeyDown = true;
                     handled = true;
                 }
-                else if (count > 0)
+                break;
+            case Windows.System.VirtualKey.Up:
+                if (count > 0)
                 {
                     isKeyDown = true;
                     if (index > 0)
@@ -458,14 +537,27 @@ public partial class GroupedComboBox : ListViewBase
         if (handled)
             e.Handled = true;
     }
-
-    private void ButtonOrContentClick(object sender, RoutedEventArgs e)
+    protected void DetachSpecificEventHandlers()
     {
-        isKeyDown = false;
-        IsDropDownOpen = !IsDropDownOpen;
-        VisualStateManager.GoToState(this, "Focused", true);
-
+        if (contentPresenter is not null)
+            contentPresenter.RemoveHandler(TappedEvent, new TappedEventHandler(ButtonOrContentClick));
+        if (placeholderTextBlock is not null)
+            placeholderTextBlock.Tapped -= PlaceholderTextBlockTapped;
     }
+
+    protected override void OnPointerPressed(PointerRoutedEventArgs e)
+    {
+        base.OnPointerPressed(e);
+    }
+
+    private void ButtonOrContentClick(object sender, TappedRoutedEventArgs e)
+    {
+        isKeyDown = !isKeyDown;
+        IsDropDownOpen = !IsDropDownOpen;
+        if (!IsEditable && contentPresenter is not null && popup is not null && popup.IsOpen == false)
+            IsDropDownOpen = true;
+    }
+
     private void PlaceholderTextBlockTapped(object sender, TappedRoutedEventArgs e)
     {
         if (textBox is not null && IsEditable)
@@ -483,26 +575,16 @@ public partial class GroupedComboBox : ListViewBase
             this.Focus(FocusState.Programmatic);
         else
             contentPresenter?.Focus(FocusState.Programmatic);
-        VisualStateManager.GoToState(this, "Focused", true);
     }
 
     protected virtual void ReAttachEventHandlersOnIsEditableChanged()
     {
-        if (IsEditable)
-        {
-            if (placeholderTextBlock is not null)
-                placeholderTextBlock.Tapped += PlaceholderTextBlockTapped;
-            if (this.SelectedItem is not null)
-                SelectedValue = this.SelectedItem;
-            else
-                SelectedValue = null;
-        }
-        else if (contentPresenter is not null)
-        {
+        if (placeholderTextBlock is not null)
+            placeholderTextBlock.Tapped += PlaceholderTextBlockTapped;
+        if (contentPresenter is not null)
             contentPresenter.AddHandler(TappedEvent, new TappedEventHandler(ButtonOrContentClick), true);
-            if (this.SelectedItem is null && contentPresenter is not null)
-                contentPresenter.Content = PlaceholderText;
-        }
+        SelectedValue = this.SelectedItem;
+        SetDisplayForSelectedItem();
     }
     protected void DetachSpecificEventHandlers()
     {
@@ -520,5 +602,60 @@ public partial class GroupedComboBox : ListViewBase
     protected override DependencyObject GetContainerForItemOverride()
     {
         return new GroupedComboBoxItem();
+    }
+
+    protected void SetDisplayForSelectedItem()
+    {
+        if (this.SelectedItem is not null)
+        {
+            PlaceholderText = string.Empty;
+            contentPresenter?.Opacity = 1;
+
+            if (textBox is not null && IsEditable)
+            {
+                if (!string.IsNullOrEmpty(DisplayMemberPath))
+                {
+                    textBox.Text = GetDisplayMemberValue(SelectedItem) ?? string.Empty;
+                }
+                else
+                {
+                    textBox.Text = SelectedItem?.ToString() ?? SelectedValueCache;
+                }
+            }
+
+            if (contentPresenter is not null && !IsEditable)
+            {
+                if (this.ItemTemplate is not null)
+                {
+                    contentPresenter.ContentTemplate = this.ItemTemplate;
+                    contentPresenter.Content = SelectedItem;
+                }
+                else if (!string.IsNullOrEmpty(DisplayMemberPath))
+                {
+                    contentPresenter.ContentTemplate = null;
+                    contentPresenter.Content = GetDisplayMemberValue(SelectedItem);
+                }
+                else
+                {
+                    contentPresenter.ContentTemplate = null;
+                    contentPresenter.Content = SelectedItem;
+                }
+            }
+        }
+        else if (textBox is not null && IsEditable && !string.IsNullOrEmpty(SelectedValueCache))
+        {
+            textBox.Text = SelectedValueCache;
+        }
+        else if (contentPresenter is not null && !string.IsNullOrEmpty(SelectedValueCache) && !IsEditable)
+        {
+            contentPresenter.ContentTemplate = null;
+            contentPresenter.Content = SelectedValueCache;
+        }
+        else if (contentPresenter is not null && string.IsNullOrEmpty(SelectedValueCache) && !IsEditable)
+        {
+            contentPresenter.ContentTemplate = null;
+            contentPresenter.Content = placeholderTextCache;
+            contentPresenter.Opacity = 0.7;
+        }
     }
 }
