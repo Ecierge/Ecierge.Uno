@@ -263,7 +263,19 @@ public partial class GroupedComboBox : ListViewBase
 
     #endregion
 
-    public GroupedComboBox()
+    #region IsEditable
+
+    /// <summary>
+    /// Identifies the IsEditable dependency property.
+    /// </summary>
+    public static readonly DependencyProperty IsEditableProperty =
+     DependencyProperty.Register(
+         nameof(IsEditable),
+         typeof(bool),
+         typeof(GroupedComboBox),
+         new PropertyMetadata(true, OnIsEditableChanged));
+
+    private static void OnIsEditableChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         DefaultStyleKey = typeof(GroupedComboBox);
         this.RegisterPropertyChangedCallback(ItemsControl.DisplayMemberPathProperty, (d, dp) =>
@@ -273,8 +285,10 @@ public partial class GroupedComboBox : ListViewBase
         });
     }
 
-    /// <inheritdoc/>
-    protected override void OnApplyTemplate()
+    /// <summary>
+    /// Gets or sets a value that indicates whether the ComboBox is editable.
+    /// </summary>
+    public bool IsEditable
     {
 
         this.SelectionChanged -= GroupedComboBox_SelectionChanged;
@@ -522,6 +536,13 @@ public partial class GroupedComboBox : ListViewBase
         }
         if (handled)
             e.Handled = true;
+    }
+    protected void DetachSpecificEventHandlers()
+    {
+        if (contentPresenter is not null)
+            contentPresenter.RemoveHandler(TappedEvent, new TappedEventHandler(ButtonOrContentClick));
+        if (placeholderTextBlock is not null)
+            placeholderTextBlock.Tapped -= PlaceholderTextBlockTapped;
     }
 
     protected override void OnPointerPressed(PointerRoutedEventArgs e)
