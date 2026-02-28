@@ -40,18 +40,28 @@
                             HorizontalScrollBarVisibility="Disabled"
                             HorizontalScrollMode="Auto"
                             VerticalScrollBarVisibility="Hidden">
-                <ContentPresenter x:Name="ContentPresenter"
-                                  HorizontalAlignment="Stretch"
-                                  VerticalAlignment="Stretch"
-                                  Content="{TemplateBinding Content}" />
+                <!--<Grid RowDefinitions="Auto,Auto,*,Auto">-->
+                  <!--<Border x:Name="TitleBarPlaceholder" Grid.Row="0" />-->
+                  <!--<Border Grid.Row="1" Height={Binding ActualHeight, ElementName=Title} />-->
+                <Grid>
+                  <ContentPresenter x:Name="ContentPresenter"
+                                    
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch"
+                                    Content="{TemplateBinding Content}" />
+                  <!--<Border Grid.Row="2" Height="{Binding ActualHeight, ElementName=Footer}" />-->
+                </Grid>
               </ScrollViewer>
 
-              <Grid x:Name="Header"
+              <Grid x:Name="Header"  RowDefinitions="Auto,*"
                     Height="Auto"
+                    Padding="{TemplateBinding HeaderPadding}"
                     CornerRadius="{TemplateBinding HeaderCornerRadius}"
                     VerticalAlignment="Top"
                     Background="{ThemeResource CustomAcrylicBrush2}">
-                <ContentPresenter HorizontalAlignment="Stretch"
+                <!--<Border x:Name="TitleBarPlaceholder" Grid.Row="0" Height={Binding ActualHeight, ElementName=Title} />-->
+                <Border Grid.Row="0" Height="40" />
+                <ContentPresenter HorizontalAlignment="Stretch"   Grid.Row="1"
                                   VerticalAlignment="Stretch"
                                   Background="Transparent"
                                   Content="{TemplateBinding HeaderContent}" />
