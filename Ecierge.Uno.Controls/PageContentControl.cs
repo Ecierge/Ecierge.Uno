@@ -6,15 +6,22 @@ using System.Threading.Tasks;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Input;
 
 namespace Ecierge.Uno.Controls;
 
+//public static class Window
+//{
+//    dpa
+//}
+
 [TemplatePart(Name = PartTitle, Type = typeof(ContentPresenter))]
 [TemplatePart(Name = ScrollViewer, Type = typeof(ScrollViewer))]
 [TemplatePart(Name = ContentPresenter, Type = typeof(ContentPresenter))]
 [TemplatePart(Name = ScrollBar, Type = typeof(ScrollBar))]
+[TemplatePart(Name = TitleBarPlaceholder, Type = typeof(Border))]
 [TemplatePart(Name = Header, Type = typeof(FrameworkElement))]
 [TemplatePart(Name = Footer, Type = typeof(FrameworkElement))]
 
@@ -26,6 +33,7 @@ public sealed partial class PageContentControl : Control
     private const string ScrollViewer = "ScrollViewer";
     private const string ContentPresenter = "ContentPresenter";
     private const string ScrollBar = "VerticalScrollBar";
+    private const string TitleBarPlaceholder = "TitleBarPlaceholder";
     private const string Header = "Header";
     private const string Footer = "Footer";
 
@@ -34,6 +42,7 @@ public sealed partial class PageContentControl : Control
     private ScrollViewer? scrollViewer;
     private ScrollBar? scrollBar;
     private ContentPresenter? contentPresenter;
+    private Border? titleBarPlaceholder;
     private FrameworkElement? header;
     private FrameworkElement? footer;
 
@@ -186,6 +195,29 @@ public sealed partial class PageContentControl : Control
 
     #endregion
 
+    #region Padding
+
+    /// <summary>
+    /// Padding Dependency Property
+    /// </summary>
+    public Thickness HeaderPadding
+    {
+        get => (Thickness)GetValue(HeaderPaddingProperty);
+        set => SetValue(HeaderPaddingProperty, value);
+    }
+
+    /// <summary>
+    /// Gets or sets the Padding property. This dependency property
+    /// indicates the padding inside the control.
+    /// </summary>
+    public static readonly DependencyProperty HeaderPaddingProperty =
+        DependencyProperty.Register(
+            nameof(HeaderPadding),
+            typeof(Thickness),
+            typeof(PageContentControl),
+            new PropertyMetadata(new Thickness(0)));
+
+    #endregion
     public PageContentControl()
     {
         DefaultStyleKey = typeof(PageContentControl);
@@ -198,6 +230,7 @@ public sealed partial class PageContentControl : Control
         DetachHandlers();
         scrollViewer = GetTemplateChild(ScrollViewer) as ScrollViewer;
         scrollBar = GetTemplateChild(ScrollBar) as ScrollBar;
+        titleBarPlaceholder = GetTemplateChild(TitleBarPlaceholder) as Border;
         header = GetTemplateChild(Header) as FrameworkElement;
         footer = GetTemplateChild(Footer) as FrameworkElement;
         contentPresenter = GetTemplateChild("ContentPresenter") as ContentPresenter;
@@ -208,6 +241,19 @@ public sealed partial class PageContentControl : Control
             scrollBar.ValueChanged += OnScrollBarValueChanged;
             scrollViewer.LayoutUpdated += OnScrollViewerLayoutUpdated;
         }
+
+        //if (titleBarPlaceholder is not null)
+        //{
+        //    // Find root UI element
+        //    var root =
+        //    var actualHeightBinding = new Binding()
+        //    {
+        //        Path = new PropertyPath("(Window.TitleBarHeightProperty)"),
+        //        Mode = BindingMode.OneWay,
+        //        Source = root
+        //    };
+        //    titleBarPlaceholder.SetBinding(Border.HeightProperty, actualHeightBinding);
+        //}
 
         if (header is not null)
             header.SizeChanged += OnHeaderFooterSizeChanged;
