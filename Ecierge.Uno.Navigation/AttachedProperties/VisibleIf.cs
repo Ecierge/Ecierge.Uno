@@ -11,16 +11,11 @@ using Microsoft.UI.Xaml;
 /// <summary>
 /// Provides attached properties for conditionally showing UI elements based on user permissions.
 /// </summary>
-public static class VisibleIf
+public abstract class VisibleIf
 {
     /// <summary>
-    /// Marker type used for logging category.
-    /// </summary>
-    private sealed class VisibleIfLogger;
-
-    /// <summary>
     /// Identifies the HasPermissions attached dependency property.
-    /// When set, the target element will be visible only if the current user has all specified permissions.
+    /// When set, the target element will be visible if the current user has at least one of the specified permissions.
     /// </summary>
     public static readonly DependencyProperty HasPermissionsProperty =
         DependencyProperty.RegisterAttached(
@@ -124,15 +119,28 @@ public static class VisibleIf
                 return;
             }
 
+            var hasAnyPermission = false;
+
             foreach (var checker in ruleCheckers)
             {
                 foreach (var permission in permissions)
                 {
-                    if (!await checker.HasPermissionAsync(permission))
+                    if (await checker.HasPermissionAsync(permission))
                     {
-                        return;
+                        hasAnyPermission = true;
+                        break;
                     }
                 }
+
+                if (hasAnyPermission)
+                {
+                    break;
+                }
+            }
+
+            if (!hasAnyPermission)
+            {
+                return;
             }
 
             if (GetRequestVersion(element) != version)
@@ -144,7 +152,9 @@ public static class VisibleIf
         }
         catch (Exception ex)
         {
-            var logger = region.Scope.ServiceProvider.GetService<ILogger<VisibleIfLogger>>();
+            var loggerFactory = region.Scope.ServiceProvider.GetService<ILoggerFactory>();
+            var logger = loggerFactory?.CreateLogger(typeof(VisibleIf).FullName!);
+
             logger?.LogError(
                 ex,
                 "Failed to evaluate permissions for element {ElementType}. Element will remain collapsed.",
@@ -154,6 +164,12 @@ public static class VisibleIf
 
     private static void SetVisibility(FrameworkElement element, Visibility visibility)
     {
-        element.DispatcherQueue.TryEnqueue(() => element.Visibility = visibility);
+        var dispatcher = element.DispatcherQueue;
+        if (dispatcher == null)
+        {
+            return;
+        }
+
+        dispatcher.TryEnqueue(() => element.Visibility = visibility);
     }
 }

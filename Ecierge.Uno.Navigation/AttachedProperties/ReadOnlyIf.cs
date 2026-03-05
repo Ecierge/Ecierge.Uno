@@ -10,29 +10,13 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
 /// <summary>
-/// Provides attached properties for conditionally setting read-only state based on permissions or editability.
+/// Provides attached properties for conditionally setting read-only state based on permissions.
 /// </summary>
-public static class ReadOnlyIf
+public abstract class ReadOnlyIf
 {
     /// <summary>
-    /// Marker type used for logging category.
-    /// </summary>
-    private sealed class ReadOnlyIfLogger;
-
-    /// <summary>
-    /// Identifies the CanEdit attached dependency property.
-    /// When set, the target element will be read-only if CanEdit is false.
-    /// </summary>
-    public static readonly DependencyProperty CanEditProperty =
-        DependencyProperty.RegisterAttached(
-            "CanEdit",
-            typeof(bool),
-            typeof(ReadOnlyIf),
-            new PropertyMetadata(true, OnCanEditChanged));
-
-    /// <summary>
     /// Identifies the HasPermissions attached dependency property.
-    /// When set, the target element will be read-only if the current user does not have all specified permissions.
+    /// When set, the target element will be read-only if the current user does not have any of the specified permissions.
     /// </summary>
     public static readonly DependencyProperty HasPermissionsProperty =
         DependencyProperty.RegisterAttached(
@@ -52,28 +36,6 @@ public static class ReadOnlyIf
             new PropertyMetadata(0));
 
     /// <summary>
-    /// Internal attached property used to store current permissions result.
-    /// </summary>
-    private static readonly DependencyProperty PermissionsAllowedProperty =
-        DependencyProperty.RegisterAttached(
-            "PermissionsAllowed",
-            typeof(bool),
-            typeof(ReadOnlyIf),
-            new PropertyMetadata(true));
-
-    /// <summary>
-    /// Gets the CanEdit value used to control read-only state.
-    /// </summary>
-    public static bool GetCanEdit(DependencyObject d) =>
-        (bool)d.GetValue(CanEditProperty);
-
-    /// <summary>
-    /// Sets the CanEdit value used to control read-only state.
-    /// </summary>
-    public static void SetCanEdit(DependencyObject d, bool value) =>
-        d.SetValue(CanEditProperty, value);
-
-    /// <summary>
     /// Gets the permissions required for the element to remain editable.
     /// </summary>
     public static IEnumerable<string>? GetHasPermissions(DependencyObject d) =>
@@ -90,20 +52,6 @@ public static class ReadOnlyIf
 
     private static void SetRequestVersion(DependencyObject d, int value) =>
         d.SetValue(RequestVersionProperty, value);
-
-    private static bool GetPermissionsAllowed(DependencyObject d) =>
-        (bool)d.GetValue(PermissionsAllowedProperty);
-
-    private static void SetPermissionsAllowed(DependencyObject d, bool value) =>
-        d.SetValue(PermissionsAllowedProperty, value);
-
-    private static void OnCanEditChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
-        if (d is FrameworkElement element)
-        {
-            ApplyReadOnly(element);
-        }
-    }
 
     private static void OnHasPermissionsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
@@ -139,8 +87,7 @@ public static class ReadOnlyIf
         {
             if (GetRequestVersion(element) == version)
             {
-                SetPermissionsAllowed(element, true);
-                ApplyReadOnly(element);
+                SetIsReadOnly(element, false);
             }
 
             return;
@@ -148,8 +95,7 @@ public static class ReadOnlyIf
 
         if (GetRequestVersion(element) == version)
         {
-            SetPermissionsAllowed(element, false);
-            ApplyReadOnly(element);
+            SetIsReadOnly(element, true);
         }
 
         Regions.NavigationRegion region;
@@ -170,15 +116,28 @@ public static class ReadOnlyIf
                 return;
             }
 
+            var hasAnyPermission = false;
+
             foreach (var checker in ruleCheckers)
             {
                 foreach (var permission in permissions)
                 {
-                    if (!await checker.HasPermissionAsync(permission))
+                    if (await checker.HasPermissionAsync(permission))
                     {
-                        return;
+                        hasAnyPermission = true;
+                        break;
                     }
                 }
+
+                if (hasAnyPermission)
+                {
+                    break;
+                }
+            }
+
+            if (!hasAnyPermission)
+            {
+                return;
             }
 
             if (GetRequestVersion(element) != version)
@@ -186,12 +145,13 @@ public static class ReadOnlyIf
                 return;
             }
 
-            SetPermissionsAllowed(element, true);
-            ApplyReadOnly(element);
+            SetIsReadOnly(element, false);
         }
         catch (Exception ex)
         {
-            var logger = region.Scope.ServiceProvider.GetService<ILogger<ReadOnlyIfLogger>>();
+            var loggerFactory = region.Scope.ServiceProvider.GetService<ILoggerFactory>();
+            var logger = loggerFactory?.CreateLogger(typeof(ReadOnlyIf).FullName!);
+
             logger?.LogError(
                 ex,
                 "Failed to evaluate permissions for element {ElementType}. Element will remain read-only.",
@@ -199,24 +159,22 @@ public static class ReadOnlyIf
         }
     }
 
-    private static void ApplyReadOnly(FrameworkElement element)
-    {
-        var canEdit = GetCanEdit(element);
-        var permissionsAllowed = GetPermissionsAllowed(element);
-        var isReadOnly = !canEdit || !permissionsAllowed;
-
-        SetIsReadOnly(element, isReadOnly);
-    }
-
     private static void SetIsReadOnly(FrameworkElement element, bool isReadOnly)
     {
-        element.DispatcherQueue.TryEnqueue(() =>
+        var dispatcher = element.DispatcherQueue;
+        if (dispatcher == null)
+        {
+            return;
+        }
+
+        dispatcher.TryEnqueue(() =>
         {
             switch (element)
             {
                 case TextBox textBox:
                     textBox.IsReadOnly = isReadOnly;
                     break;
+
                 case RichEditBox richEditBox:
                     richEditBox.IsReadOnly = isReadOnly;
                     break;

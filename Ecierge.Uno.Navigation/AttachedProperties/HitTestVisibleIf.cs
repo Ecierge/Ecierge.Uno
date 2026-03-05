@@ -11,27 +11,11 @@ using Microsoft.UI.Xaml;
 /// <summary>
 /// Provides attached properties for conditionally enabling hit testing based on user permissions.
 /// </summary>
-public static class HitTestVisibleIf
+public abstract class HitTestVisibleIf
 {
     /// <summary>
-    /// Marker type used for logging category.
-    /// </summary>
-    private sealed class HitTestVisibleIfLogger;
-
-    /// <summary>
-    /// Identifies the CanEdit attached dependency property.
-    /// When set, the target element will be hit-test visible only if CanEdit is true.
-    /// </summary>
-    public static readonly DependencyProperty CanEditProperty =
-        DependencyProperty.RegisterAttached(
-            "CanEdit",
-            typeof(bool),
-            typeof(HitTestVisibleIf),
-            new PropertyMetadata(true, OnCanEditChanged));
-
-    /// <summary>
     /// Identifies the HasPermissions attached dependency property.
-    /// When set, the target element will be hit-test visible only if the current user has all specified permissions.
+    /// When set, the target element is hit-test visible only if the current user has at least one of the specified permissions.
     /// </summary>
     public static readonly DependencyProperty HasPermissionsProperty =
         DependencyProperty.RegisterAttached(
@@ -51,28 +35,6 @@ public static class HitTestVisibleIf
             new PropertyMetadata(0));
 
     /// <summary>
-    /// Internal attached property used to store current permissions result.
-    /// </summary>
-    private static readonly DependencyProperty PermissionsAllowedProperty =
-        DependencyProperty.RegisterAttached(
-            "PermissionsAllowed",
-            typeof(bool),
-            typeof(HitTestVisibleIf),
-            new PropertyMetadata(true));
-
-    /// <summary>
-    /// Gets the CanEdit value used to control hit testing.
-    /// </summary>
-    public static bool GetCanEdit(DependencyObject d) =>
-        (bool)d.GetValue(CanEditProperty);
-
-    /// <summary>
-    /// Sets the CanEdit value used to control hit testing.
-    /// </summary>
-    public static void SetCanEdit(DependencyObject d, bool value) =>
-        d.SetValue(CanEditProperty, value);
-
-    /// <summary>
     /// Gets the permissions required for the element to be hit-test visible.
     /// </summary>
     public static IEnumerable<string>? GetHasPermissions(DependencyObject d) =>
@@ -89,20 +51,6 @@ public static class HitTestVisibleIf
 
     private static void SetRequestVersion(DependencyObject d, int value) =>
         d.SetValue(RequestVersionProperty, value);
-
-    private static bool GetPermissionsAllowed(DependencyObject d) =>
-        (bool)d.GetValue(PermissionsAllowedProperty);
-
-    private static void SetPermissionsAllowed(DependencyObject d, bool value) =>
-        d.SetValue(PermissionsAllowedProperty, value);
-
-    private static void OnCanEditChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
-        if (d is FrameworkElement element)
-        {
-            ApplyHitTestVisibility(element);
-        }
-    }
 
     private static void OnHasPermissionsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
@@ -138,8 +86,7 @@ public static class HitTestVisibleIf
         {
             if (GetRequestVersion(element) == version)
             {
-                SetPermissionsAllowed(element, true);
-                ApplyHitTestVisibility(element);
+                SetIsHitTestVisible(element, true);
             }
 
             return;
@@ -147,8 +94,7 @@ public static class HitTestVisibleIf
 
         if (GetRequestVersion(element) == version)
         {
-            SetPermissionsAllowed(element, false);
-            ApplyHitTestVisibility(element);
+            SetIsHitTestVisible(element, false);
         }
 
         Regions.NavigationRegion region;
@@ -169,15 +115,28 @@ public static class HitTestVisibleIf
                 return;
             }
 
+            var hasAnyPermission = false;
+
             foreach (var checker in ruleCheckers)
             {
                 foreach (var permission in permissions)
                 {
-                    if (!await checker.HasPermissionAsync(permission))
+                    if (await checker.HasPermissionAsync(permission))
                     {
-                        return;
+                        hasAnyPermission = true;
+                        break;
                     }
                 }
+
+                if (hasAnyPermission)
+                {
+                    break;
+                }
+            }
+
+            if (!hasAnyPermission)
+            {
+                return;
             }
 
             if (GetRequestVersion(element) != version)
@@ -185,12 +144,13 @@ public static class HitTestVisibleIf
                 return;
             }
 
-            SetPermissionsAllowed(element, true);
-            ApplyHitTestVisibility(element);
+            SetIsHitTestVisible(element, true);
         }
         catch (Exception ex)
         {
-            var logger = region.Scope.ServiceProvider.GetService<ILogger<HitTestVisibleIfLogger>>();
+            var loggerFactory = region.Scope.ServiceProvider.GetService<ILoggerFactory>();
+            var logger = loggerFactory?.CreateLogger(typeof(HitTestVisibleIf).FullName!);
+
             logger?.LogError(
                 ex,
                 "Failed to evaluate permissions for element {ElementType}. Element will remain hit test disabled.",
@@ -198,12 +158,17 @@ public static class HitTestVisibleIf
         }
     }
 
-    private static void ApplyHitTestVisibility(FrameworkElement element)
+    private static void SetIsHitTestVisible(FrameworkElement element, bool value)
     {
-        var canEdit = GetCanEdit(element);
-        var permissionsAllowed = GetPermissionsAllowed(element);
-        var isHitTestVisible = canEdit && permissionsAllowed;
+        var dispatcher = element.DispatcherQueue;
+        if (dispatcher == null)
+        {
+            return;
+        }
 
-        element.DispatcherQueue.TryEnqueue(() => element.IsHitTestVisible = isHitTestVisible);
+        dispatcher.TryEnqueue(() =>
+        {
+            element.IsHitTestVisible = value;
+        });
     }
 }
