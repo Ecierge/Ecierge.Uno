@@ -13,11 +13,6 @@
     </ctc:EmptyObjectToObjectConverter.NotEmptyValue>
   </ctc:EmptyObjectToObjectConverter>
 
-  <media:AcrylicBrush x:Key="CustomAcrylicBrush1"
-                      TintOpacity="0.01"
-                      TintColor="Transparent"
-                      FallbackColor="#B3FFFFFF" />
-
   <media:AcrylicBrush x:Key="CustomAcrylicBrush2"
                   TintColor="#CCFFFFFF"
                   TintOpacity="0.1"
