@@ -45,10 +45,10 @@
                   <!--<Border Grid.Row="1" Height={Binding ActualHeight, ElementName=Title} />-->
                 <Grid>
                   <ContentPresenter x:Name="ContentPresenter"
-                                    
                                     HorizontalAlignment="Stretch"
                                     VerticalAlignment="Stretch"
-                                    Content="{TemplateBinding Content}" />
+                                    Content="{TemplateBinding Content}"
+                                    ContentTemplate="{TemplateBinding ContentTemplate}"/>
                   <!--<Border Grid.Row="2" Height="{Binding ActualHeight, ElementName=Footer}" />-->
                 </Grid>
               </ScrollViewer>
@@ -60,7 +60,7 @@
                     VerticalAlignment="Top"
                     Background="{ThemeResource CustomAcrylicBrush2}">
                 <!--<Border x:Name="TitleBarPlaceholder" Grid.Row="0" Height={Binding ActualHeight, ElementName=Title} />-->
-                <Border Grid.Row="0" Height="40" />
+                <Border Grid.Row="0" Height="38" />
                 <ContentPresenter HorizontalAlignment="Stretch"   Grid.Row="1"
                                   VerticalAlignment="Stretch"
                                   Background="Transparent"
