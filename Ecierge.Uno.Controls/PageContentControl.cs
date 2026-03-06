@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
 
 namespace Ecierge.Uno.Controls;
 
@@ -107,6 +108,27 @@ public sealed partial class PageContentControl : Control
     {
         get => (object?)GetValue(ContentProperty);
         set => SetValue(ContentProperty, value);
+    }
+
+    #endregion
+
+    #region ContentTemplate
+
+    /// <summary>
+    /// ContentTemplate Dependency Property
+    /// </summary>
+    public static readonly DependencyProperty ContentTemplateProperty =
+        DependencyProperty.Register(nameof(ContentTemplate), typeof(DataTemplate), typeof(PageContentControl),
+            new PropertyMetadata((DataTemplate?)null));
+
+    /// <summary>
+    /// Gets or sets the ContentTemplate property. This dependency property
+    /// indicates title template.
+    /// </summary>
+    public DataTemplate? ContentTemplate
+    {
+        get => (DataTemplate?)GetValue(ContentTemplateProperty);
+        set => SetValue(ContentTemplateProperty, value);
     }
 
     #endregion
@@ -218,6 +240,45 @@ public sealed partial class PageContentControl : Control
             new PropertyMetadata(new Thickness(0)));
 
     #endregion
+
+    #region ScrollBarEnabled
+    /// <summary>
+    /// Gets or sets a value indicating whether the vertical ScrollBar is enabled.
+    /// </summary>
+    public bool IsScrollBarEnabled
+    {
+        get => (bool)GetValue(IsScrollBarEnabledProperty);
+        set => SetValue(IsScrollBarEnabledProperty, value);
+    }
+
+    /// <summary>
+    /// Identifies the ScrollBarEnabled dependency property.
+    /// </summary>
+    public static readonly DependencyProperty IsScrollBarEnabledProperty =
+        DependencyProperty.Register(
+            nameof(IsScrollBarEnabled),
+            typeof(bool),
+            typeof(PageContentControl),
+            new PropertyMetadata(true, OnScrollBarEnabledChanged));
+
+    private static void OnScrollBarEnabledChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is PageContentControl control && control.scrollViewer is not null && control.scrollBar is not null)
+        {
+            // control.scrollBar.IsEnabled = (bool)e.NewValue;
+            control.scrollBar.Visibility = (bool)e.NewValue == true
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+            //control.scrollViewer.VerticalScrollMode = (bool)e.NewValue == true
+            //    ? ScrollMode.Auto
+            //    : ScrollMode.Disabled;
+            //control.scrollViewer.VerticalScrollBarVisibility = (bool)e.NewValue == true
+            //    ? ScrollBarVisibility.Visible
+            //    : ScrollBarVisibility.Disabled;
+        }
+    }
+    #endregion
+
     public PageContentControl()
     {
         DefaultStyleKey = typeof(PageContentControl);
