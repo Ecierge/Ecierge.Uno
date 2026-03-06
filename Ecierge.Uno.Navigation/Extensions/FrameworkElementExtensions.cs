@@ -3,8 +3,6 @@ namespace Ecierge.Uno.Navigation;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
-using Ecierge.Uno.Navigation.Regions;
-
 using Microsoft.Extensions.DependencyInjection;
 
 public static class FrameworkElementExtensions
@@ -12,36 +10,21 @@ public static class FrameworkElementExtensions
     public static IServiceScope AttachRootNavigationRegion([NotNull] this Control control, NavigationScope scope)
     {
         scope = scope ?? throw new ArgumentNullException(nameof(scope));
-        control.SetNavigationRegion(new (scope) { Target = control });
+        control.SetNavigationRegion(new(scope) { Target = control });
         return scope;
     }
-
-    //internal static Regions.NavigationRegion? FindParentNavigationRegion([NotNull] this FrameworkElement element)
-    //{
-    //    var parent = element as FrameworkElement;
-    //    while ((parent = parent!.Parent as FrameworkElement) is not null)
-    //    {
-    //        if (parent.GetNavigationRegion() is Regions.NavigationRegion navigationRegion)
-    //        {
-    //            return navigationRegion;
-    //        }
-    //    }
-    //    return null;
-    //}
 
     internal static Regions.NavigationRegion? FindParentNavigationRegion([NotNull] this FrameworkElement element)
     {
         var parent = element as FrameworkElement;
-        if (parent.GetNavigationRegion() is Regions.NavigationRegion navRegion)
-        {
-            return navRegion;
-        }
+        if (((parent = parent!.Parent as FrameworkElement) is not null) && (parent.GetNavigationRegion() is Regions.NavigationRegion navRegion))
+                return navRegion;
 
         DependencyObject? visualParent = element;
         while ((visualParent = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetParent(visualParent)) is FrameworkElement fe)
         {
             if (fe.GetNavigationRegion() is Regions.NavigationRegion navigationRegion)
-            return navigationRegion;
+                return navigationRegion;
         }
 
         FrameworkElement? logicalParent = element;

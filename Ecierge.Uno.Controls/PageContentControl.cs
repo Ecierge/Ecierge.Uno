@@ -1,30 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
 
 namespace Ecierge.Uno.Controls;
 
-//public static class Window
-//{
-//    dpa
-//}
 
 [TemplatePart(Name = PartTitle, Type = typeof(ContentPresenter))]
 [TemplatePart(Name = ScrollViewer, Type = typeof(ScrollViewer))]
 [TemplatePart(Name = ContentPresenter, Type = typeof(ContentPresenter))]
 [TemplatePart(Name = ScrollBar, Type = typeof(ScrollBar))]
 [TemplatePart(Name = TitleBarPlaceholder, Type = typeof(Border))]
-[TemplatePart(Name = Header, Type = typeof(FrameworkElement))]
-[TemplatePart(Name = Footer, Type = typeof(FrameworkElement))]
+[TemplatePart(Name = HeaderContent, Type = typeof(FrameworkElement))]
+[TemplatePart(Name = FooterContent, Type = typeof(FrameworkElement))]
 
 public sealed partial class PageContentControl : Control
 {
@@ -35,15 +20,14 @@ public sealed partial class PageContentControl : Control
     private const string ContentPresenter = "ContentPresenter";
     private const string ScrollBar = "VerticalScrollBar";
     private const string TitleBarPlaceholder = "TitleBarPlaceholder";
-    private const string Header = "Header";
-    private const string Footer = "Footer";
+    private const string HeaderContent = "Header";
+    private const string FooterContent = "Footer";
 
-    #endregion
+    #endregion TemplatePartNames
 
     private ScrollViewer? scrollViewer;
     private ScrollBar? scrollBar;
     private ContentPresenter? contentPresenter;
-    private Border? titleBarPlaceholder;
     private FrameworkElement? header;
     private FrameworkElement? footer;
 
@@ -52,15 +36,15 @@ public sealed partial class PageContentControl : Control
     #region Title
 
     /// <summary>
-    /// Header Dependency Property
+    /// Title Dependency Property
     /// </summary>
     public static readonly DependencyProperty TitleProperty =
         DependencyProperty.Register(nameof(Title), typeof(object), typeof(PageContentControl),
             new PropertyMetadata((object?)null));
 
     /// <summary>
-    /// Gets or sets the Header property. This dependency property
-    /// indicates header.
+    /// Gets or sets the Title property. This dependency property
+    /// indicates title.
     /// </summary>
     public object? Title
     {
@@ -68,7 +52,7 @@ public sealed partial class PageContentControl : Control
         set => SetValue(TitleProperty, value);
     }
 
-    #endregion
+    #endregion Title
 
     #region TitleTemplate
 
@@ -110,7 +94,7 @@ public sealed partial class PageContentControl : Control
         set => SetValue(ContentProperty, value);
     }
 
-    #endregion
+    #endregion Content
 
     #region ContentTemplate
 
@@ -133,91 +117,45 @@ public sealed partial class PageContentControl : Control
 
     #endregion
 
-    #region HeaderContent
+    #region Header
 
     /// <summary>
-    /// HeaderContent Dependency Property
+    /// Header Dependency Property
     /// </summary>
-    public object HeaderContent
+    public object? Header
     {
-        get => GetValue(HeaderContentProperty);
-        set => SetValue(HeaderContentProperty, value);
+        get => GetValue(HeaderProperty);
+        set => SetValue(HeaderProperty, value);
     }
 
     /// <summary>
-    /// Gets or sets the  HeaderContent property. This dependency property
+    /// Gets or sets the  Header property. This dependency property
     /// </summary>
-    public static readonly DependencyProperty HeaderContentProperty =
-        DependencyProperty.Register(nameof(HeaderContent), typeof(object), typeof(PageContentControl), new PropertyMetadata(null));
+    public static readonly DependencyProperty HeaderProperty =
+        DependencyProperty.Register(nameof(Header), typeof(object), typeof(PageContentControl), new PropertyMetadata(null));
 
-    #endregion
+    #endregion Htader
 
-    #region FooterContent
+    #region Footer
 
     /// <summary>
-    /// FooterContent Dependency Property
+    /// Footer Dependency Property
     /// </summary>
-    public object FooterContent
+    public object? Footer
     {
-        get => GetValue(FooterContentProperty);
-        set => SetValue(FooterContentProperty, value);
+        get => GetValue(FooterProperty);
+        set => SetValue(FooterProperty, value);
     }
 
     /// <summary>
-    /// Gets or sets the  FooterContent property. This dependency property
+    /// Gets or sets the  Footer property. This dependency property
     /// </summary>
-    public static readonly DependencyProperty FooterContentProperty =
-        DependencyProperty.Register(nameof(FooterContent), typeof(object), typeof(PageContentControl), new PropertyMetadata(null));
+    public static readonly DependencyProperty FooterProperty =
+        DependencyProperty.Register(nameof(Footer), typeof(object), typeof(PageContentControl), new PropertyMetadata(null));
 
-    #endregion
+    #endregion Footer
 
-    #region FooterCornerRadius
-
-    /// <summary>
-    /// FooterCornerRadius Dependency Property
-    /// </summary>
-    public CornerRadius FooterCornerRadius
-    {
-        get => (CornerRadius)GetValue(FooterCornerRadiusProperty);
-        set => SetValue(FooterCornerRadiusProperty, value);
-    }
-
-    /// <summary>
-    /// Gets or sets the FooterCornerRadius property. This dependency property
-    /// </summary>
-    public static readonly DependencyProperty FooterCornerRadiusProperty =
-        DependencyProperty.Register(
-            nameof(FooterCornerRadius),
-            typeof(CornerRadius),
-            typeof(PageContentControl),
-            new PropertyMetadata(new CornerRadius(0)));
-
-    #endregion
-
-    #region HeaderCornerRadius
-
-    /// <summary>
-    /// HeaderCornerRadius Dependency Property
-    /// </summary>
-    public CornerRadius HeaderCornerRadius
-    {
-        get => (CornerRadius)GetValue(HeaderCornerRadiusProperty);
-        set => SetValue(HeaderCornerRadiusProperty, value);
-    }
-
-    /// <summary>
-    /// Gets or sets the HeaderCornerRadius property. This dependency property
-    /// </summary>
-    public static readonly DependencyProperty HeaderCornerRadiusProperty =
-        DependencyProperty.Register(
-            nameof(HeaderCornerRadius),
-            typeof(CornerRadius),
-            typeof(PageContentControl),
-            new PropertyMetadata(new CornerRadius(0)));
-
-    #endregion
-
-    #region Padding
+    #region HeaderPadding
 
     /// <summary>
     /// Padding Dependency Property
@@ -239,7 +177,7 @@ public sealed partial class PageContentControl : Control
             typeof(PageContentControl),
             new PropertyMetadata(new Thickness(0)));
 
-    #endregion
+    #endregion HeaderPadding
 
     #region ScrollBarEnabled
     /// <summary>
@@ -277,7 +215,31 @@ public sealed partial class PageContentControl : Control
             //    : ScrollBarVisibility.Disabled;
         }
     }
-    #endregion
+    #endregion ScrollBarEnabled
+
+    #region TopBorderHeight
+
+    /// <summary>
+    /// BorderHeight Dependency Property
+    /// </summary>
+    public double TopBorderHeight
+{
+    get => (double)GetValue(TopBorderHeightProperty);
+    set => SetValue(TopBorderHeightProperty, value);
+}
+
+/// <summary>
+/// Gets or sets the TopBorderHeight property. This dependency property
+/// indicates the height of the border on the Top of the Page.
+/// </summary>
+public static readonly DependencyProperty TopBorderHeightProperty =
+    DependencyProperty.Register(
+        nameof(TopBorderHeight),
+        typeof(double),
+        typeof(PageContentControl),
+        new PropertyMetadata(38.0));
+
+#endregion TopBorderHeight
 
     public PageContentControl()
     {
@@ -291,9 +253,8 @@ public sealed partial class PageContentControl : Control
         DetachHandlers();
         scrollViewer = GetTemplateChild(ScrollViewer) as ScrollViewer;
         scrollBar = GetTemplateChild(ScrollBar) as ScrollBar;
-        titleBarPlaceholder = GetTemplateChild(TitleBarPlaceholder) as Border;
-        header = GetTemplateChild(Header) as FrameworkElement;
-        footer = GetTemplateChild(Footer) as FrameworkElement;
+        header = GetTemplateChild(HeaderContent) as FrameworkElement;
+        footer = GetTemplateChild(FooterContent) as FrameworkElement;
         contentPresenter = GetTemplateChild("ContentPresenter") as ContentPresenter;
 
         if (scrollViewer != null && scrollBar != null)
@@ -302,19 +263,6 @@ public sealed partial class PageContentControl : Control
             scrollBar.ValueChanged += OnScrollBarValueChanged;
             scrollViewer.LayoutUpdated += OnScrollViewerLayoutUpdated;
         }
-
-        //if (titleBarPlaceholder is not null)
-        //{
-        //    // Find root UI element
-        //    var root =
-        //    var actualHeightBinding = new Binding()
-        //    {
-        //        Path = new PropertyPath("(Window.TitleBarHeightProperty)"),
-        //        Mode = BindingMode.OneWay,
-        //        Source = root
-        //    };
-        //    titleBarPlaceholder.SetBinding(Border.HeightProperty, actualHeightBinding);
-        //}
 
         if (header is not null)
             header.SizeChanged += OnHeaderFooterSizeChanged;
@@ -367,15 +315,19 @@ public sealed partial class PageContentControl : Control
         if (scrollViewer is null || scrollBar is null)
             return;
 
-        double scrollable = scrollViewer.ScrollableHeight;
+        double extent = scrollViewer.ExtentHeight;
         double viewport = scrollViewer.ViewportHeight;
         double offset = scrollViewer.VerticalOffset;
+        double scrollable = scrollViewer.ScrollableHeight;
 
         scrollBar.Minimum = 0;
-        scrollBar.Maximum = scrollable > 0 ? scrollable : 0;
+        scrollBar.Maximum = extent;
+
         scrollBar.ViewportSize = viewport;
-        scrollBar.SmallChange = 16;
-        scrollBar.LargeChange = Math.Max(32, viewport * 0.9);
+
+        scrollBar.SmallChange = viewport * 0.1;
+        scrollBar.LargeChange = viewport;
+
         scrollBar.Value = offset;
 
         scrollBar.Visibility = scrollable > 0 ? Visibility.Visible : Visibility.Collapsed;
