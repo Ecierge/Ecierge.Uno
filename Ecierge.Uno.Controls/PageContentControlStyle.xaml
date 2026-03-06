@@ -12,10 +12,6 @@
   </ResourceDictionary.MergedDictionaries>
 
   <Style x:Key="PageContentControl" TargetType="local:PageContentControl">
-    <Setter Property="Background" Value="{ThemeResource TextControlBackground}" />
-    <Setter Property="BorderBrush" Value="{ThemeResource TextControlBorderBrush}" />
-    <Setter Property="BorderThickness" Value="{ThemeResource TextControlBorderThemeThickness}" />
-    <Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
     <Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}" />
     <Setter Property="FontSize" Value="{ThemeResource ControlContentThemeFontSize}" />
     <Setter Property="Foreground" Value="{ThemeResource TextControlForeground}" />
@@ -32,52 +28,40 @@
                               VerticalAlignment="Center"
                               Content="{TemplateBinding Title}" />
             <Grid Grid.Row="1">
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-              </Grid.ColumnDefinitions>
               <ScrollViewer x:Name="ScrollViewer"
                             HorizontalScrollBarVisibility="Disabled"
                             HorizontalScrollMode="Auto"
                             VerticalScrollBarVisibility="Hidden">
-                <!--<Grid RowDefinitions="Auto,Auto,*,Auto">-->
-                  <!--<Border x:Name="TitleBarPlaceholder" Grid.Row="0" />-->
-                  <!--<Border Grid.Row="1" Height={Binding ActualHeight, ElementName=Title} />-->
                 <Grid>
                   <ContentPresenter x:Name="ContentPresenter"
                                     HorizontalAlignment="Stretch"
                                     VerticalAlignment="Stretch"
                                     Content="{TemplateBinding Content}"
                                     ContentTemplate="{TemplateBinding ContentTemplate}"/>
-                  <!--<Border Grid.Row="2" Height="{Binding ActualHeight, ElementName=Footer}" />-->
                 </Grid>
               </ScrollViewer>
 
               <Grid x:Name="Header"  RowDefinitions="Auto,*"
                     Height="Auto"
                     Padding="{TemplateBinding HeaderPadding}"
-                    CornerRadius="{TemplateBinding HeaderCornerRadius}"
                     VerticalAlignment="Top"
                     Background="{ThemeResource CustomAcrylicBrush2}">
-                <!--<Border x:Name="TitleBarPlaceholder" Grid.Row="0" Height={Binding ActualHeight, ElementName=Title} />-->
-                <Border Grid.Row="0" Height="38" />
+                <Border Grid.Row="0" Height="{TemplateBinding TopBorderHeight}" />
                 <ContentPresenter HorizontalAlignment="Stretch"   Grid.Row="1"
                                   VerticalAlignment="Stretch"
                                   Background="Transparent"
-                                  Content="{TemplateBinding HeaderContent}" />
+                                  Content="{TemplateBinding Header}" />
               </Grid>
               <Grid x:Name="Footer"
                     Height="Auto"
-                    CornerRadius="{TemplateBinding FooterCornerRadius}"
                     VerticalAlignment="Bottom"
                     Background="{ThemeResource CustomAcrylicBrush2}">
                 <ContentPresenter HorizontalAlignment="Stretch"
                                   VerticalAlignment="Stretch"
-                                  Content="{TemplateBinding FooterContent}" />
+                                  Content="{TemplateBinding Footer}" />
               </Grid>
 
               <ScrollBar x:Name="VerticalScrollBar"
-                         Grid.Column="0"
                          Width="8"
                          Style="{StaticResource DefaultScrollBarStyle}"
                          HorizontalAlignment="Right"
