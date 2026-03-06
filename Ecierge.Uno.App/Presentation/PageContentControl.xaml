@@ -12,12 +12,12 @@
       Background="{ThemeResource BackgroundBrush}">
   <Grid utu:SafeArea.Insets="VisibleBounds">
 
-      <ctrl:PageContentControl HeaderCornerRadius="8" FooterCornerRadius="16">
+      <ctrl:PageContentControl TopBorderHeight="0">
         <ctrl:PageContentControl.Title>
           <TextBlock Text="Items Page" FontSize="20" FontWeight="Bold" Padding="8"/>
         </ctrl:PageContentControl.Title>
 
-        <ctrl:PageContentControl.HeaderContent>
+        <ctrl:PageContentControl.Header>
         <CommandBar DefaultLabelPosition="Right" Background="Transparent">
             <AppBarButton Icon="Back" Label="Go back to Main">
               <i:Interaction.Behaviors>
@@ -28,14 +28,14 @@
             </AppBarButton>
               <AppBarButton Icon="Add" />
           </CommandBar>
-        </ctrl:PageContentControl.HeaderContent>
+        </ctrl:PageContentControl.Header>
 
-        <ctrl:PageContentControl.FooterContent>
+        <ctrl:PageContentControl.Footer>
           <CommandBar  VerticalAlignment="Center" Background="Transparent">
           <AppBarButton Icon="Save" />
           <AppBarButton Icon="Delete" />
         </CommandBar>
-        </ctrl:PageContentControl.FooterContent>
+        </ctrl:PageContentControl.Footer>
 
         <ctrl:PageContentControl.Content>
           <StackPanel Background="Orange">
