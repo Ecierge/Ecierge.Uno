@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml.Controls.Primitives;
+using CommunityToolkit.WinUI.Controls;
 
 namespace Ecierge.Uno.Controls;
 
@@ -11,7 +12,7 @@ namespace Ecierge.Uno.Controls;
 [TemplatePart(Name = HeaderContent, Type = typeof(FrameworkElement))]
 [TemplatePart(Name = FooterContent, Type = typeof(FrameworkElement))]
 
-public sealed partial class PageContentControl : Control
+public sealed partial class PageContentControl : HeaderedContentControl
 {
     #region TemplatePartNames
 
@@ -75,47 +76,47 @@ public sealed partial class PageContentControl : Control
 
     #endregion
 
-    #region Content
+    //#region Content
 
-    /// <summary>
-    /// Content Dependency Property
-    /// </summary>
-    public static readonly DependencyProperty ContentProperty =
-        DependencyProperty.Register(nameof(Content), typeof(object), typeof(PageContentControl),
-            new PropertyMetadata((object?)null));
+    ///// <summary>
+    ///// Content Dependency Property
+    ///// </summary>
+    //public static readonly DependencyProperty ContentProperty =
+    //    DependencyProperty.Register(nameof(Content), typeof(object), typeof(PageContentControl),
+    //        new PropertyMetadata((object?)null));
 
-    /// <summary>
-    /// Gets or sets the Content property. This dependency property
-    /// indicates content.
-    /// </summary>
-    public object? Content
-    {
-        get => (object?)GetValue(ContentProperty);
-        set => SetValue(ContentProperty, value);
-    }
+    ///// <summary>
+    ///// Gets or sets the Content property. This dependency property
+    ///// indicates content.
+    ///// </summary>
+    //public object? Content
+    //{
+    //    get => (object?)GetValue(ContentProperty);
+    //    set => SetValue(ContentProperty, value);
+    //}
 
-    #endregion Content
+    //#endregion Content
 
-    #region ContentTemplate
+    //#region ContentTemplate
 
-    /// <summary>
-    /// ContentTemplate Dependency Property
-    /// </summary>
-    public static readonly DependencyProperty ContentTemplateProperty =
-        DependencyProperty.Register(nameof(ContentTemplate), typeof(DataTemplate), typeof(PageContentControl),
-            new PropertyMetadata((DataTemplate?)null));
+    ///// <summary>
+    ///// ContentTemplate Dependency Property
+    ///// </summary>
+    //public static readonly DependencyProperty ContentTemplateProperty =
+    //    DependencyProperty.Register(nameof(ContentTemplate), typeof(DataTemplate), typeof(PageContentControl),
+    //        new PropertyMetadata((DataTemplate?)null));
 
-    /// <summary>
-    /// Gets or sets the ContentTemplate property. This dependency property
-    /// indicates title template.
-    /// </summary>
-    public DataTemplate? ContentTemplate
-    {
-        get => (DataTemplate?)GetValue(ContentTemplateProperty);
-        set => SetValue(ContentTemplateProperty, value);
-    }
+    ///// <summary>
+    ///// Gets or sets the ContentTemplate property. This dependency property
+    ///// indicates title template.
+    ///// </summary>
+    //public DataTemplate? ContentTemplate
+    //{
+    //    get => (DataTemplate?)GetValue(ContentTemplateProperty);
+    //    set => SetValue(ContentTemplateProperty, value);
+    //}
 
-    #endregion
+    //#endregion ContentTemplate
 
     #region Header
 
@@ -134,7 +135,28 @@ public sealed partial class PageContentControl : Control
     public static readonly DependencyProperty HeaderProperty =
         DependencyProperty.Register(nameof(Header), typeof(object), typeof(PageContentControl), new PropertyMetadata(null));
 
-    #endregion Htader
+    #endregion Header
+
+    #region HeaderTemplate
+
+    /// <summary>
+    /// HeaderTemplate Dependency Property
+    /// </summary>
+    public static readonly DependencyProperty HeaderTemplateProperty =
+        DependencyProperty.Register(nameof(HeaderTemplate), typeof(DataTemplate), typeof(PageContentControl),
+            new PropertyMetadata((DataTemplate?)null));
+
+    /// <summary>
+    /// Gets or sets the HeaderTemplate property. This dependency property
+    /// indicates title template.
+    /// </summary>
+    public DataTemplate? HeaderTemplate
+    {
+        get => (DataTemplate?)GetValue(HeaderTemplateProperty);
+        set => SetValue(HeaderTemplateProperty, value);
+    }
+
+    #endregion HeaderTemplate
 
     #region Footer
 
@@ -155,29 +177,26 @@ public sealed partial class PageContentControl : Control
 
     #endregion Footer
 
-    #region HeaderPadding
+    #region FooterTemplate
 
     /// <summary>
-    /// Padding Dependency Property
+    /// FooterTemplate Dependency Property
     /// </summary>
-    public Thickness HeaderPadding
+    public static readonly DependencyProperty FooterTemplateProperty =
+        DependencyProperty.Register(nameof(FooterTemplate), typeof(DataTemplate), typeof(PageContentControl),
+            new PropertyMetadata((DataTemplate?)null));
+
+    /// <summary>
+    /// Gets or sets the FooterTemplate property. This dependency property
+    /// indicates title template.
+    /// </summary>
+    public DataTemplate? FooterTemplate
     {
-        get => (Thickness)GetValue(HeaderPaddingProperty);
-        set => SetValue(HeaderPaddingProperty, value);
+        get => (DataTemplate?)GetValue(FooterTemplateProperty);
+        set => SetValue(FooterTemplateProperty, value);
     }
 
-    /// <summary>
-    /// Gets or sets the Padding property. This dependency property
-    /// indicates the padding inside the control.
-    /// </summary>
-    public static readonly DependencyProperty HeaderPaddingProperty =
-        DependencyProperty.Register(
-            nameof(HeaderPadding),
-            typeof(Thickness),
-            typeof(PageContentControl),
-            new PropertyMetadata(new Thickness(0)));
-
-    #endregion HeaderPadding
+    #endregion FooterTemplate
 
     #region ScrollBarEnabled
     /// <summary>

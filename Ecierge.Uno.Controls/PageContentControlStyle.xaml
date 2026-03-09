@@ -43,14 +43,14 @@
 
               <Grid x:Name="Header"  RowDefinitions="Auto,*"
                     Height="Auto"
-                    Padding="{TemplateBinding HeaderPadding}"
                     VerticalAlignment="Top"
                     Background="{ThemeResource CustomAcrylicBrush2}">
                 <Border Grid.Row="0" Height="{TemplateBinding TopBorderHeight}" />
                 <ContentPresenter HorizontalAlignment="Stretch"   Grid.Row="1"
                                   VerticalAlignment="Stretch"
                                   Background="Transparent"
-                                  Content="{TemplateBinding Header}" />
+                                  Content="{TemplateBinding Header}"
+                                  ContentTemplate="{TemplateBinding HeaderTemplate}"/>
               </Grid>
               <Grid x:Name="Footer"
                     Height="Auto"
@@ -58,7 +58,8 @@
                     Background="{ThemeResource CustomAcrylicBrush2}">
                 <ContentPresenter HorizontalAlignment="Stretch"
                                   VerticalAlignment="Stretch"
-                                  Content="{TemplateBinding Footer}" />
+                                  Content="{TemplateBinding Footer}"
+                                  ContentTemplate="{TemplateBinding FooterTemplate}"/>
               </Grid>
 
               <ScrollBar x:Name="VerticalScrollBar"
