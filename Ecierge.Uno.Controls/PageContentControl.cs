@@ -115,7 +115,7 @@ public sealed partial class PageContentControl : Control
         set => SetValue(ContentTemplateProperty, value);
     }
 
-    #endregion
+    #endregion ContentTemplate
 
     #region Header
 
@@ -134,7 +134,28 @@ public sealed partial class PageContentControl : Control
     public static readonly DependencyProperty HeaderProperty =
         DependencyProperty.Register(nameof(Header), typeof(object), typeof(PageContentControl), new PropertyMetadata(null));
 
-    #endregion Htader
+    #endregion Header
+
+    #region HeaderTemplate
+
+    /// <summary>
+    /// HeaderTemplate Dependency Property
+    /// </summary>
+    public static readonly DependencyProperty HeaderTemplateProperty =
+        DependencyProperty.Register(nameof(HeaderTemplate), typeof(DataTemplate), typeof(PageContentControl),
+            new PropertyMetadata((DataTemplate?)null));
+
+    /// <summary>
+    /// Gets or sets the HeaderTemplate property. This dependency property
+    /// indicates title template.
+    /// </summary>
+    public DataTemplate? HeaderTemplate
+    {
+        get => (DataTemplate?)GetValue(HeaderTemplateProperty);
+        set => SetValue(HeaderTemplateProperty, value);
+    }
+
+    #endregion HeaderTemplate
 
     #region Footer
 
@@ -155,29 +176,26 @@ public sealed partial class PageContentControl : Control
 
     #endregion Footer
 
-    #region HeaderPadding
+    #region FooterTemplate
 
     /// <summary>
-    /// Padding Dependency Property
+    /// FooterTemplate Dependency Property
     /// </summary>
-    public Thickness HeaderPadding
+    public static readonly DependencyProperty FooterTemplateProperty =
+        DependencyProperty.Register(nameof(FooterTemplate), typeof(DataTemplate), typeof(PageContentControl),
+            new PropertyMetadata((DataTemplate?)null));
+
+    /// <summary>
+    /// Gets or sets the FooterTemplate property. This dependency property
+    /// indicates title template.
+    /// </summary>
+    public DataTemplate? FooterTemplate
     {
-        get => (Thickness)GetValue(HeaderPaddingProperty);
-        set => SetValue(HeaderPaddingProperty, value);
+        get => (DataTemplate?)GetValue(FooterTemplateProperty);
+        set => SetValue(FooterTemplateProperty, value);
     }
 
-    /// <summary>
-    /// Gets or sets the Padding property. This dependency property
-    /// indicates the padding inside the control.
-    /// </summary>
-    public static readonly DependencyProperty HeaderPaddingProperty =
-        DependencyProperty.Register(
-            nameof(HeaderPadding),
-            typeof(Thickness),
-            typeof(PageContentControl),
-            new PropertyMetadata(new Thickness(0)));
-
-    #endregion HeaderPadding
+    #endregion FooterTemplate
 
     #region ScrollBarEnabled
     /// <summary>
