@@ -314,10 +314,10 @@
                                                    Margin="4,0,4,0"
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"
-                                                   IsActive="{Binding (ctrls:LoadingAutoSuggestBoxHelper.IsLoading), RelativeSource={RelativeSource Self}}"
+                                                   IsActive="{Binding (ctrls:AutoSuggestBoxLoadingIndicator.IsActive), RelativeSource={RelativeSource Self}}"
                                                    IsHitTestVisible="False"
                                                    Padding="4"
-                                                   Style="{StaticResource SmallProgressRingStyle}"
+                                                   Style="{StaticResource PaddedProgressRingStyle}"
                                                    ui:FrameworkElementExtensions.AncestorType="AutoSuggestBox" />
 
                             <Button x:Name="DeleteButton"
