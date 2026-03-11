@@ -5,7 +5,7 @@
 
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/PaddedProgressRingStyle.xaml" />
-        <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/LoadingAutoSuggestBoxTextBoxStyle.xaml" />
+        <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/AutoSuggestBoxLoadingTextBoxStyle.xaml" />
         <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/LoadingAutoSuggestBoxStyle.xaml" />
     </ResourceDictionary.MergedDictionaries>
 

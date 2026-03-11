@@ -8,7 +8,7 @@
            TargetType="AutoSuggestBox"
            BasedOn="{StaticResource DefaultAutoSuggestBoxStyle}">
 
-        <Setter Property="TextBoxStyle" Value="{StaticResource LoadingAutoSuggestBoxTextBoxStyle}" />
+        <Setter Property="TextBoxStyle" Value="{StaticResource AutoSuggestBoxLoadingTextBoxStyle}" />
     </Style>
 
 </ResourceDictionary>
