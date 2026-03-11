@@ -2,10 +2,10 @@ namespace Ecierge.Uno.Controls;
 
 using Microsoft.UI.Xaml;
 
-public static class LoadingAutoSuggestBoxHelper
+public static class AutoSuggestBoxLoadingIndicator
 {
     public static readonly DependencyProperty IsLoadingProperty = DependencyProperty.RegisterAttached(
-        "IsLoading",
+        "IsActive",
         typeof(bool),
         typeof(LoadingAutoSuggestBoxHelper),
         new PropertyMetadata(false, OnIsLoadingChanged));
@@ -26,7 +26,7 @@ public static class LoadingAutoSuggestBoxHelper
 
     private static readonly DependencyProperty CachedRingProperty =
     DependencyProperty.RegisterAttached(
-        "CachedRing",
+        "_ProgressRing_",
         typeof(ProgressRing),
         typeof(LoadingAutoSuggestBoxHelper),
         new PropertyMetadata(null));
@@ -49,15 +49,15 @@ public static class LoadingAutoSuggestBoxHelper
         {
             var ring = GetCachedRing(box);
 
-            if (ring == null)
+            if (ring is null)
             {
                 ring = FindDescendant<ProgressRing>(box);
 
-                if (ring != null)
+                if (ring is not null)
                     SetCachedRing(box, ring);
             }
 
-            if (ring != null)
+            if (ring is not null)
                 SetIsLoading(ring, (bool)e.NewValue);
         }
         else if (d is ProgressRing ring)

@@ -2,8 +2,6 @@ namespace Ecierge.Uno.Controls;
 
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-
-
 public sealed partial class LoadingTextBox : TextBox
 {
     public LoadingTextBox()
@@ -11,16 +9,12 @@ public sealed partial class LoadingTextBox : TextBox
         DefaultStyleKey = typeof(LoadingTextBox);
     }
 
-    public bool IsValidating
-    {
-        get => (bool)GetValue(IsValidatingProperty);
-        set => SetValue(IsValidatingProperty, value);
-    }
+    public static readonly DependencyProperty IsLoadingProperty =
+        DependencyProperty.Register(nameof(IsLoading), typeof(bool), typeof(LoadingTextBox), new (false));
 
-    public static readonly DependencyProperty IsValidatingProperty =
-        DependencyProperty.Register(
-            nameof(IsValidating),
-            typeof(bool),
-            typeof(LoadingTextBox),
-            new PropertyMetadata(false));
+    public bool IsLoading
+    {
+        get => (bool)GetValue(IsLoadingProperty);
+        set => SetValue(IsLoadingProperty, value);
+    }
 }

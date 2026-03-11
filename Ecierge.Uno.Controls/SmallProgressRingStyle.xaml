@@ -4,7 +4,7 @@
                     xmlns:controls="using:Microsoft.UI.Xaml.Controls"
                     xmlns:local="using:Ecierge.Uno.Controls">
 
-    <Style x:Key="SmallProgressRingStyle" TargetType="controls:ProgressRing">
+    <Style x:Key="PaddedProgressRingStyle" TargetType="controls:ProgressRing">
         <Setter Property="Foreground" Value="{ThemeResource ProgressRingForegroundThemeBrush}" />
         <Setter Property="Background" Value="{ThemeResource ProgressRingBackgroundThemeBrush}" />
         <Setter Property="IsHitTestVisible" Value="False" />

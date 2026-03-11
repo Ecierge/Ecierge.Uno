@@ -4,7 +4,7 @@
                     xmlns:local="using:Ecierge.Uno.Controls">
 
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/SmallProgressRingStyle.xaml" />
+        <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/PaddedProgressRingStyle.xaml" />
         <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/LoadingAutoSuggestBoxTextBoxStyle.xaml" />
         <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/LoadingAutoSuggestBoxStyle.xaml" />
     </ResourceDictionary.MergedDictionaries>
