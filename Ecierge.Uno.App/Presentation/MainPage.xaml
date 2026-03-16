@@ -7,9 +7,7 @@
       xmlns:developerTools="using:CommunityToolkit.WinUI.DeveloperTools"
       xmlns:local="using:Ecierge.Uno.App.Presentation"
       xmlns:nav="using:Ecierge.Uno.Navigation"
-      xmlns:um="using:Uno.Material"
       xmlns:utu="using:Uno.Toolkit.UI"
-      Background="{ThemeResource BackgroundBrush}"
       NavigationCacheMode="Required">
   <ScrollViewer>
     <VisualStateManager.VisualStateGroups>
