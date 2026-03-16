@@ -31,6 +31,8 @@ public sealed partial class PageContentControl : Control
     private FrameworkElement? footer;
 
     private bool isSyncing;
+    private double cachedHeaderHeight = -1;
+    private double cachedFooterHeight = -1;
 
     #region Title
 
@@ -285,21 +287,43 @@ public sealed partial class PageContentControl : Control
         if (footer is not null)
             footer.SizeChanged += OnHeaderFooterSizeChanged;
 
-        UpdateScrollBarMargin();
+        UpdateScrollBarMarginIfChanged();
         UpdateContentPresenterPadding();
         UpdateScrollBar();
     }
 
     private void OnHeaderFooterSizeChanged(object? sender, SizeChangedEventArgs e)
     {
-        UpdateScrollBarMargin();
+        UpdateScrollBarMarginIfChanged();
+    }
+
+    private bool UpdateScrollBarMarginIfChanged()
+    {
+        if (scrollBar is null)
+            return false;
+
+        double topOffset = header is not null && header.ActualHeight > 0 ? header.ActualHeight : 0;
+        double bottomOffset = footer is not null && footer.ActualHeight > 0 ? footer.ActualHeight : 0;
+
+        if (topOffset == cachedHeaderHeight && bottomOffset == cachedFooterHeight)
+            return false;
+
+        cachedHeaderHeight = topOffset;
+        cachedFooterHeight = bottomOffset;
+
+        scrollBar.Margin = new Thickness(0, topOffset, 0, bottomOffset);
+
+        if (contentPresenter is not null)
+            contentPresenter.Padding = new Thickness(0, topOffset, 0, bottomOffset);
+
+        return true;
     }
 
     private void OnScrollViewerLayoutUpdated(object? sender, object e)
     {
         UpdateScrollBar();
-        UpdateScrollBarMargin();
-        UpdateContentPresenterPadding();
+        if (UpdateScrollBarMarginIfChanged())
+            UpdateContentPresenterPadding();
     }
 
     private void OnScrollViewerViewChanged(object? sender, ScrollViewerViewChangedEventArgs e)
@@ -350,39 +374,8 @@ public sealed partial class PageContentControl : Control
         scrollBar.IsEnabled = scrollable > 0;
     }
 
-    private void UpdateScrollBarMargin()
-    {
-        if (scrollBar is null)
-            return;
-
-        double topOffset = 0;
-        double bottomOffset = 0;
-
-        if (header is not null && header.ActualHeight > 0)
-            topOffset = header.ActualHeight;
-
-        if (footer is not null && footer.ActualHeight > 0)
-            bottomOffset = footer.ActualHeight;
-
-        scrollBar.Margin = new Thickness(0, topOffset, 0, bottomOffset);
-    }
-
     private void UpdateContentPresenterPadding()
     {
-        if (contentPresenter == null)
-            return;
-
-        double topOffset = 0;
-        double bottomOffset = 0;
-
-        if (header is not null && header.ActualHeight > 0)
-            topOffset = header.ActualHeight;
-
-        if (footer is not null && footer.ActualHeight > 0)
-            bottomOffset = footer.ActualHeight;
-
-        contentPresenter.Padding = new Thickness(0, topOffset, 0, bottomOffset);
-
         if (scrollViewer is null || scrollBar is null)
             return;
 
