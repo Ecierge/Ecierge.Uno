@@ -6,9 +6,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:nav="using:Ecierge.Uno.Navigation"
-      xmlns:utu="using:Uno.Toolkit.UI"
-      xmlns:um="using:Uno.Material"
-      Background="{ThemeResource BackgroundBrush}">
+      xmlns:utu="using:Uno.Toolkit.UI">
 
   <Grid utu:SafeArea.Insets="VisibleBounds">
     <Grid.RowDefinitions>
