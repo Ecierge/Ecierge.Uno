@@ -118,45 +118,45 @@ public sealed partial class PageContentControl : Control
 
     #endregion ContentTemplate
 
-    #region Header
+    //#region Header
 
-    /// <summary>
-    /// Header Dependency Property
-    /// </summary>
-    public object? Header
-    {
-        get => GetValue(HeaderProperty);
-        set => SetValue(HeaderProperty, value);
-    }
+    ///// <summary>
+    ///// Header Dependency Property
+    ///// </summary>
+    //public object? Header
+    //{
+    //    get => GetValue(HeaderProperty);
+    //    set => SetValue(HeaderProperty, value);
+    //}
 
-    /// <summary>
-    /// Gets or sets the  Header property. This dependency property
-    /// </summary>
-    public static readonly DependencyProperty HeaderProperty =
-        DependencyProperty.Register(nameof(Header), typeof(object), typeof(PageContentControl), new PropertyMetadata(null));
+    ///// <summary>
+    ///// Gets or sets the  Header property. This dependency property
+    ///// </summary>
+    //public static readonly DependencyProperty HeaderProperty =
+    //    DependencyProperty.Register(nameof(Header), typeof(object), typeof(PageContentControl), new PropertyMetadata(null));
 
-    #endregion Header
+    //#endregion Header
 
-    #region HeaderTemplate
+    //#region HeaderTemplate
 
-    /// <summary>
-    /// HeaderTemplate Dependency Property
-    /// </summary>
-    public static readonly DependencyProperty HeaderTemplateProperty =
-        DependencyProperty.Register(nameof(HeaderTemplate), typeof(DataTemplate), typeof(PageContentControl),
-            new PropertyMetadata((DataTemplate?)null));
+    ///// <summary>
+    ///// HeaderTemplate Dependency Property
+    ///// </summary>
+    //public static readonly DependencyProperty HeaderTemplateProperty =
+    //    DependencyProperty.Register(nameof(HeaderTemplate), typeof(DataTemplate), typeof(PageContentControl),
+    //        new PropertyMetadata((DataTemplate?)null));
 
-    /// <summary>
-    /// Gets or sets the HeaderTemplate property. This dependency property
-    /// indicates title template.
-    /// </summary>
-    public DataTemplate? HeaderTemplate
-    {
-        get => (DataTemplate?)GetValue(HeaderTemplateProperty);
-        set => SetValue(HeaderTemplateProperty, value);
-    }
+    ///// <summary>
+    ///// Gets or sets the HeaderTemplate property. This dependency property
+    ///// indicates title template.
+    ///// </summary>
+    //public DataTemplate? HeaderTemplate
+    //{
+    //    get => (DataTemplate?)GetValue(HeaderTemplateProperty);
+    //    set => SetValue(HeaderTemplateProperty, value);
+    //}
 
-    #endregion HeaderTemplate
+    //#endregion HeaderTemplate
 
     #region Footer
 
