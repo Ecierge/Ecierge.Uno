@@ -10,6 +10,7 @@
       $(DotNetVersion)
     </TargetFrameworks>
     <TargetFrameworks Condition=" '$(OverrideTargetFramework)' != '' ">$(OverrideTargetFramework)</TargetFrameworks>
+    <Platforms>Any CPU;x64</Platforms>
 
     <OutputType>Exe</OutputType>
     <UnoSingleProject>true</UnoSingleProject>

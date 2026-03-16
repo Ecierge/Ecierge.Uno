@@ -43,6 +43,8 @@
       Toolkit;
     </UnoFeatures>
 
+    <Platforms>AnyCPU</Platforms>
+
   </PropertyGroup>
 
   <Target Name="RemoveUnnecessaryImplicitUsings" BeforeTargets="BeforeBuild">

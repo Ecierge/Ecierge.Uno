@@ -1,4 +1,8 @@
 <Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+  </Configurations>
   <Folder Name="/Solution Items/">
     <File Path=".gitignore" />
     <File Path="copilot-instructions.md" />
@@ -9,13 +13,15 @@
   </Folder>
   <Folder Name="/Tests/">
     <Project Path="Ecierge.Uno.App.Tests/Ecierge.Uno.App.Tests.csproj">
-      <Deploy />
+      <Deploy Solution="*|Any CPU" />
     </Project>
     <Project Path="Ecierge.Uno.App.UITests/Ecierge.Uno.App.UITests.csproj">
+      <Platform Solution="*|x64" Project="x64" />
       <Deploy />
     </Project>
   </Folder>
   <Project Path="Ecierge.Uno.App/Ecierge.Uno.App.csproj">
+    <Platform Solution="*|x64" Project="x64" />
     <Deploy />
   </Project>
   <Project Path="Ecierge.Uno.Controls/Ecierge.Uno.Controls.csproj" />

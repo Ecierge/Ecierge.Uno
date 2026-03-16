@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>$(DotNetVersion)</TargetFramework>
     <IsTestProject>true</IsTestProject>
+    <Platforms>Any CPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

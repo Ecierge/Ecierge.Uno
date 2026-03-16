@@ -10,6 +10,7 @@
       $(DotNetVersion)-browserwasm
     </TargetFrameworks>
     <TargetFrameworks Condition=" '$(OverrideTargetFramework)' != '' ">$(OverrideTargetFramework)</TargetFrameworks>
+    <Platforms>AnyCPU;x64</Platforms>
 
     <UnoSingleProject>true</UnoSingleProject>
     <OutputType>Library</OutputType>
