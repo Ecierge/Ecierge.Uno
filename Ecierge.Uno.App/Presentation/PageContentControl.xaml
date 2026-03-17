@@ -1,4 +1,4 @@
-﻿<Page x:Class="Ecierge.Uno.App.Presentation.PageContentControl"
+﻿<Page x:Class="Ecierge.Uno.App.Presentation.PageContentControlPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:i="using:Microsoft.Xaml.Interactivity"

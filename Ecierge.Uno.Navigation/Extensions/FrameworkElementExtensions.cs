@@ -16,22 +16,33 @@ public static class FrameworkElementExtensions
 
     internal static Regions.NavigationRegion? FindParentNavigationRegion([NotNull] this FrameworkElement element)
     {
-        var parent = element as FrameworkElement;
-        if (((parent = parent!.Parent as FrameworkElement) is not null) && (parent.GetNavigationRegion() is Regions.NavigationRegion navRegion))
-                return navRegion;
+        DependencyObject? current = element;
 
-        DependencyObject? visualParent = element;
-        while ((visualParent = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetParent(visualParent)) is FrameworkElement fe)
+        while (current is not null)
         {
-            if (fe.GetNavigationRegion() is Regions.NavigationRegion navigationRegion)
-                return navigationRegion;
-        }
+            if (current is FrameworkElement fe)
+            {
+                var logicalParent = fe.Parent as FrameworkElement;
 
-        FrameworkElement? logicalParent = element;
-        while ((logicalParent = logicalParent!.Parent as FrameworkElement) is not null)
-        {
-            if (logicalParent.GetNavigationRegion() is Regions.NavigationRegion navigationRegion)
-                return navigationRegion;
+                if (logicalParent is not null)
+                {
+                    if (logicalParent.GetNavigationRegion() is Regions.NavigationRegion navRegion)
+                        return navRegion;
+
+                    current = logicalParent;
+                    continue;
+                }
+            }
+
+            var visualParent = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetParent(current);
+
+            if (visualParent is FrameworkElement visualFe)
+            {
+                if (visualFe.GetNavigationRegion() is Regions.NavigationRegion navRegion)
+                    return navRegion;
+            }
+
+            current = visualParent;
         }
 
         return null;
