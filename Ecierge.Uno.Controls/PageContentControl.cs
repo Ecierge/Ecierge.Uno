@@ -2,7 +2,6 @@ using Microsoft.UI.Xaml.Controls.Primitives;
 
 namespace Ecierge.Uno.Controls;
 
-
 [TemplatePart(Name = PartTitle, Type = typeof(ContentPresenter))]
 [TemplatePart(Name = ScrollViewer, Type = typeof(ScrollViewer))]
 [TemplatePart(Name = ContentPresenter, Type = typeof(ContentPresenter))]
@@ -198,6 +197,7 @@ public sealed partial class PageContentControl : Control
     #endregion FooterTemplate
 
     #region ScrollBarEnabled
+
     /// <summary>
     /// Gets or sets a value indicating whether the vertical ScrollBar is enabled.
     /// </summary>
@@ -233,6 +233,7 @@ public sealed partial class PageContentControl : Control
             //    : ScrollBarVisibility.Disabled;
         }
     }
+
     #endregion ScrollBarEnabled
 
     #region TopBorderHeight
@@ -241,23 +242,20 @@ public sealed partial class PageContentControl : Control
     /// BorderHeight Dependency Property
     /// </summary>
     public double TopBorderHeight
-{
-    get => (double)GetValue(TopBorderHeightProperty);
-    set => SetValue(TopBorderHeightProperty, value);
-}
+    {
+        get => (double)GetValue(TopBorderHeightProperty);
+        set => SetValue(TopBorderHeightProperty, value);
+    }
 
-/// <summary>
-/// Gets or sets the TopBorderHeight property. This dependency property
-/// indicates the height of the border on the Top of the Page.
-/// </summary>
-public static readonly DependencyProperty TopBorderHeightProperty =
-    DependencyProperty.Register(
-        nameof(TopBorderHeight),
-        typeof(double),
-        typeof(PageContentControl),
-        new PropertyMetadata(38.0));
+    /// <summary>
+    /// Gets or sets the TopBorderHeight property. This dependency property
+    /// indicates the height of the border on the Top of the Page.
+    /// </summary>
+    public static readonly DependencyProperty TopBorderHeightProperty =
+        DependencyProperty.Register(nameof(TopBorderHeight), typeof(double),
+            typeof(PageContentControl), new PropertyMetadata(38.0));
 
-#endregion TopBorderHeight
+    #endregion TopBorderHeight
 
     public PageContentControl()
     {
