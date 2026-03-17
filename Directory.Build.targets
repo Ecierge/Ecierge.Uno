@@ -4,6 +4,7 @@
   <PropertyGroup>
     <UnoDisableGenerateGlobalUsingsMock>true</UnoDisableGenerateGlobalUsingsMock>
   </PropertyGroup>
+
   <Target Name="_UnoGenerateGlobalCorrectUsingsMock"
       BeforeTargets="CoreCompile"
       DependsOnTargets="_UnoFilterWebSdkGlobalUsings"
@@ -35,5 +36,24 @@
       <_UsingsDedup Remove="@(_UsingsDedup)" />
     </ItemGroup>
   </Target>
+
+  <Target Name="AddPriPayloadFilesToCopyToOutputDirectoryItems" Condition="'$(MSBuildProjectName)' != 'Console.App'" />
+
+  <!--
+    Workaround for WinAppSDK EMBEDFILES XBF path mismatch (https://github.com/microsoft/WindowsAppSDK/issues/6299):
+    When VS builds with Platform=x64, OutputType is already WinExe at the point when
+    Microsoft.Build.Msix.Pri.targets evaluates GenerateLibraryLayout — so it stays empty (not true).
+    This causes XamlPackagingRootFolder to use $(OutputPath) instead of $(XamlGeneratedOutputPath),
+    and AssignTargetPath strips subdirectory paths from XBF TargetPath metadata — making
+    embed.resfiles contain flat filenames (Shell.xbf) while the XAML compiler generates
+    ms-appx:///Presentation/Shell.xaml URIs.
+    With dotnet build, Uno SDK temporarily sets OutputType=Library before switching to WinExe,
+    so GenerateLibraryLayout=true is evaluated before the switch — and paths are preserved.
+    Fix: force GenerateLibraryLayout=true to make AssignTargetPath use the obj folder as root,
+    preserving subdirectory paths in XBF TargetPath metadata.
+  -->
+  <PropertyGroup Condition="'$(IsWinAppSdk)' == 'true' AND '$(IsUnoHead)' == 'true'">
+    <GenerateLibraryLayout>true</GenerateLibraryLayout>
+  </PropertyGroup>
 
 </Project>
