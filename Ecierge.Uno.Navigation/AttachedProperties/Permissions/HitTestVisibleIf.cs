@@ -4,24 +4,27 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+using Ecierge.Uno.Navigation;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
 
 /// <summary>
-/// Provides attached properties for conditionally showing UI elements based on user permissions.
+/// Provides attached properties for conditionally enabling hit testing based on user permissions.
 /// </summary>
-public abstract class VisibleIf
+public abstract class HitTestVisibleIf
 {
     /// <summary>
     /// Identifies the HasPermissions attached dependency property.
-    /// When set, the target element will be visible if the current user has at least one of the specified permissions.
+    /// When set, the target element is hit-test visible only if the current user has at least one of the specified permissions.
     /// </summary>
     public static readonly DependencyProperty HasPermissionsProperty =
         DependencyProperty.RegisterAttached(
             "HasPermissions",
             typeof(IEnumerable<string>),
-            typeof(VisibleIf),
+            typeof(HitTestVisibleIf),
             new PropertyMetadata(null, OnHasPermissionsChanged));
 
     /// <summary>
@@ -31,22 +34,18 @@ public abstract class VisibleIf
         DependencyProperty.RegisterAttached(
             "RequestVersion",
             typeof(int),
-            typeof(VisibleIf),
+            typeof(HitTestVisibleIf),
             new PropertyMetadata(0));
 
     /// <summary>
-    /// Gets the permissions required for the element to be visible.
+    /// Gets the permissions required for the element to be hit-test visible.
     /// </summary>
-    /// <param name="d">The target object.</param>
-    /// <returns>The required permissions, or null if not set.</returns>
     public static IEnumerable<string>? GetHasPermissions(DependencyObject d) =>
         (IEnumerable<string>?)d.GetValue(HasPermissionsProperty);
 
     /// <summary>
-    /// Sets the permissions required for the element to be visible.
+    /// Sets the permissions required for the element to be hit-test visible.
     /// </summary>
-    /// <param name="d">The target object.</param>
-    /// <param name="value">The required permissions.</param>
     public static void SetHasPermissions(DependencyObject d, IEnumerable<string>? value) =>
         d.SetValue(HasPermissionsProperty, value);
 
@@ -79,17 +78,17 @@ public abstract class VisibleIf
         var version = GetRequestVersion(element) + 1;
         SetRequestVersion(element, version);
 
-        _ = UpdateVisibilityAsync(element, version);
+        _ = UpdateHitTestVisibilityAsync(element, version);
     }
 
-    private static async Task UpdateVisibilityAsync(FrameworkElement element, int version)
+    private static async Task UpdateHitTestVisibilityAsync(FrameworkElement element, int version)
     {
         var permissions = GetHasPermissions(element)?.ToArray();
         if (permissions is null || permissions.Length == 0)
         {
             if (GetRequestVersion(element) == version)
             {
-                SetVisibility(element, Visibility.Visible);
+                SetIsHitTestVisible(element, true);
             }
 
             return;
@@ -97,7 +96,7 @@ public abstract class VisibleIf
 
         if (GetRequestVersion(element) == version)
         {
-            SetVisibility(element, Visibility.Collapsed);
+            SetIsHitTestVisible(element, false);
         }
 
         Regions.NavigationRegion region;
@@ -147,21 +146,21 @@ public abstract class VisibleIf
                 return;
             }
 
-            SetVisibility(element, Visibility.Visible);
+            SetIsHitTestVisible(element, true);
         }
         catch (Exception ex)
         {
             var loggerFactory = region.Scope.ServiceProvider.GetService<ILoggerFactory>();
-            var logger = loggerFactory?.CreateLogger(typeof(VisibleIf).FullName!);
+            var logger = loggerFactory?.CreateLogger(typeof(HitTestVisibleIf).FullName!);
 
             logger?.LogError(
                 ex,
-                "Failed to evaluate permissions for element {ElementType}. Element will remain collapsed.",
+                "Failed to evaluate permissions for element {ElementType}. Element will remain hit test disabled.",
                 element.GetType());
         }
     }
 
-    private static void SetVisibility(FrameworkElement element, Visibility visibility)
+    private static void SetIsHitTestVisible(FrameworkElement element, bool value)
     {
         var dispatcher = element.DispatcherQueue;
         if (dispatcher == null)
@@ -169,6 +168,9 @@ public abstract class VisibleIf
             return;
         }
 
-        dispatcher.TryEnqueue(() => element.Visibility = visibility);
+        dispatcher.TryEnqueue(() =>
+        {
+            element.IsHitTestVisible = value;
+        });
     }
 }
