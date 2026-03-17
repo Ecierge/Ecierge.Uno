@@ -56,9 +56,7 @@ public abstract class HitTestVisibleIf
     {
         if (d is FrameworkElement element)
         {
-            element.Loaded -= OnElementLoaded;
             element.Loaded += OnElementLoaded;
-
             TriggerUpdate(element);
         }
     }
@@ -67,6 +65,7 @@ public abstract class HitTestVisibleIf
     {
         if (sender is FrameworkElement element)
         {
+            element.Loaded -= OnElementLoaded;
             TriggerUpdate(element);
         }
     }

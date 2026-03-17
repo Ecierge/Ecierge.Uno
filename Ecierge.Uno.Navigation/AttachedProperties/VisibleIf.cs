@@ -60,9 +60,7 @@ public abstract class VisibleIf
     {
         if (d is FrameworkElement element)
         {
-            element.Loaded -= OnElementLoaded;
             element.Loaded += OnElementLoaded;
-
             TriggerUpdate(element);
         }
     }
@@ -71,6 +69,7 @@ public abstract class VisibleIf
     {
         if (sender is FrameworkElement element)
         {
+            element.Loaded -= OnElementLoaded;
             TriggerUpdate(element);
         }
     }

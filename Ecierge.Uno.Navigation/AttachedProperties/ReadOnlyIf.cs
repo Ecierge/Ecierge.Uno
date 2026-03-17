@@ -57,9 +57,7 @@ public abstract class ReadOnlyIf
     {
         if (d is FrameworkElement element)
         {
-            element.Loaded -= OnElementLoaded;
             element.Loaded += OnElementLoaded;
-
             TriggerUpdate(element);
         }
     }
@@ -68,6 +66,7 @@ public abstract class ReadOnlyIf
     {
         if (sender is FrameworkElement element)
         {
+            element.Loaded -= OnElementLoaded;
             TriggerUpdate(element);
         }
     }
