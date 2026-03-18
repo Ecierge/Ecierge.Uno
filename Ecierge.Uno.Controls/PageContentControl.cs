@@ -361,7 +361,7 @@ public sealed partial class PageContentControl : Control
         double scrollable = scrollViewer.ScrollableHeight;
 
         scrollBar.Minimum = 0;
-        scrollBar.Maximum = extent;
+        scrollBar.Maximum = scrollable > 0 ? scrollable : 0;
 
         scrollBar.ViewportSize = viewport;
 
