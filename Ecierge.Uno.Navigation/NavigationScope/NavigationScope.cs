@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.UI.Dispatching;
 
-public sealed class NavigationScope : IServiceScope, IDisposable
+public sealed class NavigationScope : IServiceScope, IAsyncDisposable
 {
     private static readonly Type WindowType = typeof(Window);
     private static readonly Type FrameworkElementType = typeof(FrameworkElement);
@@ -22,6 +22,7 @@ public sealed class NavigationScope : IServiceScope, IDisposable
     private static readonly Type NavigatorType = typeof(Navigator);
 
     private readonly IServiceScope serviceScope;
+    private int _disposed;
 
     internal NameSegment Segment { get; }
 
@@ -73,7 +74,14 @@ public sealed class NavigationScope : IServiceScope, IDisposable
         serviceProvider.AddScopedInstance(NavigatorType, GetNavigator(element, parentNavigator));
     }
 
-    public void Dispose() => serviceScope.Dispose();
+    public void Dispose() => _ = DisposeAsync();
+
+    public async ValueTask DisposeAsync()
+    {
+        if (Interlocked.Exchange(ref _disposed, 1) == 1) return;
+        await Task.Delay(TimeSpan.FromSeconds(30));
+        serviceScope.Dispose();
+    }
 
     public NavigationScope CreateScope(Navigator parentNavigator, NameSegment segment, FrameworkElement element)
      => new NavigationScope(parentNavigator, segment, element);

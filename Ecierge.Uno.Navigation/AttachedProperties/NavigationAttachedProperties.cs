@@ -22,7 +22,7 @@ public static class Navigation
     {
         var navigationRegion = element.GetNavigationRegion();
         if (navigationRegion is null) return;
-        element.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, () => navigationRegion.Scope.Dispose());
+        element.DispatcherQueue.EnqueueAsync(navigationRegion.Scope.DisposeAsync, DispatcherQueuePriority.Low);
         element.SetValue(InfoProperty, null);
     }
 
