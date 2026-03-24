@@ -248,6 +248,9 @@ public abstract class Navigator
 
     public async Task WaitForVisualTreeAsync()
     {
+        if (Debugger.IsAttached)
+            await Task.Yield();
+
         var tcs = new TaskCompletionSource();
         if (this.Target is null)
         {
