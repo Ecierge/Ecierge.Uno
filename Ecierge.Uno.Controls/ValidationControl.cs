@@ -138,7 +138,7 @@ public sealed partial class ValidationControl : ContentControl
         {
             if (this.Content is Control control && control.Style is not null)
             {
-                originalStyle = control.Style;
+                originalStyle ??= control.Style;
                 lastErrorStyle = style;
                 control.Style = style;
             }
@@ -159,6 +159,7 @@ public sealed partial class ValidationControl : ContentControl
         if (originalStyle is not null && this.Content is Control control)
         {
             control.Style = originalStyle;
+            originalStyle = null;
             lastErrorStyle = null;
         }
         else if (lastErrorStyle is not null)
