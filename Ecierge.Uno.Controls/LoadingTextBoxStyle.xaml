@@ -8,7 +8,7 @@
     <Style x:Key="DefaultLoadingTextBoxStyle"
            TargetType="local:LoadingTextBox"
            BasedOn="{StaticResource DefaultTextBoxStyle}">
-    <Setter Property="Template">
+        <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="local:LoadingTextBox">
                     <Grid>
