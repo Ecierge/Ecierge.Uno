@@ -14,15 +14,15 @@
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
     <PackageVersion Include="FluentAssertions" Version="8.8.0" />
     <PackageVersion Include="FSharp.Core" Version="10.0.100" />
-    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="10.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="10.0.5" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
     <PackageVersion Include="morelinq" Version="4.4.0" />
     <PackageVersion Include="NUnit" Version="4.4.0" />
     <PackageVersion Include="NUnit3TestAdapter" Version="5.2.0" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
-    <PackageVersion Include="OpenIddict.Abstractions" Version="7.2.0" />
-    <PackageVersion Include="OpenIddict.Client" Version="7.2.0" />
-    <PackageVersion Include="OpenIddict.Core" Version="7.2.0" />
+    <PackageVersion Include="OpenIddict.Abstractions" Version="7.4.0" />
+    <PackageVersion Include="OpenIddict.Client" Version="7.4.0" />
+    <PackageVersion Include="OpenIddict.Core" Version="7.4.0" />
     <PackageVersion Include="Uno.UITest.Helpers" Version="1.1.0-dev.82" />
     <PackageVersion Include="Xamarin.UITest" Version="4.4.2" />
     <PackageVersion Include="Xamarin.AndroidX.Browser" Version="1.9.0" />
