@@ -7,6 +7,7 @@ using Microsoft.UI.Xaml.Controls;
 
 /// <summary>
 /// Provides attached properties for conditionally setting read-only state based on permissions.
+/// Supported controls: <see cref="TextBox"/> and <see cref="RichEditBox"/>.
 /// </summary>
 public abstract class ReadOnlyIf
 {

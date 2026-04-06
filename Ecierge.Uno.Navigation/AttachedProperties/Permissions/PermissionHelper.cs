@@ -62,9 +62,12 @@ internal static class PermissionHelper
     /// <summary>
     /// Evaluates authorization permissions for the specified element and applies state changes based on the result.
     /// </summary>
-    /// <remarks>If no permissions are specified or no authorization services are available, the state may be
-    /// applied without further checks. Exceptions encountered during evaluation are logged using the provided owner
-    /// type and log message.</remarks>
+    /// <remarks>
+    /// If no permissions are specified, the granted state is applied immediately.
+    /// If no <see cref="IAuthorizationService"/> instances are registered, the method returns early
+    /// and the element remains in the default-denied state.
+    /// Exceptions encountered during evaluation are logged using the provided owner type and log message.
+    /// </remarks>
     /// <param name="element">The framework element whose permissions are evaluated and whose state may be updated.</param>
     /// <param name="version">The version number used to determine whether the state should be applied for the current request.</param>
     /// <param name="hasPermissionsProperty">The dependency property containing the collection of permissions to check for the element.</param>
