@@ -39,14 +39,14 @@ internal static class PermissionHelper
         if (d is not FrameworkElement element) return;
 
         element.Loaded += OnElementLoaded;
-        TriggerUpdate(element);
+        TriggerUpdate(element); 
         return;
 
         void OnElementLoaded(object sender, RoutedEventArgs e)
         {
             if (sender is FrameworkElement el)
             {
-                el.Loaded -= OnElementLoaded;
+                el.Loaded -= OnElementLoaded; 
                 TriggerUpdate(el);
             }
         }

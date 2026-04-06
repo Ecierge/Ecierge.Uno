@@ -11,7 +11,8 @@ public abstract class HitTestVisibleIf
 {
     /// <summary>
     /// Identifies the HasPermissions attached dependency property.
-    /// When set, the target element is hit-test visible only if the current user has at least one of the specified permissions.
+    /// When set, the target element is hit-test visible only if the current user
+    /// has at least one of the specified permissions.
     /// </summary>
     public static readonly DependencyProperty HasPermissionsProperty =
         DependencyProperty.RegisterAttached(

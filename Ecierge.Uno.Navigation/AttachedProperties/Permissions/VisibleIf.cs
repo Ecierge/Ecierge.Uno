@@ -11,7 +11,8 @@ public abstract class VisibleIf
 {
     /// <summary>
     /// Identifies the HasPermissions attached dependency property.
-    /// When set, the target element will be visible if the current user has at least one of the specified permissions.
+    /// When set, the target element will be visible if the current user
+    /// has at least one of the specified permissions.
     /// </summary>
     public static readonly DependencyProperty HasPermissionsProperty =
         DependencyProperty.RegisterAttached(

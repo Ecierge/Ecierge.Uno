@@ -1,9 +1,5 @@
 namespace Ecierge.Uno.Navigation;
 
-using System.Diagnostics.CodeAnalysis;
-
-using Ecierge.Uno.Navigation.Regions;
-
 public static class Route
 {
     #region SegmentName
@@ -12,7 +8,7 @@ public static class Route
     /// SegmentName Attached Dependency Property
     /// </summary>
     public static readonly DependencyProperty SegmentNameProperty =
-        DependencyProperty.RegisterAttached("SegmentName", typeof(string), typeof(Route), new ((string?)null));
+        DependencyProperty.RegisterAttached("SegmentName", typeof(string), typeof(Route), new((string?)null));
 
     /// <summary>
     /// Gets the SegmentName property. This dependency property
@@ -34,7 +30,7 @@ public static class Route
     /// SelectIf Attached Dependency Property
     /// </summary>
     public static readonly DependencyProperty SelectIfProperty =
-        DependencyProperty.RegisterAttached("SelectIf", typeof(Routing.Route), typeof(Route), new (default(Routing.Route)));
+        DependencyProperty.RegisterAttached("SelectIf", typeof(Routing.Route), typeof(Route), new(default(Routing.Route)));
 
     /// <summary>
     /// Gets the SelectIf property. This dependency property

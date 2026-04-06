@@ -12,7 +12,8 @@ public abstract class ReadOnlyIf
 {
     /// <summary>
     /// Identifies the HasPermissions attached dependency property.
-    /// When set, the target element will be read-only if the current user does not have any of the specified permissions.
+    /// When set, the target element will be read-only if the current user
+    /// does not have any of the specified permissions.
     /// </summary>
     public static readonly DependencyProperty HasPermissionsProperty =
         DependencyProperty.RegisterAttached(
