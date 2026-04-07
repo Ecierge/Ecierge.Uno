@@ -51,10 +51,6 @@ public static partial class WindowExtensions
 #pragma warning restore CA2000 // Dispose objects before losing scope
         navRoot.AttachRootNavigationRegion(navigationScope);
 
-        if (navRoot is LoadingView loadingView)
-        {
-            loadingView.Source = new LoadingTask(hostLifetime.ApplicationStarted, navRoot);
-        }
         // Activate the window after the application has started
         hostLifetime.ApplicationStarted.Register(() => window.Activate());
 
@@ -67,6 +63,11 @@ public static partial class WindowExtensions
         else
         {
             await navigator.NavigateDefaultAsync(Application.Current, rootSegment);
+        }
+
+        if (navRoot is LoadingView loadingView)
+        {
+            loadingView.Source = new LoadingTask(hostLifetime.ApplicationStarted, navRoot);
         }
     }
 
