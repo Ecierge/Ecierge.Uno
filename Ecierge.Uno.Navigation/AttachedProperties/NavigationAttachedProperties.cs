@@ -3,6 +3,7 @@ namespace Ecierge.Uno.Navigation;
 using Ecierge.Uno.Navigation.Navigators;
 using Ecierge.Uno.Navigation.Routing;
 
+using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 
@@ -11,6 +12,8 @@ using Microsoft.UI.Dispatching;
 
 public static class Navigation
 {
+    private static readonly ConcurrentDictionary<string, NavigationScope> staticScopeCache = new();
+
     #region NavigationInfo
 
     public static readonly DependencyProperty InfoProperty =
@@ -22,7 +25,11 @@ public static class Navigation
     {
         var navigationRegion = element.GetNavigationRegion();
         if (navigationRegion is null) return;
-        element.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, () => navigationRegion.Scope.Dispose());
+        // Do not dispose static scopes as they are cached and reused
+        if (!navigationRegion.Segment.IsStatic)
+        {
+            element.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, () => navigationRegion.Scope.Dispose());
+        }
         element.SetValue(InfoProperty, null);
     }
 
@@ -86,9 +93,28 @@ public static class Navigation
             if (foundNestedSegment is null) throw new NestedSegmentMissingException(segmentName, parentSegmentName);
             nestedSegment = foundNestedSegment;
         }
-
 #pragma warning disable CA2000 // Dispose objects before losing scope
-        var scope = parentNavigationRegion.Scope.CreateScope(parentNavigationRegion.Navigator, nestedSegment, element);
+        NavigationScope scope;
+        if (nestedSegment.IsStatic)
+        {
+            bool isNewScope = false;
+            scope = staticScopeCache.GetOrAdd(
+                nestedSegment.Name,
+                _ =>
+                {
+                    isNewScope = true;
+                    return parentNavigationRegion.Scope.CreateScope(parentNavigationRegion.Navigator, nestedSegment, element);
+                });
+            // For cached static scopes, reassign navigator relationships to the current parent
+            if (!isNewScope)
+            {
+                scope.ReassignNavigator(parentNavigationRegion.Navigator);
+            }
+        }
+        else
+        {
+            scope = parentNavigationRegion.Scope.CreateScope(parentNavigationRegion.Navigator, nestedSegment, element);
+        }
 #pragma warning restore CA2000 // Dispose objects before losing scope
         var navigationRegion = new Regions.NavigationRegion(scope)
         {

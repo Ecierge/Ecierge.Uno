@@ -37,6 +37,7 @@ namespace Ecierge.Uno.Navigation
     public record NameSegment : RouteSegment
     {
         public bool IsDefault { get; init; } = false;
+        public bool IsStatic { get; init; } = false;
         public bool HasData => DataSegment is not null;
         public bool HasMandatoryData => DataSegment is not null && DataSegment.IsMandatory;
         public ImmutableArray<string> Permissions { get; init; } = ImmutableArray<string>.Empty;
@@ -45,11 +46,12 @@ namespace Ecierge.Uno.Navigation
         public override ImmutableArray<NameSegment> Nested { get; protected init; } = ImmutableArray<NameSegment>.Empty;
         public override ImmutableArray<NameSegment> NestedAfterData => DataSegment is not null ? DataSegment.Nested : Nested;
 
-        public NameSegment(string name, ViewMapBase? view, DataSegment dataSegment, params ImmutableArray<string> permissions) : base(name)
+        public NameSegment(string name, ViewMapBase? view, DataSegment dataSegment, bool isStatic = false, params ImmutableArray<string> permissions) : base(name)
         {
             ViewMap = view;
             dataSegment = dataSegment ?? throw new ArgumentNullException(nameof(dataSegment));
             IsDefault = false;
+            IsStatic = isStatic;
             if (dataSegment is not null)
             {
                 DataSegment = dataSegment;
@@ -61,7 +63,7 @@ namespace Ecierge.Uno.Navigation
             }
         }
 
-        public NameSegment(string name, ViewMapBase? view = null, bool isDefault = false, ImmutableArray<string> permissions = default, ImmutableArray<NameSegment> nested = default) : base(name)
+        public NameSegment(string name, ViewMapBase? view = null, bool isDefault = false, bool isStatic = false, ImmutableArray<string> permissions = default, ImmutableArray<NameSegment> nested = default) : base(name)
         {
             ViewMap = view;
             IsDefault = isDefault;
@@ -69,6 +71,7 @@ namespace Ecierge.Uno.Navigation
             {
                 Permissions = permissions;
             }
+            IsStatic = isStatic;
             if (!nested.IsDefaultOrEmpty)
             {
                 Nested = nested;
@@ -145,7 +148,7 @@ namespace Ecierge.Uno.Navigation
     public record DialogSegment : NameSegment
     {
         public DialogSegment(string name, ViewMapBase view, DataSegment data) : base(name, view, data) { }
-        public DialogSegment(string name, ViewMapBase? view = null, ImmutableArray<NameSegment> nested = default) : base(name, view, false, default, nested) { }
+        public DialogSegment(string name, ViewMapBase? view = null, ImmutableArray<NameSegment> nested = default) : base(name, view, isDefault: false, isStatic: false, permissions: default, nested: nested) { }
     }
 }
 
@@ -185,15 +188,16 @@ namespace Ecierge.Uno.Navigation.Helpers
                 throw new InvalidOperationException("Segments must have the same view map to be merged.");
 
             var viewMap = a.ViewMap ?? b.ViewMap;
+            var isStatic = a.IsStatic || b.IsStatic;
             if (a.HasData)
             {
                 var dataSegment = Merge(a.DataSegment!, b.DataSegment!);
-                return new NameSegment(a.Name, viewMap!, dataSegment);
+                return new NameSegment(a.Name, viewMap!, dataSegment, isStatic);
             }
             else
             {
                 var nested = a.Nested.Concat(b.Nested).ToImmutableArray();
-                return new NameSegment(a.Name, viewMap, a.IsDefault, default, nested);
+                return new NameSegment(a.Name, viewMap, a.IsDefault, isStatic, default, nested);
             }
 
         }

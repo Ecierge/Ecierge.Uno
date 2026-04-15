@@ -125,7 +125,7 @@ public sealed class NavigationScope : IServiceScope, IDisposable
         return navigator;
     }
 
-    private void AssignNavigators(Navigator? parent, Navigator navigator)
+    private static void AssignNavigators(Navigator? parent, Navigator navigator)
     {
         navigator.Parent = parent;
         if (parent is not null)
@@ -133,6 +133,18 @@ public sealed class NavigationScope : IServiceScope, IDisposable
             parent.ChildNavigator = navigator;
             navigator.RootNavigator = parent.RootNavigator;
         }
+    }
+
+    /// <summary>
+    /// Reassigns navigator relationships for static scopes that are reused across navigations.
+    /// </summary>
+    /// <param name="parentNavigator">The current parent navigator to link to.</param>
+    public void ReassignNavigator(Navigator parentNavigator)
+    {
+        var navigator = this.ServiceProvider.GetRequiredService<Navigator>();
+        // Don't clear ChildNavigator here - child elements' AttachRegion runs BEFORE parent's
+        // and will set the correct ChildNavigator. Clearing here would overwrite it.
+        AssignNavigators(parentNavigator, navigator);
     }
 
     public NavigationResult CreateViewModel(NavigationRequest request, INavigationData? navigationData)

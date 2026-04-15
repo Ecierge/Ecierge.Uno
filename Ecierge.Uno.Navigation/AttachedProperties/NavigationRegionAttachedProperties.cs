@@ -44,22 +44,61 @@ public static class NavigationRegion
             }
             else
             {
+                var parentNavigationRegion =
+                    element.FindParentNavigationRegion() ??
+                    throw new RootNavigationRegionMissingException();
+
+                bool isInsideStaticView = parentNavigationRegion.Segment.IsStatic;
+
                 if (shouldAttach && !isAttached)
                 {
                     element.AttachRegion();
-                    element.Unloaded += OnUnloaded;
+                    if (!isInsideStaticView)
+                    {
+                        element.Unloaded += OnUnloaded;
+                    }
                 }
                 if (!shouldAttach && isAttached)
                 {
-                    element.DetachRegion();
+                    if (!isInsideStaticView)
+                    {
+                        element.DetachRegion();
+                    }
                 }
             }
 
             void OnLoaded(object e, RoutedEventArgs args)
             {
                 element.Loaded -= OnLoaded;
-                element.AttachRegion();
-                element.Unloaded += OnUnloaded;
+
+                // Check if region already exists (for views inside static parents being reattached)
+                var existingRegion = element.GetNavigationRegion();
+                if (existingRegion is null)
+                {
+                    element.AttachRegion();
+                }
+                else
+                {
+                    // Region exists - reassign navigator relationships when re-loaded
+                    var parentRegion = element.FindParentNavigationRegion();
+                    if (parentRegion is not null)
+                    {
+                        // Update parent reference for the existing region
+                        existingRegion.Parent = parentRegion;
+                        existingRegion.Scope.ReassignNavigator(parentRegion.Navigator);
+                    }
+                }
+
+                var parentNavigationRegion =
+                    element.GetNavigationRegion() ??
+                    throw new RootNavigationRegionMissingException();
+
+                bool isInsideStaticView = parentNavigationRegion.Segment.IsStatic;
+
+                if (!isInsideStaticView)
+                {
+                    element.Unloaded += OnUnloaded;
+                }
             }
 
             void OnUnloaded(object e, RoutedEventArgs args)

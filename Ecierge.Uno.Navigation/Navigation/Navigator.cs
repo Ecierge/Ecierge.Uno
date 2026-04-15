@@ -209,6 +209,7 @@ public abstract class Navigator
             Debug.Fail("Must be at least a parent with DispatcherQueue");
 #endif
         // TODO: Back request must be resolved into named before passing
+
         var result = await dispatcherQueue!.EnqueueAsync(() => { return NavigateCoreAsync(request); });
 
         if (result.IsSkipped)
@@ -260,6 +261,12 @@ public abstract class Navigator
             await tcs.Task;
         }
     }
+
+    /// <summary>
+    /// Waits for the content created during navigation to be loaded.
+    /// Override in navigators that create content (like ContentControlNavigator) to wait for the created view to load.
+    /// </summary>
+    public virtual ValueTask WaitForCreatedContentAsync() => ValueTask.CompletedTask;
 
     protected virtual ValueTask WaitForVisualTree() => ValueTask.CompletedTask;
 
@@ -437,7 +444,7 @@ public static class NavigatorExtensions
                     default:
                         throw new NotSupportedException("Unknown segment type.");
                 }
-                // TODO: Handle case then navigation is failed due to permission check
+            // TODO: Handle case then navigation is failed due to permission check
                 // Introduce denied result subclass and short-circuit in that case
                 if (!result.Success)
                 {
@@ -448,8 +455,11 @@ public static class NavigatorExtensions
                 }
 
                 // Child navigator is created after UI is created and attached to a visual tree
-                await currentNavigator.WaitForVisualTreeAsync();
-                if (currentNavigator.ChildNavigator is not null)
+                // Wait for the created content to load so child navigators can attach
+                await currentNavigator.WaitForCreatedContentAsync();
+                // Traverse ALL nested child navigators to reach the deepest one
+                // Static views may have nested navigators (e.g., Frame inside StaticView)
+                while (currentNavigator.ChildNavigator is not null)
                     currentNavigator = currentNavigator.ChildNavigator;
             }
             return new NavigationSuccessfulResponse(currentNavigator.ActualRoute, navigator);

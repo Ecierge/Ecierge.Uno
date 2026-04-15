@@ -21,6 +21,14 @@ public abstract class ViewMapBase(Type view, Type? viewModel, IEnumerable<Type> 
     /// Gets the type of the view model associated with this map, if any.
     /// </summary>
     public Type? ViewModel { get; } = viewModel;
+    /// <summary>
+    /// Gets the type of the view model associated with this map, if any.
+    /// </summary>
+    public bool IsStatic { get; } = false;
+    /// <summary>
+    /// Gets the type of the view model associated with this map, if any.
+    /// </summary>
+    public IEnumerable<Type> AdditionalDependencies { get; } = additionalDependencies;
 
     /// <summary>
     /// Adds an additional dependency type to the view map.
@@ -45,7 +53,7 @@ public abstract class ViewMapBase(Type view, Type? viewModel, IEnumerable<Type> 
     /// </summary>
     /// <param name="services">The service collection to register view and view model types with.</param>
     /// <returns>An instance of <see cref="IServiceCollection"/> with the registered view and view model types.</returns>
-    public IServiceCollection Register(IServiceCollection services)
+    public virtual IServiceCollection Register(IServiceCollection services)
     {
         foreach (var dependency in additionalDependencies)
         {
@@ -99,4 +107,70 @@ public class ViewMap<TView, TViewModel> : ViewMapBase
     /// <param name="dependencies">The collection of additional dependencies.</param>
     /// <returns>A new instance of <see cref="ViewMapBase"/> derived type with the specified dependencies.</returns>
     protected override ViewMapBase CreateInstance(IReadOnlyCollection<Type> dependencies) => new ViewMap<TView, TViewModel>(dependencies);
+}
+
+/// <summary>
+/// Represents a view map for a specific view type and its corresponding view model type, with optional additional dependencies.
+/// </summary>
+/// <typeparam name="TView">View type to associate with this map.</typeparam>
+/// <typeparam name="TViewModel">View model type to associate with this map.</typeparam>
+public class StaticViewMap<TView, TViewModel> : ViewMapBase
+{
+    private static TView? _instance;
+
+    private StaticViewMap(IReadOnlyCollection<Type> dependencies) : base(typeof(TView), typeof(TViewModel), dependencies) { }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ViewMap{TView, TViewModel}"/> class with no additional dependencies.
+    /// </summary>
+    public StaticViewMap() : this([]) { }
+    /// <summary>
+    /// Gets the type of the view model associated with this map, if any.
+    /// </summary>
+    public bool IsStatic { get; } = true;
+
+
+    /// <summary>
+    /// Creates a new instance of the view map with the specified additional dependencies.
+    /// </summary>
+    /// <param name="dependencies">The collection of additional dependencies.</param>
+    /// <returns>A new instance of <see cref="ViewMapBase"/> derived type with the specified dependencies.</returns>
+    protected override ViewMapBase CreateInstance(IReadOnlyCollection<Type> dependencies) => new StaticViewMap<TView, TViewModel>(dependencies);
+
+    public override IServiceCollection Register(IServiceCollection services)
+    {
+        foreach (var dependency in this.AdditionalDependencies)
+        {
+            services.AddTransient(dependency);
+        }
+        services.AddTransient(View, x =>
+        {
+            if (_instance == null)
+            {
+                try
+                {
+                    var constructor = View.GetConstructors().FirstOrDefault();
+                    if (constructor == null)
+                    {
+                        throw new InvalidOperationException($"No public constructor found for static view '{View.FullName}'. Have you forgotten to mark it as public?");
+                    }
+                    var parameters = constructor.GetParameters();
+                    var args = parameters.Select(p => x.GetRequiredService(p.ParameterType)).ToArray();
+                    var viewInstance = constructor.Invoke(args);
+                    _instance = (TView)viewInstance;
+                }
+                catch (Exception e)
+                {
+                    throw new InvalidOperationException($"Failed to create instance of static view '{View.FullName}'.", e);
+                }
+            }
+            return _instance;
+        });
+        if (ViewModel is not null)
+        {
+            services.AddTransientWithNavigationParameters(ViewModel);
+        }
+
+        return services;
+    }
 }

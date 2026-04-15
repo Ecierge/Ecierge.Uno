@@ -253,6 +253,16 @@ public static class ServiceCollectionExtensions
         services.AddTransient(serviceType, TypeExtensions.GetFactoryWithNavigationParameters(serviceType));
 
     /// <summary>
+    /// Adds a transient service of the specified type that can be created with navigation parameters.
+    /// </summary>
+    /// <param name="services">The service collection to add the service to.</param>
+    /// <param name="serviceType">The type of the service to add.</param>
+    /// <returns>The updated service collection.</returns>
+    public static IServiceCollection AddSingletonWithNavigationParameters(this IServiceCollection services, Type serviceType)
+     =>
+        services.AddSingleton(serviceType, TypeExtensions.GetFactoryWithNavigationParameters(serviceType));
+
+    /// <summary>
     /// Adds a transient service of the specified type with a specific implementation that can be created with navigation parameters.
     /// </summary>
     /// <param name="services">The service collection to add the service to.</param>

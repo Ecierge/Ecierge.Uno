@@ -33,6 +33,20 @@ public abstract class FactoryNavigator<TTarget> : Navigator<TTarget>
     {
         var viewMap = request.View!;
         var view = (FrameworkElement)ServiceProvider.GetRequiredService(viewMap.View);
+        
+        // For singleton views, update navigator relationships instead of resetting
+        // This preserves the NavigationRegion so child views can find their parent
+        if (viewMap.IsStatic)
+        {
+            var existingRegion = view.GetNavigationRegion();
+            if (existingRegion is not null)
+            {
+                // Update the navigator relationships for the cached scope
+                existingRegion.Scope.ReassignNavigator(this);
+            }
+            // Don't call ResetNavigationRegion - children need to find this region
+        }
+        
         if (viewMap.ViewModel is { } viewModelType)
         {
             var result = Scope.CreateViewModel(request, request.Route.Data);
@@ -55,6 +69,35 @@ public abstract class FactoryNavigator<TTarget> : Navigator<TTarget>
     }
 
     protected virtual FrameworkElement? WaitForVisualTreeTarget => Target;
+
+    /// <summary>
+    /// Waits for the content created by this navigator to be fully loaded,
+    /// allowing child navigators to attach via AttachRegion.
+    /// </summary>
+    public override async ValueTask WaitForCreatedContentAsync()
+    {
+        FrameworkElement? target = WaitForVisualTreeTarget;
+        if (target is null) return;
+        if (!target.IsLoaded)
+        {
+            TaskCompletionSource tcs = new();
+            void Loaded(object? s, RoutedEventArgs? e)
+            {
+                target.Loaded -= Loaded;
+                // Use Low priority to ensure child AttachRegion has executed
+                target.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, () => tcs.SetResult());
+            }
+            target.Loaded += Loaded;
+            await tcs.Task;
+        }
+        else
+        {
+            // Content already loaded, but give a chance for any pending dispatcher work
+            var tcs = new TaskCompletionSource();
+            target.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, () => tcs.SetResult());
+            await tcs.Task;
+        }
+    }
 
     protected override async ValueTask WaitForVisualTree()
     {
