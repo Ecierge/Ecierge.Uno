@@ -7,6 +7,91 @@ using Microsoft.Xaml.Interactivity;
 /// </summary>
 public class AutoSuggestBoxBehavior : Behavior<AutoSuggestBox>
 {
+    #region IsReadOnly
+
+    /// <summary>
+    /// IsReadOnly Dependency Property
+    /// </summary>
+    public static readonly DependencyProperty IsReadOnlyProperty =
+        DependencyProperty.Register(nameof(IsReadOnly), typeof(bool), typeof(AutoSuggestBoxBehavior),
+            new PropertyMetadata(false, OnIsReadOnlyChanged));
+
+    /// <summary>
+    /// Gets or sets the IsReadOnly property. This dependency property
+    /// indicates whether the AutoSuggestBox is in read-only mode.
+    /// </summary>
+    public bool IsReadOnly
+    {
+        get => (bool)GetValue(IsReadOnlyProperty);
+        set => SetValue(IsReadOnlyProperty, value);
+    }
+
+    /// <summary>
+    /// Handles changes to the IsReadOnly property.
+    /// </summary>
+    private static void OnIsReadOnlyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        AutoSuggestBoxBehavior target = (AutoSuggestBoxBehavior)d;
+        bool isReadOnly = (bool)e.NewValue;
+        target.ApplyReadOnlyState(isReadOnly);
+    }
+
+    /// <summary>
+    /// Applies the read-only state to the AutoSuggestBox and its template elements.
+    /// </summary>
+    private void ApplyReadOnlyState(bool isReadOnly)
+    {
+        if (AssociatedObject is null) return;
+
+        // Control hit testing and tab stop
+        AssociatedObject.IsHitTestVisible = !isReadOnly;
+        AssociatedObject.IsTabStop = !isReadOnly;
+
+        // Find and disable template elements using VisualTreeHelper
+        if (FindDescendantByName(AssociatedObject, "ContentElement") is ScrollViewer contentElement)
+        {
+            contentElement.IsHitTestVisible = !isReadOnly;
+        }
+
+        if (FindDescendantByName(AssociatedObject, "DeleteButton") is Button deleteButton)
+        {
+            deleteButton.IsEnabled = !isReadOnly;
+            deleteButton.Visibility = isReadOnly ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        if (FindDescendantByName(AssociatedObject, "QueryButton") is Button queryButton)
+        {
+            queryButton.IsEnabled = !isReadOnly;
+            queryButton.Visibility = isReadOnly ? Visibility.Collapsed : Visibility.Visible;
+        }
+    }
+
+    /// <summary>
+    /// Finds a descendant element by name using VisualTreeHelper.
+    /// </summary>
+    private static DependencyObject? FindDescendantByName(DependencyObject parent, string name)
+    {
+        int childCount = VisualTreeHelper.GetChildrenCount(parent);
+        for (int i = 0; i < childCount; i++)
+        {
+            var child = VisualTreeHelper.GetChild(parent, i);
+            if (child is FrameworkElement fe && fe.Name == name)
+            {
+                return child;
+            }
+
+            var result = FindDescendantByName(child, name);
+            if (result is not null)
+            {
+                return result;
+            }
+        }
+
+        return null;
+    }
+
+    #endregion IsReadOnly
+
     #region Text
 
     /// <summary>
@@ -90,6 +175,7 @@ public class AutoSuggestBoxBehavior : Behavior<AutoSuggestBox>
 
     #endregion SuggestionChosenCommand
 
+
     /// <inheritdoc />
     protected override void OnAttached()
     {
@@ -97,6 +183,12 @@ public class AutoSuggestBoxBehavior : Behavior<AutoSuggestBox>
         this.AssociatedObject.TextChanged += AssociatedObject_TextChanged;
         this.AssociatedObject.QuerySubmitted += AssociatedObject_QuerySubmitted;
         this.AssociatedObject.SuggestionChosen += AssociatedObject_SuggestionChosen;
+        this.AssociatedObject.Loaded += AssociatedObject_Loaded;
+    }
+
+    private void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
+    {
+        ApplyReadOnlyState(IsReadOnly);
     }
 
     /// <inheritdoc />
@@ -106,6 +198,7 @@ public class AutoSuggestBoxBehavior : Behavior<AutoSuggestBox>
         this.AssociatedObject.TextChanged -= AssociatedObject_TextChanged;
         this.AssociatedObject.QuerySubmitted -= AssociatedObject_QuerySubmitted;
         this.AssociatedObject.SuggestionChosen -= AssociatedObject_SuggestionChosen;
+        this.AssociatedObject.Loaded -= AssociatedObject_Loaded;
     }
 
     private void AssociatedObject_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
