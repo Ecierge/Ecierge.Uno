@@ -142,6 +142,7 @@
             </i:EventTriggerBehavior>
           </i:Interaction.Behaviors>
         </Button>
+        <Button AutomationProperties.AutomationId="PageContentControlButton" Command="{Binding GoToPageContentControl}" Content="Go to PageContentControl" />
         <Button Content="Navigate nested to Tab2">
           <i:Interaction.Behaviors>
             <i:EventTriggerBehavior EventName="Click">
