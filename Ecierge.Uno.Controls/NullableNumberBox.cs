@@ -135,14 +135,56 @@ public sealed partial class NullableNumberBox : Control
 
     /// <summary>
     /// Gets or sets the IsEnabled property. This dependency property
+    /// Note: Setting to true when IsReadOnly is true will be ignored.
     /// </summary>
     public bool IsEnabled
     {
         get => (bool)GetValue(IsEnabledProperty);
-        set => SetValue(IsEnabledProperty, value);
+        set
+        {
+            // Prevent enabling when IsReadOnly is true
+            if (value && IsReadOnly)
+                return;
+            SetValue(IsEnabledProperty, value);
+        }
     }
 
     #endregion IsEnabled
+
+    #region IsReadOnly
+
+    /// <summary>
+    /// IsReadOnly Dependency Property
+    /// </summary>
+    public static readonly DependencyProperty IsReadOnlyProperty =
+        DependencyProperty.Register(nameof(IsReadOnly), typeof(bool), typeof(NullableNumberBox),
+            new PropertyMetadata(false, OnIsReadOnlyChanged));
+
+    /// <summary>
+    /// Gets or sets the IsReadOnly property. This dependency property
+    /// indicates whether the NullableNumberBox is in read-only mode.
+    /// When set to true, IsEnabled is set to false and cannot be changed to true.
+    /// </summary>
+    public bool IsReadOnly
+    {
+        get => (bool)GetValue(IsReadOnlyProperty);
+        set => SetValue(IsReadOnlyProperty, value);
+    }
+
+    /// <summary>
+    /// Handles changes to the IsReadOnly property.
+    /// </summary>
+    private static void OnIsReadOnlyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        var target = (NullableNumberBox)d;
+        bool isReadOnly = (bool)e.NewValue;
+        if (isReadOnly)
+        {
+            target.IsEnabled = false;
+        }
+    }
+
+    #endregion IsReadOnly
 
     #region IsChecked
 
@@ -510,6 +552,20 @@ public sealed partial class NullableNumberBox : Control
         {
             Value = numberBox.Value;
             numberBox.ValueChanged += OnNumberBoxValueChanged;
+        }
+
+        // Apply IsReadOnly state
+        if (IsReadOnly)
+        {
+            IsEnabled = false;
+            if (checkBox is not null)
+            {
+                checkBox.IsEnabled = false;
+            }
+            if (numberBox is not null)
+            {
+                numberBox.IsEnabled = false;
+            }
         }
     }
 }
