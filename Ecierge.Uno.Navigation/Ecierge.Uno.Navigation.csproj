@@ -57,6 +57,8 @@
     <PackageReference Include="CommunityToolkit.WinUI.Behaviors" />
     <PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" />
     <PackageReference Include="morelinq" />
+    <PackageReference Include="R3" />
+    <PackageReference Include="R3Extensions.Uno" />
   </ItemGroup>
 
 </Project>

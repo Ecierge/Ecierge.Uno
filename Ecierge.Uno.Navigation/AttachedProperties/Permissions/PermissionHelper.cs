@@ -9,6 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
 
+using R3;
+
 /// <summary>
 /// Shared logic for permission-based attached properties that evaluate <see cref="IAuthorizationService"/>
 /// rules and apply a UI state change on the dispatcher queue.
@@ -38,18 +40,21 @@ internal static class PermissionHelper
     {
         if (d is not FrameworkElement element) return;
 
-        element.Loaded += OnElementLoaded;
-        TriggerUpdate(element); 
-        return;
-
-        void OnElementLoaded(object sender, RoutedEventArgs e)
+        if (element.IsLoaded)
         {
-            if (sender is FrameworkElement el)
-            {
-                el.Loaded -= OnElementLoaded; 
-                TriggerUpdate(el);
-            }
+            TriggerUpdate(element);
+            return;
         }
+
+        Observable
+            .FromEvent(
+                handler => element.Loaded += (s, e) => handler(),
+                handler => element.Loaded -= (s, e) => handler()
+            )
+            .Take(1)
+            .Subscribe(_ => TriggerUpdate(element));
+
+        return;
 
         void TriggerUpdate(FrameworkElement el)
         {
@@ -102,15 +107,7 @@ internal static class PermissionHelper
             applyState(element, false);
         }
 
-        Regions.NavigationRegion region;
-        try
-        {
-            region = Navigation.FindNavigationRegion(element);
-        }
-        catch (RootNavigationRegionMissingException)
-        {
-            return;
-        }
+        Regions.NavigationRegion region = Navigation.FindNavigationRegion(element);
 
         try
         {
