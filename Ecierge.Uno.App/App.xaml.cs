@@ -86,6 +86,8 @@ public partial class App : Application
                 )
                 .ConfigureServices((context, services) =>
                 {
+                    services.AddSingleton<IAuthorizationService, DemoAuthorizationService>();
+
                     // TODO: Register your services
                     //services.AddSingleton<IMyService, MyService>();
                 })
