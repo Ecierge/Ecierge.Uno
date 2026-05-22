@@ -427,6 +427,7 @@ public static class NavigatorExtensions
                         }
                         else
                             result = await currentNavigator.NavigateAsync(new PrimitiveDataSegmentNavigationRequest(initiator, dataSegmentInstance.DataSegment, dataSegmentInstance.Primitive, route));
+                            route = route with { Data = result.Request.Route.Data };
                         break;
                     case DialogSegmentInstance dialogSegmentInstance:
                         var parentSegment =

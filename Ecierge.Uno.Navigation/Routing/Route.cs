@@ -61,7 +61,18 @@ public record Route
                 })
         );
 
-    public bool IsSubRouteOf(Route route)
+    public bool StartsWithSegments (IReadOnlyList<string> segments) =>
+        Segments.Select(s =>
+            s switch
+            {
+                DialogSegmentInstance d => "!" + d.Segment.Name,
+                NameSegmentInstance n => n.Segment.Name,
+                DataSegmentInstance d => d.Segment.Name,
+                _ => null
+            })
+        .SequenceEqual(segments);
+
+public bool IsSubRouteOf(Route route)
     {
         if (Segments.Length > route.Segments.Length) return false;
         return Segments.Zip(route.Segments).All(pair => pair.First == pair.Second);

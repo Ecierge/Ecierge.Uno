@@ -48,6 +48,7 @@ public abstract class FactoryNavigator<TTarget> : Navigator<TTarget>
                         disposable.Dispose();
                     }
                 };
+                return new NavigationResult(result.Request ?? request, view);
             }
             else return result;
         }
