@@ -45,9 +45,10 @@ public record PrimitiveDataSegmentNavigationRequest(
     public override RouteSegment RouteSegment => Segment;
     internal override ViewMapBase? View => Segment.ParentNameSegment.ViewMap;
 
-    public TaskDataSegmentNavigationRequest WithDataEntity(Task routeDataTask)
+    public TaskDataSegmentNavigationRequest WithDataEntity(Task routeDataTask, INavigationData navigationData)
     {
-        return new TaskDataSegmentNavigationRequest(Sender, Segment, RouteDataPrimitive, routeDataTask, Route);
+        var route = Route with { Data = navigationData };
+        return new TaskDataSegmentNavigationRequest(Sender, Segment, RouteDataPrimitive, routeDataTask, route);
     }
 }
 

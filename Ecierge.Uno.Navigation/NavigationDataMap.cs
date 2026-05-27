@@ -90,7 +90,7 @@ public abstract class NavigationDataMap<TEntity> : INavigationDataMap
 
 #pragma warning disable CRR0030 // Redundant 'await'
     Task INavigationDataMap.LoadEntityAsync(INavigationData data, string name) => LoadEntityAsync(GetStringValue(data, name));
-    async Task INavigationDataMap.LoadEntityAsync(string primitive) => await LoadEntityAsync(primitive);
+    Task INavigationDataMap.LoadEntityAsync(string primitive) => LoadEntityAsync(primitive);
 #pragma warning restore CRR0030 // Redundant 'await'
 
     public abstract Task<TEntity> LoadEntityAsync(string primitive);
@@ -151,8 +151,9 @@ public abstract class NavigationDataMap<TEntity> : INavigationDataMap
                 case TEntity entity:
                     value = Task.FromResult(entity);
                     return true;
-                case Task<TEntity> task:
-                    value = task;
+
+                case Task task when task is Task<TEntity> typedTask:
+                    value = typedTask;
                     return true;
             }
         }

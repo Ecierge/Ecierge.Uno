@@ -178,7 +178,7 @@ public sealed class NavigationScope : IServiceScope, IAsyncDisposable
                     var dataMap = (INavigationDataMap)ServiceProvider.GetRequiredService(dataMapType);
                     var dataTask = dataMap.LoadEntityAsync(dataRequest.RouteDataPrimitive);
                     navData = AddOrUpdateValue(navData, dataRequest.Segment.Name, dataTask, dataMapType);
-                    request = dataRequest.WithDataEntity(dataTask);
+                    request = dataRequest.WithDataEntity(dataTask, navData);
                 }
                 else
                 {
