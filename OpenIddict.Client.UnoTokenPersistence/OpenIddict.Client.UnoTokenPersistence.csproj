@@ -9,7 +9,7 @@
       $(DotNetVersion)-desktop;
       $(DotNetVersion)-browserwasm
     </TargetFrameworks>
-    <TargetFrameworks Condition=" '$(OverrideTargetFramework)' != '' ">$(OverrideTargetFramework)</TargetFrameworks>
+    <TargetFrameworks Condition=" '$(UnoEffectiveTargetFrameworks)' != '' ">$(UnoEffectiveTargetFrameworks)</TargetFrameworks>
     <Platforms>AnyCPU;x64</Platforms>
 
     <UnoSingleProject>true</UnoSingleProject>

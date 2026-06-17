@@ -9,7 +9,7 @@
       $(DotNetVersion)-desktop;
       $(DotNetVersion)
     </TargetFrameworks>
-    <TargetFrameworks Condition=" '$(OverrideTargetFramework)' != '' ">$(OverrideTargetFramework)</TargetFrameworks>
+    <TargetFrameworks Condition=" '$(UnoEffectiveTargetFrameworks)' != '' ">$(UnoEffectiveTargetFrameworks)</TargetFrameworks>
     <Platforms>Any CPU;x64</Platforms>
 
     <OutputType>Exe</OutputType>

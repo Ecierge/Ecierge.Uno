@@ -11,6 +11,20 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <_IsLinux>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))</_IsLinux>
+    <_SolutionConfigPath>$([MSBuild]::GetPathOfFileAbove('solution-config.props', '$(MSBuildThisFileDirectory)'))</_SolutionConfigPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(_IsLinux)' == 'True' AND '$(_SolutionConfigPath)' == ''">
+    <UnoEffectiveTargetFrameworks>net10.0</UnoEffectiveTargetFrameworks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(_IsLinux)' != 'True' AND '$(OverrideTargetFramework)' != ''">
+    <UnoEffectiveTargetFrameworks>$(OverrideTargetFramework)</UnoEffectiveTargetFrameworks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(_IsLinux)' == 'True' AND '$(_SolutionConfigPath)' != '' AND '$(OverrideTargetFramework)' != ''">
+    <UnoEffectiveTargetFrameworks>$(OverrideTargetFramework)</UnoEffectiveTargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <EnableCoreMrtTooling Condition="'$(MSBuildRuntimeType)' == 'Core' AND '$(OutputType)' != 'WinExe' AND '$(OutputType)' != 'Exe'">true</EnableCoreMrtTooling>
     <UnoDisableHotDesign>true</UnoDisableHotDesign>
     <UnoDisableMCPSupport>true</UnoDisableMCPSupport>
