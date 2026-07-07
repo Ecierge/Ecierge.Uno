@@ -40,6 +40,19 @@
   <Target Name="AddPriPayloadFilesToCopyToOutputDirectoryItems" Condition="'$(MSBuildProjectName)' != 'Console.App'" />
 
   <!--
+    F# library projects contain no XAML or MRT resources.
+    GetMrtPackagingOutputs is called transitively by the WinUI head on every ProjectReference.
+  -->
+  <Target Name="GetMrtPackagingOutputs"
+          Condition="'$(MSBuildProjectExtension)'=='.fsproj'"
+          Returns="@(PackagingOutputs)" />
+
+  <!-- F# library projects declare no CopyToOutputDirectory content; skip transitive copy traversal -->
+  <PropertyGroup Condition="'$(MSBuildProjectExtension)'=='.fsproj' AND '$(OutputType)' == 'Library'">
+    <_GetChildProjectCopyToOutputDirectoryItems>false</_GetChildProjectCopyToOutputDirectoryItems>
+  </PropertyGroup>
+
+  <!--
     Workaround for WinAppSDK EMBEDFILES XBF path mismatch (https://github.com/microsoft/WindowsAppSDK/issues/6299):
     When VS builds with Platform=x64, OutputType is already WinExe at the point when
     Microsoft.Build.Msix.Pri.targets evaluates GenerateLibraryLayout — so it stays empty (not true).
@@ -55,5 +68,9 @@
   <PropertyGroup Condition="'$(IsWinAppSdk)' == 'true' AND '$(IsUnoHead)' == 'true'">
     <GenerateLibraryLayout>true</GenerateLibraryLayout>
   </PropertyGroup>
+
+  <!-- See root Directory.Build.targets: UnoImage.inputs never created for non-app-head projects -->
+  <Target Name="UnoResizetizeImages"
+          Condition="'$(OutputType)' == 'Library' OR ('$(UnoSingleProject)' != 'true' AND '$(SingleProject)' != 'true')" />
 
 </Project>
