@@ -189,6 +189,10 @@ public static class NavigationRegion
     /// <summary>
     /// NavigatorType Attached Dependency Property
     /// </summary>
+    // DependencyProperty.RegisterAttached with typeof(Type) causes IL2111 because Type.TypeInitializer has DAM annotations.
+    // This is a known trimmer false-positive for WinUI DependencyProperty registration.
+    [UnconditionalSuppressMessage("Trimming", "IL2111",
+        Justification = "DependencyProperty.RegisterAttached with typeof(Type) is a known IL2111 false-positive; the Type metadata itself is not accessed at runtime.")]
     public static readonly DependencyProperty NavigatorTypeProperty =
         DependencyProperty.RegisterAttached("NavigatorType", typeof(Type), typeof(NavigationRegion), new(null));
 
@@ -211,6 +215,10 @@ public static class NavigationRegion
     /// <summary>
     /// ItemSelectorType Attached Dependency Property
     /// </summary>
+    // DependencyProperty.RegisterAttached with typeof(Type) causes IL2111 because Type.TypeInitializer has DAM annotations.
+    // This is a known trimmer false-positive for WinUI DependencyProperty registration.
+    [UnconditionalSuppressMessage("Trimming", "IL2111",
+        Justification = "DependencyProperty.RegisterAttached with typeof(Type) is a known IL2111 false-positive; the Type metadata itself is not accessed at runtime.")]
     public static readonly DependencyProperty ItemSelectorTypeProperty =
         DependencyProperty.RegisterAttached("ItemSelectorType", typeof(Type), typeof(NavigationRegion), new((Type?)null));
 

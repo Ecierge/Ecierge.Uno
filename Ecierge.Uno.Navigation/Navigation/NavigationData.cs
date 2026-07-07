@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -111,12 +112,19 @@ public class NavigationData : INavigationData
 internal static class RouteExtensions
 {
     private static readonly Type taskType = typeof(Task);
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
     private static readonly Type genericTaskType = typeof(Task<>);
 
     /// <summary>
     /// Applies scoped instance services from the route's navigation data to the service provider.
     /// </summary>
     /// <param name="route">The route to apply scoped instance services from its navigation data.</param>
+    // Task<T>.MakeGenericType and Result property access are safe: Task<T> places no DAM constraints on T,
+    // and Result is a well-known property that is always preserved.
+    [UnconditionalSuppressMessage("Trimming", "IL2055",
+        Justification = "Task<T> imposes no DynamicallyAccessedMembers constraints on T.")]
+    [UnconditionalSuppressMessage("Trimming", "IL2070",
+        Justification = "Task<T>.Result is a well-known property that the trimmer preserves; genericTaskType field is annotated with PublicProperties.")]
     public static void ApplyScopedInstanceServices(this Routing.Route route, IServiceProvider serviceProvider)
     {
         var navigationData = route.Data;

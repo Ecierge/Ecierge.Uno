@@ -48,7 +48,7 @@ internal static class TypeExtensions
     /// <exception cref="InvalidOperationException">
     /// Thrown if the service provider does not implement <see cref="IKeyedServiceProvider"/> or if no suitable constructor is found.
     /// </exception>
-    public static TService CreateWithNavigationParameters<TService>([NotNull] IServiceProvider serviceProvider)
+    public static TService CreateWithNavigationParameters<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TService>([NotNull] IServiceProvider serviceProvider)
         where TService : class
     {
         var ksp = serviceProvider as IKeyedServiceProvider ?? throw new InvalidOperationException("Service provider must implement IKeyedServiceProvider to create instances with navigation parameters.");
@@ -68,7 +68,7 @@ internal static class TypeExtensions
     /// <exception cref="InvalidOperationException">
     /// Thrown if the service provider does not implement <see cref="IKeyedServiceProvider"/> or if no suitable constructor is found.
     /// </exception>
-    public static Func<IServiceProvider, object> GetFactoryWithNavigationParameters([NotNull] Type type) =>
+    public static Func<IServiceProvider, object> GetFactoryWithNavigationParameters([NotNull, DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type type) =>
         (sp) =>
         {
             var ksp = sp as IKeyedServiceProvider ?? throw new InvalidOperationException("Service provider must implement IKeyedServiceProvider to create instances with navigation parameters.");
@@ -79,7 +79,11 @@ internal static class TypeExtensions
             return constructor.Invoke(parameters);
         };
 
-    public static (ConstructorInfo Constructor, object?[] Parameters)? GetNavigationConstructor([NotNull] this Type type, IKeyedServiceProvider services)
+    [UnconditionalSuppressMessage("Trimming", "IL2072",
+        Justification = "Activator.CreateInstance is only called after IsValueType check; value types always have a public parameterless constructor.")]
+    public static (ConstructorInfo Constructor, object?[] Parameters)? GetNavigationConstructor(
+        [NotNull, DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] this Type type,
+        IKeyedServiceProvider services)
     {
         INavigationData navigationData = services.GetRequiredService<INavigationData>();
 
@@ -194,14 +198,28 @@ internal static class TypeExtensions
     {
         static MethodInfo castMethod = typeof(TaskConverter).GetMethod(nameof(Cast), BindingFlags.NonPublic | BindingFlags.Static)!;
 
+        [UnconditionalSuppressMessage("Trimming", "IL2060",
+            Justification = "Cast<T> only performs a cast; it never accesses any members of T through reflection.")]
         public static object Convert(Task<object> task, Type targetType)
         {
             MethodInfo genericCastMethod = castMethod.MakeGenericMethod(targetType);
             return genericCastMethod.Invoke(null, new object[] { task })!;
         }
 
+        [DynamicallyAccessedMembers(
+            DynamicallyAccessedMemberTypes.PublicParameterlessConstructor |
+            DynamicallyAccessedMemberTypes.PublicMethods |
+            DynamicallyAccessedMemberTypes.PublicProperties)]
         private static readonly Type TcsType = typeof(TaskCompletionSource<>);
 
+        [UnconditionalSuppressMessage("Trimming", "IL2055",
+            Justification = "TaskCompletionSource<T> imposes no DynamicallyAccessedMembers constraints on T; the closed generic type is always safe.")]
+        [UnconditionalSuppressMessage("Trimming", "IL2077",
+            Justification = "tcsType is the result of MakeGenericType on annotated TcsType field; parameterless constructor is preserved.")]
+        [UnconditionalSuppressMessage("Trimming", "IL2080",
+            Justification = "SetResult/SetException/SetCanceled/Task members of TaskCompletionSource<T> are preserved via DynamicallyAccessedMembers annotation on TcsType field.")]
+        [UnconditionalSuppressMessage("Trimming", "IL2075",
+            Justification = "originalTask is always a Task<T> at runtime; Task<T>.Result is a well-known property preserved by the runtime.")]
         public static Task Convert(Task originalTask, Type destinationType)
         {
             var originalTaskType = originalTask.GetType();

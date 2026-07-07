@@ -2,6 +2,7 @@ namespace Ecierge.Uno.Navigation;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,11 +12,15 @@ using Microsoft.Extensions.DependencyInjection;
 /// <param name="view">The type of the view.</param>
 /// <param name="viewModel">The type of the view model, if any.</param>
 /// <param name="additionalDependencies">A collection of additional dependency types.</param>
-public abstract class ViewMapBase(Type view, Type? viewModel, IEnumerable<Type> additionalDependencies)
+public abstract class ViewMapBase(
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type view,
+    Type? viewModel,
+    IEnumerable<Type> additionalDependencies)
 {
     /// <summary>
     /// Gets the type of the view associated with this map.
     /// </summary>
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
     public Type View { get; } = view;
     /// <summary>
     /// Gets the type of the view model associated with this map, if any.
@@ -45,6 +50,8 @@ public abstract class ViewMapBase(Type view, Type? viewModel, IEnumerable<Type> 
     /// </summary>
     /// <param name="services">The service collection to register view and view model types with.</param>
     /// <returns>An instance of <see cref="IServiceCollection"/> with the registered view and view model types.</returns>
+    [UnconditionalSuppressMessage("Trimming", "IL2072",
+        Justification = "additionalDependencies types are supplied by the caller and are expected to have public constructors preserved.")]
     public IServiceCollection Register(IServiceCollection services)
     {
         foreach (var dependency in additionalDependencies)
@@ -66,7 +73,7 @@ public abstract class ViewMapBase(Type view, Type? viewModel, IEnumerable<Type> 
 /// Represents a view map for a specific view type, optionally with a view model type and additional dependencies.
 /// </summary>
 /// <typeparam name="TView">View type to associate with this map.</typeparam>
-public class ViewMap<TView> : ViewMapBase
+public class ViewMap<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TView> : ViewMapBase
 {
     private ViewMap(IReadOnlyCollection<Type> dependencies) : base(typeof(TView), null, dependencies) { }
 
@@ -84,7 +91,7 @@ public class ViewMap<TView> : ViewMapBase
 /// </summary>
 /// <typeparam name="TView">View type to associate with this map.</typeparam>
 /// <typeparam name="TViewModel">View model type to associate with this map.</typeparam>
-public class ViewMap<TView, TViewModel> : ViewMapBase
+public class ViewMap<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TView, TViewModel> : ViewMapBase
 {
     private ViewMap(IReadOnlyCollection<Type> dependencies) : base(typeof(TView), typeof(TViewModel), dependencies) { }
 

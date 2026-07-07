@@ -5,6 +5,7 @@
  */
 
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -53,7 +54,7 @@ public sealed class OpenIddictUnoTokenPersistenceBuilder
     /// Configures OpenIddict to use the specified entity as the default token entity.
     /// </summary>
     /// <returns>The <see cref="OpenIddictUnoTokenPersistenceBuilder"/> instance.</returns>
-    public OpenIddictUnoTokenPersistenceBuilder ReplaceDefaultTokenEntity<TToken>()
+    public OpenIddictUnoTokenPersistenceBuilder ReplaceDefaultTokenEntity<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] TToken>()
         where TToken : OpenIddictUnoToken
     {
         Services.Replace(

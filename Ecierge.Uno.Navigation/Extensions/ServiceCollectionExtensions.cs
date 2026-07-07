@@ -160,7 +160,7 @@ public static class ServiceCollectionExtensions
     /// <typeparam name="TNavigator">The type of the navigator that will manage the control.</typeparam>
     /// <param name="services">The service collection to add the navigator to.</param>
     /// <returns>The updated service collection.</returns>
-    public static IServiceCollection AddNavigator<TControl, TNavigator>([NotNull] this IServiceCollection services)
+    public static IServiceCollection AddNavigator<TControl, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TNavigator>([NotNull] this IServiceCollection services)
         where TControl : Control
         where TNavigator : Navigator
      =>
@@ -176,7 +176,7 @@ public static class ServiceCollectionExtensions
     /// <typeparam name="TService">The type of the service to add.</typeparam>
     /// <param name="services">The service collection to add the service to.</param>
     /// <returns>The updated service collection.</returns>
-    public static IServiceCollection AddScopedWithNavigationParameters<TService>(this IServiceCollection services)
+    public static IServiceCollection AddScopedWithNavigationParameters<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TService>(this IServiceCollection services)
         where TService : class
      =>
         services.AddScoped<TService>(TypeExtensions.CreateWithNavigationParameters<TService>);
@@ -188,7 +188,7 @@ public static class ServiceCollectionExtensions
     /// <typeparam name="TImplementation">The type of the implementation to add.</typeparam>
     /// <param name="services">The service collection to add the service to.</param>
     /// <returns>The updated service collection.</returns>
-    public static IServiceCollection AddScopedWithNavigationParameters<TService, TImplementation>(this IServiceCollection services)
+    public static IServiceCollection AddScopedWithNavigationParameters<TService, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TImplementation>(this IServiceCollection services)
         where TService : class
         where TImplementation : class, TService
      =>
@@ -200,7 +200,7 @@ public static class ServiceCollectionExtensions
     /// <param name="services">The service collection to add the service to.</param>
     /// <param name="serviceType">The type of the service to add.</param>
     /// <returns>The updated service collection.</returns>
-    public static IServiceCollection AddScopedWithNavigationParameters(this IServiceCollection services, Type serviceType)
+    public static IServiceCollection AddScopedWithNavigationParameters(this IServiceCollection services, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type serviceType)
      =>
         services.AddScoped(serviceType, TypeExtensions.GetFactoryWithNavigationParameters(serviceType));
 
@@ -211,7 +211,7 @@ public static class ServiceCollectionExtensions
     /// <param name="serviceType">The type of the service to add.</param>
     /// <param name="implementationType">The type of the implementation to add.</param>
     /// <returns>The updated service collection.</returns>
-    public static IServiceCollection AddScopedWithNavigationParameters(this IServiceCollection services, Type serviceType, Type implementationType) =>
+    public static IServiceCollection AddScopedWithNavigationParameters(this IServiceCollection services, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type serviceType, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type implementationType) =>
         services.AddScoped(serviceType, TypeExtensions.GetFactoryWithNavigationParameters(implementationType));
 
     #endregion Add scoped with navigation parameters
@@ -224,7 +224,7 @@ public static class ServiceCollectionExtensions
     /// <typeparam name="TService">The type of the service to add.</typeparam>
     /// <param name="services">The service collection to add the service to.</param>
     /// <returns>The updated service collection.</returns>
-    public static IServiceCollection AddTransientWithNavigationParameters<TService>(this IServiceCollection services)
+    public static IServiceCollection AddTransientWithNavigationParameters<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TService>(this IServiceCollection services)
         where TService : class
      =>
         services.AddTransient<TService>(TypeExtensions.CreateWithNavigationParameters<TService>);
@@ -236,7 +236,7 @@ public static class ServiceCollectionExtensions
     /// <typeparam name="TImplementation">The type of the implementation to add.</typeparam>
     /// <param name="services">The service collection to add the service to.</param>
     /// <returns>The updated service collection.</returns>
-    public static IServiceCollection AddTransientWithNavigationParameters<TService, TImplementation>(this IServiceCollection services)
+    public static IServiceCollection AddTransientWithNavigationParameters<TService, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TImplementation>(this IServiceCollection services)
         where TService : class
         where TImplementation : class, TService
      =>
@@ -248,7 +248,7 @@ public static class ServiceCollectionExtensions
     /// <param name="services">The service collection to add the service to.</param>
     /// <param name="serviceType">The type of the service to add.</param>
     /// <returns>The updated service collection.</returns>
-    public static IServiceCollection AddTransientWithNavigationParameters(this IServiceCollection services, Type serviceType)
+    public static IServiceCollection AddTransientWithNavigationParameters(this IServiceCollection services, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type serviceType)
      =>
         services.AddTransient(serviceType, TypeExtensions.GetFactoryWithNavigationParameters(serviceType));
 
@@ -259,7 +259,7 @@ public static class ServiceCollectionExtensions
     /// <param name="serviceType">The type of the service to add.</param>
     /// <param name="implementationType">The type of the implementation to add.</param>
     /// <returns>The updated service collection.</returns>
-    public static IServiceCollection AddTransientWithNavigationParameters(this IServiceCollection services, Type serviceType, Type implementationType)
+    public static IServiceCollection AddTransientWithNavigationParameters(this IServiceCollection services, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type serviceType, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type implementationType)
      =>
         services.AddTransient(serviceType, TypeExtensions.GetFactoryWithNavigationParameters(implementationType));
 

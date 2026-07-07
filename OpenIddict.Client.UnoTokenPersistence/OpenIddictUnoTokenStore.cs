@@ -2,6 +2,7 @@ namespace OpenIddict.Client.UnoTokenPersistence;
 
 using System.Collections.Immutable;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 
@@ -12,7 +13,7 @@ using Microsoft.Extensions.Options;
 /// Provides methods allowing to manage the tokens stored in a <see cref="IKeyValueStorage"/>.
 /// </summary>
 /// <typeparam name="TToken">The type of the Token entity.</typeparam>
-public class OpenIddictUnoTokenStore<TToken> : IOpenIddictTokenStore<TToken>
+public class OpenIddictUnoTokenStore<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] TToken> : IOpenIddictTokenStore<TToken>
     where TToken : OpenIddictUnoToken
 {
     public OpenIddictUnoTokenStore(
@@ -54,6 +55,10 @@ public class OpenIddictUnoTokenStore<TToken> : IOpenIddictTokenStore<TToken>
     }
 
     /// <inheritdoc/>
+    [UnconditionalSuppressMessage(
+        "Trimming",
+        "IL2026",
+        Justification = "OpenIddict store contract requires IQueryable-based query delegates for in-memory token projections.")]
     public virtual async ValueTask<long> CountAsync<TResult>(
         Func<IQueryable<TToken>, IQueryable<TResult>> query, CancellationToken cancellationToken)
     {
@@ -65,8 +70,8 @@ public class OpenIddictUnoTokenStore<TToken> : IOpenIddictTokenStore<TToken>
         var keys = await KeyValueStorage.GetKeysAsync(cancellationToken);
         var tokens = await
             Task.WhenAll(keys.Where(TokenPrefixPredicate).Select(key => KeyValueStorage.GetAsync<TToken>(key, cancellationToken).AsTask()));
-        var querable = tokens.Where(token => token is not null).Select(token => token!).AsQueryable();
-        return query(querable).LongCount();
+        var queryable = new EnumerableQuery<TToken>(tokens.Where(token => token is not null).Select(token => token!));
+        return query(queryable).LongCount();
     }
 
     /// <inheritdoc/>
@@ -318,6 +323,10 @@ public class OpenIddictUnoTokenStore<TToken> : IOpenIddictTokenStore<TToken>
     }
 
     /// <inheritdoc/>
+    [UnconditionalSuppressMessage(
+        "Trimming",
+        "IL2026",
+        Justification = "OpenIddict query delegate requires IQueryable input by design.")]
     public virtual async ValueTask<TResult?> GetAsync<TState, TResult>(
         Func<IQueryable<TToken>, TState, IQueryable<TResult>> query,
         TState state, CancellationToken cancellationToken)
@@ -535,6 +544,10 @@ public class OpenIddictUnoTokenStore<TToken> : IOpenIddictTokenStore<TToken>
     }
 
     /// <inheritdoc/>
+    [UnconditionalSuppressMessage(
+        "Trimming",
+        "IL2026",
+        Justification = "OpenIddict list delegate requires IQueryable input by design.")]
     public virtual IAsyncEnumerable<TResult> ListAsync<TState, TResult>(
         Func<IQueryable<TToken>, TState, IQueryable<TResult>> query,
         TState state, CancellationToken cancellationToken)

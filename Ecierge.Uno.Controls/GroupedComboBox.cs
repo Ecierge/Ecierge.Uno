@@ -145,8 +145,12 @@ public partial class GroupedComboBox : ListView
         textBox.GotFocus -= TextBox_GotFocus;
         textBox.GotFocus += TextBox_GotFocus;
 
-        popup.XamlRoot.Content!.PointerPressed -= Content_PointerPressed;
-        popup.XamlRoot.Content!.PointerPressed += Content_PointerPressed;
+        var xamlRootContent = popup.XamlRoot?.Content;
+        if (xamlRootContent is not null)
+        {
+            xamlRootContent.PointerPressed -= Content_PointerPressed;
+            xamlRootContent.PointerPressed += Content_PointerPressed;
+        }
 
         FocusManager.GotFocus -= FocusManager_GotFocus;
         FocusManager.GotFocus += FocusManager_GotFocus;

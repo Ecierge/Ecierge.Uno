@@ -1,6 +1,7 @@
 #pragma warning disable IDE0022 // Use expression body for method
 namespace Ecierge.Uno;
 
+using System.Diagnostics.CodeAnalysis;
 using Ecierge.Uno.Navigation;
 
 using global::Uno.Extensions;
@@ -49,6 +50,10 @@ public static class HostBuilderExtensions
     /// <param name="configure">Callback to adjust navigation configuration (default should be to use appsettings.json)</param>
     /// <param name="configureServices">Callback to register other services related to navigation</param>
     /// <returns>The host builder</returns>
+    [UnconditionalSuppressMessage(
+        "Trimming",
+        "IL2026",
+        Justification = "Navigation options binding uses Uno configuration Section<T> which is trim-annotated.")]
     public static IHostBuilder UseNavigation(
         this IHostBuilder hostBuilder,
         Action<IViewRegistryBuilder, INavigationDataRegistryBuilder, IRouteRegistryBuilder>? viewRouteBuilder = null,

@@ -59,7 +59,7 @@ public class NavigationDataRegistry(IReadOnlyDictionary<Type, Type> entityMap) :
 public interface INavigationDataRegistryBuilder
 {
     IReadOnlyDictionary<Type, Type> EntityMap { get; }
-    INavigationDataRegistryBuilder Register<T>() where T : class, INavigationDataMap;
+    INavigationDataRegistryBuilder Register<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] T>() where T : class, INavigationDataMap;
     public INavigationDataRegistry Build();
 }
 
@@ -74,7 +74,7 @@ public class NavigationDataRegistryBuilder : INavigationDataRegistryBuilder
         this.services = services ?? throw new ArgumentNullException(nameof(services));
     }
 
-    public INavigationDataRegistryBuilder Register<T>() where T : class, INavigationDataMap
+    public INavigationDataRegistryBuilder Register<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] T>() where T : class, INavigationDataMap
     {
         services.AddSingleton<T>();
         services.AddInheritedScopedInstance(T.EntityType);
