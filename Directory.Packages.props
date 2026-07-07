@@ -14,8 +14,8 @@
     <PackageVersion Include="CommunityToolkit.WinUI.Triggers" Version="8.2.251219" />
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
     <PackageVersion Include="FluentAssertions" Version="8.8.0" />
-    <PackageVersion Include="FSharp.Core" Version="10.0.100" />
-    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="10.0.5" />
+    <PackageVersion Include="FSharp.Core" Version="10.1.301" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="10.0.9" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
     <PackageVersion Include="morelinq" Version="4.4.0" />
     <PackageVersion Include="NUnit" Version="4.4.0" />
