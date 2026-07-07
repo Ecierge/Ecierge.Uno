@@ -10,7 +10,7 @@
     <PackageVersion Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.2.251219" />
     <PackageVersion Include="CommunityToolkit.WinUI.Controls.TokenizingTextBox" Version="8.2.251219" />
     <PackageVersion Include="CommunityToolkit.WinUI.Converters" Version="8.2.251219" />
-    <PackageVersion Include="CommunityToolkit.WinUI.DeveloperTools" Version="8.2.250402" />
+    <PackageVersion Include="CommunityToolkit.WinUI.DeveloperTools" Version="8.2.251219" />
     <PackageVersion Include="CommunityToolkit.WinUI.Triggers" Version="8.2.251219" />
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
     <PackageVersion Include="FluentAssertions" Version="8.8.0" />
