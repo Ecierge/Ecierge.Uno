@@ -38,6 +38,7 @@
     -->
 
     <UnoFeatures>
+      SkiaRenderer;
       Storage;
     </UnoFeatures>
 

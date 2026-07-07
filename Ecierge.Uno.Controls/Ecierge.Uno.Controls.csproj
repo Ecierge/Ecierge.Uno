@@ -39,6 +39,7 @@
       Configuration;
       Localization;
       Logging;
+      SkiaRenderer;
       Storage;
       Toolkit;
     </UnoFeatures>
