@@ -1,3 +1,5 @@
+using CommunityToolkit.WinUI.Controls;
+
 using Microsoft.UI.Xaml.Controls.Primitives;
 
 namespace Ecierge.Uno.Controls;
@@ -10,7 +12,7 @@ namespace Ecierge.Uno.Controls;
 [TemplatePart(Name = HeaderContent, Type = typeof(FrameworkElement))]
 [TemplatePart(Name = FooterContent, Type = typeof(FrameworkElement))]
 
-public sealed partial class PageContentControl : Control
+public sealed partial class PageContentControl : HeaderedContentControl
 {
     #region TemplatePartNames
 
@@ -170,7 +172,7 @@ public sealed partial class PageContentControl : Control
     }
 
     /// <summary>
-    /// Gets or sets the  Footer property. This dependency property
+    /// Gets or sets the Footer property. This dependency property
     /// </summary>
     public static readonly DependencyProperty FooterProperty =
         DependencyProperty.Register(nameof(Footer), typeof(object), typeof(PageContentControl), new PropertyMetadata(null));
