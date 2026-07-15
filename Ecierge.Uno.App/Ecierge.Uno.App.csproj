@@ -60,6 +60,10 @@
     <WasmShellLoadAllSatelliteResources>true</WasmShellLoadAllSatelliteResources>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(TargetFramework)'=='$(DotNetVersion)-browserwasm'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)'=='Debug' or '$(IsUiAutomationMappingEnabled)'=='True'">
     <IsUiAutomationMappingEnabled>True</IsUiAutomationMappingEnabled>
     <DefineConstants>$(DefineConstants);USE_UITESTS</DefineConstants>
