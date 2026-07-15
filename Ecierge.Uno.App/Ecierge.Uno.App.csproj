@@ -64,6 +64,17 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
 
+  <PropertyGroup Condition="$(TargetFramework.Contains('windows10'))">
+    <!-- Workaround: Uno SDK temporarily sets OutputType=Library for WinAppSdk single-project builds,
+         causing _UnoResizetizerIsWindowsAppSdk=False at PropertyGroup evaluation time.
+         This prevents resizetizer Windows PropertyGroup from setting UnoResizetizeBeforeTargets,
+         so UnoResizetizeImages has no BeforeTargets hook and never runs.
+         UnoResizetizeDependsOnTargets is NOT needed here — resizetizer sets it via the
+         _UnoResizetizerIsCompatibleApp PropertyGroup (triggered by _UnoResizetizerIsSkiaApp=True). -->
+    <UseWinUITools>true</UseWinUITools>
+    <UnoResizetizeBeforeTargets>UnoAssetsGeneration;$(UnoResizetizeBeforeTargets);AssignTargetPaths</UnoResizetizeBeforeTargets>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)'=='Debug' or '$(IsUiAutomationMappingEnabled)'=='True'">
     <IsUiAutomationMappingEnabled>True</IsUiAutomationMappingEnabled>
     <DefineConstants>$(DefineConstants);USE_UITESTS</DefineConstants>

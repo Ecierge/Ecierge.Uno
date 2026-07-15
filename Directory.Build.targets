@@ -69,8 +69,15 @@
     <GenerateLibraryLayout>true</GenerateLibraryLayout>
   </PropertyGroup>
 
-  <!-- See root Directory.Build.targets: UnoImage.inputs never created for non-app-head projects -->
-  <Target Name="UnoResizetizeImages"
-          Condition="'$(OutputType)' == 'Library' OR ('$(UnoSingleProject)' != 'true' AND '$(SingleProject)' != 'true')" />
+  <!-- See root Directory.Build.targets: UnoImage.inputs never created for non-app-head projects.
+       IMPORTANT: Uno SDK temporarily sets OutputType=Library for WinAppSdk single-project builds,
+       so we cannot use Condition on the Target element (it only affects execution, not override;
+       Directory.Build.targets always wins the override race).
+       Solution: use a property to skip resizetizer work for true library projects, checked inside
+       the resizetizer via DisableUnoResizetizer. For app heads (UnoSingleProject=true), resizetizer
+       must run so that splash/icon PNGs are generated and copied to the final Windows package. -->
+  <PropertyGroup Condition="'$(_ImplicitRestoreOutputType)' == 'Library' AND '$(UnoSingleProject)' != 'true' AND '$(SingleProject)' != 'true'">
+    <DisableUnoResizetizer>true</DisableUnoResizetizer>
+  </PropertyGroup>
 
 </Project>
