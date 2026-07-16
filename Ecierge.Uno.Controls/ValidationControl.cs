@@ -198,9 +198,13 @@ public sealed partial class ValidationControl : ContentControl
             var errors = currentINotifyDataErrorInfo.GetErrors(propertyName);
             if (Errors == errors) return;
 
-            if (errors?.GetType().GetGenericTypeDefinition() == ObservableCollectionType)
+            //if (errors?.GetType().GetGenericTypeDefinition() == ObservableCollectionType)
+            var errrosType = errors?.GetType();
+            if (errrosType is not null
+                && errrosType.IsGenericType
+                && errrosType.GetGenericTypeDefinition() == ObservableCollectionType)
             {
-                Errors = errors;
+                Errors = errors!;
             }
             else
             {
