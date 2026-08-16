@@ -431,12 +431,12 @@ public class OpenIddictUnoTokenStore<[DynamicallyAccessedMembers(DynamicallyAcce
             throw new ArgumentNullException(nameof(token));
         }
 
-        if (token.Properties is null)
+        if (token.Properties is not { Count: > 0 })
         {
             return new(ImmutableDictionary.Create<string, JsonElement>());
         }
 
-        return ValueTask.FromResult(token.Properties);
+        return new(token.Properties.ToImmutableDictionary(StringComparer.Ordinal));
     }
 
     /// <inheritdoc/>
@@ -682,7 +682,10 @@ public class OpenIddictUnoTokenStore<[DynamicallyAccessedMembers(DynamicallyAcce
             throw new ArgumentNullException(nameof(token));
         }
 
-        token.Properties = properties;
+        // Entity storage uses IDictionary + [JsonExtensionData]; OpenIddict API is ImmutableDictionary.
+        token.Properties = properties is { Count: > 0 }
+            ? new Dictionary<string, JsonElement>(properties, StringComparer.Ordinal)
+            : null;
 
         return default;
     }

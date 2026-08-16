@@ -12,6 +12,10 @@ namespace OpenIddict.Client.UnoTokenPersistence;
 /// is disabled (see <c>IHostBuilder.UseSerialization</c>). Register
 /// <see cref="OpenIddictUnoTokenJsonContext.Default"/> with the host's <c>IServiceCollection.AddJsonTypeInfo()</c>.
 /// </remarks>
+[JsonSourceGenerationOptions(
+    PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
+    PropertyNameCaseInsensitive = true,
+    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 [JsonSerializable(typeof(OpenIddictUnoToken))]
 public partial class OpenIddictUnoTokenJsonContext : JsonSerializerContext
 {

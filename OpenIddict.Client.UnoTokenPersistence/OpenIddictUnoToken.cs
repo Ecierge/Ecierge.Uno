@@ -4,9 +4,7 @@
  * the license and the contributors participating to this project.
  */
 
-using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -59,8 +57,14 @@ public partial class OpenIddictUnoToken
     /// <summary>
     /// Gets or sets the additional properties associated with the current token.
     /// </summary>
+    /// <remarks>
+    /// Stored as STJ extension data (<see cref="IDictionary{TKey, TValue}"/> of
+    /// <see cref="JsonElement"/>). <see cref="System.Collections.Immutable.ImmutableDictionary{TKey, TValue}"/>
+    /// is not a valid extension-data type. OpenIddict store maps this bag to/from
+    /// <c>ImmutableDictionary&lt;string, JsonElement&gt;</c>.
+    /// </remarks>
     [JsonExtensionData]
-    public virtual ImmutableDictionary<string, JsonElement>? Properties { get; set; }
+    public virtual IDictionary<string, JsonElement>? Properties { get; set; }
 
     /// <summary>
     /// Gets or sets the UTC redemption date of the current token.
