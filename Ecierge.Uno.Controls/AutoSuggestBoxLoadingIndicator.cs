@@ -46,7 +46,14 @@ public static class AutoSuggestBoxLoadingIndicator
     DependencyObject d,
     DependencyPropertyChangedEventArgs e)
     {
-        if (d is AutoSuggestBox box)
+        // ProgressRing is a FrameworkElement too, so it has to be matched before the general case.
+        if (d is ProgressRing ownRing)
+        {
+            ownRing.IsActive = (bool)e.NewValue;
+        }
+        // Any control whose template carries the loading text box style works here, not only
+        // AutoSuggestBox — TokenizingTextBox hosts one internally.
+        else if (d is FrameworkElement box)
         {
             var ring = GetCachedRing(box);
 
@@ -60,10 +67,6 @@ public static class AutoSuggestBoxLoadingIndicator
 
             if (ring is not null)
                 SetIsActive(ring, (bool)e.NewValue);
-        }
-        else if (d is ProgressRing ring)
-        {
-            ring.IsActive = (bool)e.NewValue;
         }
     }
 }
