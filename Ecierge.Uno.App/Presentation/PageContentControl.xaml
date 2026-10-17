@@ -11,7 +11,9 @@
   <Grid utu:SafeArea.Insets="VisibleBounds">
 
       <ctrl:PageContentControl TopBorderHeight="0">
-        <ctrl:PageContentControl.Title>
+
+      <!--example with data-->
+      <ctrl:PageContentControl.Title>
           <TextBlock Text="Items Page" FontSize="20" FontWeight="Bold" Padding="8"/>
         </ctrl:PageContentControl.Title>
 
@@ -28,14 +30,25 @@
           </CommandBar>
         </ctrl:PageContentControl.Header>
 
-        <ctrl:PageContentControl.Footer>
+       <ctrl:PageContentControl.Footer>
           <CommandBar  VerticalAlignment="Center" Background="Transparent">
           <AppBarButton Icon="Save" />
           <AppBarButton Icon="Delete" />
         </CommandBar>
         </ctrl:PageContentControl.Footer>
 
-        <ctrl:PageContentControl.Content>
+      <!--must be used empty if data is missing.-->
+      <!--<ctrl:PageContentControl.Title>
+        <Border />
+      </ctrl:PageContentControl.Title>
+        <ctrl:PageContentControl.Header>
+          <Border />
+        </ctrl:PageContentControl.Header>
+       <ctrl:PageContentControl.Footer>
+        <Border />
+      </ctrl:PageContentControl.Footer>-->
+
+      <ctrl:PageContentControl.Content>
           <StackPanel Background="Orange">
           <ItemsControl>
             <TextBlock Foreground="White">Some element or some content 1</TextBlock>
