@@ -80,4 +80,13 @@
     <DisableUnoResizetizer>true</DisableUnoResizetizer>
   </PropertyGroup>
 
+  <!--
+    The .NET SDK knows the Windows SDK platform versions only up to 10.0.26100, and it rejects a target framework
+    with a newer one (NETSDK1140). The projection package of 10.0.28000 exists (WindowsSdkPackageVersion in
+    Directory.Build.props), so that platform version is added to the list the SDK validates against.
+  -->
+  <ItemGroup Condition="$(TargetFramework.Contains('-windows'))">
+    <SdkSupportedTargetPlatformVersion Include="10.0.28000.0" />
+  </ItemGroup>
+
 </Project>

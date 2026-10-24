@@ -21,7 +21,7 @@
   <PropertyGroup>
     <!-- Uncomment each line for each platform that you want to build: -->
 
-    <!-- <OverrideTargetFramework Condition="''!='hint: Windows App Sdk (WinUI)'">$(DotNetVersion)-windows10.0.26100</OverrideTargetFramework> -->
+    <!-- <OverrideTargetFramework Condition="''!='hint: Windows App Sdk (WinUI)'">$(DotNetVersion)-windows10.0.28000</OverrideTargetFramework> -->
     <!-- <OverrideTargetFramework Condition="''!='hint: Webassembly' AND '$(MSBuildProjectExtension)'=='.csproj'">$(DotNetVersion)-browserwasm</OverrideTargetFramework> -->
     <!-- <OverrideTargetFramework Condition="''!='hint: Webassembly' AND '$(MSBuildProjectExtension)'=='.fsproj'">$(DotNetVersion)</OverrideTargetFramework> -->
     <!-- <OverrideTargetFramework Condition="''!='hint: Desktop'">$(DotNetVersion)-desktop</OverrideTargetFramework> -->
