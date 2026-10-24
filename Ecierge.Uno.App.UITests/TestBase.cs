@@ -3,7 +3,8 @@ using System.IO;
 
 namespace Ecierge.Uno.App.UITests;
 
-public class TestBase
+[TestClass]
+public abstract class TestBase
 {
     private IApp? _app;
 
@@ -26,6 +27,11 @@ public class TestBase
         AppInitializer.ColdStartApp();
     }
 
+    /// <summary>
+    /// The context of the running test. MSTest sets it before every test.
+    /// </summary>
+    public TestContext TestContext { get; set; } = null!;
+
     protected IApp App
     {
         get => _app!;
@@ -36,13 +42,13 @@ public class TestBase
         }
     }
 
-    [SetUp]
+    [TestInitialize]
     public void SetUpTest()
     {
         App = AppInitializer.AttachToApp();
     }
 
-    [TearDown]
+    [TestCleanup]
     public void TearDownTest()
     {
         TakeScreenshot("teardown");
@@ -50,7 +56,7 @@ public class TestBase
 
     public FileInfo TakeScreenshot(string stepName)
     {
-        var title = $"{TestContext.CurrentContext.Test.Name}_{stepName}"
+        var title = $"{TestContext.TestName}_{stepName}"
             .Replace(" ", "_")
             .Replace(".", "_");
 
@@ -69,13 +75,13 @@ public class TestBase
 
             File.Move(fileInfo.FullName, destFileName);
 
-            TestContext.AddTestAttachment(destFileName, stepName);
+            TestContext.AddResultFile(destFileName);
 
             fileInfo = new FileInfo(destFileName);
         }
         else
         {
-            TestContext.AddTestAttachment(fileInfo.FullName, stepName);
+            TestContext.AddResultFile(fileInfo.FullName);
         }
 
         return fileInfo;
