@@ -2,9 +2,10 @@ namespace Ecierge.Uno.App.UITests;
 
 using System.Threading.Tasks;
 
+[TestClass]
 public class Given_MainPage : TestBase
 {
-    [Test]
+    [TestMethod]
     public async Task When_SmokeTest()
     {
         // NOTICE
