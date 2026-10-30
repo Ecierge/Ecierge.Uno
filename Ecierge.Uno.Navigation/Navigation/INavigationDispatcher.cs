@@ -88,6 +88,8 @@ internal sealed class DispatcherQueueNavigationDispatcher : INavigationDispatche
 {
     private readonly DispatcherQueue queue;
 
+    /// <summary>Creates the dispatcher of a queue.</summary>
+    /// <exception cref="ArgumentNullException"><paramref name="queue"/> is <see langword="null"/>.</exception>
     public DispatcherQueueNavigationDispatcher(DispatcherQueue queue)
         => this.queue = queue ?? throw new ArgumentNullException(nameof(queue));
 

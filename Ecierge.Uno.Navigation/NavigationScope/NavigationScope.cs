@@ -52,6 +52,10 @@ public sealed class NavigationScope : IServiceScope, IAsyncDisposable
     /// <param name="window">The window that the navigation is in.</param>
     /// <param name="segment">The root segment of the routes.</param>
     /// <param name="element">The control of the root region.</param>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="serviceScope"/>, <paramref name="window"/>, <paramref name="segment"/> or
+    /// <paramref name="element"/> is <see langword="null"/>.
+    /// </exception>
     public NavigationScope(IServiceScope serviceScope, Window window, NameSegment segment, FrameworkElement element)
         : this(
             serviceScope,
@@ -65,6 +69,10 @@ public sealed class NavigationScope : IServiceScope, IAsyncDisposable
     {
     }
 
+    /// <summary>Creates the scope of a region.</summary>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="serviceScope"/> or <paramref name="segment"/> is <see langword="null"/>.
+    /// </exception>
     private NavigationScope(
         IServiceScope serviceScope,
         NameSegment segment,
@@ -132,6 +140,13 @@ public sealed class NavigationScope : IServiceScope, IAsyncDisposable
         }
     }
 
+    /// <summary>
+    /// Creates the navigator of the region: the one that the control asks for, or else the one that is registered for
+    /// the type of the control, or the one of the given type.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// Neither a control nor a navigator type is given, or no navigator is registered for the type of the control.
+    /// </exception>
     private Navigator CreateNavigator(FrameworkElement? element, Type? navigatorType)
     {
         if (navigatorType is null)
@@ -161,6 +176,10 @@ public sealed class NavigationScope : IServiceScope, IAsyncDisposable
     /// <param name="segment">The root segment of the routes.</param>
     /// <param name="navigatorType">The type of the navigator of the root region.</param>
     /// <returns>The scope of the root region.</returns>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="serviceScope"/>, <paramref name="dispatcher"/>, <paramref name="segment"/> or
+    /// <paramref name="navigatorType"/> is <see langword="null"/>.
+    /// </exception>
     internal static NavigationScope CreateRoot(
         IServiceScope serviceScope,
         INavigationDispatcher dispatcher,
@@ -205,6 +224,10 @@ public sealed class NavigationScope : IServiceScope, IAsyncDisposable
     /// <param name="element">The control of the new region.</param>
     /// <param name="boundary">The control that bounds the search of the regions inside the new region.</param>
     /// <returns>The scope of the new region.</returns>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="parentNavigator"/>, <paramref name="segment"/> or <paramref name="element"/> is
+    /// <see langword="null"/>.
+    /// </exception>
     public NavigationScope CreateScope(Navigator parentNavigator, NameSegment segment, FrameworkElement element, FrameworkElement? boundary)
     {
         parentNavigator = parentNavigator ?? throw new ArgumentNullException(nameof(parentNavigator));
@@ -228,6 +251,10 @@ public sealed class NavigationScope : IServiceScope, IAsyncDisposable
     /// <param name="segment">The segment that the new region shows the content of.</param>
     /// <param name="navigatorType">The type of the navigator of the new region.</param>
     /// <returns>The scope of the new region.</returns>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="parentNavigator"/>, <paramref name="segment"/> or <paramref name="navigatorType"/> is
+    /// <see langword="null"/>.
+    /// </exception>
     internal NavigationScope CreateScope(Navigator parentNavigator, NameSegment segment, Type navigatorType)
     {
         parentNavigator = parentNavigator ?? throw new ArgumentNullException(nameof(parentNavigator));
@@ -249,6 +276,12 @@ public sealed class NavigationScope : IServiceScope, IAsyncDisposable
     /// <param name="segment">The segment of the dialog.</param>
     /// <param name="parentNavigator">The navigator that the dialog is requested through.</param>
     /// <returns>The scope of the dialog, which has no control until the dialog is shown.</returns>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="segment"/> or <paramref name="parentNavigator"/> is <see langword="null"/>.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// The dialog segment has no view, or no navigator is registered for its view.
+    /// </exception>
     public NavigationScope CreateDialogScope(DialogSegment segment, Navigator parentNavigator)
     {
         segment = segment ?? throw new ArgumentNullException(nameof(segment));
@@ -286,6 +319,7 @@ public sealed class NavigationScope : IServiceScope, IAsyncDisposable
     /// <param name="request">The request that is navigated.</param>
     /// <param name="navigationData">The data that the route of the request carries.</param>
     /// <returns>The result with the view model, or the errors if it could not be created.</returns>
+    /// <exception cref="InvalidOperationException">The segment of the request has no view model.</exception>
     public NavigationResult CreateViewModel(NavigationRequest request, INavigationData? navigationData)
     {
         var navData = navigationData ?? NavigationData.Empty;

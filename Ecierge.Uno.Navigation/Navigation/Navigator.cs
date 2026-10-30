@@ -28,6 +28,9 @@ public abstract class Navigator
     /// </summary>
     /// <param name="serviceProvider">The services of the scope of the region.</param>
     /// <exception cref="InvalidOperationException">The services have no region, so the navigator was not created by a scope.</exception>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="serviceProvider"/> is <see langword="null"/>.
+    /// </exception>
     protected Navigator(IServiceProvider serviceProvider)
     {
         ServiceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
@@ -226,6 +229,8 @@ public abstract class Navigator
         return NavigationRuleResult.Deny(errors);
     }
 
+    /// <summary>Sets the route of the navigator from the request that it navigated.</summary>
+    /// <exception cref="NotSupportedException">The request is of a kind that the navigator does not know.</exception>
     private void SetRoute(NavigationRequest request)
     {
         var parentRoute =
@@ -272,6 +277,7 @@ public abstract class Navigator
     /// </summary>
     /// <param name="request">The request to navigate to</param>
     /// <returns>The navigation response (awaitable)</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="request"/> is <see langword="null"/>.</exception>
     public async ValueTask<NavigationResult> NavigateAsync(NavigationRequest request)
     {
         request = request ?? throw new ArgumentNullException(nameof(request));
