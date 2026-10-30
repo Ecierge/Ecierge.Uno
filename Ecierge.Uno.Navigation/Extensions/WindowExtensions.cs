@@ -13,6 +13,13 @@ using Microsoft.UI.Xaml.Controls;
 
 public static partial class WindowExtensions
 {
+    /// <summary>
+    /// Puts the shell into the window and opens the first page: the page that <paramref name="initialNavigate"/> opens,
+    /// or else the page that a link asked for, or else the default page of the application.
+    /// </summary>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="serviceProvider"/> is <see langword="null"/>.
+    /// </exception>
     public static async Task NavigateAsync<TShell>(
         [NotNull] this Window window,
         IServiceProvider serviceProvider,
