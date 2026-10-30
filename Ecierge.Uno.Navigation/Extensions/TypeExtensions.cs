@@ -260,6 +260,10 @@ internal static class TypeExtensions
         /// <summary>
         /// Converts a task to a task of another result type, which completes with the result of the original task.
         /// </summary>
+        /// <returns>
+        /// A task that completes with the result of the original task, fails or is canceled as the original task does,
+        /// and fails with an <see cref="InvalidCastException"/> when the result is not an instance of the destination type.
+        /// </returns>
         /// <exception cref="ArgumentException"><paramref name="originalTask"/> is a task without a result.</exception>
         [UnconditionalSuppressMessage("Trimming", "IL2055",
             Justification = "TaskCompletionSource<T> imposes no DynamicallyAccessedMembers constraints on T; the closed generic type is always safe.")]
