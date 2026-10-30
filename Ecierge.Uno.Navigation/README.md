@@ -43,12 +43,19 @@ Every window has one `NavigationJournal`, a list of the whole routes from the ro
 - The history keeps `NavigationOptions.JournalCapacity` entries.
 - An open dialog is an entry of the history by default, so Back closes it and closing it with its own buttons moves the history back. `NavigationOptions.DialogsInHistory = false` keeps the page below the dialog in the history instead.
 
+In XAML, `NavigateBackAction` and `NavigateForwardAction` go back and forward, and the attached properties `Navigation.CanGoBack` and `Navigation.CanGoForward` of the content of the window can enable a button. A `NavigationView` goes back from its own back button.
+
+## Back button of the system
+
+On Android and iOS the back button of the system goes back in the journal while there is an entry to go back to, and leaves the application otherwise. `NavigationOptions.UseNativeBackButton` turns it on or off explicitly. It is never used on WebAssembly.
+
 ## Options
 
 |Option|Default|Meaning|
 |:--|:--|:--|
 |`DialogsInHistory`|`true`|An open dialog is an entry of the history|
 |`JournalCapacity`|`100`|The number of entries the history keeps|
+|`UseNativeBackButton`|`true` on Android and iOS|The back button of the system goes back in the journal|
 
 The options are bound from the `NavigationOptions` section of the configuration, and the callback of `AddNavigation` adjusts them after that.
 
