@@ -29,6 +29,10 @@ public class NavigationDataRegistry(IReadOnlyDictionary<Type, Type> entityMap) :
     ImmutableArray<Type> IRegistry<Type>.Items => entityMap.Values.ToImmutableArray();
 #pragma warning restore CA1033 // Interface methods should be callable by child types
 #pragma warning disable CA1043 // Use Integral Or String Argument For Indexers
+    /// <summary>Gets the type of the data map that handles the entity.</summary>
+    /// <exception cref="NavigationDataMapNotFoundException">
+    /// No data map is registered for <paramref name="entity"/>.
+    /// </exception>
     public Type this[Type entity]
     {
         get
@@ -69,6 +73,8 @@ public class NavigationDataRegistryBuilder : INavigationDataRegistryBuilder
     private readonly Dictionary<Type, Type> entityMap = new();
     public IReadOnlyDictionary<Type, Type> EntityMap => entityMap;
 
+    /// <summary>Creates a builder that registers the data maps in the services.</summary>
+    /// <exception cref="ArgumentNullException"><paramref name="services"/> is <see langword="null"/>.</exception>
     public NavigationDataRegistryBuilder(IServiceCollection services)
     {
         this.services = services ?? throw new ArgumentNullException(nameof(services));

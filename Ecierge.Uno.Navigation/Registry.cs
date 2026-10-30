@@ -32,6 +32,8 @@ public abstract class RegistryBuilder<T> : IRegistryBuilder<T>
 
     protected RegistryBuilder(IServiceCollection services) => Services = services;
 
+    /// <summary>Adds the item to the registry.</summary>
+    /// <exception cref="ArgumentNullException"><paramref name="item"/> is <see langword="null"/>.</exception>
     public IRegistryBuilder<T> Register(T item)
     {
         item = item ?? throw new ArgumentNullException(nameof(item));
