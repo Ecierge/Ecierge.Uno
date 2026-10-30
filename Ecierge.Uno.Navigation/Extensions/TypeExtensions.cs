@@ -257,6 +257,10 @@ internal static class TypeExtensions
             DynamicallyAccessedMemberTypes.PublicProperties)]
         private static readonly Type TcsType = typeof(TaskCompletionSource<>);
 
+        /// <summary>
+        /// Converts a task to a task of another result type, which completes with the result of the original task.
+        /// </summary>
+        /// <exception cref="ArgumentException"><paramref name="originalTask"/> is a task without a result.</exception>
         [UnconditionalSuppressMessage("Trimming", "IL2055",
             Justification = "TaskCompletionSource<T> imposes no DynamicallyAccessedMembers constraints on T; the closed generic type is always safe.")]
         [UnconditionalSuppressMessage("Trimming", "IL2077",

@@ -27,6 +27,9 @@ public static class NavigationRegion
     /// <summary>
     /// Handles changes to the Attach property.
     /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// The element has the AttachForSegmentName property set, and the two properties exclude each other.
+    /// </exception>
     private static void OnAttachChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (GetAttachForSegmentName((d as FrameworkElement)!) is not null)
@@ -96,6 +99,9 @@ public static class NavigationRegion
     /// <summary>
     /// Handles changes to the AttachForSegmentName property.
     /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// The element has the Attach property set, and the two properties exclude each other.
+    /// </exception>
     private static void OnAttachForSegmentNameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (GetAttach((d as FrameworkElement)!))

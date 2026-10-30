@@ -9,6 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 public static class FrameworkElementExtensions
 {
+    /// <summary>Makes the control the control of the root region of the scope.</summary>
+    /// <exception cref="ArgumentNullException"><paramref name="scope"/> is <see langword="null"/>.</exception>
     public static IServiceScope AttachRootNavigationRegion([NotNull] this Control control, NavigationScope scope)
     {
         scope = scope ?? throw new ArgumentNullException(nameof(scope));
