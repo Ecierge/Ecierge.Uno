@@ -27,6 +27,7 @@ A data segment stands for an entity that the pages below it need, such as a buil
 - `GetAsync()` (and a constructor parameter of type `Task<T>`) returns the current attempt, and starts a new one when the last attempt failed or was canceled. A server that was down and came back is therefore not remembered as a failure.
 - `ReloadAsync()` loads the entity again and raises `Changed`, so pages that show the entity can read it again.
 - A constructor parameter of type `T` is resolved only while the entity is loaded. A parameter of type `NavigationEntity<T>` or `INavigationEntity` gets the handle.
+- A data map loads an entity from its value with `LoadEntityAsync(string)`. An entity that lives inside a parent, such as an asset inside a property, is not found by its value alone: the map overrides `LoadEntityAsync(string, INavigationData)`, which gets the data of the route that the handle was made in and reads the value of the parent from the handle of the parent without loading it. The handle keeps that data, so a reload finds the entity too.
 
 The pages below a data segment are created after the entity has loaded. The page that owns the segment is created at once, so it can show progress, and `INavigationStatus.EntityLoading` tells which load is awaited. If the load fails, the navigation ends with a `NavigationFailedResponse` that carries the exception in `Error`, the requested route and a `Retry` function. A retry shows only what is not shown yet, and the entity loads again.
 
