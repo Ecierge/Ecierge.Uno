@@ -60,6 +60,46 @@ public class ByNameNavigationViewItemSelector : ItemSelector<NavigationView>
 }
 
 /// <summary>
+/// Connects the back button of a <see cref="NavigationView"/> with the history of the window.
+/// </summary>
+internal static class NavigationViewBackButton
+{
+    /// <summary>
+    /// The button goes back in the history of the window and is enabled while there is a page to go back to.
+    /// </summary>
+    /// <param name="navigator">The navigator of the region of the view.</param>
+    /// <param name="target">The view.</param>
+    public static void Attach(Navigator navigator, NavigationView target)
+    {
+        var journal = navigator.Journal;
+        var dispatcher = navigator.Dispatcher;
+        // The journal lives as long as the window, and the view only as long as its shell, so the journal must not keep it
+        var view = new WeakReference<NavigationView>(target);
+        target.IsBackEnabled = journal.CanGoBack;
+
+        void OnJournalChanged(object? sender, JournalChangedEventArgs e)
+        {
+            if (!view.TryGetTarget(out _))
+            {
+                journal.Changed -= OnJournalChanged;
+                return;
+            }
+
+            dispatcher.TryEnqueue(NavigationDispatcherPriority.Normal, () =>
+            {
+                if (view.TryGetTarget(out var current)) current.IsBackEnabled = journal.CanGoBack;
+            });
+        }
+
+        journal.Changed += OnJournalChanged;
+        target.BackRequested += async (_, _) =>
+        {
+            if (journal.CanGoBack) await navigator.GoBackAsync(target);
+        };
+    }
+}
+
+/// <summary>
 /// Navigates to the segment of the item that the user selects in a <see cref="NavigationView"/>, and selects the
 /// item of the segment that is navigated to.
 /// </summary>
@@ -84,7 +124,7 @@ public class NavigationViewNavigator : SelectorNavigator<NavigationView>
     {
         Type itemSelectorType = NavigationRegion.GetItemSelectorType(Target) ?? typeof(ByNameNavigationViewItemSelector);
         itemSelector = (ItemSelector<NavigationView>)ServiceProvider.GetRequiredService(itemSelectorType);
-        AttachBackButton();
+        NavigationViewBackButton.Attach(this, Target);
         Target.SelectionChanged += async (s, e) =>
         {
             var selectedItem = Target.SelectedItem;
@@ -118,36 +158,6 @@ public class NavigationViewNavigator : SelectorNavigator<NavigationView>
         navigatedName = request.NameSegment.Name;
         return result;
     }
-
-    // The back button of the view goes back in the history of the window and is enabled while there is a page to go back to
-    private void AttachBackButton()
-    {
-        var journal = Journal;
-        var dispatcher = Dispatcher;
-        // The journal lives as long as the window, and the view only as long as its shell, so the journal must not keep it
-        var view = new WeakReference<NavigationView>(Target);
-        Target.IsBackEnabled = journal.CanGoBack;
-
-        void OnJournalChanged(object? sender, JournalChangedEventArgs e)
-        {
-            if (!view.TryGetTarget(out _))
-            {
-                journal.Changed -= OnJournalChanged;
-                return;
-            }
-
-            dispatcher.TryEnqueue(NavigationDispatcherPriority.Normal, () =>
-            {
-                if (view.TryGetTarget(out var target)) target.IsBackEnabled = journal.CanGoBack;
-            });
-        }
-
-        journal.Changed += OnJournalChanged;
-        Target.BackRequested += async (_, _) =>
-        {
-            if (journal.CanGoBack) await this.GoBackAsync(Target);
-        };
-    }
 }
 
 /// <summary>
@@ -175,6 +185,7 @@ public class NavigationViewContentNavigator : ContentControlNavigatorBase<Naviga
     {
         Type itemSelectorType = NavigationRegion.GetItemSelectorType(Target) ?? typeof(ByNameNavigationViewItemSelector);
         itemSelector = (ItemSelector<NavigationView>)ServiceProvider.GetRequiredService(itemSelectorType);
+        NavigationViewBackButton.Attach(this, Target);
     }
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
