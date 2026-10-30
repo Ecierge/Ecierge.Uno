@@ -17,6 +17,8 @@ public class RouteRegistry : IRouteRegistry
     public ImmutableArray<NameSegment> Items { get; }
     public NameSegment RootSegment { get; }
 
+    /// <summary>Creates the registry of the segments of the routes.</summary>
+    /// <exception cref="ArgumentNullException"><paramref name="items"/> is <see langword="null"/>.</exception>
     public RouteRegistry(IEnumerable<NameSegment> items)
     {
         items = items ?? throw new ArgumentNullException(nameof(items));
@@ -38,6 +40,8 @@ public class RouteRegistryBuilder : IRouteRegistryBuilder
 
     public IEnumerable<Func<IViewRegistry, INavigationDataRegistry, NameSegment[]>> Factories => factories;
 
+    /// <summary>Adds a factory of segments, which is called once the views and the data maps are known.</summary>
+    /// <exception cref="ArgumentNullException"><paramref name="createSegments"/> is <see langword="null"/>.</exception>
     public IRouteRegistryBuilder Register(Func<IViewRegistry, INavigationDataRegistry, NameSegment[]> createSegments)
     {
         createSegments = createSegments ?? throw new ArgumentNullException(nameof(createSegments));
@@ -45,6 +49,12 @@ public class RouteRegistryBuilder : IRouteRegistryBuilder
         return this;
     }
 
+    /// <summary>
+    /// Builds the registry from the segments that the factories give, merging the segments that have the same name.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// A segment has data but no view map, or the segments of the same name cannot be merged.
+    /// </exception>
     public IRouteRegistry Build(IViewRegistry viewRegistry, INavigationDataRegistry navigationDataRegistry)
     {
         var segments =

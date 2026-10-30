@@ -23,6 +23,10 @@ namespace Ecierge.Uno.Navigation
         public abstract ImmutableArray<NameSegment> Nested { get; protected init; }
         public abstract ImmutableArray<NameSegment> NestedAfterData { get; }
 
+        /// <summary>Gets the segment that is nested in this one by its name.</summary>
+        /// <exception cref="NestedSegmentNotFoundException">
+        /// No segment nested in this one has the name <paramref name="name"/>.
+        /// </exception>
         public NameSegment this[string name]
         {
             get
@@ -45,6 +49,10 @@ namespace Ecierge.Uno.Navigation
         public override ImmutableArray<NameSegment> Nested { get; protected init; } = ImmutableArray<NameSegment>.Empty;
         public override ImmutableArray<NameSegment> NestedAfterData => DataSegment is not null ? DataSegment.Nested : Nested;
 
+        /// <summary>Creates a segment that carries data.</summary>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="dataSegment"/> is <see langword="null"/>.
+        /// </exception>
         public NameSegment(string name, ViewMapBase? view, DataSegment dataSegment, params ImmutableArray<string> permissions) : base(name)
         {
             ViewMap = view;
@@ -77,6 +85,14 @@ namespace Ecierge.Uno.Navigation
 
         }
 
+        /// <summary>
+        /// Builds the route that navigates to this segment, and from it through the default nested segments down to a
+        /// page.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="data"/> is <see langword="null"/>, but the data of the segment is mandatory.
+        /// </exception>
+        /// <exception cref="InvalidOperationException">The data segment has no data map.</exception>
         public Routing.Route BuildDefaultRoute(IServiceProvider serviceProvider, object? data = null)
         {
             var list = new List<RouteSegmentInstance> {
@@ -172,6 +188,11 @@ namespace Ecierge.Uno.Navigation.Helpers
             return orderedSegments.ToImmutableArray();
         }
 
+        /// <summary>Merges two segments of the same name into one that has the nested segments of both.</summary>
+        /// <exception cref="InvalidOperationException">
+        /// One of the segments is a dialog, the names differ, only one of the segments has data, or the view maps
+        /// differ.
+        /// </exception>
         public static NameSegment Merge(NameSegment a, NameSegment b)
         {
             if (a.GetType() == DialogSegmentType || b.GetType() == DialogSegmentType)
@@ -197,6 +218,10 @@ namespace Ecierge.Uno.Navigation.Helpers
 
         }
 
+        /// <summary>
+        /// Merges two data segments of the same data map into one that has the nested segments of both.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">The data maps of the segments differ.</exception>
         public static DataSegment Merge(DataSegment a, DataSegment b)
         {
             if (a.DataMap != b.DataMap)
