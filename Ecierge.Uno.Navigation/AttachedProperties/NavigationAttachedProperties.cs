@@ -78,7 +78,9 @@ public static class Navigation
         }
         else if (string.IsNullOrEmpty(segmentName))
         {
-            nestedSegment = parentNavigationRegion.Navigator.Route.LastNamedSegment!.NameSegment;
+            nestedSegment = parentNavigationRegion.Navigator.Route.LastNamedSegment?.NameSegment
+                ?? throw new InvalidOperationException(
+                    $"The region '{parentNavigationRegion.Segment.Name}' has not navigated to a segment yet, so the segment of the nested region '{element.Name}' is unknown.");
         }
         else
         {
@@ -88,14 +90,9 @@ public static class Navigation
         }
 
 #pragma warning disable CA2000 // Dispose objects before losing scope
-        var scope = parentNavigationRegion.Scope.CreateScope(parentNavigationRegion.Navigator, nestedSegment, element);
+        var scope = parentNavigationRegion.Scope.CreateScope(parentNavigationRegion.Navigator, nestedSegment, element, navigationBoundary);
 #pragma warning restore CA2000 // Dispose objects before losing scope
-        var navigationRegion = new Regions.NavigationRegion(scope)
-        {
-            Parent = parentNavigationRegion,
-            Target = element,
-            Root = navigationBoundary
-        };
+        var navigationRegion = scope.Region;
 
         element.SetNavigationRegion(navigationRegion);
         if (navigationBoundary is not null)
@@ -124,16 +121,77 @@ public static class Navigation
     /// Gets the RootNavigator property. This dependency property
     /// indicates the window root navigator.
     /// </summary>
-    internal static Navigator GetRootNavigator(FrameworkElement element) => (Navigator)element.GetValue(RootNavigatorProperty);
+    internal static Navigator GetRootNavigator(FrameworkElement element)
+     => (Navigator?)element.GetValue(RootNavigatorProperty)
+        ?? throw new RootNavigationRegionMissingException();
 
     /// <summary>
     /// Sets the RootNavigator property. This dependency property
     /// indicates the window root navigator.
     /// </summary>
     internal static void SetRootNavigator(UIElement element, Navigator navigator)
+     => element.SetValue(RootNavigatorProperty, navigator);
+
+    #endregion
+
+    #region CanGoBack
+
+    /// <summary>
+    /// CanGoBack Attached Dependency Property
+    /// </summary>
+    public static readonly DependencyProperty CanGoBackProperty =
+        DependencyProperty.RegisterAttached("CanGoBack", typeof(bool), typeof(Navigation), new(false));
+
+    /// <summary>
+    /// Gets the CanGoBack property. This attached property of the content of the window tells whether the history of
+    /// the window has an entry before the current one, so that a back button can be enabled by binding to it.
+    /// </summary>
+    /// <param name="element">The content of the window.</param>
+    /// <returns><see langword="true"/> if the window can go back.</returns>
+    public static bool GetCanGoBack(DependencyObject element) => (bool)element.GetValue(CanGoBackProperty);
+
+    internal static void SetCanGoBack(DependencyObject element, bool value) => element.SetValue(CanGoBackProperty, value);
+
+    #endregion
+
+    #region CanGoForward
+
+    /// <summary>
+    /// CanGoForward Attached Dependency Property
+    /// </summary>
+    public static readonly DependencyProperty CanGoForwardProperty =
+        DependencyProperty.RegisterAttached("CanGoForward", typeof(bool), typeof(Navigation), new(false));
+
+    /// <summary>
+    /// Gets the CanGoForward property. This attached property of the content of the window tells whether the history
+    /// of the window has an entry after the current one.
+    /// </summary>
+    /// <param name="element">The content of the window.</param>
+    /// <returns><see langword="true"/> if the window can go forward.</returns>
+    public static bool GetCanGoForward(DependencyObject element) => (bool)element.GetValue(CanGoForwardProperty);
+
+    internal static void SetCanGoForward(DependencyObject element, bool value) => element.SetValue(CanGoForwardProperty, value);
+
+    /// <summary>
+    /// Keeps <see cref="CanGoBackProperty"/> and <see cref="CanGoForwardProperty"/> of the element in step with the
+    /// journal. The properties change on the thread of the user interface.
+    /// </summary>
+    internal static void TrackJournal([NotNull] this FrameworkElement element, NavigationJournal journal)
     {
-        navigator.RootNavigator = navigator;
-        element.SetValue(RootNavigatorProperty, navigator);
+        void Update()
+        {
+            SetCanGoBack(element, journal.CanGoBack);
+            SetCanGoForward(element, journal.CanGoForward);
+        }
+
+        Update();
+        journal.Changed += (_, _) =>
+        {
+            if (element.DispatcherQueue.HasThreadAccess)
+                Update();
+            else
+                element.DispatcherQueue.TryEnqueue(Update);
+        };
     }
 
     #endregion

@@ -8,6 +8,8 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
+using Ecierge.Uno.Navigation.Routing;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -111,48 +113,85 @@ public class NavigationData : INavigationData
 
 internal static class RouteExtensions
 {
-    private static readonly Type taskType = typeof(Task);
-    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)]
     private static readonly Type genericTaskType = typeof(Task<>);
 
     /// <summary>
     /// Applies scoped instance services from the route's navigation data to the service provider.
     /// </summary>
+    /// <remarks>
+    /// Only an entity that is already loaded is added. A pending or a failed load is never waited for, because a
+    /// wait on the thread of the user interface may never end, and a failed load has no entity.
+    /// </remarks>
     /// <param name="route">The route to apply scoped instance services from its navigation data.</param>
-    // Task<T>.MakeGenericType and Result property access are safe: Task<T> places no DAM constraints on T,
-    // and Result is a well-known property that is always preserved.
-    [UnconditionalSuppressMessage("Trimming", "IL2055",
-        Justification = "Task<T> imposes no DynamicallyAccessedMembers constraints on T.")]
-    [UnconditionalSuppressMessage("Trimming", "IL2070",
-        Justification = "Task<T>.Result is a well-known property that the trimmer preserves; genericTaskType field is annotated with PublicProperties.")]
+    /// <param name="serviceProvider">The services of the scope to add the instances to.</param>
     public static void ApplyScopedInstanceServices(this Routing.Route route, IServiceProvider serviceProvider)
     {
-        var navigationData = route.Data;
         var scopedInstanceOptions = serviceProvider.GetService<IOptions<ScopedInstanceRepositoryOptions>>()?.Value;
         if (scopedInstanceOptions is null)
             return;
 
-        if (navigationData is not null)
+        var typesToClone = scopedInstanceOptions.TypesToClone;
+        foreach (var value in route.Data.Values)
         {
-            var typesToClone = scopedInstanceOptions.TypesToClone;
-            foreach (var value in navigationData.Values)
+            switch (value)
             {
-                Type serviceType = value.GetType();
-                bool isTask = serviceType.IsGenericType && serviceType.IsAssignableTo(taskType);
-                if (isTask && serviceType.GetGenericArguments() is [var argument])
-                    serviceType = argument;
-                if (typesToClone.Contains(serviceType))
-                {
-                    if (isTask)
-                    {
-                        var taskType = genericTaskType.MakeGenericType(serviceType);
-                        var taskValue = taskType.GetProperty("Result")!.GetValue(value, null)!;
-                        serviceProvider.AddScopedInstance(serviceType, taskValue);
-                    }
-                    else
+                case INavigationEntity handle:
+                    if (typesToClone.Contains(handle.EntityType) && handle.TryGetLoadedEntity(out var entity))
+                        serviceProvider.AddScopedInstance(handle.EntityType, entity);
+                    break;
+                case Task task:
+                    if (task.IsCompletedSuccessfully
+                        && TryGetTaskResult(task, out var resultType, out var result)
+                        && typesToClone.Contains(resultType))
+                        serviceProvider.AddScopedInstance(resultType, result);
+                    break;
+                default:
+                    var serviceType = value.GetType();
+                    if (typesToClone.Contains(serviceType))
                         serviceProvider.AddScopedInstance(serviceType, value);
-                }
+                    break;
             }
         }
+    }
+
+    /// <summary>
+    /// Makes sure that the data of the route holds the handle of the entity of every data segment of the route, shared
+    /// with the data that already holds one for the same value.
+    /// </summary>
+    /// <param name="route">The route.</param>
+    /// <param name="serviceProvider">The services that give the data maps.</param>
+    /// <returns>The route with the handles in its data.</returns>
+    public static Routing.Route WithEntityHandles(this Routing.Route route, IServiceProvider serviceProvider)
+    {
+        var data = route.Data;
+        foreach (var step in route.Segments.OfType<DataSegmentInstance>())
+        {
+            if (step.DataSegment.DataMap is not { } mapType) continue;
+            var map = (INavigationDataMap)serviceProvider.GetRequiredService(mapType);
+            data = data.SetItem(step.DataSegment.Name, map.GetOrCreateEntity(data, step.DataSegment.Name, step.Primitive));
+        }
+
+        return ReferenceEquals(data, route.Data) ? route : route with { Data = data };
+    }
+
+    // Task<T>.Result is a well-known property that the trimmer preserves; the task is completed, so reading it does not wait.
+    [UnconditionalSuppressMessage("Trimming", "IL2075",
+        Justification = "Task<T>.Result is a well-known property that the trimmer preserves.")]
+    private static bool TryGetTaskResult(Task task, [NotNullWhen(true)] out Type? resultType, [NotNullWhen(true)] out object? result)
+    {
+        // An async method returns a task of a private subclass of Task<T>
+        for (var type = task.GetType(); type is not null; type = type.BaseType)
+        {
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == genericTaskType)
+            {
+                resultType = type.GetGenericArguments()[0];
+                result = type.GetProperty("Result")?.GetValue(task);
+                return result is not null;
+            }
+        }
+
+        resultType = null;
+        result = null;
+        return false;
     }
 }

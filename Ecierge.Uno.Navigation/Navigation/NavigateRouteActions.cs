@@ -120,7 +120,7 @@ public partial class NavigateNestedRouteAction : NavigateTargetRouteActionBase, 
         }
         if (navigationRegion is not null)
         {
-            return navigationRegion.Navigator.ChildNavigator!.NavigateRouteAsync(sender, Route!, NavigationData);
+            return navigationRegion.Navigator.RequireChildNavigator().NavigateRouteAsync(sender, Route!, NavigationData);
         }
         return null;
     }

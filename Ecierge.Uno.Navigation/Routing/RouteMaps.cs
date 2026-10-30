@@ -86,26 +86,24 @@ namespace Ecierge.Uno.Navigation
                     _ =>new NameSegmentInstance(this)
                 }
             };
-            INavigationData navigationData = (data as INavigationData)!;
+            INavigationData navigationData = data as INavigationData ?? NavigationData.Empty;
             if (DataSegment is { } dataSegment)
             {
-                if (data is null && DataSegment.IsMandatory)
+                if (data is null && dataSegment.IsMandatory)
                     throw new ArgumentNullException(nameof(data), "Data is mandatory.");
-                var dataMap = (INavigationDataMap)serviceProvider.GetRequiredService(dataSegment.DataMap!);
-                if (navigationData is not null)
+
+                if (data is not null && (data is not INavigationData given || given.ContainsKey(dataSegment.Name)))
                 {
-                    var primitive = dataMap.GetStringValue(navigationData, DataSegment.Name);
-                    var task = dataMap.GetEntityTask(navigationData, DataSegment.Name);
-                    list.Add(new DataSegmentInstance(DataSegment, primitive, task));
+                    // The route holds the handle of the entity, which is loaded when somebody needs the entity
+                    var dataMap = (INavigationDataMap)serviceProvider.GetRequiredService(
+                        dataSegment.DataMap ?? throw new InvalidOperationException($"The data segment '{dataSegment.Name}' has no data map."));
+                    var entity = data is INavigationData navData
+                        ? dataMap.GetEntity(navData, dataSegment.Name)
+                        : dataMap.CreateEntity(data);
+                    navigationData = navigationData.SetItem(dataSegment.Name, entity);
+                    list.Add(new DataSegmentInstance(dataSegment, entity.Primitive, null));
+                    AddDefaultSegments(dataSegment);
                 }
-                else
-                {
-                    var primitive = dataMap.GetStringValue(data!);
-                    var task = dataMap.GetEntityTask(data!);
-                    navigationData = NavigationData.Empty.Add(DataSegment.Name, task);
-                    list.Add(new DataSegmentInstance(DataSegment, primitive, task));
-                }
-                AddDefaultSegments(DataSegment);
             }
             else
             {

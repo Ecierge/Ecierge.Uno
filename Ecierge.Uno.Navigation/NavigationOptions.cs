@@ -15,14 +15,45 @@ public record NavigationOptions
     public Type? RouteResolver { get; init; }
 
     /// <summary>
-    /// Whether to update the address bar during navigation (WASM)
+    /// Whether the browser history follows the history of the application: every page gets an entry in the history
+    /// of the browser, and the address bar shows its path (WASM). The default is <see langword="true"/>.
     /// </summary>
     public bool? AddressBarUpdateEnabled { get; init; }
 
     /// <summary>
-    /// Whether to support the native back button (WASM)
+    /// Whether the back button of the system goes back in the history of the application. The default is
+    /// <see langword="true"/> on Android and iOS and <see langword="false"/> elsewhere, where the application shows
+    /// its own button and the browser has its own.
     /// </summary>
     public bool? UseNativeBackButton { get; init; }
+
+    /// <summary>
+    /// Whether an open dialog is an entry of the history. When it is, going back closes the dialog and closing the
+    /// dialog with its own buttons moves the history back by one entry. When it is not, the history holds the page
+    /// below the dialog, and going back with a dialog open goes to the page before it. The default is
+    /// <see langword="true"/>.
+    /// </summary>
+    public bool DialogsInHistory { get; init; } = true;
+
+    /// <summary>
+    /// The scheme of the links that open a page of the application, for example <c>ecierge-console</c> for the link
+    /// <c>ecierge-console://Building/id/Assets</c>. Links of other schemes, such as the callbacks of a sign-in, are
+    /// not routes. Without a scheme no link with a custom scheme is followed. Links of the web (<c>http</c> and
+    /// <c>https</c>) are always routes.
+    /// </summary>
+    public string? DeepLinkScheme { get; init; }
+
+    /// <summary>
+    /// The path under which the application is hosted on the web, without which a link is a route. The default is
+    /// <c>/</c>.
+    /// </summary>
+    public string BasePath { get; init; } = "/";
+
+    /// <summary>
+    /// The number of the entries that the history keeps. The oldest entry is dropped when a new one does not fit. The
+    /// default is 100.
+    /// </summary>
+    public int JournalCapacity { get; init; } = 100;
 
     public Dictionary<Type, Type> Navigators { get; init; } = new();
 

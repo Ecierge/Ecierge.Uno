@@ -59,8 +59,10 @@ public static class ServiceCollectionExtensions
 
                 .AddInheritedScopedInstance<Window>()
                 .AddInheritedScopedInstance<DispatcherQueue>()
+                .AddInheritedScopedInstance<INavigationDispatcher>()
                 .AddScopedInstance<FrameworkElement>()
                 .AddScopedInstance<NavigationScope>()
+                .AddScopedInstance<Regions.NavigationRegion>()
                 .AddScopedInstance<IServiceScope>()
                 .AddScopedInstance<Navigator>()
                 .AddScopedInstance<NameSegment>()

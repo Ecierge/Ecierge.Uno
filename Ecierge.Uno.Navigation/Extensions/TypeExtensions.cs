@@ -133,7 +133,16 @@ internal static class TypeExtensions
                         .FirstOrDefault();
                 if (navigationParameterName is not null)
                 {
-                    // 3. Try get entity from navigation data
+                    // 3. Try get the handle of the entity, the entity or its task from the handle in navigation data
+                    if (navigationData.TryGetValue(navigationParameterName, out var held)
+                        && held is INavigationEntity handle
+                        && TryGetHandleArgument(handle, para.ParameterType, out var handleArgument))
+                    {
+                        args.Add(handleArgument);
+                        continue;
+                    }
+
+                    // 4. Try get entity from navigation data
                     if (dataRegistry.TryGetForAssignableEntity(para.ParameterType, out var dataMapType))
                     {
                         var map = (INavigationDataMap)services.GetRequiredService(dataMapType);
@@ -143,7 +152,7 @@ internal static class TypeExtensions
                             continue;
                         }
                     }
-                    // 4. Try get entity task from navigation data
+                    // 5. Try get entity task from navigation data
                     var parameterType = para.ParameterType;
                     if (parameterType.IsGenericType && parameterType.GetGenericTypeDefinition() == typeof(Task<>))
                     {
@@ -169,7 +178,7 @@ internal static class TypeExtensions
                         }
                     }
                     // TODO: Consider injecting primitives
-                    // 5. Try string primitive
+                    // 6. Try string primitive
                     //if (para.ParameterType == typeof(string))
                     //{
                     //    if (navigationData.TryGetValue(navigationParameterName, out var value))
@@ -179,7 +188,7 @@ internal static class TypeExtensions
                     //    }
                     //}
                 }
-                // 6. Get default value if optional
+                // 7. Get default value if optional
                 if (para.IsOptional)
                     args.Add(GetDefaultParameterValue(para));
                 else
@@ -192,6 +201,42 @@ internal static class TypeExtensions
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// Gives a constructor parameter what it asks of the handle of an entity: the handle itself, the task of the entity
+    /// (of a new attempt if the last one failed), or the entity if it is loaded.
+    /// </summary>
+    private static bool TryGetHandleArgument(INavigationEntity handle, Type parameterType, [NotNullWhen(true)] out object? argument)
+    {
+        if (parameterType.IsInstanceOfType(handle))
+        {
+            argument = handle;
+            return true;
+        }
+
+        if (parameterType.IsGenericType && parameterType.GetGenericTypeDefinition() == typeof(Task<>))
+        {
+            var resultType = parameterType.GetGenericArguments()[0];
+            if (resultType.IsAssignableFrom(handle.EntityType))
+            {
+                var task = handle.LoadAsync();
+                argument = parameterType.IsInstanceOfType(task) ? task : TaskConverter.Convert(task, resultType);
+                return true;
+            }
+
+            argument = null;
+            return false;
+        }
+
+        if (parameterType.IsAssignableFrom(handle.EntityType) && handle.TryGetLoadedEntity(out var entity))
+        {
+            argument = entity;
+            return true;
+        }
+
+        argument = null;
+        return false;
     }
 
     internal class TaskConverter

@@ -241,6 +241,20 @@ public static class ServiceProviderExtensions
                 provider.GetInstanceFromRepository<ISingletonInstanceRepository, T>();
     }
 
+    /// <summary>
+    /// Gets an instance of the specified type from the service provider.
+    /// </summary>
+    /// <typeparam name="T">Type of the service to get.</typeparam>
+    /// <param name="provider">The service provider to get the instance from.</param>
+    /// <returns>The instance of the specified type.</returns>
+    /// <exception cref="InvalidOperationException">No instance of the type was added to the scope or to the application.</exception>
+    public static T GetRequiredInstance<T>(this IServiceProvider provider)
+        where T : class
+    {
+        return provider.GetInstance<T>()
+            ?? throw new InvalidOperationException($"No instance of {typeof(T)} was added to this navigation scope or to the application.");
+    }
+
     #endregion Get instance
 
     #region Get instance from repository

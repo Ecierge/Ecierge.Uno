@@ -12,7 +12,7 @@ public static class FrameworkElementExtensions
     public static IServiceScope AttachRootNavigationRegion([NotNull] this Control control, NavigationScope scope)
     {
         scope = scope ?? throw new ArgumentNullException(nameof(scope));
-        control.SetNavigationRegion(new (scope) { Target = control });
+        control.SetNavigationRegion(scope.Region);
         return scope;
     }
 
