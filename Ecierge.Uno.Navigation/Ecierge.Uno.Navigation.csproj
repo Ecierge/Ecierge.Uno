@@ -48,6 +48,9 @@
 
     <Platforms>AnyCPU</Platforms>
 
+    <!-- The JavaScript interop of the browser history is generated as unsafe code -->
+    <AllowUnsafeBlocks Condition=" $(TargetFramework.EndsWith('-browserwasm')) ">true</AllowUnsafeBlocks>
+
   </PropertyGroup>
 
   <Target Name="RemoveUnnecessaryImplicitUsings" BeforeTargets="BeforeBuild">
