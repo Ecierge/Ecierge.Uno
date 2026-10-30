@@ -7,18 +7,20 @@ public abstract partial record NavigationRequest(object Sender, Routing.Route Ro
 {
     public Guid Id { get; } = Guid.NewGuid();
 
-    public abstract NameSegment? NameSegment { get; }
-    public abstract RouteSegment? RouteSegment { get; }
-    internal abstract ViewMapBase? View { get; }
-}
+    /// <summary>
+    /// Gets the named segment that the request navigates to. For a data segment it is the segment that owns the data.
+    /// </summary>
+    public abstract NameSegment NameSegment { get; }
 
-[DebuggerDisplay("🔙")]
-public record BackNavigationRequest(object Sender, Routing.Route Route) : NavigationRequest(Sender, Route)
-{
-    // TODO: Implement correctly
-    public override NameSegment? NameSegment => null;
-    public override RouteSegment? RouteSegment => null;
-    internal override ViewMapBase? View => null;
+    /// <summary>
+    /// Gets the segment that the request navigates to.
+    /// </summary>
+    public abstract RouteSegment RouteSegment { get; }
+
+    /// <summary>
+    /// Gets the view map of the segment, or <see langword="null"/> if the segment has no view.
+    /// </summary>
+    internal abstract ViewMapBase? View { get; }
 }
 
 [DebuggerDisplay("{Segment.Name}")]
