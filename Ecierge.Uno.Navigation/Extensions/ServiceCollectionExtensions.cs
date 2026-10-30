@@ -67,6 +67,7 @@ public static class ServiceCollectionExtensions
                 .AddScopedInstance<Navigator>()
                 .AddScopedInstance<NameSegment>()
                 .AddSingleton<INavigationStatus, NavigationStatus>()
+                .AddSingleton<IPendingNavigation, PendingNavigation>()
 
                 .AddScopedInstance<INavigationData>()
 
@@ -109,7 +110,10 @@ public static class ServiceCollectionExtensions
                 .AddSingleton<IViewRegistry>(sp => (IViewRegistry)sp.GetRequiredService(views.GetType()))
 
                 .AddSingleton(routes.GetType(), routes)
-                .AddSingleton<IRouteRegistry>(sp => (RouteRegistry)sp.GetRequiredService(routes.GetType()));
+                .AddSingleton<IRouteRegistry>(sp => (RouteRegistry)sp.GetRequiredService(routes.GetType()))
+
+                // The deep link source and the browser history exist only on the platforms that have them
+                .AddPlatformServices();
     }
 
     /// <summary>
