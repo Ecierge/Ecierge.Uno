@@ -59,7 +59,8 @@ public static class ServiceProviderExtensions
     /// <returns>The updated service provider with the scoped instance added.</returns>
     public static IServiceProvider AddScopedInstance(this IServiceProvider provider, Type serviceType, Func<object> instanceCreator)
      =>
-        provider.AddScopedInstance(serviceType, instanceCreator);
+        // The factory is stored as the instance, and created on first use. Without the cast the call binds to this method
+        provider.AddScopedInstance(serviceType, (object)instanceCreator);
 
     /// <summary>
     /// Adds a scoped instance to the service provider.
@@ -107,7 +108,8 @@ public static class ServiceProviderExtensions
     /// <returns>The updated service provider with the singleton instance added.</returns>
     public static IServiceProvider AddSingletonInstance(this IServiceProvider provider, Type serviceType, Func<object> instanceCreator)
      =>
-        provider.AddSingletonInstance(serviceType, instanceCreator);
+        // The factory is stored as the instance, and created on first use. Without the cast the call binds to this method
+        provider.AddSingletonInstance(serviceType, (object)instanceCreator);
 
     /// <summary>
     /// Adds a singleton instance to the service provider.
@@ -183,7 +185,7 @@ public static class ServiceProviderExtensions
     /// <returns>The updated service provider with the singleton instance removed.</returns>
     public static IServiceProvider RemoveSingletonInstance<T>(this IServiceProvider provider)
      =>
-        provider.RemoveScopedInstance(typeof(T));
+        provider.RemoveSingletonInstance(typeof(T));
 
     /// <summary>
     /// Removes a singleton instance of the specified type from the service provider.
