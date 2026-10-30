@@ -1,13 +1,18 @@
 namespace Ecierge.Uno.Navigation.Navigators;
 
+using System;
 using System.Linq;
 
 using Ecierge.Uno.Navigation;
 
 using Microsoft.Extensions.Logging;
 
-using RouteProperties = Uno.Navigation.Route;
+using RouteProperties = Ecierge.Uno.Navigation.Route;
 
+/// <summary>
+/// Navigates to the segment of the item that the user selects in a <see cref="SelectorBar"/>, and selects the item of
+/// the segment that is navigated to.
+/// </summary>
 internal class SelectorBarNavigator : SelectorNavigator<SelectorBar>
 {
     private bool isFirstNavigation = true;
@@ -21,7 +26,7 @@ internal class SelectorBarNavigator : SelectorNavigator<SelectorBar>
         Target.SelectionChanged += async (s, e) =>
         {
             var selectedItem = Target.SelectedItem;
-            if (selectedItem == navigatedItem) return;
+            if (selectedItem is null || selectedItem == navigatedItem) return;
 
             var segmentName = RouteProperties.GetSegmentName(selectedItem);
             var segment = Region.Segment.NestedAfterData.FirstOrDefault(s => s.Name == segmentName);
@@ -31,7 +36,7 @@ internal class SelectorBarNavigator : SelectorNavigator<SelectorBar>
                 segment = Region.Segment.Nested.FirstOrDefault(s => s.Name == segmentName);
                 if (segment is null)
                 {
-                    Logger.LogWarning($"No segment found with name '{segmentName}'");
+                    Logger.LogWarning("No segment found with name '{SegmentName}'", segmentName);
                     return;
                 }
                 navigatedName = segmentName;
@@ -45,8 +50,9 @@ internal class SelectorBarNavigator : SelectorNavigator<SelectorBar>
             }
             else
             {
-                var request = new NameSegmentNavigationRequest(s, segment, segment.BuildDefaultRoute(serviceProvider));
-                await NavigateAsync(request);
+                // A route of one segment, so that the selection is announced and recorded like any other navigation
+                // and the segments below it keep what they show
+                await this.NavigateRouteAsync(s, Routing.Route.Empty.Add(segment));
             }
         };
     }
@@ -55,7 +61,7 @@ internal class SelectorBarNavigator : SelectorNavigator<SelectorBar>
     {
         if (navigatedName == request.NameSegment.Name) return new NavigationResult(request, isSkipped: true);
 
-        var selectorBar = (SelectorBar)Region!.Target!;
+        var selectorBar = Target;
         var item =
             selectorBar.Items.FirstOrDefault(
                 i => RouteProperties.GetSegmentName(i) == request.NameSegment.Name
