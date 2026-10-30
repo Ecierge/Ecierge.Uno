@@ -67,4 +67,8 @@
     <!--<PackageReference Include="Uno.WinUI.Runtime.WebAssembly" VersionOverride="6.5.237" ExcludeAssets="all" PrivateAssets="all" />-->
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="Ecierge.Uno.Navigation.Tests" />
+  </ItemGroup>
+
 </Project>
