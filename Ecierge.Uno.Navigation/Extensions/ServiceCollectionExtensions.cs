@@ -86,8 +86,6 @@ public static class ServiceCollectionExtensions
                 .AddSingleton<RouteNotifier>()
                 .AddSingleton<IRouteNotifier>(sp => sp.GetRequiredService<RouteNotifier>())
                 .AddSingleton<IRouteUpdater>(sp => sp.GetRequiredService<RouteNotifier>())
-                //.AddHostedService<BrowserAddressBarService>()
-                //.AddHostedService<BackButtonService>()
                 //.AddScoped<Navigator>()
 
 

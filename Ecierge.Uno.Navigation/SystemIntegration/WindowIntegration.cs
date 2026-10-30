@@ -25,6 +25,7 @@ internal static class WindowIntegration
         var options = services.GetRequiredService<IOptions<NavigationOptions>>().Value;
         var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger("Ecierge.Uno.Navigation.SystemIntegration");
         AttachDeepLinks(root, options, logger);
+        AttachBrowserHistory(root, options, logger);
         AttachBackButton(root, options, logger);
     }
 
@@ -52,6 +53,17 @@ internal static class WindowIntegration
             }
         };
 #pragma warning restore CA1031 // Do not catch general exception types
+    }
+
+    private static void AttachBrowserHistory(Navigator root, NavigationOptions options, ILogger logger)
+    {
+        if (!(options.AddressBarUpdateEnabled ?? true)) return;
+        if (root.ServiceProvider.GetService<IBrowserHistory>() is not { } history) return;
+
+        // The journal of the window holds the handler of the synchronization, so the synchronization lives as long as the window
+#pragma warning disable CA2000 // Dispose objects before losing scope
+        _ = new BrowserHistorySync(root.Journal, history, options, new RootHistoryNavigation(root), logger);
+#pragma warning restore CA2000 // Dispose objects before losing scope
     }
 
     private static void AttachBackButton(Navigator root, NavigationOptions options, ILogger logger)
