@@ -277,32 +277,50 @@ internal static class TypeExtensions
             var tcs = Activator.CreateInstance(tcsType);
             var setResultMethod = tcsType.GetMethod("SetResult")!;
             var setExceptionMethod = tcsType.GetMethod("SetException", new[] { typeof(IEnumerable<Exception>) })!;
+            var trySetExceptionMethod = tcsType.GetMethod("TrySetException", new[] { typeof(IEnumerable<Exception>) })!;
             var setCanceledMethod = tcsType.GetMethod("SetCanceled", Type.EmptyTypes)!;
             var taskProperty = tcsType.GetProperty("Task")!;
 
             var _ = originalTask.ContinueWith(t =>
             {
-                if (t.IsFaulted)
+#pragma warning disable CA1031 // Do not catch general exception types
+                try
                 {
-                    setExceptionMethod.Invoke(tcs, new object[] { t.Exception.InnerExceptions });
-                }
-                else if (t.IsCanceled)
-                {
-                    setCanceledMethod.Invoke(tcs, null);
-                }
-                else
-                {
-                    var result = resultProperty.GetValue(t)!;
-                    if (!destinationType.IsAssignableFrom(result.GetType()))
-                        throw new InvalidCastException($"Cannot cast {result.GetType()} to {destinationType}");
+                    if (t.IsFaulted)
+                    {
+                        setExceptionMethod.Invoke(tcs, new object[] { t.Exception!.InnerExceptions });
+                    }
+                    else if (t.IsCanceled)
+                    {
+                        setCanceledMethod.Invoke(tcs, null);
+                    }
+                    else
+                    {
+                        var result = resultProperty.GetValue(t);
+                        if (!CanHold(destinationType, result))
+                            throw new InvalidCastException($"Cannot cast {result?.GetType().ToString() ?? "null"} to {destinationType}");
 
-                    setResultMethod.Invoke(tcs, new[] { result });
+                        setResultMethod.Invoke(tcs, new[] { result });
+                    }
                 }
+                catch (Exception ex)
+                {
+                    // Nobody else completes the converted task, so a failure here has to fail it, or whoever awaits it waits for ever
+                    var error = ex is TargetInvocationException { InnerException: { } inner } ? inner : ex;
+                    trySetExceptionMethod.Invoke(tcs, new object[] { new[] { error } });
+                }
+#pragma warning restore CA1031 // Do not catch general exception types
             });
 
             return (Task)taskProperty.GetValue(tcs)!;
         }
 
+
+        // Null fits a reference type and a nullable value type; anything else must be an instance of the type
+        private static bool CanHold(Type type, object? value)
+         => value is null
+            ? !type.IsValueType || Nullable.GetUnderlyingType(type) is not null
+            : type.IsInstanceOfType(value);
 
         private static async Task<T> Cast<T>(Task<object> obj)
         {
