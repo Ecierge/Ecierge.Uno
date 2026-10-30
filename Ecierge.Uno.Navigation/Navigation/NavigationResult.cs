@@ -58,6 +58,7 @@ public record struct NavigationResult
     /// <param name="request">The request that was navigated.</param>
     /// <param name="result">The object that the navigation produced.</param>
     /// <param name="isSkipped">Whether the route was already current.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="request"/> is <see langword="null"/>.</exception>
     public NavigationResult(NavigationRequest request, object? result = null, bool isSkipped = false)
     {
         Request = request ?? throw new ArgumentNullException(nameof(request));
@@ -72,12 +73,14 @@ public record struct NavigationResult
     /// Creates the result of a failed navigation.
     /// </summary>
     /// <param name="errors">The reasons of the failure.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="errors"/> is <see langword="null"/>.</exception>
     public NavigationResult(params string[] errors) => this.errors = errors ?? throw new ArgumentNullException(nameof(errors));
 
     /// <summary>
     /// Creates the result of a failed navigation.
     /// </summary>
     /// <param name="errors">The reasons of the failure.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="errors"/> is <see langword="null"/>.</exception>
     public NavigationResult(IReadOnlyList<string> errors) => this.errors = errors ?? throw new ArgumentNullException(nameof(errors));
 
     /// <summary>
@@ -132,6 +135,7 @@ public record struct NavigationResult<T>
     /// </summary>
     /// <param name="request">The request that was navigated.</param>
     /// <param name="result">The object that the navigation produced.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="request"/> is <see langword="null"/>.</exception>
     public NavigationResult(NavigationRequest request, T? result = default)
     {
         Request = request ?? throw new ArgumentNullException(nameof(request));
@@ -144,12 +148,14 @@ public record struct NavigationResult<T>
     /// Creates the result of a failed navigation.
     /// </summary>
     /// <param name="args">The reasons of the failure.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="args"/> is <see langword="null"/>.</exception>
     public NavigationResult(params string[] args) => errors = args ?? throw new ArgumentNullException(nameof(args));
 
     /// <summary>
     /// Creates the result of a failed navigation.
     /// </summary>
     /// <param name="args">The reasons of the failure.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="args"/> is <see langword="null"/>.</exception>
     public NavigationResult(IReadOnlyList<string> args) => errors = args ?? throw new ArgumentNullException(nameof(args));
 
     /// <summary>

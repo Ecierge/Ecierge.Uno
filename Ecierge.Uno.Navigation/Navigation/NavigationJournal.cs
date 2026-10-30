@@ -85,6 +85,7 @@ public sealed class NavigationJournal
     /// Creates an empty journal.
     /// </summary>
     /// <param name="capacity">The number of the entries to keep; the oldest is dropped when a new one does not fit.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="capacity"/> is less than 1.</exception>
     public NavigationJournal(int capacity = 100)
     {
         if (capacity < 1) throw new ArgumentOutOfRangeException(nameof(capacity), "A journal keeps at least one entry.");
@@ -191,6 +192,7 @@ public sealed class NavigationJournal
     /// <param name="route">The whole route from the root to the page.</param>
     /// <param name="mode">What to do with the history.</param>
     /// <returns>The entry of the route, or <see langword="null"/> if the history is not changed.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="route"/> is <see langword="null"/>.</exception>
     public JournalEntry? Record(Routing.Route route, HistoryMode mode)
     {
         route = route ?? throw new ArgumentNullException(nameof(route));

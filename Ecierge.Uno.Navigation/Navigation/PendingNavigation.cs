@@ -43,6 +43,10 @@ internal sealed class PendingNavigation : IPendingNavigation
         }
     }
 
+    /// <inheritdoc />
+    /// <exception cref="ArgumentException">
+    /// <paramref name="path"/> is empty or consists only of white space.
+    /// </exception>
     public void Set(string path)
     {
         if (string.IsNullOrWhiteSpace(path)) throw new ArgumentException("A route that waits has a text.", nameof(path));

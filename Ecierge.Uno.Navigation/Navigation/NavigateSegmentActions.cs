@@ -69,6 +69,13 @@ public abstract partial class NavigateSegmentActionBase : DependencyObject
 
 public partial class NavigateLocalSegmentAction : NavigateSegmentActionBase, IAction
 {
+    /// <summary>
+    /// Navigates to the segment through the navigator of the region of the target element, or of the region above it
+    /// when the segment is not nested in that region.
+    /// </summary>
+    /// <exception cref="NavigationRegionMissingException">
+    /// The target element, or the sender, is not in a navigation region.
+    /// </exception>
     public object? Execute(object sender, object parameter)
     {
         var target = TargetElement ?? sender;
@@ -88,6 +95,13 @@ public partial class NavigateLocalSegmentAction : NavigateSegmentActionBase, IAc
 
 public partial class NavigateNestedSegmentAction : NavigateSegmentActionBase, IAction
 {
+    /// <summary>
+    /// Navigates to a segment that is nested in the segment of the region inside the region of the target element, or
+    /// of the sender when no target is set.
+    /// </summary>
+    /// <exception cref="NavigationRegionMissingException">
+    /// The target element, or the sender, is not in a navigation region.
+    /// </exception>
     public object? Execute(object sender, object parameter)
     {
         var target = TargetElement ?? sender;
@@ -103,6 +117,12 @@ public partial class NavigateNestedSegmentAction : NavigateSegmentActionBase, IA
 
 public partial class NavigateDialogSegmentAction : NavigateSegmentActionBase, IAction
 {
+    /// <summary>
+    /// Opens the dialog of the segment over the page of the target element, or of the sender when no target is set.
+    /// </summary>
+    /// <exception cref="NavigationRegionMissingException">
+    /// The target element, or the sender, is not in a navigation region.
+    /// </exception>
     public object? Execute(object sender, object parameter)
     {
         var target = TargetElement ?? sender;
