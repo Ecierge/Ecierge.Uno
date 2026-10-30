@@ -45,6 +45,14 @@ Every window has one `NavigationJournal`, a list of the whole routes from the ro
 
 In XAML, `NavigateBackAction` and `NavigateForwardAction` go back and forward, and the attached properties `Navigation.CanGoBack` and `Navigation.CanGoForward` of the content of the window can enable a button. A `NavigationView` goes back from its own back button, whichever of `NavigationViewNavigator` and `NavigationViewContentNavigator` serves it; the button is enabled while the journal has an entry to go back to, and the view shows it when its `IsBackButtonVisible` says so.
 
+## Deep links
+
+`DeepLinkMapper.ToRoutePath` turns a link into the text of a route. A link of the custom scheme (`NavigationOptions.DeepLinkScheme`, for example `ecierge-console://Building/3f2a/Assets`) and a link of the web (`https://host/Building/3f2a/Assets`, under `NavigationOptions.BasePath`) name pages. Any other link does not. A link cannot carry the commands of the route text (`-`, `-/`, `/`, `../`, `./`), because it comes from outside.
+
+- `IDeepLinkSource` gives the link that started the application (`LaunchUri`) and the links that arrive while it runs (`Received`). Windows reads the protocol activation, the desktop reads the command line and the browser reads its address. Other platforms have no source.
+- `WindowExtensions.NavigateAsync` puts the page of the launch link into `IPendingNavigation`. When the application has no initial navigation of its own, it opens that page, replacing the first entry of the history. An application with its own initial navigation takes the route with `IPendingNavigation.Consume()`, for example after the user has signed in.
+- `Navigator.NavigateToLinkAsync` opens the page of a link at run time. The rules still decide, like for any other navigation.
+
 ## Back button of the system
 
 On Android and iOS the back button of the system goes back in the journal while there is an entry to go back to, and leaves the application otherwise. `NavigationOptions.UseNativeBackButton` turns it on or off explicitly. It is never used on WebAssembly.
@@ -56,6 +64,8 @@ On Android and iOS the back button of the system goes back in the journal while 
 |`DialogsInHistory`|`true`|An open dialog is an entry of the history|
 |`JournalCapacity`|`100`|The number of entries the history keeps|
 |`UseNativeBackButton`|`true` on Android and iOS|The back button of the system goes back in the journal|
+|`DeepLinkScheme`|none|The scheme of the links that open a page, such as `ecierge-console`|
+|`BasePath`|`/`|The path under which the application is hosted on the web|
 
 The options are bound from the `NavigationOptions` section of the configuration, and the callback of `AddNavigation` adjusts them after that.
 
@@ -71,4 +81,5 @@ dotnet build Ecierge.Uno.Navigation.Tests
 ## Known limits
 
 - A navigator that shows a page skips a navigation to the page that is already shown. A page that was created from an older load refreshes through its own refresh action, or takes `NavigationEntity<T>` and listens to `Changed`.
+- A link that reaches an application that is already running is not handed to it on Windows and on the desktop, where the system starts another process with the link.
 - Navigation guards (a confirmation before the user leaves a page with unsaved changes) are not part of the library yet.
