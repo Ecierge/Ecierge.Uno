@@ -32,9 +32,6 @@ public static class ServiceCollectionExtensions
         , Func<IServiceCollection, IRouteRegistryBuilder>? createRouteRegistryBuilder = null
         )
     {
-        var navConfig = new NavigationOptions();
-        navConfig = (configure?.Invoke(navConfig)) ?? navConfig;
-
         IViewRegistryBuilder viewRegistryBuilder = createViewRegistryBuilder?.Invoke(services) ?? new ViewRegistryBuilder(services);
         INavigationDataRegistryBuilder navigationDataRegistryBuilder = new NavigationDataRegistryBuilder(services);
         IRouteRegistryBuilder routeRegistryBuilder = createRouteRegistryBuilder?.Invoke(services) ?? new RouteRegistryBuilder();
@@ -42,6 +39,12 @@ public static class ServiceCollectionExtensions
         var views = viewRegistryBuilder.Build();
         var navigationData = navigationDataRegistryBuilder.Build();
         var routes = routeRegistryBuilder.Build(views, navigationData);
+
+        if (configure is not null)
+        {
+            // Runs before the navigators are added to the options, so that a callback may replace the whole dictionary
+            services.AddSingleton<IPostConfigureOptions<NavigationOptions>>(new AdjustNavigationOptions(configure));
+        }
 
         return
             services

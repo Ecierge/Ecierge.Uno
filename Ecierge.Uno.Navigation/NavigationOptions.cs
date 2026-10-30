@@ -59,6 +59,31 @@ public record NavigationOptions
      => TryGetNavigatorType(typeof(TControl), out navigatorType);
 }
 
+/// <summary>
+/// Applies the callback of <c>AddNavigation</c> to the options after they were bound from the configuration, so the
+/// callback sees what the configuration says and has the last word.
+/// </summary>
+internal sealed class AdjustNavigationOptions(Func<NavigationOptions, NavigationOptions> configure) : IPostConfigureOptions<NavigationOptions>
+{
+    // The options are a record with init-only properties, so the adjusted copy is written back property by property
+    private static readonly System.Reflection.PropertyInfo[] Properties =
+        typeof(NavigationOptions)
+            .GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)
+            .Where(property => property.SetMethod is not null)
+            .ToArray();
+
+    public void PostConfigure(string? name, NavigationOptions options)
+    {
+        var adjusted = configure(options);
+        if (ReferenceEquals(adjusted, options)) return;
+
+        foreach (var property in Properties)
+        {
+            property.SetValue(options, property.GetValue(adjusted));
+        }
+    }
+}
+
 internal class PostConfigureNavigationOptions(IEnumerable<Tuple<Type, Type>> navigators) : IPostConfigureOptions<NavigationOptions>
 {
     public void PostConfigure(string? name, NavigationOptions options)
