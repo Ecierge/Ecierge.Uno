@@ -23,6 +23,9 @@ public static class DeepLinkExtensions
     /// The response of the navigation. It is a failure when the link does not name a page of the application, with the
     /// reason; a link of the application that names no page is a failure too, with the exception.
     /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="navigator"/> or <paramref name="link"/> is <see langword="null"/>.
+    /// </exception>
     public static async ValueTask<NavigationResponse> NavigateToLinkAsync(
         this Navigator navigator,
         object initiator,
