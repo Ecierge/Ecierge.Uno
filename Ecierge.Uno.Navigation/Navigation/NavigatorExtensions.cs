@@ -219,6 +219,9 @@ public static class NavigatorExtensions
     /// <returns>The route, relative to the region that the text starts in.</returns>
     /// <exception cref="InvalidRouteException">A segment of the text is not a nested segment of the region.</exception>
     /// <exception cref="FormatException">The text is not a well formed route.</exception>
+    /// <exception cref="InvalidOperationException">
+    /// The text starts in a region that has no parent or child region to start in.
+    /// </exception>
     public static Routing.Route ParseRoute([NotNull] this Navigator navigator, string route, INavigationData? navigationData = null)
     {
         if (navigator.TryResolveRoute(route, navigationData, out var resolved, out var error))
@@ -238,6 +241,11 @@ public static class NavigatorExtensions
     /// <param name="navigationData">The data to add to the route.</param>
     /// <param name="historyMode">What the navigation does to the history.</param>
     /// <returns>The response of the navigation.</returns>
+    /// <exception cref="FormatException"><paramref name="route"/> is not a well formed route.</exception>
+    /// <exception cref="InvalidRouteException">A segment of the text is not a nested segment of the region.</exception>
+    /// <exception cref="InvalidOperationException">
+    /// The text starts in a region that has no parent or child region to start in.
+    /// </exception>
     public static async ValueTask<NavigationResponse> NavigateRouteAsync(
         [NotNull] this Navigator navigator,
         object initiator,
@@ -284,6 +292,9 @@ public static class NavigatorExtensions
     /// <param name="historyMode">What the navigation does to the history.</param>
     /// <param name="mode">How the navigation was started.</param>
     /// <returns>The response of the navigation.</returns>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="navigator"/> or <paramref name="route"/> is <see langword="null"/>.
+    /// </exception>
     public static async ValueTask<NavigationResponse> NavigateRouteAsync(
         [NotNull] this Navigator navigator,
         object initiator,
@@ -342,6 +353,10 @@ public static class NavigatorExtensions
         }
     }
 
+    /// <summary>
+    /// Navigates the segments of the route one after another, each through the navigator of its own region.
+    /// </summary>
+    /// <exception cref="NotSupportedException">A segment of the route is of a kind that is not known.</exception>
     private static async ValueTask<NavigationResponse> NavigateSegmentsAsync(
         Navigator navigator,
         object initiator,
@@ -467,6 +482,9 @@ public static class NavigatorExtensions
     /// <param name="historyMode">What the navigation does to the history.</param>
     /// <param name="mode">How the navigation was started.</param>
     /// <returns>The response of the navigation.</returns>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="navigator"/> or <paramref name="target"/> is <see langword="null"/>.
+    /// </exception>
     public static async ValueTask<NavigationResponse> NavigateToAsync(
         [NotNull] this Navigator navigator,
         object initiator,
@@ -600,6 +618,7 @@ public static class NavigatorExtensions
     /// <param name="initiator">The object that starts the navigation.</param>
     /// <param name="delta">The number of the entries to move; negative goes back.</param>
     /// <returns>The response of the navigation; a failure if there is no entry at the new position.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="navigator"/> is <see langword="null"/>.</exception>
     public static async ValueTask<NavigationResponse> GoAsync([NotNull] this Navigator navigator, object initiator, int delta)
     {
         var root = (navigator ?? throw new ArgumentNullException(nameof(navigator))).RootNavigator;
