@@ -57,6 +57,10 @@ public static partial class WindowExtensions
         var navigator = navigationScope.ServiceProvider.GetRequiredService<Navigator>();
         Navigation.SetRootNavigator(window.Content!, navigator);
         ((FrameworkElement)window.Content!).TrackJournal(navigator.Journal);
+
+        // Before the first navigation, so that the first page is recorded in the history of the browser and the link
+        // that started the application waits for the code that opens the first page
+        WindowIntegration.Attach(navigator);
         if (initialNavigate is not null)
         {
             await initialNavigate.Invoke(navigationScope.ServiceProvider, navigator).ConfigureAwait(true);
