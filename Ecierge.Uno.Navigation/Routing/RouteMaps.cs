@@ -99,7 +99,8 @@ namespace Ecierge.Uno.Navigation
                         dataSegment.DataMap ?? throw new InvalidOperationException($"The data segment '{dataSegment.Name}' has no data map."));
                     var entity = data is INavigationData navData
                         ? dataMap.GetEntity(navData, dataSegment.Name)
-                        : dataMap.CreateEntity(data);
+                        // The route that the entity is part of is the one of the navigator that builds it
+                        : dataMap.CreateEntity(data, data: serviceProvider.GetInstance<INavigationData>());
                     navigationData = navigationData.SetItem(dataSegment.Name, entity);
                     list.Add(new DataSegmentInstance(dataSegment, entity.Primitive, null));
                     AddDefaultSegments(dataSegment);

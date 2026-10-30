@@ -109,9 +109,10 @@ public interface INavigationDataMap : INavigationDataMapEntityTypeInfo
     /// </summary>
     /// <param name="value">The entity, the task, the text or the handle.</param>
     /// <param name="primitive">The value of the entity, needed only for a task, which does not know it.</param>
+    /// <param name="data">The data of the route that the entity is part of, which the loader gets when the handle loads the entity again.</param>
     /// <returns>The handle.</returns>
     /// <exception cref="NotSupportedException">The value is none of the supported kinds.</exception>
-    INavigationEntity CreateEntity(object value, string? primitive = null);
+    INavigationEntity CreateEntity(object value, string? primitive = null, INavigationData? data = null);
 
     /// <summary>
     /// Gets the handle that the data holds under the name, if it is the handle of the entity with the given value;
@@ -152,7 +153,7 @@ public abstract class NavigationDataMap<TEntity> : INavigationDataMap
     Type INavigationDataMap.EntityType => EntityType;
 
 #pragma warning disable CRR0030 // Redundant 'await'
-    Task INavigationDataMap.LoadEntityAsync(INavigationData data, string name) => LoadEntityAsync(GetStringValue(data, name));
+    Task INavigationDataMap.LoadEntityAsync(INavigationData data, string name) => LoadEntityAsync(GetStringValue(data, name), data);
     Task INavigationDataMap.LoadEntityAsync(string primitive) => LoadEntityAsync(primitive);
 #pragma warning restore CRR0030 // Redundant 'await'
 
@@ -162,6 +163,18 @@ public abstract class NavigationDataMap<TEntity> : INavigationDataMap
     /// <param name="primitive">The value of the entity as it is written in a route.</param>
     /// <returns>The task that loads the entity.</returns>
     public abstract Task<TEntity> LoadEntityAsync(string primitive);
+
+    /// <summary>
+    /// Loads the entity from its value, knowing the data of the route that the value is part of. A map overrides it
+    /// when the value alone does not find the entity, for example an asset is found by its id inside the property
+    /// that the route names before it. The data holds the handles of the data segments above the entity, so the
+    /// value of the property is read from its handle without waiting for the property to load. The default ignores
+    /// the data.
+    /// </summary>
+    /// <param name="primitive">The value of the entity as it is written in a route.</param>
+    /// <param name="data">The data of the route that the value is part of.</param>
+    /// <returns>The task that loads the entity.</returns>
+    public virtual Task<TEntity> LoadEntityAsync(string primitive, INavigationData data) => LoadEntityAsync(primitive);
 
     /// <summary>
     /// Writes the entity as a value that <see cref="LoadEntityAsync(string)"/> reads back.
@@ -328,7 +341,7 @@ public abstract class NavigationDataMap<TEntity> : INavigationDataMap
                 NavigationEntity<TEntity> handle => handle.GetAsync(),
                 TEntity entity => Task.FromResult(entity),
                 Task<TEntity> task => task,
-                string primitive => LoadEntityAsync(primitive),
+                string primitive => LoadEntityAsync(primitive, data),
                 _ => throw new NotSupportedException($"Value of type {obj.GetType()} is not supported for {name}.")
             };
         }
@@ -357,19 +370,53 @@ public abstract class NavigationDataMap<TEntity> : INavigationDataMap
     /// <returns>The handle, which loads the entity again from its value if the task failed.</returns>
     public NavigationEntity<TEntity> CreateEntity(Task<TEntity> task, string primitive) => new(primitive, task, LoadEntityAsync);
 
+    /// <summary>
+    /// Creates the handle of an entity that is loaded from its value when somebody asks for it, by the loader that
+    /// gets the data of the route.
+    /// </summary>
+    /// <param name="primitive">The value of the entity as it is written in a route.</param>
+    /// <param name="data">The data of the route that the entity is part of.</param>
+    /// <returns>The handle.</returns>
+    public NavigationEntity<TEntity> CreateEntity(string primitive, INavigationData data)
+     => new(primitive, value => LoadEntityAsync(value, data));
+
+    /// <summary>
+    /// Creates the handle of an entity that is loaded, which reloads it by the loader that gets the data of the route.
+    /// </summary>
+    /// <param name="entity">The entity.</param>
+    /// <param name="data">The data of the route that the entity is part of.</param>
+    /// <returns>The handle.</returns>
+    public NavigationEntity<TEntity> CreateEntity(TEntity entity, INavigationData data)
+     => new(ToPrimitive(entity), entity, value => LoadEntityAsync(value, data));
+
+    /// <summary>
+    /// Creates the handle of an entity that is being loaded by a task, which loads it again by the loader that gets
+    /// the data of the route if the task failed.
+    /// </summary>
+    /// <param name="task">The task that loads the entity.</param>
+    /// <param name="primitive">The value of the entity as it is written in a route.</param>
+    /// <param name="data">The data of the route that the entity is part of.</param>
+    /// <returns>The handle.</returns>
+    public NavigationEntity<TEntity> CreateEntity(Task<TEntity> task, string primitive, INavigationData data)
+     => new(primitive, task, value => LoadEntityAsync(value, data));
+
     INavigationEntity INavigationDataMap.CreateEntity(string primitive) => CreateEntity(primitive);
 
-    INavigationEntity INavigationDataMap.CreateEntity(object value, string? primitive) => value switch
+    INavigationEntity INavigationDataMap.CreateEntity(object value, string? primitive, INavigationData? data) => value switch
     {
         null => throw new ArgumentNullException(nameof(value)),
         NavigationEntity<TEntity> handle => handle,
-        TEntity entity => CreateEntity(entity),
-        Task<TEntity> task => CreateEntity(
+        TEntity entity => data is null ? CreateEntity(entity) : CreateEntity(entity, data),
+        Task<TEntity> task => CreateTaskEntity(
             task,
-            primitive ?? throw new ArgumentException("A task does not know the value of its entity, so the value is required.", nameof(primitive))),
-        string text => CreateEntity(text),
+            primitive ?? throw new ArgumentException("A task does not know the value of its entity, so the value is required.", nameof(primitive)),
+            data),
+        string text => data is null ? CreateEntity(text) : CreateEntity(text, data),
         _ => throw new NotSupportedException($"Value of type {value.GetType()} is not supported.")
     };
+
+    private NavigationEntity<TEntity> CreateTaskEntity(Task<TEntity> task, string primitive, INavigationData? data)
+     => data is null ? CreateEntity(task, primitive) : CreateEntity(task, primitive, data);
 
     /// <inheritdoc cref="INavigationDataMap.GetOrCreateEntity(INavigationData, string, string)"/>
     public NavigationEntity<TEntity> GetOrCreateEntity(INavigationData data, string name, string primitive)
@@ -382,13 +429,15 @@ public abstract class NavigationDataMap<TEntity> : INavigationDataMap
                 case NavigationEntity<TEntity> handle when SamePrimitive(handle.Primitive, primitive):
                     return handle;
                 case TEntity entity when SamePrimitive(ToPrimitive(entity), primitive):
-                    return CreateEntity(entity);
+                    return CreateEntity(entity, data);
                 case Task<TEntity> { IsCompletedSuccessfully: true } task when SamePrimitive(ToPrimitive(task.Result), primitive):
-                    return CreateEntity(task.Result);
+                    return CreateEntity(task.Result, data);
             }
         }
 
-        return CreateEntity(primitive);
+        // The handle remembers the data of the route, so that whenever it loads again it finds an entity that lives
+        // inside a parent from the value alone
+        return CreateEntity(primitive, data);
     }
 
     INavigationEntity INavigationDataMap.GetOrCreateEntity(INavigationData data, string name, string primitive)
@@ -403,9 +452,9 @@ public abstract class NavigationDataMap<TEntity> : INavigationDataMap
         return obj switch
         {
             NavigationEntity<TEntity> handle => handle,
-            TEntity entity => CreateEntity(entity),
-            string primitive => CreateEntity(primitive),
-            Task<TEntity> { IsCompletedSuccessfully: true } task => CreateEntity(task.Result),
+            TEntity entity => CreateEntity(entity, data),
+            string primitive => CreateEntity(primitive, data),
+            Task<TEntity> { IsCompletedSuccessfully: true } task => CreateEntity(task.Result, data),
             _ => throw new NotSupportedException($"Value of type {obj.GetType()} is not supported for {name}.")
         };
     }

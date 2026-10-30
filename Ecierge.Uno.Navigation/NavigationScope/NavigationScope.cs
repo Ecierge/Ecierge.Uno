@@ -336,7 +336,7 @@ public sealed class NavigationScope : IServiceScope, IAsyncDisposable
                     var dataMap = (INavigationDataMap)ServiceProvider.GetRequiredService(taskMapType);
                     try
                     {
-                        var entity = dataMap.CreateEntity(dataRequest.RouteDataTask, dataRequest.RouteDataPrimitive);
+                        var entity = dataMap.CreateEntity(dataRequest.RouteDataTask, dataRequest.RouteDataPrimitive, navData);
                         navData = AddOrUpdateValue(navData, dataRequest.Segment.Name, entity);
                         break;
                     }

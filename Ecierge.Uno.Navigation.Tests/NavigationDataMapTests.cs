@@ -3,6 +3,9 @@ namespace Ecierge.Uno.Navigation.Tests;
 using Ecierge.Uno.Navigation;
 using Ecierge.Uno.Navigation.Tests.Doubles;
 
+// Inside Ecierge.Uno, a plain Uno.* name would resolve to the Ecierge.Uno namespace
+using global::Uno.Extensions.Equality;
+
 /// <summary>
 /// How a data map turns what a route holds under the name of a data segment into the handle of the entity, and how it
 /// shares one handle between the pages of the segment.
@@ -17,6 +20,80 @@ public class NavigationDataMapTests
     private BuildingMap Map => new(server);
 
     private static INavigationData DataWith(object value) => NavigationData.Empty.Add(Name, value);
+
+    private const string RoomName = "RoomInfo";
+
+    [ImplicitKeys(IsEnabled = false)]
+    private sealed record Room(string BuildingId, string Id);
+
+    /// <summary>A room is found by its id inside the building that the route names before it.</summary>
+    private sealed class RoomMap(List<string> requests) : NavigationDataMap<Room>
+    {
+        public override Task<Room> LoadEntityAsync(string primitive)
+         => throw new InvalidOperationException("A room is found inside a building, so its value alone is not enough.");
+
+        public override Task<Room> LoadEntityAsync(string primitive, INavigationData data)
+        {
+            data.TryGetValue(Name, out var building);
+            var buildingId = ((INavigationEntity)building!).Primitive;
+            requests.Add($"{buildingId}/{primitive}");
+            return Task.FromResult(new Room(buildingId, primitive));
+        }
+
+        protected override string ToPrimitive(Room entity) => entity.Id;
+    }
+
+    private INavigationData RouteOfBuilding(string buildingId) => DataWith(Map.CreateEntity(buildingId));
+
+    [TestMethod]
+    public async Task A_handle_must_load_with_the_data_of_the_route_it_was_made_in()
+    {
+        var requests = new List<string>();
+        var map = new RoomMap(requests);
+
+        var handle = map.GetOrCreateEntity(RouteOfBuilding("b1"), RoomName, "r1");
+        var room = await handle.GetAsync();
+
+        CollectionAssert.AreEqual(new[] { "b1/r1" }, requests, "Expected the room to be looked for in the building that the route names.");
+        Assert.AreEqual("b1", room.BuildingId, "Expected the loader to have found the building of the route.");
+    }
+
+    [TestMethod]
+    public async Task A_handle_of_an_entity_must_reload_with_the_data_of_the_route_it_was_made_in()
+    {
+        var requests = new List<string>();
+        var map = new RoomMap(requests);
+        var data = RouteOfBuilding("b2").Add(RoomName, new Room("b2", "r5"));
+
+        var handle = map.GetOrCreateEntity(data, RoomName, "r5");
+        Assert.IsTrue(handle.IsLoaded, "Expected the room that the route holds to be loaded without a request.");
+        await handle.ReloadAsync();
+
+        CollectionAssert.AreEqual(new[] { "b2/r5" }, requests, "Expected the reload to look in the building of the route.");
+    }
+
+    [TestMethod]
+    public async Task LoadEntityAsync_by_name_must_pass_the_data_of_the_route()
+    {
+        var requests = new List<string>();
+        var map = (INavigationDataMap)new RoomMap(requests);
+        var data = RouteOfBuilding("b3").Add(RoomName, "r7");
+
+        await map.LoadEntityAsync(data, RoomName);
+
+        CollectionAssert.AreEqual(new[] { "b3/r7" }, requests, "Expected the value of the segment to be loaded inside the building of the route.");
+    }
+
+    [TestMethod]
+    public async Task The_loader_with_data_must_load_by_the_value_when_a_map_does_not_override_it()
+    {
+        var map = Map;
+
+        var building = await map.LoadEntityAsync("b9", NavigationData.Empty);
+
+        Assert.AreEqual("b9", building.Id, "Expected a map that needs no data to load by the value.");
+        CollectionAssert.AreEqual(new[] { "b9" }, server.Requests, "Expected one request for the value.");
+    }
 
     [TestMethod]
     public void GetOrCreateEntity_must_reuse_the_handle_of_the_same_value()
