@@ -3,7 +3,7 @@ namespace Ecierge.Uno.Navigation.Tests;
 using Ecierge.Uno.Navigation;
 
 /// <summary>
-/// A constructor parameter of type <c>Task&lt;T&gt;</c> is given a task of the entity that may have another result type,
+/// A constructor parameter of type <see cref="Task{T}"/> is given a task of the entity that may have another result type,
 /// so the task is converted. The converted task has to complete whatever the original task does.
 /// </summary>
 [TestClass, UnitTestCategory, NavigationTestCategory]
