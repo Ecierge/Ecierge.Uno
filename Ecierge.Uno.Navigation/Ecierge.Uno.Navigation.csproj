@@ -13,6 +13,9 @@
 
     <UnoSingleProject>true</UnoSingleProject>
     <OutputType>Library</OutputType>
+    <!-- Uno.Sdk does not pack by default -->
+    <IsPackable>true</IsPackable>
+    <Description>Navigation for Uno Platform and WinUI applications: routes, regions, navigators and permission based visibility of controls.</Description>
     <!-- Ensures the .xr.xml files are generated in a proper layout folder -->
     <GenerateLibraryLayout>true</GenerateLibraryLayout>
     <ImplicitUsings>enable</ImplicitUsings>
