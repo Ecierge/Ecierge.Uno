@@ -77,13 +77,14 @@ public partial class App : Application
                 .UseSerialization((context, services) => services
                     //.AddContentSerializer(context)
                     .AddJsonTypeInfo(WeatherForecastContext.Default.IImmutableListWeatherForecast))
-                .UseHttp((context, services) => services
+                .UseHttp((context, services) =>
+                {
                     // Register HttpClient
 #if DEBUG
                     // DelegatingHandler will be automatically injected into HTTP Client
-                    .AddTransient<DelegatingHandler, DebugHttpHandler>()
+                    services.AddTransient<DelegatingHandler, DebugHttpHandler>();
 #endif
-                )
+                })
                 .ConfigureServices((context, services) =>
                 {
                     services.AddSingleton<IAuthorizationService, DemoAuthorizationService>();
