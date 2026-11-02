@@ -39,4 +39,34 @@
     -->
     <NoWarn>$(NoWarn);NU1507;NETSDK1201;PRI257</NoWarn>
   </PropertyGroup>
+
+  <!--
+    Package metadata of every packable project.
+    The version is a placeholder: CI passes -p:Version with the number that Nerdbank.GitVersioning computes (see version.json).
+  -->
+  <PropertyGroup>
+    <Version>0.0.0-local</Version>
+    <Authors>Ecierge</Authors>
+    <Company>Ecierge</Company>
+    <Copyright>Copyright © Ecierge</Copyright>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/Ecierge/Ecierge.Uno</PackageProjectUrl>
+    <PackageReleaseNotes>https://github.com/Ecierge/Ecierge.Uno/releases</PackageReleaseNotes>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>uno-platform;uno;winui</PackageTags>
+    <RepositoryUrl>https://github.com/Ecierge/Ecierge.Uno</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+  </PropertyGroup>
+
+  <!-- Release builds embed the symbols in the assemblies: GitHub Packages does not take .snupkg files, and one package then serves every feed. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <!-- Deterministic paths in the assemblies that GitHub Actions builds. -->
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
 </Project>
