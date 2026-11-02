@@ -13,6 +13,9 @@
 
     <UnoSingleProject>true</UnoSingleProject>
     <OutputType>Library</OutputType>
+    <!-- Uno.Sdk does not pack by default -->
+    <IsPackable>true</IsPackable>
+    <Description>Controls, styles and behaviors for Uno Platform and WinUI applications: grouped combo box, nullable number box, inline edit, loading text box and validation control.</Description>
     <!-- Ensures the .xr.xml files are generated in a proper layout folder -->
     <GenerateLibraryLayout>true</GenerateLibraryLayout>
     <ImplicitUsings>enable</ImplicitUsings>

@@ -1,0 +1,164 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  DOTNET_NOLOGO: 1
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 120
+    env:
+      # The platforms of the sample app that this job builds. %3B is an escaped semicolon.
+      APP_TARGET_FRAMEWORKS: net10.0-windows10.0.28000%3Bnet10.0-desktop%3Bnet10.0-browserwasm%3Bnet10.0
+    outputs:
+      version: ${{ steps.nbgv.outputs.NuGetPackageVersion }}
+      simple-version: ${{ steps.nbgv.outputs.SimpleVersion }}
+      public-release: ${{ steps.nbgv.outputs.PublicRelease }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # Nerdbank.GitVersioning counts the commits
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Compute the version
+        id: nbgv
+        uses: dotnet/nbgv@v0.5.2
+        with:
+          setAllVars: true
+
+      - name: Install the .NET workloads
+        run: dotnet workload install android ios maccatalyst wasm-tools
+
+      # In Release the Android head of the sample app needs the runtime pack Microsoft.NETCore.App.Runtime.Mono.win-x64,
+      # which nuget.org does not have for .NET 10 (NU1102). The app is restored for the platforms that this job builds.
+      # The libraries come with it for the same platforms and are restored for all platforms right after, so their assets are a superset.
+      - name: Restore the sample app and the tests
+        run: dotnet restore Ecierge.Uno.App.Tests/Ecierge.Uno.App.Tests.csproj -p:Configuration=Release "-p:OverrideTargetFramework=$env:APP_TARGET_FRAMEWORKS"
+
+      - name: Restore the libraries (all platforms)
+        run: dotnet restore Ecierge.Uno.Packages.slnf -p:Configuration=Release
+
+      - name: Build the libraries (all platforms)
+        run: |
+          New-Item -ItemType Directory -Force artifacts/logs | Out-Null
+          dotnet build Ecierge.Uno.Packages.slnf -c Release --no-restore "-p:Version=$env:NBGV_NuGetPackageVersion" -bl:artifacts/logs/libraries.binlog
+
+      # The Windows head is an x64 app, the other heads are not: Platform=x64 clashes with the browser-wasm runtime identifier (NETSDK1032).
+      - name: Build the sample app (Windows)
+        run: dotnet build Ecierge.Uno.App/Ecierge.Uno.App.csproj -c Release --no-restore -p:Platform=x64 "-p:Version=$env:NBGV_NuGetPackageVersion" -p:OverrideTargetFramework=net10.0-windows10.0.28000 -bl:artifacts/logs/app-windows.binlog
+
+      - name: Build the sample app (desktop, WebAssembly and plain .NET)
+        run: dotnet build Ecierge.Uno.App/Ecierge.Uno.App.csproj -c Release --no-restore "-p:Version=$env:NBGV_NuGetPackageVersion" "-p:OverrideTargetFramework=net10.0-desktop%3Bnet10.0-browserwasm%3Bnet10.0" -bl:artifacts/logs/app-other.binlog
+
+      - name: Build the tests
+        run: dotnet build Ecierge.Uno.App.Tests/Ecierge.Uno.App.Tests.csproj -c Release --no-restore "-p:Version=$env:NBGV_NuGetPackageVersion" "-p:OverrideTargetFramework=$env:APP_TARGET_FRAMEWORKS" -bl:artifacts/logs/tests.binlog
+
+      - name: Test
+        run: dotnet test --solution Ecierge.Uno.CI.slnf -c Release --no-build --report-trx --results-directory artifacts/test-results
+
+      - name: Pack
+        run: dotnet pack Ecierge.Uno.Packages.slnf -c Release --no-build "-p:Version=$env:NBGV_NuGetPackageVersion" -o artifacts/packages
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: packages
+          path: artifacts/packages/*.nupkg
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }}
+        with:
+          name: logs
+          path: |
+            artifacts/logs
+            artifacts/test-results
+          if-no-files-found: ignore
+
+  # Development versions (1.0.N-g<hash>) of every commit of main go to the GitHub Packages feed of the organization.
+  publish-dev:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: packages
+          path: packages
+
+      - name: Push to GitHub Packages
+        env:
+          NUGET_API_KEY: ${{ secrets.GITHUB_TOKEN }}
+        run: dotnet nuget push "packages/*.nupkg" --source https://nuget.pkg.github.com/Ecierge/index.json --api-key "$NUGET_API_KEY" --skip-duplicate
+
+  # A release is a tag made by `nbgv tag` (see README.md). Its stable packages go to the GitHub Packages feed and a GitHub Release is created.
+  publish-release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: Check that the tag is the version of its commit
+        shell: pwsh
+        env:
+          TAG: ${{ github.ref_name }}
+          SIMPLE_VERSION: ${{ needs.build.outputs.simple-version }}
+          PUBLIC_RELEASE: ${{ needs.build.outputs.public-release }}
+        run: |
+          if ($env:PUBLIC_RELEASE -ne 'True') { throw "The build of '$env:TAG' is not a public release." }
+          if ($env:TAG -cne "v$env:SIMPLE_VERSION") { throw "The tag '$env:TAG' is not the version of its commit (v$env:SIMPLE_VERSION)." }
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: packages
+          path: packages
+
+      - name: Push to GitHub Packages
+        env:
+          NUGET_API_KEY: ${{ secrets.GITHUB_TOKEN }}
+        run: dotnet nuget push "packages/*.nupkg" --source https://nuget.pkg.github.com/Ecierge/index.json --api-key "$NUGET_API_KEY" --skip-duplicate
+
+      - name: Create the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: gh release create "$TAG" packages/*.nupkg --repo "$GITHUB_REPOSITORY" --title "$TAG" --generate-notes --verify-tag
+
+  # The push to nuget.org is gated by the `nuget.org` environment (required reviewer, secret NUGET_API_KEY)
+  # and switched on by the repository variable PUBLISH_TO_NUGET_ORG.
+  publish-nuget-org:
+    needs: publish-release
+    if: startsWith(github.ref, 'refs/tags/v') && vars.PUBLISH_TO_NUGET_ORG == 'true'
+    runs-on: ubuntu-latest
+    environment: nuget.org
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: packages
+          path: packages
+
+      - name: Push to nuget.org
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: dotnet nuget push "packages/*.nupkg" --source https://api.nuget.org/v3/index.json --api-key "$NUGET_API_KEY" --skip-duplicate
