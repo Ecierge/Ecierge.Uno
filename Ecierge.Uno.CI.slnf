@@ -1,0 +1,12 @@
+{
+  "solution": {
+    "path": "Ecierge.Uno.App.slnx",
+    "projects": [
+      "Ecierge.Uno.App.Tests\\Ecierge.Uno.App.Tests.csproj",
+      "Ecierge.Uno.App\\Ecierge.Uno.App.csproj",
+      "Ecierge.Uno.Controls\\Ecierge.Uno.Controls.csproj",
+      "Ecierge.Uno.Navigation\\Ecierge.Uno.Navigation.csproj",
+      "OpenIddict.Client.UnoTokenPersistence\\OpenIddict.Client.UnoTokenPersistence.csproj"
+    ]
+  }
+}
