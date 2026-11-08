@@ -23,7 +23,8 @@ public class ContentControlNavigator : ContentControlNavigatorBase<ContentContro
         var view = (FrameworkElement)result.Result!;
         var contentControl = Target;
         contentControl.Content = view;
-        return new NavigationResult(result.Request!);
+        // The navigator keeps the view it shows, as the other navigators that create views do
+        return new NavigationResult(result.Request!, view);
     }
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 }
