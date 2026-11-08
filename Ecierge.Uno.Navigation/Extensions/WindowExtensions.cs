@@ -71,15 +71,23 @@ public static partial class WindowExtensions
         if (initialNavigate is not null)
         {
             await initialNavigate.Invoke(navigationScope.ServiceProvider, navigator).ConfigureAwait(true);
+            ShowContent();
         }
         else
         {
-            await OpenFirstPageAsync(navigator, rootSegment).ConfigureAwait(true);
+            // A splash screen shows its content only after its source has loaded, and the navigator of its region waits
+            // until the first page is loaded: waiting for the page before the source is set would never end
+            var firstPage = OpenFirstPageAsync(navigator, rootSegment);
+            ShowContent();
+            await firstPage.ConfigureAwait(true);
         }
 
-        if (navRoot is LoadingView loadingView)
+        void ShowContent()
         {
-            loadingView.Source = new LoadingTask(hostLifetime.ApplicationStarted, navRoot);
+            if (navRoot is LoadingView loadingView)
+            {
+                loadingView.Source = new LoadingTask(hostLifetime.ApplicationStarted, navRoot);
+            }
         }
     }
 
