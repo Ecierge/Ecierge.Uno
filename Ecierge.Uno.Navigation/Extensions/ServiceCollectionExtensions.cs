@@ -32,9 +32,6 @@ public static class ServiceCollectionExtensions
         , Func<IServiceCollection, IRouteRegistryBuilder>? createRouteRegistryBuilder = null
         )
     {
-        var navConfig = new NavigationOptions();
-        navConfig = (configure?.Invoke(navConfig)) ?? navConfig;
-
         IViewRegistryBuilder viewRegistryBuilder = createViewRegistryBuilder?.Invoke(services) ?? new ViewRegistryBuilder(services);
         INavigationDataRegistryBuilder navigationDataRegistryBuilder = new NavigationDataRegistryBuilder(services);
         IRouteRegistryBuilder routeRegistryBuilder = createRouteRegistryBuilder?.Invoke(services) ?? new RouteRegistryBuilder();
@@ -42,6 +39,12 @@ public static class ServiceCollectionExtensions
         var views = viewRegistryBuilder.Build();
         var navigationData = navigationDataRegistryBuilder.Build();
         var routes = routeRegistryBuilder.Build(views, navigationData);
+
+        if (configure is not null)
+        {
+            // Runs before the navigators are added to the options, so that a callback may replace the whole dictionary
+            services.AddSingleton<IPostConfigureOptions<NavigationOptions>>(new AdjustNavigationOptions(configure));
+        }
 
         return
             services
@@ -56,12 +59,15 @@ public static class ServiceCollectionExtensions
 
                 .AddInheritedScopedInstance<Window>()
                 .AddInheritedScopedInstance<DispatcherQueue>()
+                .AddInheritedScopedInstance<INavigationDispatcher>()
                 .AddScopedInstance<FrameworkElement>()
                 .AddScopedInstance<NavigationScope>()
+                .AddScopedInstance<Regions.NavigationRegion>()
                 .AddScopedInstance<IServiceScope>()
                 .AddScopedInstance<Navigator>()
                 .AddScopedInstance<NameSegment>()
                 .AddSingleton<INavigationStatus, NavigationStatus>()
+                .AddSingleton<IPendingNavigation, PendingNavigation>()
 
                 .AddScopedInstance<INavigationData>()
 
@@ -70,8 +76,6 @@ public static class ServiceCollectionExtensions
                 .AddSingleton<RouteNotifier>()
                 .AddSingleton<IRouteNotifier>(sp => sp.GetRequiredService<RouteNotifier>())
                 .AddSingleton<IRouteUpdater>(sp => sp.GetRequiredService<RouteNotifier>())
-                //.AddHostedService<BrowserAddressBarService>()
-                //.AddHostedService<BackButtonService>()
                 //.AddScoped<Navigator>()
 
 
@@ -104,7 +108,10 @@ public static class ServiceCollectionExtensions
                 .AddSingleton<IViewRegistry>(sp => (IViewRegistry)sp.GetRequiredService(views.GetType()))
 
                 .AddSingleton(routes.GetType(), routes)
-                .AddSingleton<IRouteRegistry>(sp => (RouteRegistry)sp.GetRequiredService(routes.GetType()));
+                .AddSingleton<IRouteRegistry>(sp => (RouteRegistry)sp.GetRequiredService(routes.GetType()))
+
+                // The deep link source and the browser history exist only on the platforms that have them
+                .AddPlatformServices();
     }
 
     /// <summary>
