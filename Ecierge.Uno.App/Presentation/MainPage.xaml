@@ -34,6 +34,16 @@
             <Setter Target="Tab2Content.Visibility" Value="Visible" />
           </VisualState.Setters>
         </VisualState>
+        <VisualState x:Name="Tab3State">
+          <VisualState.StateTriggers>
+            <ct:IsEqualStateTrigger Value="{Binding Path=(nav:NavigationRegion.NestedSegmentName), ElementName=SelectorBar}" To="{x:Bind SelectorBarItem3.Text}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="Tab1Content.Visibility" Value="Collapsed" />
+            <Setter Target="Tab2Content.Visibility" Value="Collapsed" />
+            <Setter Target="Tab3Content.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
       </VisualStateGroup>
     </VisualStateManager.VisualStateGroups>
 
@@ -138,7 +148,15 @@
         <Button Content="Go to Second Page from root with dialog">
           <i:Interaction.Behaviors>
             <i:EventTriggerBehavior EventName="Click">
-              <nav:NavigateRootRouteAction Route="Second/Data/!ContentDialog" />
+              <nav:NavigateRootRouteAction Route="Second/Data/Notes/!ContentDialog" />
+            </i:EventTriggerBehavior>
+          </i:Interaction.Behaviors>
+        </Button>
+        <!-- A link that names the entity by its id: its breadcrumb shows "Second page" until the name has loaded -->
+        <Button Content="Open the notes of Sunset Tower from root">
+          <i:Interaction.Behaviors>
+            <i:EventTriggerBehavior EventName="Click">
+              <nav:NavigateRootRouteAction Route="Second/sunset-tower/Notes" />
             </i:EventTriggerBehavior>
           </i:Interaction.Behaviors>
         </Button>
@@ -169,10 +187,12 @@
         <SelectorBar x:Name="SelectorBar" nav:NavigationRegion.Attach="True">
           <SelectorBarItem x:Name="SelectorBarItem1" nav:Route.SegmentName="Tab1" Text="Tab1" />
           <SelectorBarItem x:Name="SelectorBarItem2" nav:Route.SegmentName="Tab2" Text="Tab2" />
+          <SelectorBarItem x:Name="SelectorBarItem3" nav:Route.SegmentName="Tab3" Text="Tab3" />
         </SelectorBar>
         <Grid>
           <TextBlock x:Name="Tab1Content" Visibility="Collapsed">Tab1 Content</TextBlock>
           <TextBlock x:Name="Tab2Content" Visibility="Collapsed">Tab2 Content</TextBlock>
+          <TextBlock x:Name="Tab3Content" Visibility="Collapsed">Tab3 Content: its segment hides the breadcrumbs</TextBlock>
         </Grid>
       </StackPanel>
     </Grid>

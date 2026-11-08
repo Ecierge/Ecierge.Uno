@@ -1,6 +1,7 @@
 ﻿<Page x:Class="Ecierge.Uno.App.Presentation.SecondPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ct="using:CommunityToolkit.WinUI"
       xmlns:i="using:Microsoft.Xaml.Interactivity"
       xmlns:local="using:Ecierge.Uno.App.Presentation"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -11,6 +12,28 @@
       Background="{ThemeResource BackgroundBrush}">
 
   <Grid utu:SafeArea.Insets="VisibleBounds">
+    <VisualStateManager.VisualStateGroups>
+      <VisualStateGroup x:Name="NavigationRegionStates">
+        <VisualState x:Name="DetailsState">
+          <VisualState.StateTriggers>
+            <ct:IsEqualStateTrigger Value="{Binding Path=(nav:NavigationRegion.NestedSegmentName), ElementName=SelectorBar}" To="Details" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="DetailsContent.Visibility" Value="Visible" />
+            <Setter Target="NotesContent.Visibility" Value="Collapsed" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState x:Name="NotesState">
+          <VisualState.StateTriggers>
+            <ct:IsEqualStateTrigger Value="{Binding Path=(nav:NavigationRegion.NestedSegmentName), ElementName=SelectorBar}" To="Notes" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="DetailsContent.Visibility" Value="Collapsed" />
+            <Setter Target="NotesContent.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+    </VisualStateManager.VisualStateGroups>
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
       <RowDefinition />
@@ -36,6 +59,20 @@
         HorizontalAlignment="Center"
         VerticalAlignment="Center"
         Margin="8" />
+      <!-- The last breadcrumb runs the RefreshCommand of the view model, which loads the entity again -->
+      <TextBlock Text="{Binding LoadedAt}" HorizontalAlignment="Center" />
+      <TextBlock Text="Click the last breadcrumb to load the entity again."
+                 HorizontalAlignment="Center"
+                 Margin="0,0,0,8"
+                 Style="{ThemeResource CaptionTextBlockStyle}" />
+      <SelectorBar x:Name="SelectorBar" HorizontalAlignment="Center" nav:NavigationRegion.Attach="True">
+        <SelectorBarItem x:Name="DetailsItem" nav:Route.SegmentName="Details" Text="Details" />
+        <SelectorBarItem x:Name="NotesItem" nav:Route.SegmentName="Notes" Text="Notes" />
+      </SelectorBar>
+      <Grid Margin="0,8">
+        <TextBlock x:Name="DetailsContent" HorizontalAlignment="Center" Visibility="Collapsed">Details of the entity</TextBlock>
+        <TextBlock x:Name="NotesContent" HorizontalAlignment="Center" Visibility="Collapsed">Notes about the entity</TextBlock>
+      </Grid>
       <Button Content="Go to Main default from root">
         <i:Interaction.Behaviors>
           <i:EventTriggerBehavior EventName="Click">
