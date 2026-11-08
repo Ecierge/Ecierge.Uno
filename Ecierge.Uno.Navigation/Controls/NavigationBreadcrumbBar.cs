@@ -13,6 +13,8 @@ using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
+using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 
 /// <summary>
@@ -77,6 +79,9 @@ public sealed partial class NavigationBreadcrumbBar : Control
         DefaultStyleKey = typeof(NavigationBreadcrumbBar);
         Loaded += OnLoaded;
         Unloaded += OnUnloaded;
+        // The bar does not let the user click its last item, which stands for the current page; a tap on it is
+        // caught here, also when an element below has handled it
+        AddHandler(TappedEvent, new TappedEventHandler(OnTapped), handledEventsToo: true);
     }
 
     /// <inheritdoc/>
@@ -114,11 +119,17 @@ public sealed partial class NavigationBreadcrumbBar : Control
 
     private void OnRootNavigatorChanged(DependencyObject sender, DependencyProperty property)
     {
-        if (root is null && sender.GetValue(property) is Navigator navigator)
+        if (sender.GetValue(property) is not Navigator navigator) return;
+
+        // The callback runs inside the call that sets the root navigator, before the first page is opened: the bar
+        // must neither unregister the callback while it is being raised nor delay the first navigation
+        DispatcherQueue.TryEnqueue(() =>
         {
+            if (root is not null || rootNavigatorHolder is null) return;
+
             StopWaitingForRootNavigator();
             Follow(navigator);
-        }
+        });
     }
 
     /// <summary>
@@ -266,6 +277,56 @@ public sealed partial class NavigationBreadcrumbBar : Control
             pair.First.Title == pair.Second.Title
             && pair.First.IsCurrent == pair.Second.IsCurrent
             && pair.First.Route.ToPath() == pair.Second.Route.ToPath());
+
+    /// <summary>
+    /// Asks the page to load its data again when the user taps the breadcrumb of the current page, which the bar shows
+    /// as text rather than as a button.
+    /// </summary>
+    private void OnTapped(object sender, TappedRoutedEventArgs e)
+    {
+        if (root is not { } navigator || breadcrumbBar is null) return;
+
+        // A breadcrumb that the bar shows as a button reports its click through ItemClicked
+        for (var source = e.OriginalSource as DependencyObject; source is not null && !ReferenceEquals(source, this); source = VisualTreeHelper.GetParent(source))
+        {
+            if (source is ButtonBase { IsEnabled: true }) return;
+        }
+
+        if (FindCurrentItem(breadcrumbBar) is not { } item) return;
+
+        var position = e.GetPosition(item);
+        if (position.X < 0 || position.Y < 0 || position.X > item.ActualWidth || position.Y > item.ActualHeight) return;
+
+        e.Handled = true;
+#pragma warning disable CA1031 // Do not catch general exceptions: a tap must not break the window
+        try
+        {
+            navigator.TryRefreshPage();
+        }
+        catch (Exception ex)
+        {
+            logger?.LogError(ex, "The page could not be loaded again");
+        }
+#pragma warning restore CA1031 // Do not catch general exceptions
+    }
+
+    private static BreadcrumbBarItem? FindCurrentItem(DependencyObject parent)
+    {
+        var count = VisualTreeHelper.GetChildrenCount(parent);
+        for (var index = 0; index < count; index++)
+        {
+            var child = VisualTreeHelper.GetChild(parent, index);
+            if (child is BreadcrumbBarItem item
+                && (item.Content as NavigationBreadcrumb ?? item.DataContext as NavigationBreadcrumb) is { IsCurrent: true })
+            {
+                return item;
+            }
+
+            if (FindCurrentItem(child) is { } found) return found;
+        }
+
+        return null;
+    }
 
     private async void OnItemClicked(BreadcrumbBar sender, BreadcrumbBarItemClickedEventArgs args)
     {

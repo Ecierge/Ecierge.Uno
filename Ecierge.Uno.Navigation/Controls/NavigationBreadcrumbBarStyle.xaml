@@ -5,6 +5,8 @@
   <Style TargetType="controls:NavigationBreadcrumbBar">
     <Setter Property="IsTabStop" Value="False" />
     <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <!-- Hit-testable, so that a tap on the breadcrumb of the current page, which is not a button, reaches the bar -->
+    <Setter Property="Background" Value="Transparent" />
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="controls:NavigationBreadcrumbBar">

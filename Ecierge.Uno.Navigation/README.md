@@ -93,7 +93,7 @@ The options are bound from the `NavigationOptions` section of the configuration,
 - A segment that owns a data segment is one breadcrumb together with its value. It shows the name that the data map gives for the loaded entity (`NavigationDataMap<T>.GetDisplayName`), and the title of the segment while the entity loads the first time or when its load failed. While the entity loads again the breadcrumb keeps the last name.
 - A dialog is not a breadcrumb: the breadcrumbs stand for the page under it.
 - A segment with `HidesBreadcrumbs` hides the bar while the route passes through it, for example a page that shows a web site. Space around the bar is given with `Padding`, which collapses with it.
-- A click on a breadcrumb opens its level with its default pages and adds an entry to the history. A click on the last breadcrumb, or on a level whose default page is the page that is shown, asks the page to load its data again; a level that has no default page opens nothing.
+- A click on a breadcrumb opens its level with its default pages and adds an entry to the history. A click on the last breadcrumb, or on a level whose default page is the page that is shown, asks the page to load its data again; a level that has no default page opens nothing. The WinUI bar shows the last breadcrumb as text, not as a button, so the control catches a tap on it itself.
 
 ```csharp
 new NameSegment("Building", views[typeof(BuildingShell)], new DataSegment("BuildingInfo", data[typeof(BuildingInfo)], true,
