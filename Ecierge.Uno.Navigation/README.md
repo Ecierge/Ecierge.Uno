@@ -81,6 +81,35 @@ On Android and iOS the back button of the system goes back in the journal while 
 
 The options are bound from the `NavigationOptions` section of the configuration, and the callback of `AddNavigation` adjusts them after that.
 
+## Breadcrumbs
+
+`NavigationBreadcrumbBar` (namespace `Ecierge.Uno.Navigation.Controls`) shows the route of the window in a WinUI `BreadcrumbBar`, from the root down to the page. Put one bar into the shell or into the layout of a group of pages; it follows the root navigator of the window, also from outside the navigation regions.
+
+```xml
+<navc:NavigationBreadcrumbBar xmlns:navc="using:Ecierge.Uno.Navigation.Controls" Padding="16,8,16,0" />
+```
+
+- A named segment is a breadcrumb with its `Title`, else with its name. The title is first looked up as the key of a resource of the `IStringLocalizer` of the application (`UseLocalization`); a missing or empty resource leaves the title as it is written.
+- A segment that owns a data segment is one breadcrumb together with its value. It shows the name that the data map gives for the loaded entity (`NavigationDataMap<T>.GetDisplayName`), and the title of the segment while the entity loads the first time or when its load failed. While the entity loads again the breadcrumb keeps the last name.
+- A dialog is not a breadcrumb: the breadcrumbs stand for the page under it.
+- A segment with `HidesBreadcrumbs` hides the bar while the route passes through it, for example a page that shows a web site. Space around the bar is given with `Padding`, which collapses with it.
+- A click on a breadcrumb opens its level with its default pages and adds an entry to the history. A click on the last breadcrumb, or on a level whose default page is the page that is shown, asks the page to load its data again; a level that has no default page opens nothing.
+
+```csharp
+new NameSegment("Building", views[typeof(BuildingShell)], new DataSegment("BuildingInfo", data[typeof(BuildingInfo)], true,
+    new NameSegment("Assets", views[typeof(AssetsPage)]) { Title = "Assets" },
+    new NameSegment("Web", views[typeof(WebPage)]) { HidesBreadcrumbs = true }))
+{
+    Title = "Building"
+};
+
+public override string? GetDisplayName(BuildingInfo entity) => entity.Name;
+```
+
+A page loads its data again when the page itself or its view model implements `IRefreshable`, a `RefreshCommand` that the bar runs if it can execute. The page decides what that means: a list keeps its filter, an editor with changes that are not saved asks first. `Navigator.TryRefreshPage()` runs the command of the innermost such page below a navigator, outside a dialog. The library never creates a page again.
+
+When segments of the same name are registered by several modules, the merged segment keeps the title that one registration has; two different titles are refused, and one registration that hides the breadcrumbs hides them for the merged segment.
+
 ## Tests
 
 `Ecierge.Uno.Navigation.Tests` runs on plain `net10.0` with MSTest on Microsoft.Testing.Platform. It needs no user interface: a fake navigator stands for the control of a region and an immediate dispatcher stands for the thread of the user interface.
@@ -92,7 +121,7 @@ dotnet build Ecierge.Uno.Navigation.Tests
 
 ## Known limits
 
-- A navigator that shows a page skips a navigation to the page that is already shown. A page that was created from an older load refreshes through its own refresh action, or takes `NavigationEntity<T>` and listens to `Changed`.
+- `NavigationViewContentNavigator` and `SelectorBarNavigator` skip a navigation to the segment that is already shown, also when the value of its data segment differs. A page that was created from an older load refreshes through `IRefreshable` (the last breadcrumb runs it), or takes `NavigationEntity<T>` and listens to `Changed`.
 - A link that reaches an application that is already running is not handed to it on Windows and on the desktop, where the system starts another process with the link.
 - A dialog is a step of the route, but the entries of the browser before the first page of a session cannot be removed, so Back of the browser can leave the application.
 - Navigation guards (a confirmation before the user leaves a page with unsaved changes) are not part of the library yet.
