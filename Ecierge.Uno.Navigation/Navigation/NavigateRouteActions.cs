@@ -77,7 +77,7 @@ public abstract partial class NavigateTargetRouteActionBase : NavigateRouteActio
     /// Target Dependency Property
     /// </summary>
     public static readonly DependencyProperty TargetElementProperty =
-        DependencyProperty.Register(nameof(TargetElement), typeof(FrameworkElement), typeof(NavigateSegmentActionBase), new((FrameworkElement?)null));
+        DependencyProperty.Register(nameof(TargetElement), typeof(FrameworkElement), typeof(NavigateTargetRouteActionBase), new((FrameworkElement?)null));
     /// <summary>
     /// Gets or sets the Target property. This dependency property
     /// indicates the FrameworkElement that has a navigation region.
