@@ -47,6 +47,10 @@ internal sealed class BrowserHistorySync : IDisposable
     /// <param name="options">The options, which say where the application is hosted.</param>
     /// <param name="navigation">Shows the pages that the browser history asks for.</param>
     /// <param name="logger">The logger.</param>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="journal"/>, <paramref name="history"/>, <paramref name="options"/>,
+    /// <paramref name="navigation"/> or <paramref name="logger"/> is <see langword="null"/>.
+    /// </exception>
     public BrowserHistorySync(
         NavigationJournal journal,
         IBrowserHistory history,

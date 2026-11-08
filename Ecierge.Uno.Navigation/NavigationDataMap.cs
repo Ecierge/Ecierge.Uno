@@ -183,6 +183,9 @@ public abstract class NavigationDataMap<TEntity> : INavigationDataMap
     /// <returns>The value of the entity as it is written in a route.</returns>
     protected abstract string ToPrimitive(TEntity entity);
 
+    /// <inheritdoc />
+    /// <exception cref="ArgumentNullException"><paramref name="obj"/> is <see langword="null"/>.</exception>
+    /// <exception cref="NotSupportedException"><paramref name="obj"/> is not an entity, a handle or a text.</exception>
     string INavigationDataMap.GetStringValue(object obj) => obj switch
     {
         null => throw new ArgumentNullException(nameof(obj), "Value cannot be null."),
@@ -193,6 +196,11 @@ public abstract class NavigationDataMap<TEntity> : INavigationDataMap
     };
 
     /// <inheritdoc cref="INavigationDataMap.GetStringValue(INavigationData, string)"/>
+    /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
+    /// <exception cref="NotSupportedException">
+    /// The value under <paramref name="name"/> is not an entity, a handle or a text.
+    /// </exception>
+    /// <exception cref="KeyNotFoundException">The data has no value under <paramref name="name"/>.</exception>
     public string GetStringValue(INavigationData data, string name)
     {
         data = data ?? throw new System.ArgumentNullException(nameof(data));
@@ -221,6 +229,8 @@ public abstract class NavigationDataMap<TEntity> : INavigationDataMap
         return false;
     }
 
+    /// <inheritdoc />
+    /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
     bool INavigationDataMap.TryGetEntityTask(INavigationData data, string name, out Task? value)
     {
         data = data ?? throw new ArgumentNullException(nameof(data));
@@ -252,6 +262,10 @@ public abstract class NavigationDataMap<TEntity> : INavigationDataMap
     /// <param name="name">The name of the data segment.</param>
     /// <param name="value">The entity.</param>
     /// <returns><see langword="true"/> if the data holds the loaded entity under the name.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
+    /// <exception cref="NotSupportedException">
+    /// The value under <paramref name="name"/> is not an entity, a handle or a task of an entity.
+    /// </exception>
     public bool TryGetEntity(INavigationData data, string name, out TEntity? value)
     {
         data = data ?? throw new ArgumentNullException(nameof(data));
@@ -290,6 +304,10 @@ public abstract class NavigationDataMap<TEntity> : INavigationDataMap
     /// <param name="name">The name of the data segment.</param>
     /// <param name="value">The task.</param>
     /// <returns><see langword="true"/> if the data holds the entity, its handle or its task under the name.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
+    /// <exception cref="NotSupportedException">
+    /// The value under <paramref name="name"/> is not an entity, a handle or a task of an entity.
+    /// </exception>
     public bool TryGetEntityTask(INavigationData data, string name, out Task<TEntity>? value)
     {
         data = data ?? throw new ArgumentNullException(nameof(data));
@@ -320,6 +338,11 @@ public abstract class NavigationDataMap<TEntity> : INavigationDataMap
         return false;
     }
 
+    /// <inheritdoc />
+    /// <exception cref="ArgumentNullException"><paramref name="obj"/> is <see langword="null"/>.</exception>
+    /// <exception cref="NotSupportedException">
+    /// <paramref name="obj"/> is not an entity, a handle, a task of an entity or a text.
+    /// </exception>
     Task INavigationDataMap.GetEntityTask(object obj) => obj switch
     {
         null => throw new ArgumentNullException(nameof(obj), "Value cannot be null."),
@@ -331,6 +354,11 @@ public abstract class NavigationDataMap<TEntity> : INavigationDataMap
     };
 
     /// <inheritdoc cref="INavigationDataMap.GetEntityTask(INavigationData, string)"/>
+    /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
+    /// <exception cref="NotSupportedException">
+    /// The value under <paramref name="name"/> is not an entity, a handle, a task of an entity or a text.
+    /// </exception>
+    /// <exception cref="KeyNotFoundException">The data has no value under <paramref name="name"/>.</exception>
     public Task GetEntityTask(INavigationData data, string name)
     {
         data = data ?? throw new ArgumentNullException(nameof(data));
@@ -402,6 +430,15 @@ public abstract class NavigationDataMap<TEntity> : INavigationDataMap
 
     INavigationEntity INavigationDataMap.CreateEntity(string primitive) => CreateEntity(primitive);
 
+    /// <inheritdoc />
+    /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException">
+    /// <paramref name="value"/> is a task and <paramref name="primitive"/> is not given, but a task does not know the
+    /// value of its entity.
+    /// </exception>
+    /// <exception cref="NotSupportedException">
+    /// <paramref name="value"/> is none of the supported kinds: a handle, an entity, a task of an entity or a text.
+    /// </exception>
     INavigationEntity INavigationDataMap.CreateEntity(object value, string? primitive, INavigationData? data) => value switch
     {
         null => throw new ArgumentNullException(nameof(value)),
@@ -419,6 +456,7 @@ public abstract class NavigationDataMap<TEntity> : INavigationDataMap
      => data is null ? CreateEntity(task, primitive) : CreateEntity(task, primitive, data);
 
     /// <inheritdoc cref="INavigationDataMap.GetOrCreateEntity(INavigationData, string, string)"/>
+    /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
     public NavigationEntity<TEntity> GetOrCreateEntity(INavigationData data, string name, string primitive)
     {
         data = data ?? throw new ArgumentNullException(nameof(data));
@@ -443,6 +481,12 @@ public abstract class NavigationDataMap<TEntity> : INavigationDataMap
     INavigationEntity INavigationDataMap.GetOrCreateEntity(INavigationData data, string name, string primitive)
      => GetOrCreateEntity(data, name, primitive);
 
+    /// <inheritdoc />
+    /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
+    /// <exception cref="KeyNotFoundException">The data has no value under <paramref name="name"/>.</exception>
+    /// <exception cref="NotSupportedException">
+    /// The value under <paramref name="name"/> is none of the supported kinds.
+    /// </exception>
     INavigationEntity INavigationDataMap.GetEntity(INavigationData data, string name)
     {
         data = data ?? throw new ArgumentNullException(nameof(data));

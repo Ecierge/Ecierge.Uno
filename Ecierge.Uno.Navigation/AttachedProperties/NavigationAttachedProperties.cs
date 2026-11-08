@@ -28,6 +28,13 @@ public static class Navigation
 
     internal static Regions.NavigationRegion? GetNavigationRegion([NotNull] this FrameworkElement element) => (Regions.NavigationRegion?)element.GetValue(InfoProperty);
 
+    /// <summary>
+    /// Finds the navigation region of the element, or else of the nearest ancestor that has one, and remembers it on
+    /// the element.
+    /// </summary>
+    /// <exception cref="RootNavigationRegionMissingException">
+    /// Neither the element nor an ancestor of it is in a navigation region.
+    /// </exception>
     internal static Regions.NavigationRegion FindNavigationRegion([NotNull] this FrameworkElement element)
     {
         var navigationRegion = element.GetNavigationRegion();
@@ -49,6 +56,20 @@ public static class Navigation
         return navigationRegion;
     }
 
+    /// <summary>
+    /// Makes the element the control of a navigation region inside the region around it. The region shows the nested
+    /// segment named <paramref name="segmentName"/>; without a name it shows the segment that the region around it
+    /// navigated to last.
+    /// </summary>
+    /// <exception cref="RootNavigationRegionMissingException">
+    /// The element is not inside a navigation region.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// <paramref name="segmentName"/> is empty and the region around the element has not navigated to a segment yet.
+    /// </exception>
+    /// <exception cref="NestedSegmentMissingException">
+    /// The segment of the region around the element has no nested segment named <paramref name="segmentName"/>.
+    /// </exception>
     public static void AttachRegion([NotNull] this FrameworkElement element, string? segmentName = null)
     {
         var parentNavigationRegion =
@@ -121,6 +142,9 @@ public static class Navigation
     /// Gets the RootNavigator property. This dependency property
     /// indicates the window root navigator.
     /// </summary>
+    /// <exception cref="RootNavigationRegionMissingException">
+    /// The window of the element has no root navigator.
+    /// </exception>
     internal static Navigator GetRootNavigator(FrameworkElement element)
      => (Navigator?)element.GetValue(RootNavigatorProperty)
         ?? throw new RootNavigationRegionMissingException();

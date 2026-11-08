@@ -51,6 +51,8 @@ public abstract partial class NavigateRouteActionBase : DependencyObject
 
 public partial class NavigateRootRouteAction : NavigateRouteActionBase, IAction
 {
+    /// <summary>Navigates to the route through the root navigator of the window.</summary>
+    /// <exception cref="NavigationRegionMissingException">The sender is not in a navigation region.</exception>
     public object? Execute(object sender, object parameter)
     {
         if (navigationRegion is null && sender is FrameworkElement element)
@@ -91,6 +93,13 @@ public abstract partial class NavigateTargetRouteActionBase : NavigateRouteActio
 
 public partial class NavigateLocalRouteAction : NavigateTargetRouteActionBase, IAction
 {
+    /// <summary>
+    /// Navigates to the route through the navigator of the region of the target element, or of the sender when no
+    /// target is set.
+    /// </summary>
+    /// <exception cref="NavigationRegionMissingException">
+    /// The target element, or the sender, is not in a navigation region.
+    /// </exception>
     public object? Execute(object sender, object parameter)
     {
         var target = TargetElement ?? sender;
@@ -110,6 +119,14 @@ public partial class NavigateLocalRouteAction : NavigateTargetRouteActionBase, I
 
 public partial class NavigateNestedRouteAction : NavigateTargetRouteActionBase, IAction
 {
+    /// <summary>
+    /// Navigates to the route through the navigator of the region inside the region of the target element, or of the
+    /// sender when no target is set.
+    /// </summary>
+    /// <exception cref="NavigationRegionMissingException">
+    /// The target element, or the sender, is not in a navigation region.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">The region has no region inside it.</exception>
     public object? Execute(object sender, object parameter)
     {
         var target = TargetElement ?? sender;

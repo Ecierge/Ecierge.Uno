@@ -107,6 +107,9 @@ public class ContentDialogNavigator : DialogNavigator<ContentDialog, ContentDial
     public ContentDialogNavigator(IServiceProvider serviceProvider) : base(serviceProvider) { }
 
     /// <inheritdoc/>
+    /// <exception cref="InvalidOperationException">
+    /// The view of the dialog is neither a content dialog nor a control.
+    /// </exception>
     protected override async Task<NavigationResult<IAsyncOperation<ContentDialogResult>>> DisplayDialog(NavigationRequest request)
     {
         var result = CreateView(request);

@@ -30,6 +30,9 @@ public static class DeepLinkMapper
     /// <param name="uri">The link.</param>
     /// <param name="options">The scheme and the base path that identify the links of the application.</param>
     /// <returns>The text of the route, or <see langword="null"/> if the link does not name a page of the application.</returns>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="uri"/> or <paramref name="options"/> is <see langword="null"/>.
+    /// </exception>
     public static string? ToRoutePath(Uri uri, NavigationOptions options)
     {
         uri = uri ?? throw new ArgumentNullException(nameof(uri));

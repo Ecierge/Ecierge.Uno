@@ -116,6 +116,7 @@ public record Route
     /// </summary>
     /// <param name="segments">The steps of the route.</param>
     /// <param name="data">The data of the route.</param>
+    /// <exception cref="InvalidOperationException">The segments hold more than one dialog.</exception>
     public Route(ImmutableArray<RouteSegmentInstance> segments, INavigationData? data = null)
     {
         segments = segments.IsDefault ? ImmutableArray<RouteSegmentInstance>.Empty : segments;
@@ -197,6 +198,7 @@ public record Route
     /// </summary>
     /// <param name="route">The route to compare with.</param>
     /// <returns>The number of the common leading steps.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="route"/> is <see langword="null"/>.</exception>
     public int CommonPrefixLength(Route route)
     {
         route = route ?? throw new ArgumentNullException(nameof(route));

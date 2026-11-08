@@ -53,6 +53,7 @@ public sealed class BrowserHistoryPopEventArgs : EventArgs
     /// </summary>
     /// <param name="uri">The address of the entry.</param>
     /// <param name="token">The token the application gave the entry, or <see langword="null"/> if it did not make the entry.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="uri"/> is <see langword="null"/>.</exception>
     public BrowserHistoryPopEventArgs(Uri uri, string? token)
     {
         Uri = uri ?? throw new ArgumentNullException(nameof(uri));
