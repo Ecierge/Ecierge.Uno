@@ -4,6 +4,7 @@
 
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Navigation/Controls/AuthorizedContentStyle.xaml" />
+        <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Navigation/Controls/NavigationBreadcrumbBarStyle.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
 </ResourceDictionary>

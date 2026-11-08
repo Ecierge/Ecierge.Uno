@@ -1,0 +1,36 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="using:Ecierge.Uno.Navigation.Controls">
+
+  <Style TargetType="controls:NavigationBreadcrumbBar">
+    <Setter Property="IsTabStop" Value="False" />
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="controls:NavigationBreadcrumbBar">
+          <!-- Padding, not Margin, gives the space around the breadcrumbs, so that it collapses with them -->
+          <Grid x:Name="RootGrid"
+                Padding="{TemplateBinding Padding}"
+                Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="{TemplateBinding CornerRadius}">
+            <VisualStateManager.VisualStateGroups>
+              <VisualStateGroup x:Name="VisibilityStates">
+                <VisualState x:Name="Shown" />
+                <VisualState x:Name="Hidden">
+                  <VisualState.Setters>
+                    <Setter Target="RootGrid.Visibility" Value="Collapsed" />
+                  </VisualState.Setters>
+                </VisualState>
+              </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
+            <!-- A breadcrumb shows its title through ToString, so the bar needs no item template -->
+            <BreadcrumbBar x:Name="PART_BreadcrumbBar" />
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+</ResourceDictionary>
