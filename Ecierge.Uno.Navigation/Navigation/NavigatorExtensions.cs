@@ -308,11 +308,13 @@ public static class NavigatorExtensions
         route = route ?? throw new ArgumentNullException(nameof(route));
 
         var navigation = navigator.ServiceProvider.GetRequiredService<IRouteUpdater>().StartNavigation(navigator, historyMode, mode);
-        navigator.RaiseNavigationStarted(() => route);
         NavigationResponse? response = null;
         Exception? error = null;
         try
         {
+            // Inside the try, so that a listener that fails does not leave the navigation open: an open navigation
+            // keeps the history and the announcements of every route after it waiting for it
+            navigator.RaiseNavigationStarted(() => route);
             response = await NavigateSegmentsAsync(navigator, initiator, route, historyMode, mode);
             return response;
         }
@@ -324,8 +326,14 @@ public static class NavigatorExtensions
         finally
         {
             response ??= new NavigationFailedResponse(route, navigator) { Mode = mode, Error = error };
-            navigator.RaiseNavigationCompleted(response);
-            await navigation.CompleteAsync(response);
+            try
+            {
+                navigator.RaiseNavigationCompleted(response);
+            }
+            finally
+            {
+                await navigation.CompleteAsync(response);
+            }
         }
     }
 
