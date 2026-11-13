@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Ecierge.Uno.Navigation;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 /// <summary>
 /// A navigator whose region is a control of a known type.
@@ -86,6 +87,13 @@ public abstract class FactoryNavigator<TTarget> : Navigator<TTarget>
     /// </summary>
     protected virtual FrameworkElement? WaitForVisualTreeTarget => Target;
 
+    /// <summary>
+    /// Gets how long the navigation waits for <see cref="WaitForVisualTreeTarget"/> to be loaded. A control is loaded
+    /// when the next layout has put it in the visual tree, so a control that is not loaded after this time never will
+    /// be, for example a dialog that the platform could not show.
+    /// </summary>
+    protected virtual TimeSpan VisualTreeTimeout => TimeSpan.FromSeconds(5);
+
     /// <inheritdoc/>
     protected override async ValueTask WaitForVisualTree()
     {
@@ -101,7 +109,24 @@ public abstract class FactoryNavigator<TTarget> : Navigator<TTarget>
                     tcs.TrySetResult();
             }
             target.Loaded += Loaded;
-            await tcs.Task;
+            try
+            {
+                await tcs.Task.WaitAsync(VisualTreeTimeout);
+            }
+            catch (TimeoutException)
+            {
+                // The navigation must not wait for ever: while it is open, the history and the announcements of the
+                // routes after it wait for it too
+                target.Loaded -= Loaded;
+                // A busy UI thread can serve the timer before the callback of the load that has just happened
+                if (!target.IsLoaded)
+                {
+                    Logger.LogWarning(
+                        "The view of the segment '{SegmentName}' was not loaded in {Timeout}, so the navigation goes on without it",
+                        Region.Segment.Name,
+                        VisualTreeTimeout);
+                }
+            }
         }
     }
 }
