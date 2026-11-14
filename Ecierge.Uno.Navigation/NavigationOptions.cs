@@ -55,6 +55,16 @@ public record NavigationOptions
     /// </summary>
     public int JournalCapacity { get; init; } = 100;
 
+    /// <summary>
+    /// How long a navigation may stay open before the navigations that start after it stop waiting for it. A
+    /// navigation is open from its start until its end, and while one is open the routes that are navigated meanwhile
+    /// are recorded in the history and announced when the last of them has ended. A navigation that never ends, for
+    /// example because a request is never answered, would hold them back for ever, so a navigation that starts after
+    /// this time leaves it out. When it does end later it is recorded and announced, if no other navigation is open.
+    /// The default is 30 seconds; <see cref="Timeout.InfiniteTimeSpan"/> waits for ever.
+    /// </summary>
+    public TimeSpan StaleNavigationTimeout { get; init; } = TimeSpan.FromSeconds(30);
+
     public Dictionary<Type, Type> Navigators { get; init; } = new();
 
     public bool TryGetNavigatorType(Type controlType, [NotNullWhen(true)] out Type? navigatorType)
