@@ -92,7 +92,8 @@
                                                            ElementName=InlineEdit,
                                                            Mode=TwoWay}" />
         <developerTools:FocusTracker IsActive="True" />
-        <TextBox PlaceholderText="Enter your name:" Text="{Binding Name, Mode=TwoWay}" />
+        <!-- The buttons that open the second page are enabled as soon as there is a name, not when the box loses the focus -->
+        <TextBox PlaceholderText="Enter your name:" Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
         <ctrl:CoordinatesNumberBox />
 
@@ -124,14 +125,14 @@
         </ctrl:GroupedComboBox>
 
         <Button AutomationProperties.AutomationId="SecondPageButton" Command="{Binding GoToSecond}" Content="Go to Second Page" />
-        <Button Content="Go to Second Page with target">
+        <Button Content="Go to Second Page with target" IsEnabled="{Binding HasName}">
           <i:Interaction.Behaviors>
             <i:EventTriggerBehavior EventName="Click">
               <nav:NavigateLocalSegmentAction TargetElement="{x:Bind}" SegmentName="Second" SegmentData="{Binding Name}" />
             </i:EventTriggerBehavior>
           </i:Interaction.Behaviors>
         </Button>
-        <Button Content="Go to Second Page without target">
+        <Button Content="Go to Second Page without target" IsEnabled="{Binding HasName}">
           <i:Interaction.Behaviors>
             <i:EventTriggerBehavior EventName="Click">
               <nav:NavigateLocalSegmentAction SegmentName="Second" SegmentData="{Binding Name}" />
