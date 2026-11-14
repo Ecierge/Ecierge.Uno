@@ -124,15 +124,22 @@ public partial class App : Application
             //new NameSegment("", views[typeof(Shell)],
             //    nested:
             //    [
+                    // The title of Main is the key of a localized resource; the others are shown as they are written
                     new ("Main", views[typeof(MainPage)], isDefault:true, nested:[
-                            new ("Tab1", isDefault: true),
-                            new ("Tab2"),
+                            new ("Tab1", isDefault: true) { Title = "First tab" },
+                            new ("Tab2") { Title = "Second tab" },
+                            // A page that needs all the room hides the breadcrumbs
+                            new ("Tab3") { Title = "Full screen", HidesBreadcrumbs = true },
                             new DialogSegment("Dialog", views[typeof(MainPage)], nested:[
                                     new ("Tab1", isDefault: true),
                                     new ("Tab2"),
                                 ])
-                        ]),
-                    new ("Second", views[typeof(SecondPage)], new DataSegment("name", data[typeof(Entity)])),
+                        ]) { Title = "MainPageTitle" },
+                    // The breadcrumb of the entity shows its name once it has loaded, and "Second page" until then
+                    new ("Second", views[typeof(SecondPage)], new DataSegment("name", data[typeof(Entity)], true,
+                            new NameSegment("Details", isDefault: true) { Title = "Details" },
+                            new NameSegment("Notes") { Title = "Notes" }))
+                        { Title = "Second page" },
                     new DialogSegment("ContentDialog", views[typeof(MainContentDialog)], nested:[
                             new ("Tab1", isDefault: true),
                             new ("Tab2"),

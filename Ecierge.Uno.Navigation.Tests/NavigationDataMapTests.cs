@@ -257,4 +257,21 @@ public class NavigationDataMapTests
         CollectionAssert.AreEqual(new[] { "b7" }, server.Requests, "Expected the building to be requested by its value.");
         Assert.ThrowsExactly<KeyNotFoundException>(() => map.GetEntityTask(NavigationData.Empty, Name), "Expected a missing name to be refused.");
     }
+
+    [TestMethod]
+    public void A_map_must_give_no_display_name_unless_it_names_its_entities()
+    {
+        INavigationDataMap map = new RoomMap(new List<string>());
+
+        Assert.IsNull(map.GetDisplayName(new Room("b1", "r1")), "Expected no name by default, so that the title of the segment is shown.");
+    }
+
+    [TestMethod]
+    public void A_map_must_give_the_display_name_of_its_entity_and_none_for_another_value()
+    {
+        INavigationDataMap map = Map;
+
+        Assert.AreEqual("Sunset Tower", map.GetDisplayName(new Building("b1", "Sunset Tower")), "Expected the name that the map gives.");
+        Assert.IsNull(map.GetDisplayName("b1"), "Expected no name for a value that is not an entity of the map.");
+    }
 }

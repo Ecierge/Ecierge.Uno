@@ -138,6 +138,15 @@ public interface INavigationDataMap : INavigationDataMapEntityTypeInfo
     /// <exception cref="KeyNotFoundException">The data has nothing under the name.</exception>
     /// <exception cref="NotSupportedException">The data holds something else.</exception>
     INavigationEntity GetEntity(INavigationData data, string name);
+
+    /// <summary>
+    /// Gets the name of the entity that the user sees, for example in a breadcrumb.
+    /// </summary>
+    /// <param name="entity">The entity, as its handle gives it once it is loaded.</param>
+    /// <returns>
+    /// The name, or <see langword="null"/> if the map gives none or the entity is not of the type of the map.
+    /// </returns>
+    string? GetDisplayName(object entity);
 }
 
 /// <summary>
@@ -175,6 +184,17 @@ public abstract class NavigationDataMap<TEntity> : INavigationDataMap
     /// <param name="data">The data of the route that the value is part of.</param>
     /// <returns>The task that loads the entity.</returns>
     public virtual Task<TEntity> LoadEntityAsync(string primitive, INavigationData data) => LoadEntityAsync(primitive);
+
+    /// <summary>
+    /// Gets the name of the entity that the user sees, for example in a breadcrumb. The default gives none, so the
+    /// user sees the title of the segment instead.
+    /// </summary>
+    /// <param name="entity">The entity.</param>
+    /// <returns>The name, or <see langword="null"/> if the map gives none.</returns>
+    public virtual string? GetDisplayName(TEntity entity) => null;
+
+    /// <inheritdoc />
+    string? INavigationDataMap.GetDisplayName(object entity) => entity is TEntity typed ? GetDisplayName(typed) : null;
 
     /// <summary>
     /// Writes the entity as a value that <see cref="LoadEntityAsync(string)"/> reads back.

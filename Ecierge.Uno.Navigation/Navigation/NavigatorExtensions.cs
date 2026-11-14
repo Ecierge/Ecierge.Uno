@@ -601,6 +601,55 @@ public static class NavigatorExtensions
     }
 
     /// <summary>
+    /// Asks the page that is shown to load its data again: the innermost page in the region of the navigator or below
+    /// it, outside a dialog, that implements <see cref="IRefreshable"/> itself or through its view model.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A tab of a page has no view of its own, so the page around it answers. The page is never created again: a page
+    /// that does not implement <see cref="IRefreshable"/> stays as it is.
+    /// </para>
+    /// </remarks>
+    /// <param name="navigator">The navigator whose region shows the page, or the navigator of a region around it.</param>
+    /// <returns>
+    /// <see langword="true"/> if the command of the page ran; <see langword="false"/> if no page implements
+    /// <see cref="IRefreshable"/> or its command cannot run now.
+    /// </returns>
+    /// <exception cref="ArgumentNullException"><paramref name="navigator"/> is <see langword="null"/>.</exception>
+    public static bool TryRefreshPage([NotNull] this Navigator navigator)
+    {
+        navigator = navigator ?? throw new ArgumentNullException(nameof(navigator));
+
+        // The regions from the navigator down to the page that is shown; a dialog and what it shows are not the page
+        var chain = new List<Navigator>();
+        for (Navigator? current = navigator; current is not null and not IDialogNavigator; current = current.ChildNavigator)
+        {
+            chain.Add(current);
+        }
+
+        for (var index = chain.Count - 1; index >= 0; index--)
+        {
+            if (RefreshableOf(chain[index].Content) is { } refreshable)
+            {
+                var command = refreshable.RefreshCommand;
+                if (!command.CanExecute(null)) return false;
+                command.Execute(null);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static IRefreshable? RefreshableOf(object? content)
+     => content switch
+        {
+            IRefreshable refreshable => refreshable,
+            FrameworkElement { DataContext: IRefreshable refreshable } => refreshable,
+            _ => null
+        };
+
+    /// <summary>
     /// Finds the segment among the nested segments of the region of the navigator.
     /// </summary>
     /// <typeparam name="TSegment">The type of the segment to find.</typeparam>

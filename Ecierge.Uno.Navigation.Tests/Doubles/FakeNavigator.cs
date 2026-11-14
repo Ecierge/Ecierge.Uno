@@ -25,6 +25,11 @@ internal sealed class FakeRegionPlan
     public Func<FakeNavigator, NavigationRequest, NavigationResult?>? Intercept { get; set; }
 
     /// <summary>
+    /// Gets or sets a function that gives what a dialog shows for its request, as the view of a real dialog.
+    /// </summary>
+    public Func<NavigationRequest, object?>? DialogContent { get; set; }
+
+    /// <summary>
     /// Gets the requests of all the navigators in the order in which they were navigated.
     /// </summary>
     public List<(FakeNavigator Navigator, NavigationRequest Request)> Navigated { get; } = new();
@@ -90,7 +95,12 @@ internal class FakeNavigator : Navigator
 /// </summary>
 internal sealed class FakeDialogNavigator : Navigator, IDialogNavigator
 {
-    public FakeDialogNavigator(IServiceProvider serviceProvider) : base(serviceProvider) { }
+    private readonly FakeRegionPlan plan;
+
+    public FakeDialogNavigator(IServiceProvider serviceProvider) : base(serviceProvider)
+    {
+        plan = serviceProvider.GetRequiredService<FakeRegionPlan>();
+    }
 
     public bool IsOpen { get; private set; }
 
@@ -99,7 +109,7 @@ internal sealed class FakeDialogNavigator : Navigator, IDialogNavigator
     protected override ValueTask<NavigationResult> NavigateCoreAsync(NavigationRequest request)
     {
         IsOpen = true;
-        return new(new NavigationResult(request));
+        return new(new NavigationResult(request, plan.DialogContent?.Invoke(request)));
     }
 
     public Task CloseNavigator()
