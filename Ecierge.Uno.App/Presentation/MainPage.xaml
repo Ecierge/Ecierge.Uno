@@ -142,10 +142,12 @@
             </i:EventTriggerBehavior>
           </i:Interaction.Behaviors>
         </Button>
-        <Button Content="Navigate nested to Tab2">
+        <!-- The tabs are the region of this page, so a route that is local to the page reaches them. A nested route is for
+             an element outside the region of the tabs, such as one in the shell: it starts in the region inside its own. -->
+        <Button Content="Navigate to Tab2 with a local route">
           <i:Interaction.Behaviors>
             <i:EventTriggerBehavior EventName="Click">
-              <nav:NavigateNestedRouteAction Route="Tab2" />
+              <nav:NavigateLocalRouteAction Route="Tab2" />
             </i:EventTriggerBehavior>
           </i:Interaction.Behaviors>
         </Button>
