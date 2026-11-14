@@ -73,6 +73,7 @@ On Android and iOS the back button of the system goes back in the journal while 
 |:--|:--|:--|
 |`DialogsInHistory`|`true`|An open dialog is an entry of the history|
 |`JournalCapacity`|`100`|The number of entries the history keeps|
+|`StaleNavigationTimeout`|`30` seconds|A navigation that has been open for longer is left out by the navigations that start after it, so that one that never ends does not hold back the history and the announcements for ever|
 |`AddressBarUpdateEnabled`|`true`|The browser history follows the journal (WebAssembly)|
 |`UseNativeBackButton`|`true` on Android and iOS|The back button of the system goes back in the journal|
 |`DeepLinkScheme`|none|The scheme of the links that open a page, such as `ecierge-console`|
@@ -95,3 +96,4 @@ dotnet build Ecierge.Uno.Navigation.Tests
 - A link that reaches an application that is already running is not handed to it on Windows and on the desktop, where the system starts another process with the link.
 - A dialog is a step of the route, but the entries of the browser before the first page of a session cannot be removed, so Back of the browser can leave the application.
 - Navigation guards (a confirmation before the user leaves a page with unsaved changes) are not part of the library yet.
+- A navigation that shows a view waits until the view is loaded, so that the regions inside it exist before the rest of the route is navigated, but at most `VisualTreeTimeout` (5 seconds, a protected virtual property of `FactoryNavigator<T>`). When the view is still not loaded then, for example a dialog that the platform could not show, the navigation logs a warning and goes on without it. The history and the announcements of the routes that start while a navigation is open wait for it, so a slow navigation delays them, for at most `StaleNavigationTimeout`: a navigation that starts after that time leaves it out, and a navigation that was left out is recorded and announced when it ends, if no other navigation is open then.

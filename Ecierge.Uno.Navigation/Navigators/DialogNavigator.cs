@@ -4,6 +4,7 @@ using System;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 using Windows.Foundation;
 
@@ -124,9 +125,11 @@ public class ContentDialogNavigator : DialogNavigator<ContentDialog, ContentDial
         };
         ServiceProvider.AddScopedInstance<FrameworkElement>(dialog);
 
-#if WINDOWS
-        dialog.XamlRoot = ServiceProvider.GetRequiredService<Window>().Content!.XamlRoot;
-#endif
+        // A dialog is shown in the root of the window of the application; one without it is not shown on every platform
+        if (ServiceProvider.GetService<Window>()?.Content?.XamlRoot is { } xamlRoot)
+        {
+            dialog.XamlRoot = xamlRoot;
+        }
         // The region of the dialog is created before the dialog, so the dialog is its control from now on
         Region.Target = dialog;
         // To support navigation inside the dialog
@@ -146,6 +149,14 @@ public class ContentDialogNavigator : DialogNavigator<ContentDialog, ContentDial
         dialog.Closed += DialogClosed;
 
         var operation = dialog.ShowAsync();
+        // Nobody awaits the operation, so a dialog that could not be shown would fail without a trace
+        operation.Completed = (shown, status) =>
+        {
+            if (status == AsyncStatus.Error)
+            {
+                Logger.LogWarning(shown.ErrorCode, "The dialog of the segment '{SegmentName}' could not be shown", Region.Segment.Name);
+            }
+        };
         return new NavigationResult<IAsyncOperation<ContentDialogResult>>(request, operation);
     }
 }

@@ -25,6 +25,7 @@ public class NavigationOptionsTests
 
         Assert.IsTrue(options.DialogsInHistory, "Expected a dialog to be an entry of the history by default.");
         Assert.AreEqual(100, options.JournalCapacity, "Expected the default capacity.");
+        Assert.AreEqual(TimeSpan.FromSeconds(30), options.StaleNavigationTimeout, "Expected a navigation to be given up after half a minute.");
         Assert.AreEqual("/", options.BasePath, "Expected the application to be hosted at the root.");
         Assert.IsNull(options.DeepLinkScheme, "Expected no custom scheme to be followed unless one is set.");
     }

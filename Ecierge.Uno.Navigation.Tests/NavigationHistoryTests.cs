@@ -176,4 +176,42 @@ public class NavigationHistoryTests
 
         CollectionAssert.AreEqual(new[] { "Login", "Building/b1/Menu" }, Paths(host), "Expected the count of open navigations to return to zero, so that the next one is recorded.");
     }
+
+    [TestMethod]
+    public async Task A_listener_of_the_start_that_fails_must_not_leave_the_navigation_open()
+    {
+        using var host = CreateHost();
+        EventHandler<Lazy<Routing.Route>> failing = (_, _) => throw new InvalidOperationException("The listener failed.");
+        host.Root.NavigationStatus.NavigationStarted += failing;
+
+        await Assert.ThrowsExactlyAsync<InvalidOperationException>(
+            async () => await host.Root.NavigateRouteAsync(this, "Login"),
+            "Expected the failure of the listener to reach the caller.");
+        host.Root.NavigationStatus.NavigationStarted -= failing;
+        var announced = 0;
+        host.Services.GetRequiredService<IRouteNotifier>().RouteChanged += (_, _) => announced++;
+        await host.Root.NavigateRouteAsync(this, "Building/b1/Menu");
+
+        CollectionAssert.AreEqual(new[] { "Building/b1/Menu" }, Paths(host), "Expected the next navigation to be recorded: the one that failed was closed, so it does not hold the next one back.");
+        Assert.AreEqual(1, announced, "Expected the next navigation to be announced.");
+    }
+
+    [TestMethod]
+    public async Task A_listener_of_the_end_that_fails_must_not_leave_the_navigation_open()
+    {
+        using var host = CreateHost();
+        EventHandler<NavigationResponse> failing = (_, _) => throw new InvalidOperationException("The listener failed.");
+        host.Root.NavigationStatus.NavigationFinished += failing;
+
+        await Assert.ThrowsExactlyAsync<InvalidOperationException>(
+            async () => await host.Root.NavigateRouteAsync(this, "Login"),
+            "Expected the failure of the listener to reach the caller.");
+        host.Root.NavigationStatus.NavigationFinished -= failing;
+        var announced = 0;
+        host.Services.GetRequiredService<IRouteNotifier>().RouteChanged += (_, _) => announced++;
+        await host.Root.NavigateRouteAsync(this, "Building/b1/Menu");
+
+        CollectionAssert.AreEqual(new[] { "Login", "Building/b1/Menu" }, Paths(host), "Expected the page that was shown to be recorded, and the next one too.");
+        Assert.AreEqual(1, announced, "Expected the next navigation to be announced.");
+    }
 }

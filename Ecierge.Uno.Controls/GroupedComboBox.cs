@@ -8,6 +8,8 @@ public partial class GroupedComboBox : ListView
     private Popup? popup;
     private TextBox? textBox;
     private bool isDropDownOpenedOnce = false;
+    // The content of the window that a press closes the drop-down in, while the control is in the window
+    private UIElement? pointerSource;
 
     #region IsDropDownOpen
 
@@ -113,6 +115,8 @@ public partial class GroupedComboBox : ListView
     public GroupedComboBox()
     {
         DefaultStyleKey = typeof(GroupedComboBox);
+        Loaded += OnLoaded;
+        Unloaded += OnUnloaded;
     }
 
     /// <inheritdoc/>
@@ -145,24 +149,44 @@ public partial class GroupedComboBox : ListView
         textBox.GotFocus -= TextBox_GotFocus;
         textBox.GotFocus += TextBox_GotFocus;
 
-        var xamlRootContent = popup.XamlRoot?.Content;
-        if (xamlRootContent is not null)
-        {
-            xamlRootContent.PointerPressed -= Content_PointerPressed;
-            xamlRootContent.PointerPressed += Content_PointerPressed;
-        }
+        this.SelectionChanged -= GropedComboBox_SelectionChanged;
+        this.SelectionChanged += GropedComboBox_SelectionChanged;
+    }
 
+    private void OnLoaded(object sender, RoutedEventArgs e)
+    {
+        // The control listens to the window only while it is in it: a control that was removed and is added again
+        // listens again, and a removed one is not kept alive by the window
         FocusManager.GotFocus -= FocusManager_GotFocus;
         FocusManager.GotFocus += FocusManager_GotFocus;
 
-        this.SelectionChanged -= GropedComboBox_SelectionChanged;
-        this.SelectionChanged += GropedComboBox_SelectionChanged;
-
-        this.Unloaded -= OnUnloaded;
-        this.Unloaded += OnUnloaded;
+        StopListeningToPointer();
+        if (XamlRoot?.Content is { } content)
+        {
+            pointerSource = content;
+            content.PointerPressed += Content_PointerPressed;
+        }
     }
 
-    private void OnUnloaded(object sender, RoutedEventArgs e) => FocusManager.GotFocus -= FocusManager_GotFocus;
+    private void OnUnloaded(object sender, RoutedEventArgs e)
+    {
+        FocusManager.GotFocus -= FocusManager_GotFocus;
+        StopListeningToPointer();
+
+        // The drop-down is a popup of the window and not a child of the control, so it would stay open over the
+        // window when the control leaves it, for example together with the dialog that it was in
+        IsDropDownOpen = false;
+    }
+
+    private void StopListeningToPointer()
+    {
+        if (pointerSource is { } source)
+        {
+            source.PointerPressed -= Content_PointerPressed;
+        }
+
+        pointerSource = null;
+    }
 
     protected override void OnItemsChanged(object e)
     {
@@ -172,7 +196,15 @@ public partial class GroupedComboBox : ListView
 
     private void TextBox_PointerPressed(object sender, PointerRoutedEventArgs e) => IsDropDownOpen = true;
 
-    private void TextBox_GotFocus(object sender, RoutedEventArgs e) => IsDropDownOpen = true;
+    private void TextBox_GotFocus(object sender, RoutedEventArgs e)
+    {
+        // The drop-down opens when the user moves the focus to the box. Focus that the framework or the application
+        // puts there, for example back on the page when a dialog closes, is not a request for the drop-down.
+        if (textBox?.FocusState is FocusState.Pointer or FocusState.Keyboard)
+        {
+            IsDropDownOpen = true;
+        }
+    }
 
     private void GropedComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
@@ -205,7 +237,23 @@ public partial class GroupedComboBox : ListView
         }
     }
 
-    private void Content_PointerPressed(object sender, PointerRoutedEventArgs e) => IsDropDownOpen = false;
+    private void Content_PointerPressed(object sender, PointerRoutedEventArgs e)
+    {
+        // A press in the control opens the drop-down itself; the press reaches the window after that
+        if (e.OriginalSource is DependencyObject source && IsInsideControl(source)) return;
+
+        IsDropDownOpen = false;
+    }
+
+    private bool IsInsideControl(DependencyObject element)
+    {
+        for (DependencyObject? current = element; current is not null; current = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetParent(current))
+        {
+            if (ReferenceEquals(current, this)) return true;
+        }
+
+        return false;
+    }
 
     private void OnTextBoxTapped(object sender, TappedRoutedEventArgs e) => IsDropDownOpen = true;
 }

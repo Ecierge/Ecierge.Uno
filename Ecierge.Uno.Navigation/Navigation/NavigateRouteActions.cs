@@ -62,7 +62,8 @@ public partial class NavigateRootRouteAction : NavigateRouteActionBase, IAction
         }
         if (navigationRegion is not null)
         {
-            return navigationRegion.Navigator.RootNavigator.NavigateRouteAsync(sender, Route!, NavigationData);
+            var navigator = navigationRegion.Navigator;
+            return NavigationActionLog.Run(nameof(NavigateRootRouteAction), navigator, Route, () => navigator.RootNavigator.NavigateRouteAsync(sender, Route!, NavigationData));
         }
         return null;
     }
@@ -77,7 +78,7 @@ public abstract partial class NavigateTargetRouteActionBase : NavigateRouteActio
     /// Target Dependency Property
     /// </summary>
     public static readonly DependencyProperty TargetElementProperty =
-        DependencyProperty.Register(nameof(TargetElement), typeof(FrameworkElement), typeof(NavigateSegmentActionBase), new((FrameworkElement?)null));
+        DependencyProperty.Register(nameof(TargetElement), typeof(FrameworkElement), typeof(NavigateTargetRouteActionBase), new((FrameworkElement?)null));
     /// <summary>
     /// Gets or sets the Target property. This dependency property
     /// indicates the FrameworkElement that has a navigation region.
@@ -111,7 +112,8 @@ public partial class NavigateLocalRouteAction : NavigateTargetRouteActionBase, I
         }
         if (navigationRegion is not null)
         {
-            return navigationRegion.Navigator.NavigateRouteAsync(sender, Route!, NavigationData);
+            var navigator = navigationRegion.Navigator;
+            return NavigationActionLog.Run(nameof(NavigateLocalRouteAction), navigator, Route, () => navigator.NavigateRouteAsync(sender, Route!, NavigationData));
         }
         return null;
     }
@@ -123,6 +125,14 @@ public partial class NavigateNestedRouteAction : NavigateTargetRouteActionBase, 
     /// Navigates to the route through the navigator of the region inside the region of the target element, or of the
     /// sender when no target is set.
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// An element of a page belongs to the innermost region that the page declares, such as its tabs, and the region
+    /// of the tabs has no region inside it. Such an element navigates in its own region with
+    /// <see cref="NavigateLocalRouteAction"/>; this action is for an element outside the region that it navigates in,
+    /// such as one in the shell. A failure is logged, because nobody awaits what an action returns.
+    /// </para>
+    /// </remarks>
     /// <exception cref="NavigationRegionMissingException">
     /// The target element, or the sender, is not in a navigation region.
     /// </exception>
@@ -137,7 +147,8 @@ public partial class NavigateNestedRouteAction : NavigateTargetRouteActionBase, 
         }
         if (navigationRegion is not null)
         {
-            return navigationRegion.Navigator.RequireChildNavigator().NavigateRouteAsync(sender, Route!, NavigationData);
+            var navigator = navigationRegion.Navigator;
+            return NavigationActionLog.Run(nameof(NavigateNestedRouteAction), navigator, Route, () => navigator.RequireChildNavigator().NavigateRouteAsync(sender, Route!, NavigationData));
         }
         return null;
     }
