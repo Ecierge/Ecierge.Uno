@@ -3,7 +3,6 @@
     <TargetFrameworks>
       $(DotNetVersion)-android;
       $(DotNetVersion)-ios;
-      $(DotNetVersion)-maccatalyst;
       $(DotNetVersion)-windows10.0.28000;
       $(DotNetVersion);
       $(DotNetVersion)-desktop;
@@ -38,7 +37,6 @@
     -->
 
     <UnoFeatures>
-      SkiaRenderer;
       Storage;
     </UnoFeatures>
 

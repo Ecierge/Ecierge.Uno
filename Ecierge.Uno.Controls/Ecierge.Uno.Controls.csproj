@@ -3,7 +3,6 @@
     <TargetFrameworks>
       $(DotNetVersion)-android;
       $(DotNetVersion)-ios;
-      $(DotNetVersion)-maccatalyst;
       $(DotNetVersion)-windows10.0.28000;
       $(DotNetVersion);
       $(DotNetVersion)-desktop;
@@ -39,7 +38,6 @@
       Configuration;
       Localization;
       Logging;
-      SkiaRenderer;
       Storage;
       Toolkit;
     </UnoFeatures>
