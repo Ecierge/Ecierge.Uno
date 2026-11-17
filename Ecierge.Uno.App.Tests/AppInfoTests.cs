@@ -1,13 +1,14 @@
 namespace Ecierge.Uno.App.Tests;
 
+[TestClass]
 public class AppInfoTests
 {
-    [SetUp]
+    [TestInitialize]
     public void Setup()
     {
     }
 
-    [Test]
+    [TestMethod]
     public void AppInfoCreation()
     {
         var appInfo = new AppConfig { Environment = "Test" };

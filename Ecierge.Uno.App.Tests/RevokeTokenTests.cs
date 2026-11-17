@@ -11,13 +11,13 @@ using OpenIddict.Client.UnoTokenPersistence;
 
 using global::Uno.Extensions;
 using global::Uno.Extensions.Storage.KeyValueStorage;
-using NUnit.Framework;
 
+[TestClass]
 public class RevokeTokenTests
 {
     private ServiceProvider provider = null!;
 
-    [SetUp]
+    [TestInitialize]
     public void Setup()
     {
         var services = new ServiceCollection();
@@ -46,7 +46,8 @@ public class RevokeTokenTests
         new RevokeTokenTestCase("test-user", "test-Auth", OpenIddictConstants.Statuses.Valid, null)
     };
 
-    [TestCaseSource(nameof(revokeTokenTestCases))]
+    [TestMethod]
+    [DynamicData(nameof(revokeTokenTestCases))]
     public async Task RevokeAsyncTest(RevokeTokenTestCase ca)
     {
         var tokenStore = provider.GetRequiredService<IOpenIddictTokenStore<OpenIddictUnoToken>>();
@@ -80,10 +81,10 @@ public class RevokeTokenTests
 
         var revokedCount = await tokenStore.RevokeAsync(ca.Subject, ca.ApplicationId, ca.Status, ca.Type, CancellationToken.None);
 
-        Assert.That(revokedCount, Is.EqualTo(2));
+        Assert.AreEqual(2L, revokedCount);
     }
 
-    [Test]
+    [TestMethod]
     public async Task RevokeByApplicationIdAsyncTest()
     {
         var tokenStore = provider.GetRequiredService<IOpenIddictTokenStore<OpenIddictUnoToken>>();
@@ -120,10 +121,10 @@ public class RevokeTokenTests
 
         var revokedCount = await tokenStore.RevokeByApplicationIdAsync("test-App", CancellationToken.None);
 
-        Assert.That(revokedCount, Is.EqualTo(2));
+        Assert.AreEqual(2L, revokedCount);
     }
 
-    [Test]
+    [TestMethod]
     public async Task RevokeByAuthorizationIdAsyncTest()
     {
         var tokenStore = provider.GetRequiredService<IOpenIddictTokenStore<OpenIddictUnoToken>>();
@@ -157,10 +158,10 @@ public class RevokeTokenTests
 
         var revokedCount = await tokenStore.RevokeByAuthorizationIdAsync("test-Auth", CancellationToken.None);
 
-        Assert.That(revokedCount, Is.EqualTo(2));
+        Assert.AreEqual(2L, revokedCount);
     }
 
-    [Test]
+    [TestMethod]
     public async Task RevokeBySubjectAsyncTest()
     {
         var tokenStore = provider.GetRequiredService<IOpenIddictTokenStore<OpenIddictUnoToken>>();
@@ -191,6 +192,6 @@ public class RevokeTokenTests
 
         var revokedCount = await tokenStore.RevokeBySubjectAsync("test-user", CancellationToken.None);
 
-        Assert.That(revokedCount, Is.EqualTo(2));
+        Assert.AreEqual(2L, revokedCount);
     }
 }
