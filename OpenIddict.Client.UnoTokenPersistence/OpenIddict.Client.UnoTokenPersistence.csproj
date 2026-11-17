@@ -14,6 +14,11 @@
 
     <UnoSingleProject>true</UnoSingleProject>
     <OutputType>Library</OutputType>
+    <!-- Uno.Sdk does not pack by default -->
+    <IsPackable>true</IsPackable>
+    <!-- The OpenIddict.* package id prefix is reserved on nuget.org, the assembly and the namespace keep their names. -->
+    <PackageId>Ecierge.OpenIddict.Client.UnoTokenPersistence</PackageId>
+    <Description>OpenIddict client token store on top of the Uno key-value storage: keeps the tokens of the OpenIddict client in Uno Platform applications.</Description>
     <!-- Ensures the .xr.xml files are generated in a proper layout folder -->
     <GenerateLibraryLayout>true</GenerateLibraryLayout>
     <ImplicitUsings>enable</ImplicitUsings>
