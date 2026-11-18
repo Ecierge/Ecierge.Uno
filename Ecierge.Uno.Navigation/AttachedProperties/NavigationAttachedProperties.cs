@@ -112,12 +112,16 @@ public static class Navigation
         element.SetNavigationRegion(navigationRegion);
         if (navigationBoundary is not null)
         {
+            // Mark the ancestors up to the boundary, so that FindNavigationRegion resolves the elements around the attached one to its region.
+            // The walk is the one FindNavigationBoundary used, so it reaches the boundary.
             List<FrameworkElement> markedAncestors = [];
-            FrameworkElement? parent = element;
-            while ((parent = parent!.Parent as FrameworkElement) is not null && parent != navigationBoundary)
+            for (var parent = element.GetNavigationParent(); parent is not null && parent != navigationBoundary; parent = parent.GetNavigationParent())
             {
-                parent.SetNavigationRegion(navigationRegion);
-                markedAncestors.Add(parent);
+                if (parent is FrameworkElement frameworkElement)
+                {
+                    frameworkElement.SetNavigationRegion(navigationRegion);
+                    markedAncestors.Add(frameworkElement);
+                }
             }
 
             // DetachRegion removes these marks again.
