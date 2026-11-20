@@ -30,6 +30,7 @@ public partial class MainViewModel : ObservableObject
         Title += $" - {localizer["ApplicationName"]}";
         Title += $" - {appInfo?.Value?.Environment}";
         GoToSecond = new AsyncRelayCommand(GoToSecondView);
+        GoToPageContentControl = new AsyncRelayCommand(GoToPageContentControlView);
 
         var groups = new List<(string, string)>();
         for(int i = 0; i < 5; i++)
@@ -50,11 +51,17 @@ public partial class MainViewModel : ObservableObject
     public string? Title { get; }
 
     public ICommand GoToSecond { get; }
+    public ICommand GoToPageContentControl { get; }
 
     private async Task GoToSecondView()
     {
         if (string.IsNullOrWhiteSpace(Name)) return;
         await navigator.NavigateLocalSegmentAsync(this, "Second", new Entity(Name));
+    }
+    private async Task GoToPageContentControlView()
+    {
+        if (string.IsNullOrWhiteSpace(Name)) return;
+        await navigator.NavigateLocalSegmentAsync(this, "PageContentControl", new Entity(Name));
     }
 
 }
