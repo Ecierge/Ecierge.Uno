@@ -1,0 +1,86 @@
+﻿<ResourceDictionary x:Class="Ecierge.Uno.Controls.Styles.PageContentControlStyle"
+                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="using:Ecierge.Uno.Controls"
+                    xmlns:i="using:Microsoft.Xaml.Interactivity"
+                    xmlns:behaviors="using:Ecierge.Uno.Behaviors"
+                    xmlns:media="using:Microsoft.UI.Xaml.Media">
+
+  <ResourceDictionary.MergedDictionaries>
+    <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+    <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/Resources.xaml" />
+  </ResourceDictionary.MergedDictionaries>
+
+  <Style x:Key="PageContentControl" TargetType="local:PageContentControl">
+    <Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}" />
+    <Setter Property="FontSize" Value="{ThemeResource ControlContentThemeFontSize}" />
+    <Setter Property="Foreground" Value="{ThemeResource TextControlForeground}" />
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="local:PageContentControl">
+
+          <Grid RowDefinitions="Auto,*">
+            <ContentPresenter x:Name="Title"
+                              Grid.Row="0"
+                              HorizontalAlignment="Stretch"
+                              VerticalAlignment="Center"
+                              Content="{TemplateBinding Title}" />
+            <Grid Grid.Row="1">
+              <ScrollViewer x:Name="ScrollViewer"
+                            HorizontalScrollBarVisibility="Disabled"
+                            HorizontalScrollMode="Auto"
+                            VerticalScrollBarVisibility="Hidden">
+                <Grid>
+                  <ContentPresenter x:Name="ContentPresenter"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch"
+                                    Content="{TemplateBinding Content}"
+                                    ContentTemplate="{TemplateBinding ContentTemplate}"/>
+                </Grid>
+              </ScrollViewer>
+
+              <Grid x:Name="Header"  RowDefinitions="Auto,*"
+                    Height="Auto"
+                    VerticalAlignment="Top"
+                    Background="{ThemeResource CustomAcrylicBrush2}">
+                <Border Grid.Row="0" Height="{TemplateBinding TopBorderHeight}" />
+                <ContentPresenter HorizontalAlignment="Stretch"   Grid.Row="1"
+                                  VerticalAlignment="Stretch"
+                                  Background="Transparent"
+                                  Content="{TemplateBinding Header}"
+                                  ContentTemplate="{TemplateBinding HeaderTemplate}" />
+              </Grid>
+              <Grid x:Name="Footer"
+                    Height="Auto"
+                    VerticalAlignment="Bottom"
+                    Background="{ThemeResource CustomAcrylicBrush2}">
+                <ContentPresenter HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Stretch"
+                                  Content="{TemplateBinding Footer}"
+                                  ContentTemplate="{TemplateBinding FooterTemplate}" />
+              </Grid>
+
+              <ScrollBar x:Name="VerticalScrollBar"
+                         Width="8"
+                         Style="{StaticResource DefaultScrollBarStyle}"
+                         HorizontalAlignment="Right"
+                         VerticalAlignment="Stretch"
+                         Minimum="0"
+                         IndicatorMode="MouseIndicator"
+                         Orientation="Vertical"
+                         Visibility="Visible" />
+            </Grid>
+          </Grid>
+
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="UseSystemFocusVisuals" Value="{ThemeResource IsApplicationFocusVisualKindReveal}" />
+    <Setter Property="VerticalAlignment" Value="Stretch" />
+
+  </Style>
+
+  <Style TargetType="local:PageContentControl" BasedOn="{StaticResource PageContentControl}" />
+</ResourceDictionary>
