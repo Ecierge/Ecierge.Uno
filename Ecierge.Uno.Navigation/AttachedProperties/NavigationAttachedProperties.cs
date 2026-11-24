@@ -45,19 +45,9 @@ public static class Navigation
         var navigationRegion = element.GetNavigationRegion();
         if (navigationRegion is not null) return navigationRegion;
 
-        foreach (FrameworkElement parent in element.FindAscendants().OfType<FrameworkElement>())
-        {
-            navigationRegion = parent.GetNavigationRegion();
-            if (navigationRegion is not null)
-            {
-                element.SetNavigationRegion(navigationRegion);
-                break;
-            }
-        }
-        if (navigationRegion is null)
-        {
-            throw new RootNavigationRegionMissingException();
-        }
+        // The walk of AttachRegion and its marks (GetNavigationParent), so that the lookup reaches the region that marked the ancestors.
+        navigationRegion = element.FindParentNavigationRegion() ?? throw new RootNavigationRegionMissingException();
+        element.SetNavigationRegion(navigationRegion);
         return navigationRegion;
     }
 
