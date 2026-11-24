@@ -121,7 +121,7 @@ public static class Navigation
             }
 
             // DetachRegion removes these marks again.
-            navigationRegion.MarkedAncestors = [.. markedAncestors];
+            navigationRegion.MarkedAncestors = markedAncestors.ToArray();
         }
     }
 
