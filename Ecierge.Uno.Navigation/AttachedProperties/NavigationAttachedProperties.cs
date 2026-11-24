@@ -24,6 +24,18 @@ public static class Navigation
         if (navigationRegion is null) return;
         element.DispatcherQueue.EnqueueAsync(navigationRegion.Scope.DisposeAsync, DispatcherQueuePriority.Low);
         element.SetValue(InfoProperty, null);
+
+        // The ancestors that AttachRegion marked would keep the disposed region, and an element attached under them later would take it for its parent region.
+        // A mark that a later attachment replaced stays.
+        foreach (var ancestor in navigationRegion.MarkedAncestors)
+        {
+            if (ReferenceEquals(ancestor.GetNavigationRegion(), navigationRegion))
+            {
+                ancestor.SetValue(InfoProperty, null);
+            }
+        }
+
+        navigationRegion.MarkedAncestors = [];
     }
 
     internal static Regions.NavigationRegion? GetNavigationRegion([NotNull] this FrameworkElement element) => (Regions.NavigationRegion?)element.GetValue(InfoProperty);
@@ -100,11 +112,16 @@ public static class Navigation
         element.SetNavigationRegion(navigationRegion);
         if (navigationBoundary is not null)
         {
+            List<FrameworkElement> markedAncestors = [];
             FrameworkElement? parent = element;
             while ((parent = parent!.Parent as FrameworkElement) is not null && parent != navigationBoundary)
             {
                 parent.SetNavigationRegion(navigationRegion);
+                markedAncestors.Add(parent);
             }
+
+            // DetachRegion removes these marks again.
+            navigationRegion.MarkedAncestors = markedAncestors.ToArray();
         }
     }
 
