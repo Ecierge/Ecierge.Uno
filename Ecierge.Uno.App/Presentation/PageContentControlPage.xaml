@@ -28,7 +28,7 @@
         </ctrl:PageContentControl.Header>
 
        <ctrl:PageContentControl.Footer>
-          <CommandBar  VerticalAlignment="Center">
+          <CommandBar VerticalAlignment="Center">
           <AppBarButton Icon="Save" />
           <AppBarButton Icon="Delete" />
         </CommandBar>
