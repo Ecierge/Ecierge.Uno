@@ -19,6 +19,11 @@ public record NavigationRegion
     /// </summary>
     internal FrameworkElement[] MarkedAncestors { get; set; } = [];
 
+    /// <summary>
+    /// Gets a value indicating whether the region was detached from its target. Elements may still hold it; the navigation lookups treat it as missing.
+    /// </summary>
+    internal bool IsDetached { get; set; }
+
     public NavigationRegion(NavigationScope scope)
     {
         Scope = scope;

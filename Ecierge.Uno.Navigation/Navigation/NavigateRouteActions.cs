@@ -53,7 +53,7 @@ public partial class NavigateRootRouteAction : NavigateRouteActionBase, IAction
 {
     public object? Execute(object sender, object parameter)
     {
-        if (navigationRegion is null && sender is FrameworkElement element)
+        if (navigationRegion is null or { IsDetached: true } && sender is FrameworkElement element)
         {
             navigationRegion = element.FindNavigationRegion();
             if (navigationRegion is null) throw new NavigationRegionMissingException(element);
@@ -95,7 +95,7 @@ public partial class NavigateLocalRouteAction : NavigateTargetRouteActionBase, I
     {
         var target = TargetElement ?? sender;
 
-        if (navigationRegion is null && target is FrameworkElement element)
+        if (navigationRegion is null or { IsDetached: true } && target is FrameworkElement element)
         {
             navigationRegion = element.FindNavigationRegion();
             if (navigationRegion is null) throw new NavigationRegionMissingException(element);
@@ -113,7 +113,7 @@ public partial class NavigateNestedRouteAction : NavigateTargetRouteActionBase, 
     public object? Execute(object sender, object parameter)
     {
         var target = TargetElement ?? sender;
-        if (navigationRegion is null && target is FrameworkElement element)
+        if (navigationRegion is null or { IsDetached: true } && target is FrameworkElement element)
         {
             navigationRegion = element.FindNavigationRegion();
             if (navigationRegion is null) throw new NavigationRegionMissingException(element);
