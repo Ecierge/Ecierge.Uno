@@ -1,4 +1,4 @@
-global using NUnit.Framework;
+global using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 global using Uno.UITest;
 global using Uno.UITest.Helpers.Queries;
