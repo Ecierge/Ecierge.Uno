@@ -45,6 +45,14 @@ public record NavigationOptions
     public string? DialogCloseButtonText { get; init; } = "Close";
 
     /// <summary>
+    /// The thickness of the outline of a dialog that the library builds around a view that is not a content dialog. A theme
+    /// may draw a content dialog with a shadow and no outline, so that its edge cannot be seen on a light page. The outline has
+    /// the color of the outline of the theme: <c>OutlineBrush</c> of Material or <c>CardStrokeColorDefaultBrush</c> of Fluent.
+    /// The default is <c>1</c>; zero or less, or a theme without such a brush, leaves the dialog as the theme draws it.
+    /// </summary>
+    public double DialogBorderThickness { get; init; } = 1;
+
+    /// <summary>
     /// The scheme of the links that open a page of the application, for example <c>ecierge-console</c> for the link
     /// <c>ecierge-console://Building/id/Assets</c>. Links of other schemes, such as the callbacks of a sign-in, are
     /// not routes. Without a scheme no link with a custom scheme is followed. Links of the web (<c>http</c> and

@@ -73,6 +73,7 @@ On Android and iOS the back button of the system goes back in the journal while 
 |:--|:--|:--|
 |`DialogsInHistory`|`true`|An open dialog is an entry of the history|
 |`DialogCloseButtonText`|`Close`|The close button of a dialog that is built around a view that is not a content dialog; without a text the dialog has no button|
+|`DialogBorderThickness`|`1`|The outline of such a dialog, in the outline color of the theme (Material `OutlineBrush`, Fluent `CardStrokeColorDefaultBrush`); `0` leaves the dialog as the theme draws it|
 |`JournalCapacity`|`100`|The number of entries the history keeps|
 |`StaleNavigationTimeout`|`30` seconds|A navigation that has been open for longer is left out by the navigations that start after it, so that one that never ends does not hold back the history and the announcements for ever|
 |`AddressBarUpdateEnabled`|`true`|The browser history follows the journal (WebAssembly)|

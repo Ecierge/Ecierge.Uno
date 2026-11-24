@@ -103,6 +103,12 @@ public abstract class DialogNavigator<TTarget, TResult> : FactoryNavigator<TTarg
 public class ContentDialogNavigator : DialogNavigator<ContentDialog, ContentDialogResult>
 {
     /// <summary>
+    /// The resources that hold the color of an outline, in the order they are tried: <c>OutlineBrush</c> of Material, then
+    /// <c>CardStrokeColorDefaultBrush</c> and <c>ControlStrokeColorDefaultBrush</c> of Fluent.
+    /// </summary>
+    private static readonly string[] OutlineBrushKeys = ["OutlineBrush", "CardStrokeColorDefaultBrush", "ControlStrokeColorDefaultBrush"];
+
+    /// <summary>
     /// Creates a navigator.
     /// </summary>
     /// <param name="serviceProvider">The services of the scope of the region.</param>
@@ -163,19 +169,40 @@ public class ContentDialogNavigator : DialogNavigator<ContentDialog, ContentDial
     /// <summary>
     /// Builds the dialog around a view that is not a content dialog. The view has no buttons, so the dialog gets the
     /// close button of <see cref="NavigationOptions.DialogCloseButtonText"/>: without a button nothing closes the dialog
-    /// on a platform where the escape key does not.
+    /// on a platform where the escape key does not. It also gets the outline of <see cref="NavigationOptions.DialogBorderThickness"/>,
+    /// as a theme may draw a dialog without one.
     /// </summary>
     /// <param name="view">The view to show in the dialog.</param>
     /// <returns>The dialog.</returns>
     private ContentDialog CreateDialogAround(FrameworkElement view)
     {
+        var options = ServiceProvider.GetService<IOptions<NavigationOptions>>()?.Value;
         var dialog = new ContentDialog { Content = view };
-        var closeButtonText = ServiceProvider.GetService<IOptions<NavigationOptions>>()?.Value.DialogCloseButtonText;
-        if (!string.IsNullOrEmpty(closeButtonText))
+        if (!string.IsNullOrEmpty(options?.DialogCloseButtonText))
         {
-            dialog.CloseButtonText = closeButtonText;
+            dialog.CloseButtonText = options.DialogCloseButtonText;
             dialog.DefaultButton = ContentDialogButton.Close;
         }
+        if (options is { DialogBorderThickness: > 0 } && FindOutlineBrush() is { } outline)
+        {
+            dialog.BorderThickness = new Thickness(options.DialogBorderThickness);
+            dialog.BorderBrush = outline;
+        }
         return dialog;
+    }
+
+    /// <summary>
+    /// Finds the brush that the theme of the application draws an outline with.
+    /// </summary>
+    /// <returns>The brush, or <see langword="null"/> when the theme has none of the brushes the library knows.</returns>
+    private static Brush? FindOutlineBrush()
+    {
+        var resources = Application.Current?.Resources;
+        if (resources is null) return null;
+        foreach (var key in OutlineBrushKeys)
+        {
+            if (resources.TryGetValue(key, out var value) && value is Brush brush) return brush;
+        }
+        return null;
     }
 }
