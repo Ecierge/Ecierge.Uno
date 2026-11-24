@@ -13,7 +13,7 @@
     </ctc:EmptyObjectToObjectConverter.NotEmptyValue>
   </ctc:EmptyObjectToObjectConverter>
 
-  <media:AcrylicBrush x:Key="CustomAcrylicBrush"
+  <media:AcrylicBrush x:Key="PageAppBarAcrylicBrush"
                       FallbackColor="#66FFFFFF"
                       TintColor="#CCFFFFFF"
                       TintOpacity="0.1" />

@@ -7,8 +7,8 @@
   </ResourceDictionary.MergedDictionaries>
 
   <Style x:Key="PageContentControl" TargetType="local:PageContentControl">
-    <Setter Property="FooterBackground" Value="{ThemeResource CustomAcrylicBrush}" />
-    <Setter Property="HeaderBackground" Value="{ThemeResource CustomAcrylicBrush}" />
+    <Setter Property="FooterBackground" Value="{ThemeResource PageAppBarAcrylicBrush}" />
+    <Setter Property="HeaderBackground" Value="{ThemeResource PageAppBarAcrylicBrush}" />
     <Setter Property="HorizontalAlignment" Value="Stretch" />
     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
     <Setter Property="IsTabStop" Value="False" />
