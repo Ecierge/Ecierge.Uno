@@ -130,7 +130,7 @@ public partial class App : Application
                             new ("Tab1", isDefault: true) { Title = "First tab" },
                             new ("Tab2") { Title = "Second tab" },
                             // A page that needs all the room hides the breadcrumbs
-                            new ("Tab3") { Title = "Full screen", HidesBreadcrumbs = true },
+                            new ("Tab3") { Title = "Full screen", HidesBreadcrumbBar = true },
                             new DialogSegment("Dialog", views[typeof(MainPage)], nested:[
                                     new ("Tab1", isDefault: true),
                                     new ("Tab2"),
@@ -138,7 +138,8 @@ public partial class App : Application
                         ]) { Title = "MainPageTitle" },
                     // The breadcrumb of the entity shows its name once it has loaded, and "Second page" until then
                     new ("Second", views[typeof(SecondPage)], new DataSegment("name", data[typeof(Entity)], true,
-                            new NameSegment("Details", isDefault: true) { Title = "Details" },
+                            // The default tab needs no breadcrumb: the entity stands for it
+                            new NameSegment("Details", isDefault: true) { Title = "Details", HidesBreadcrumb = true },
                             new NameSegment("Notes") { Title = "Notes" }))
                         { Title = "Second page" },
                     new DialogSegment("ContentDialog", views[typeof(MainContentDialog)], nested:[

@@ -96,13 +96,15 @@ The options are bound from the `NavigationOptions` section of the configuration,
 - A named segment is a breadcrumb with its `Title`, else with its name. The title is first looked up as the key of a resource of the `IStringLocalizer` of the application (`UseLocalization`); a missing or empty resource leaves the title as it is written.
 - A segment that owns a data segment is one breadcrumb together with its value. It shows the name that the data map gives for the loaded entity (`NavigationDataMap<T>.GetDisplayName`), and the title of the segment while the entity loads the first time or when its load failed. While the entity loads again the breadcrumb keeps the last name.
 - A dialog is not a breadcrumb: the breadcrumbs stand for the page under it.
-- A segment with `HidesBreadcrumbs` hides the bar while the route passes through it, for example a page that shows a web site. Space around the bar is given with `Padding`, which collapses with it.
+- A segment with `HidesBreadcrumbBar` hides the bar while the route passes through it, for example a page that shows a web site. Space around the bar is given with `Padding`, which collapses with it.
+- A segment with `HidesBreadcrumb` is left out of the breadcrumbs and the bar shows the other levels, for example the default page of a level that needs no breadcrumb of its own. A segment that owns a data segment is left out together with its value, and the breadcrumbs after it still lead through it. When the segments below the last level that is shown are left out, that level stands for the page that is shown.
 - A click on a breadcrumb opens its level with its default pages and adds an entry to the history. A click on the last breadcrumb, or on a level whose default page is the page that is shown, asks the page to load its data again; a level that has no default page opens nothing. The WinUI bar shows the last breadcrumb as text, not as a button, so the control catches a tap on it itself.
 
 ```csharp
 new NameSegment("Building", views[typeof(BuildingShell)], new DataSegment("BuildingInfo", data[typeof(BuildingInfo)], true,
     new NameSegment("Assets", views[typeof(AssetsPage)]) { Title = "Assets" },
-    new NameSegment("Web", views[typeof(WebPage)]) { HidesBreadcrumbs = true }))
+    new NameSegment("Overview", views[typeof(OverviewPage)], isDefault: true) { HidesBreadcrumb = true },
+    new NameSegment("Web", views[typeof(WebPage)]) { HidesBreadcrumbBar = true }))
 {
     Title = "Building"
 };
@@ -112,7 +114,7 @@ public override string? GetDisplayName(BuildingInfo entity) => entity.Name;
 
 A page loads its data again when the page itself or its view model implements `IRefreshable`, a `RefreshCommand` that the bar runs if it can execute. The page decides what that means: a list keeps its filter, an editor with changes that are not saved asks first. `Navigator.TryRefreshPage()` runs the command of the innermost such page below a navigator, outside a dialog. The library never creates a page again.
 
-When segments of the same name are registered by several modules, the merged segment keeps the title that one registration has; two different titles are refused, and one registration that hides the breadcrumbs hides them for the merged segment.
+When segments of the same name are registered by several modules, the merged segment keeps the title that one registration has; two different titles are refused, and one registration that hides the bar or the breadcrumb of the segment hides it for the merged segment.
 
 ## Tests
 

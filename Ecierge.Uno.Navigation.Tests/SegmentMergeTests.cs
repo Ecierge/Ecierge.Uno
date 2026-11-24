@@ -21,18 +21,18 @@ public class SegmentMergeTests
     }
 
     [TestMethod]
-    public void A_merged_segment_with_data_must_keep_the_title_and_hide_the_breadcrumbs_if_one_registration_does()
+    public void A_merged_segment_with_data_must_keep_the_title_and_hide_the_bar_if_one_registration_does()
     {
         var merged = Segments.Merge(
             new NameSegment("Building", null, new DataSegment("BuildingInfo", null, true, new NameSegment("Menu"))),
             new NameSegment("Building", null, new DataSegment("BuildingInfo", null, true, new NameSegment("Web")))
             {
                 Title = "Building",
-                HidesBreadcrumbs = true
+                HidesBreadcrumbBar = true
             });
 
         Assert.AreEqual("Building", merged.Title, "Expected the title of the second registration.");
-        Assert.IsTrue(merged.HidesBreadcrumbs, "Expected the breadcrumbs to stay hidden as one registration asked.");
+        Assert.IsTrue(merged.HidesBreadcrumbBar, "Expected the bar to stay hidden as one registration asked.");
         Assert.HasCount(2, merged.DataSegment!.Nested, "Expected the nested segments of both data segments.");
     }
 
@@ -44,7 +44,23 @@ public class SegmentMergeTests
             new NameSegment("Tenant") { Title = "Account" });
 
         Assert.AreEqual("Account", merged.Title, "Expected the title that both registrations have.");
-        Assert.IsFalse(merged.HidesBreadcrumbs, "Expected the breadcrumbs to be shown when no registration hides them.");
+        Assert.IsFalse(merged.HidesBreadcrumbBar, "Expected the bar to be shown when no registration hides it.");
+        Assert.IsFalse(merged.HidesBreadcrumb, "Expected the breadcrumb to be shown when no registration leaves it out.");
+    }
+
+    [TestMethod]
+    public void A_merged_segment_must_be_left_out_of_the_breadcrumbs_if_one_registration_leaves_it_out()
+    {
+        var merged = Segments.Merge(
+            new NameSegment("Overview", isDefault: true),
+            new NameSegment("Overview", isDefault: true) { HidesBreadcrumb = true });
+        var mergedWithData = Segments.Merge(
+            new NameSegment("Building", null, new DataSegment("BuildingInfo", null, true, new NameSegment("Menu"))) { HidesBreadcrumb = true },
+            new NameSegment("Building", null, new DataSegment("BuildingInfo", null, true, new NameSegment("Web"))));
+
+        Assert.IsTrue(merged.HidesBreadcrumb, "Expected the breadcrumb to stay out as one registration asked.");
+        Assert.IsFalse(merged.HidesBreadcrumbBar, "Expected the bar to be unaffected by the flag of the breadcrumb.");
+        Assert.IsTrue(mergedWithData.HidesBreadcrumb, "Expected a segment with data to keep the flag as well.");
     }
 
     [TestMethod]

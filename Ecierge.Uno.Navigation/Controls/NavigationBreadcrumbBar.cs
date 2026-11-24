@@ -34,9 +34,13 @@ using Microsoft.UI.Xaml.Media;
 /// </description></item>
 /// <item><description>A dialog is not a breadcrumb: the breadcrumbs stand for the page under it.</description></item>
 /// <item><description>
-/// The bar collapses while the route passes through a segment whose <see cref="NameSegment.HidesBreadcrumbs"/> is
+/// The bar collapses while the route passes through a segment whose <see cref="NameSegment.HidesBreadcrumbBar"/> is
 /// set, and while there is no route yet. Space around the breadcrumbs is given with <see cref="Control.Padding"/>,
 /// which collapses with them.
+/// </description></item>
+/// <item><description>
+/// A segment whose <see cref="NameSegment.HidesBreadcrumb"/> is set is left out, and the bar shows the other levels.
+/// The last level that is shown stands for the page that is shown.
 /// </description></item>
 /// <item><description>
 /// A click opens the level of the breadcrumb with its default pages and adds an entry to the history. A click on the

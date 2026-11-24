@@ -68,11 +68,12 @@ internal sealed record BreadcrumbTrail(ImmutableArray<NavigationBreadcrumb> Item
     {
         route = route.WithoutDialog();
         var segments = route.Segments;
-        var isHidden = segments.Any(segment => segment is NameSegmentInstance { NameSegment.HidesBreadcrumbs: true });
-        var items = ImmutableArray.CreateBuilder<NavigationBreadcrumb>(segments.Length);
+        var isHidden = segments.Any(segment => segment is NameSegmentInstance { NameSegment.HidesBreadcrumbBar: true });
+        var levels = ImmutableArray.CreateBuilder<(string Title, Routing.Route Route)>(segments.Length);
         for (var index = 0; index < segments.Length; index++)
         {
             string title;
+            var isLeftOut = false;
             switch (segments[index])
             {
                 case NameSegmentInstance named
@@ -81,10 +82,12 @@ internal sealed record BreadcrumbTrail(ImmutableArray<NavigationBreadcrumb> Item
                          && ReferenceEquals(named.NameSegment.DataSegment, data.DataSegment):
                     // The segment and its value are one level: the building, not "Building" followed by its id
                     title = displayNameOf(data) ?? titleOf(named.NameSegment);
+                    isLeftOut = named.NameSegment.HidesBreadcrumb;
                     index++;
                     break;
                 case NameSegmentInstance named:
                     title = titleOf(named.NameSegment);
+                    isLeftOut = named.NameSegment.HidesBreadcrumb;
                     break;
                 case DataSegmentInstance data:
                     title = displayNameOf(data) ?? data.Primitive;
@@ -93,7 +96,15 @@ internal sealed record BreadcrumbTrail(ImmutableArray<NavigationBreadcrumb> Item
                     continue;
             }
 
-            items.Add(new NavigationBreadcrumb(title, route.Take(index + 1), isCurrent: index == segments.Length - 1));
+            // The route of the next breadcrumb still passes through a segment that is left out
+            if (!isLeftOut) levels.Add((title, route.Take(index + 1)));
+        }
+
+        // The last level that is shown stands for the page that is shown, also when the segments below it are left out
+        var items = ImmutableArray.CreateBuilder<NavigationBreadcrumb>(levels.Count);
+        for (var position = 0; position < levels.Count; position++)
+        {
+            items.Add(new NavigationBreadcrumb(levels[position].Title, levels[position].Route, isCurrent: position == levels.Count - 1));
         }
 
         return new(items.ToImmutable(), isHidden);

@@ -65,10 +65,17 @@ namespace Ecierge.Uno.Navigation
         public string? Title { get; init; }
 
         /// <summary>
-        /// Gets a value that tells whether the breadcrumbs are hidden while the route passes through the segment, for
+        /// Gets a value that tells whether the breadcrumb bar is hidden while the route passes through the segment, for
         /// example for a page that shows a web site and needs all the room.
         /// </summary>
-        public bool HidesBreadcrumbs { get; init; }
+        public bool HidesBreadcrumbBar { get; init; }
+
+        /// <summary>
+        /// Gets a value that tells whether the segment is left out of the breadcrumbs. The bar shows the other levels of
+        /// the route, and the breadcrumbs after the segment still lead through it. A segment that owns a data segment
+        /// is left out together with its value.
+        /// </summary>
+        public bool HidesBreadcrumb { get; init; }
 
         /// <summary>Creates a segment that carries data.</summary>
         /// <exception cref="ArgumentNullException">
@@ -245,16 +252,17 @@ namespace Ecierge.Uno.Navigation.Helpers
             var viewMap = a.ViewMap ?? b.ViewMap;
             // The constructors do not take these, so the merged segment would lose them
             var title = a.Title ?? b.Title;
-            var hidesBreadcrumbs = a.HidesBreadcrumbs || b.HidesBreadcrumbs;
+            var hidesBreadcrumbBar = a.HidesBreadcrumbBar || b.HidesBreadcrumbBar;
+            var hidesBreadcrumb = a.HidesBreadcrumb || b.HidesBreadcrumb;
             if (a.HasData)
             {
                 var dataSegment = Merge(a.DataSegment!, b.DataSegment!);
-                return new NameSegment(a.Name, viewMap!, dataSegment) { Title = title, HidesBreadcrumbs = hidesBreadcrumbs };
+                return new NameSegment(a.Name, viewMap!, dataSegment) { Title = title, HidesBreadcrumbBar = hidesBreadcrumbBar, HidesBreadcrumb = hidesBreadcrumb };
             }
             else
             {
                 var nested = a.Nested.Concat(b.Nested).ToImmutableArray();
-                return new NameSegment(a.Name, viewMap, a.IsDefault, default, nested) { Title = title, HidesBreadcrumbs = hidesBreadcrumbs };
+                return new NameSegment(a.Name, viewMap, a.IsDefault, default, nested) { Title = title, HidesBreadcrumbBar = hidesBreadcrumbBar, HidesBreadcrumb = hidesBreadcrumb };
             }
 
         }

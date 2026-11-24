@@ -20,10 +20,13 @@ public class BreadcrumbTrailTests
     private static readonly NameSegment MyProperty = new("MyProperty", isDefault: true) { Title = "My property" };
     private static readonly NameSegment Info = new("Info", isDefault: true) { Title = "Info" };
     private static readonly NameSegment Floors = new("Floors") { Title = "Floors" };
-    private static readonly NameSegment Details = new("Details", nested: [Info, Floors]) { Title = "Details" };
+    private static readonly NameSegment LeftOut = new("LeftOut", nested: [Floors]) { HidesBreadcrumb = true };
+    private static readonly NameSegment Details = new("Details", nested: [Info, Floors, LeftOut]) { Title = "Details" };
     private static readonly NameSegment Menu = new("Menu");
     private static readonly NameSegment WebPage = new("Page1");
-    private static readonly NameSegment Web = new("Web", nested: [WebPage]) { HidesBreadcrumbs = true };
+    private static readonly NameSegment Web = new("Web", nested: [WebPage]) { HidesBreadcrumbBar = true };
+    private static readonly DataSegment LeftOutData = new("LeftOutInfo", null, true, MyProperty);
+    private static readonly NameSegment LeftOutWithValue = new("LeftOutWithValue", null, LeftOutData) { Title = "Left out", HidesBreadcrumb = true };
     private static readonly DialogSegment AddAsset = new("AddAsset");
     private static readonly DataSegment BuildingData = new("BuildingInfo", null, true, MyProperty, Menu, Details, Web, AddAsset);
     private static readonly NameSegment Building = new("Building", null, BuildingData) { Title = "Building" };
@@ -96,13 +99,50 @@ public class BreadcrumbTrailTests
     }
 
     [TestMethod]
-    public void A_segment_that_hides_the_breadcrumbs_must_hide_the_bar()
+    public void A_segment_that_hides_the_breadcrumb_bar_must_hide_the_bar()
     {
         var trail = TrailOf(BuildingRoute.Add(Web).Add(WebPage));
 
         Assert.IsTrue(trail.IsHidden, "Expected the route through the web page to hide the breadcrumbs.");
         Assert.IsFalse(trail.IsShown, "Expected the bar to show nothing.");
         Assert.IsTrue(TrailOf(BuildingRoute.Add(Menu)).IsShown, "Expected the bar to show the breadcrumbs again after the web page.");
+    }
+
+    [TestMethod]
+    public void A_segment_that_hides_its_breadcrumb_must_be_left_out_and_the_bar_must_stay()
+    {
+        var trail = TrailOf(BuildingRoute.Add(Details).Add(LeftOut).Add(Floors));
+
+        CollectionAssert.AreEqual(new[] { "Building", "Details", "Floors" }, TitlesOf(trail), "Expected no breadcrumb for the segment that is left out.");
+        Assert.IsTrue(trail.IsShown, "Expected the bar to stay for the other levels.");
+        CollectionAssert.AreEqual(
+            new[] { "Building/b1", "Building/b1/Details", "Building/b1/Details/LeftOut/Floors" },
+            trail.Items.Select(item => item.Route.ToPath()).ToArray(),
+            "Expected the route of the next breadcrumb to lead through the segment that is left out.");
+    }
+
+    [TestMethod]
+    public void The_last_breadcrumb_that_is_shown_must_be_the_current_one_when_the_segments_below_it_are_left_out()
+    {
+        var trail = TrailOf(BuildingRoute.Add(Details).Add(LeftOut));
+
+        CollectionAssert.AreEqual(new[] { "Building", "Details" }, TitlesOf(trail), "Expected the levels above the segment that is left out.");
+        Assert.IsTrue(trail.Items[^1].IsCurrent, "Expected the last breadcrumb that is shown to stand for the page that is shown.");
+        Assert.IsFalse(trail.Items[0].IsCurrent, "Expected the level above not to be the current one.");
+    }
+
+    [TestMethod]
+    public void A_segment_with_a_value_that_hides_its_breadcrumb_must_be_left_out_with_its_value()
+    {
+        var trail = TrailOf(Routing.Route.Empty.Add(LeftOutData, "h1").Add(MyProperty), buildingName: "Left out name");
+
+        CollectionAssert.AreEqual(new[] { "My property" }, TitlesOf(trail), "Expected neither the segment nor its value to be a breadcrumb.");
+    }
+
+    [TestMethod]
+    public void A_segment_that_hides_its_breadcrumb_must_not_hide_the_bar()
+    {
+        Assert.IsFalse(TrailOf(BuildingRoute.Add(Details).Add(LeftOut)).IsHidden, "Expected only the breadcrumb of the segment to go, not the bar.");
     }
 
     [TestMethod]
@@ -215,7 +255,7 @@ public class BreadcrumbTrailTests
                     true,
                     new NameSegment("MyProperty", v[typeof(PageView)], isDefault: true) { Title = "My property" },
                     new NameSegment("Details", v[typeof(PageView)], nested: [new NameSegment("Info", isDefault: true), new NameSegment("Floors")]) { Title = "Details" },
-                    new NameSegment("Web", v[typeof(PageView)], nested: [new NameSegment("Page1")]) { HidesBreadcrumbs = true }))
+                    new NameSegment("Web", v[typeof(PageView)], nested: [new NameSegment("Page1")]) { HidesBreadcrumbBar = true }))
             {
                 Title = "Building"
             }
