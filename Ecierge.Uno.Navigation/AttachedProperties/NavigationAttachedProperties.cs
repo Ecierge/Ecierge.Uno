@@ -36,9 +36,16 @@ public static class Navigation
         }
 
         navigationRegion.MarkedAncestors = [];
+
+        // Elements that FindNavigationRegion stored the region on keep it; GetNavigationRegion reads it as missing from now on, so their next lookup searches again.
+        navigationRegion.IsDetached = true;
     }
 
-    internal static Regions.NavigationRegion? GetNavigationRegion([NotNull] this FrameworkElement element) => (Regions.NavigationRegion?)element.GetValue(InfoProperty);
+    /// <summary>
+    /// Gets the navigation region stored on the element: its own, the mark of an attached descendant or the result of an earlier lookup. A detached region counts as missing.
+    /// </summary>
+    internal static Regions.NavigationRegion? GetNavigationRegion([NotNull] this FrameworkElement element) =>
+        element.GetValue(InfoProperty) is Regions.NavigationRegion { IsDetached: false } navigationRegion ? navigationRegion : null;
 
     internal static Regions.NavigationRegion FindNavigationRegion([NotNull] this FrameworkElement element)
     {
