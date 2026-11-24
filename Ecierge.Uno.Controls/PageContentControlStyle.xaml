@@ -2,15 +2,16 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="using:Ecierge.Uno.Controls">
 
+  <ResourceDictionary.MergedDictionaries>
+    <ResourceDictionary Source="ms-appx:///Ecierge.Uno.Controls/Resources.xaml" />
+  </ResourceDictionary.MergedDictionaries>
+
   <Style x:Key="PageContentControl" TargetType="local:PageContentControl">
-    <Setter Property="IsTabStop" Value="False" />
+    <Setter Property="FooterBackground" Value="{ThemeResource CustomAcrylicBrush}" />
+    <Setter Property="HeaderBackground" Value="{ThemeResource CustomAcrylicBrush}" />
     <Setter Property="HorizontalAlignment" Value="Stretch" />
-    <Setter Property="VerticalAlignment" Value="Stretch" />
     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-    <Setter Property="VerticalContentAlignment" Value="Stretch" />
-    <!-- The themed in-app acrylic falls back to an opaque color, so the header and the footer stay readable where acrylic is not rendered. -->
-    <Setter Property="HeaderBackground" Value="{ThemeResource AcrylicInAppFillColorDefaultBrush}" />
-    <Setter Property="FooterBackground" Value="{ThemeResource AcrylicInAppFillColorDefaultBrush}" />
+    <Setter Property="IsTabStop" Value="False" />
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="local:PageContentControl">
@@ -33,10 +34,10 @@
               <Grid Grid.Row="1">
                 <!-- Declared before the scroll viewer to come first in the tab order; Canvas.ZIndex keeps it above the content that scrolls under it. -->
                 <Grid x:Name="HeaderPanel"
-                      Canvas.ZIndex="1"
+                      RowDefinitions="Auto,Auto"
                       VerticalAlignment="Top"
                       Background="{TemplateBinding HeaderBackground}"
-                      RowDefinitions="Auto,Auto">
+                      Canvas.ZIndex="1">
                   <Border Grid.Row="0" Height="{TemplateBinding TopBorderHeight}" />
                   <ContentControl x:Name="HeaderPresenter"
                                   Grid.Row="1"
@@ -59,9 +60,9 @@
                                     ContentTransitions="{TemplateBinding ContentTransitions}" />
                 </ScrollViewer>
                 <Grid x:Name="FooterPanel"
-                      Canvas.ZIndex="1"
                       VerticalAlignment="Bottom"
-                      Background="{TemplateBinding FooterBackground}">
+                      Background="{TemplateBinding FooterBackground}"
+                      Canvas.ZIndex="1">
                   <ContentControl x:Name="FooterPresenter"
                                   HorizontalContentAlignment="Stretch"
                                   VerticalContentAlignment="Stretch"
@@ -71,10 +72,10 @@
                 </Grid>
                 <!-- The scroll viewer hides its own bar: this one stays between the header and the footer (PageContentControl.UpdateInsets). -->
                 <ScrollBar x:Name="VerticalScrollBar"
-                           Canvas.ZIndex="2"
                            Width="8"
                            HorizontalAlignment="Right"
                            VerticalAlignment="Stretch"
+                           Canvas.ZIndex="2"
                            IndicatorMode="MouseIndicator"
                            Minimum="0"
                            Orientation="Vertical"
@@ -85,6 +86,8 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
+    <Setter Property="VerticalAlignment" Value="Stretch" />
+    <Setter Property="VerticalContentAlignment" Value="Stretch" />
   </Style>
 
   <Style TargetType="local:PageContentControl" BasedOn="{StaticResource PageContentControl}" />

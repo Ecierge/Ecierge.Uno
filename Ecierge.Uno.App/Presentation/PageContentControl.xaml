@@ -14,13 +14,8 @@
 
       <ctrl:PageContentControl TopBorderHeight="0">
 
-      <!--example with data-->
-      <ctrl:PageContentControl.Title>
-          <TextBlock Text="Items Page" FontSize="20" FontWeight="Bold" Padding="8"/>
-        </ctrl:PageContentControl.Title>
-
-        <ctrl:PageContentControl.Header>
-        <CommandBar DefaultLabelPosition="Right" Background="Transparent">
+      <ctrl:PageContentControl.Header>
+        <CommandBar DefaultLabelPosition="Right">
             <AppBarButton Icon="Back" Label="Go back to Main">
               <i:Interaction.Behaviors>
                 <i:EventTriggerBehavior EventName="Click">
@@ -33,25 +28,14 @@
         </ctrl:PageContentControl.Header>
 
        <ctrl:PageContentControl.Footer>
-          <CommandBar  VerticalAlignment="Center" Background="Transparent">
+          <CommandBar  VerticalAlignment="Center">
           <AppBarButton Icon="Save" />
           <AppBarButton Icon="Delete" />
         </CommandBar>
         </ctrl:PageContentControl.Footer>
 
-      <!--must be used empty if data is missing.-->
-      <!--<ctrl:PageContentControl.Title>
-        <Border />
-      </ctrl:PageContentControl.Title>
-        <ctrl:PageContentControl.Header>
-          <Border />
-        </ctrl:PageContentControl.Header>
-       <ctrl:PageContentControl.Footer>
-        <Border />
-      </ctrl:PageContentControl.Footer>-->
-
       <ctrl:PageContentControl.Content>
-          <StackPanel Background="Orange">
+          <StackPanel Background="Orange" Margin="0,-40,0,0" Padding="8,40">
           <ItemsControl>
             <TextBlock Foreground="White">Some element or some content 1</TextBlock>
             <TextBlock Foreground="White">Some element or some content 2</TextBlock>
