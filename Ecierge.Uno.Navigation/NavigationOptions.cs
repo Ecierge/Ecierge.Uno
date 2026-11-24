@@ -36,6 +36,15 @@ public record NavigationOptions
     public bool DialogsInHistory { get; init; } = true;
 
     /// <summary>
+    /// The text of the close button of a dialog that the library builds around a view that is not a content dialog. Such
+    /// a dialog has no buttons of its own, so without this button the user could close it only with a key that some
+    /// platforms do not give to a dialog without buttons. Closing it with the button is going back, like closing a
+    /// dialog with its own button. The default is <c>Close</c>; <see langword="null"/> or an empty text leaves the dialog
+    /// without a button, and then the view has to close the dialog itself.
+    /// </summary>
+    public string? DialogCloseButtonText { get; init; } = "Close";
+
+    /// <summary>
     /// The scheme of the links that open a page of the application, for example <c>ecierge-console</c> for the link
     /// <c>ecierge-console://Building/id/Assets</c>. Links of other schemes, such as the callbacks of a sign-in, are
     /// not routes. Without a scheme no link with a custom scheme is followed. Links of the web (<c>http</c> and

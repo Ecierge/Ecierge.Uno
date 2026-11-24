@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 using Windows.Foundation;
 
@@ -119,8 +120,7 @@ public class ContentDialogNavigator : DialogNavigator<ContentDialog, ContentDial
         var dialog = result.Result switch
         {
             ContentDialog contentDialog => contentDialog,
-            // TODO: Implement more dialog settings
-            FrameworkElement view => new ContentDialog { Content = view },
+            FrameworkElement view => CreateDialogAround(view),
             _ => throw new InvalidOperationException("Invalid dialog view")
         };
         ServiceProvider.SetScopedInstance<FrameworkElement>(dialog);
@@ -158,5 +158,24 @@ public class ContentDialogNavigator : DialogNavigator<ContentDialog, ContentDial
             }
         };
         return new NavigationResult<IAsyncOperation<ContentDialogResult>>(request, operation);
+    }
+
+    /// <summary>
+    /// Builds the dialog around a view that is not a content dialog. The view has no buttons, so the dialog gets the
+    /// close button of <see cref="NavigationOptions.DialogCloseButtonText"/>: without a button nothing closes the dialog
+    /// on a platform where the escape key does not.
+    /// </summary>
+    /// <param name="view">The view to show in the dialog.</param>
+    /// <returns>The dialog.</returns>
+    private ContentDialog CreateDialogAround(FrameworkElement view)
+    {
+        var dialog = new ContentDialog { Content = view };
+        var closeButtonText = ServiceProvider.GetService<IOptions<NavigationOptions>>()?.Value.DialogCloseButtonText;
+        if (!string.IsNullOrEmpty(closeButtonText))
+        {
+            dialog.CloseButtonText = closeButtonText;
+            dialog.DefaultButton = ContentDialogButton.Close;
+        }
+        return dialog;
     }
 }
