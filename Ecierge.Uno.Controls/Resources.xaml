@@ -1,7 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:media="using:Microsoft.UI.Xaml.Media"
-                    xmlns:ctc="using:CommunityToolkit.WinUI.Converters">
+                    xmlns:ctc="using:CommunityToolkit.WinUI.Converters"
+                    xmlns:media="using:Microsoft.UI.Xaml.Media">
 
   <ctc:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
   <ctc:EmptyObjectToObjectConverter x:Key="NullToVisibilityConverter">
@@ -14,8 +14,8 @@
   </ctc:EmptyObjectToObjectConverter>
 
   <media:AcrylicBrush x:Key="CustomAcrylicBrush"
-                  TintColor="#CCFFFFFF"
-                  TintOpacity="0.1"
-                  FallbackColor="#66FFFFFF" />
+                      FallbackColor="#66FFFFFF"
+                      TintColor="#CCFFFFFF"
+                      TintOpacity="0.1" />
 
 </ResourceDictionary>
