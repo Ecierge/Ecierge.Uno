@@ -26,18 +26,31 @@ public class NavigationOptionsTests
     }
 
     [TestMethod]
+    public void The_defaults_must_keep_dialogs_in_the_history_and_a_journal_of_a_hundred_entries()
+    {
+        var options = OptionsOf(null);
+
+        Assert.IsTrue(options.DialogsInHistory, "Expected a dialog to be an entry of the history by default.");
+        Assert.AreEqual(100, options.JournalCapacity, "Expected the default capacity.");
+        Assert.AreEqual("/", options.BasePath, "Expected the application to be hosted at the root.");
+        Assert.IsNull(options.DeepLinkScheme, "Expected no custom scheme to be followed unless one is set.");
+    }
+
+    [TestMethod]
     public void The_configure_callback_of_AddNavigation_must_change_the_options()
     {
-        var options = OptionsOf(o => o with { AddressBarUpdateEnabled = false, UseNativeBackButton = true });
+        var options = OptionsOf(o => o with { DialogsInHistory = false, JournalCapacity = 5, DeepLinkScheme = "ecierge-console", BasePath = "/console/" });
 
-        Assert.IsFalse(options.AddressBarUpdateEnabled, "Expected the callback to turn the update of the address bar off.");
-        Assert.IsTrue(options.UseNativeBackButton, "Expected the callback to turn the native back button on.");
+        Assert.IsFalse(options.DialogsInHistory, "Expected the callback to turn dialogs in the history off.");
+        Assert.AreEqual(5, options.JournalCapacity, "Expected the callback to set the capacity.");
+        Assert.AreEqual("ecierge-console", options.DeepLinkScheme, "Expected the callback to set the scheme.");
+        Assert.AreEqual("/console/", options.BasePath, "Expected the callback to set the base path.");
     }
 
     [TestMethod]
     public void The_configure_callback_must_not_remove_the_navigators_the_library_registers()
     {
-        var options = OptionsOf(o => o with { AddressBarUpdateEnabled = false });
+        var options = OptionsOf(o => o with { DialogsInHistory = false });
 
         Assert.IsTrue(options.TryGetNavigatorType(typeof(ContentDialog), out var navigatorType), "Expected the navigator of a content dialog to stay registered.");
         Assert.IsNotNull(navigatorType, "Expected the type of the navigator.");
@@ -121,5 +134,20 @@ public class NavigationOptionsTests
         Assert.ThrowsExactly<OptionsValidationException>(
             () => OptionsOf(o => o with { UseNativeBackButton = true }, validate: o => o.UseNativeBackButton != true),
             "Expected the validator to check the options the callback returned.");
+    }
+
+    [TestMethod]
+    public async Task A_journal_must_keep_as_many_entries_as_the_option_says()
+    {
+        using var host = Doubles.TestRoutes.CreateHost(new Doubles.BuildingServer(), configureOptions: o => o with { JournalCapacity = 2 });
+
+        await host.Root.NavigateRouteAsync(this, "Login");
+        await host.Root.NavigateRouteAsync(this, "Building/b1/Menu");
+        await host.Root.NavigateRouteAsync(this, "Building/b2/Menu");
+
+        CollectionAssert.AreEqual(
+            new[] { "Building/b1/Menu", "Building/b2/Menu" },
+            host.Root.Journal.Entries.Select(e => e.Path).ToArray(),
+            "Expected the oldest entry to be dropped when the capacity of the options is full.");
     }
 }
