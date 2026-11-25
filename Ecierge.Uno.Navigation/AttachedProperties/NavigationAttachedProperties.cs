@@ -150,7 +150,7 @@ public static class Navigation
     internal static void SetRootNavigator(UIElement element, Navigator navigator)
      => element.SetValue(RootNavigatorProperty, navigator);
 
-    #endregion
+    #endregion RootNavigator
 
     #region CanGoBack
 
@@ -170,7 +170,7 @@ public static class Navigation
 
     internal static void SetCanGoBack(DependencyObject element, bool value) => element.SetValue(CanGoBackProperty, value);
 
-    #endregion
+    #endregion CanGoBack
 
     #region CanGoForward
 
@@ -212,5 +212,5 @@ public static class Navigation
         };
     }
 
-    #endregion
+    #endregion CanGoForward
 }
