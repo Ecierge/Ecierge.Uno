@@ -59,6 +59,19 @@ public record NavigationOptions
      => TryGetNavigatorType(typeof(TControl), out navigatorType);
 }
 
+/// <summary>
+/// Hands the options that the factory of the options pattern created to the callback of <c>AddNavigation</c>, once the
+/// configuration was bound and the navigators of the library were added. What the callback returns is what the services
+/// get, so it has the last word and nothing is copied: the options are a record with init-only properties, which only a
+/// constructor, an object initializer or <c>with</c> can write.
+/// </summary>
+internal sealed class AdjustedNavigationOptionsFactory(
+    IOptionsFactory<NavigationOptions> factory,
+    Func<NavigationOptions, NavigationOptions> configure) : IOptionsFactory<NavigationOptions>
+{
+    public NavigationOptions Create(string name) => configure(factory.Create(name));
+}
+
 internal class PostConfigureNavigationOptions(IEnumerable<Tuple<Type, Type>> navigators) : IPostConfigureOptions<NavigationOptions>
 {
     public void PostConfigure(string? name, NavigationOptions options)

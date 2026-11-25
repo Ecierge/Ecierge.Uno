@@ -19,7 +19,10 @@ public static class ServiceCollectionExtensions
     /// Adds navigation services to the service collection.
     /// </summary>
     /// <param name="services">The service collection to add navigation services to.</param>
-    /// <param name="configure">Optional configuration action for <see cref="NavigationOptions"/>.</param>
+    /// <param name="configure">
+    /// Optional callback that gets the <see cref="NavigationOptions"/> once the configuration was bound and the navigators
+    /// of the library were added, and returns the options that the services get.
+    /// </param>
     /// <param name="routeBuilder">Optional action to configure the view and route registries.</param>
     /// <param name="createViewRegistryBuilder">Optional factory to create a custom <see cref="IViewRegistryBuilder"/>.</param>
     /// <param name="createRouteRegistryBuilder">Optional factory to create a custom <see cref="IRouteRegistryBuilder"/>.</param>
@@ -32,9 +35,6 @@ public static class ServiceCollectionExtensions
         , Func<IServiceCollection, IRouteRegistryBuilder>? createRouteRegistryBuilder = null
         )
     {
-        var navConfig = new NavigationOptions();
-        navConfig = (configure?.Invoke(navConfig)) ?? navConfig;
-
         IViewRegistryBuilder viewRegistryBuilder = createViewRegistryBuilder?.Invoke(services) ?? new ViewRegistryBuilder(services);
         INavigationDataRegistryBuilder navigationDataRegistryBuilder = new NavigationDataRegistryBuilder(services);
         IRouteRegistryBuilder routeRegistryBuilder = createRouteRegistryBuilder?.Invoke(services) ?? new RouteRegistryBuilder();
@@ -42,6 +42,17 @@ public static class ServiceCollectionExtensions
         var views = viewRegistryBuilder.Build();
         var navigationData = navigationDataRegistryBuilder.Build();
         var routes = routeRegistryBuilder.Build(views, navigationData);
+
+        if (configure is not null)
+        {
+            // Wraps the factory that the options pattern would use, to hand its options to the callback (transient like that one)
+            services.AddTransient<IOptionsFactory<NavigationOptions>>(provider => new AdjustedNavigationOptionsFactory(
+                new OptionsFactory<NavigationOptions>(
+                    provider.GetServices<IConfigureOptions<NavigationOptions>>(),
+                    provider.GetServices<IPostConfigureOptions<NavigationOptions>>(),
+                    provider.GetServices<IValidateOptions<NavigationOptions>>()),
+                configure));
+        }
 
         return
             services
