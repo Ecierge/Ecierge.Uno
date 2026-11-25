@@ -49,6 +49,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- The runtime tests of the sample app check the internal region lookups. -->
+    <InternalsVisibleTo Include="Ecierge.Uno.App" />
     <InternalsVisibleTo Include="Ecierge.Uno.Navigation.Tests" />
   </ItemGroup>
 
@@ -67,11 +69,6 @@
     <!-- R3Extensions.Uno 1.3.0 transitively pulls Uno.WinUI.Runtime.WebAssembly 5.3.144 via Uno.Extensions.Hosting.WinUI 5.2.7.
          Commented out to avoid UNOB0017 WASM runtime conflicts. -->
     <!--<PackageReference Include="Uno.WinUI.Runtime.WebAssembly" VersionOverride="6.5.237" ExcludeAssets="all" PrivateAssets="all" />-->
-  </ItemGroup>
-
-  <ItemGroup>
-    <!-- The runtime tests of the sample app check the internal region lookups. -->
-    <InternalsVisibleTo Include="Ecierge.Uno.App" />
   </ItemGroup>
 
 </Project>
