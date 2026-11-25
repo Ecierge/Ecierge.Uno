@@ -86,6 +86,32 @@ public class NavigationDialogTests
     }
 
     [TestMethod]
+    public async Task Closing_a_dialog_that_was_opened_with_its_page_must_show_the_page_in_the_entry_of_both()
+    {
+        using var host = TestRoutes.CreateHost(new BuildingServer());
+        await host.Root.NavigateRouteAsync(this, "Login");
+        await host.Root.NavigateRouteAsync(this, "Building/b1/Menu/!AddAsset");
+
+        Dialog(host).CloseByUser();
+
+        CollectionAssert.AreEqual(new[] { "Login", "Building/b1/Menu" }, Paths(host), "Expected the entry of the dialog to show the page that is left.");
+        Assert.AreEqual(1, host.Root.Journal.CurrentIndex, "Expected the position to stay with the page that is shown, not to return to the login.");
+        Assert.IsFalse(host.Root.Journal.CanGoForward, "Expected no entry ahead, as the dialog was replaced.");
+    }
+
+    [TestMethod]
+    public async Task Closing_a_dialog_that_was_opened_with_its_page_as_the_first_entry_must_show_the_page_in_that_entry()
+    {
+        using var host = TestRoutes.CreateHost(new BuildingServer());
+        await host.Root.NavigateRouteAsync(this, "Building/b1/Menu/!AddAsset");
+
+        Dialog(host).CloseByUser();
+
+        CollectionAssert.AreEqual(new[] { "Building/b1/Menu" }, Paths(host), "Expected the only entry not to keep the dialog that is closed.");
+        Assert.AreEqual(0, host.Root.Journal.CurrentIndex, "Expected the position to stay.");
+    }
+
+    [TestMethod]
     public async Task Closing_the_dialog_after_the_history_moved_on_must_not_move_it_back()
     {
         var (host, _) = await OpenMenuWithDialog(true);
