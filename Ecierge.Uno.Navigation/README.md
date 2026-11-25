@@ -59,7 +59,7 @@ On WebAssembly the history of the browser follows the journal in both directions
 
 - A page that is added to the journal is added to the history of the browser. The first page takes the place of the entry the page was loaded with.
 - Back and Forward of the browser show the page of the entry through the navigators, and the journal follows once the page is shown. A page that cannot be shown returns the browser to the current entry.
-- An entry the application did not make, such as the entry of an earlier run after a reload, is opened from its address and takes the place of the current entry.
+- An entry the application did not make, such as the entry of an earlier run after a reload, is opened from its address, and the history of the application starts anew from it, because the browser stands at a position that the entries of the application cannot be measured from any more.
 - The state of an entry is the object `{ ecierge: token }`, so it does not clash with the dummy entry that Uno keeps for the back button of the system. The library never makes that button visible on WebAssembly.
 - The host of the page has to serve the application for every path. Console does this with the rewrite rule of its static web app.
 

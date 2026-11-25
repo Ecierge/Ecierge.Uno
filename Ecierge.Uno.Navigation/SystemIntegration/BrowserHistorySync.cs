@@ -21,7 +21,8 @@ using Microsoft.Extensions.Logging;
 /// <para>
 /// When the user moves in the browser, the page of the entry is shown, and the journal follows once the page is
 /// shown. An entry that the application did not make, for example after a reload or an address typed by hand, is
-/// opened from its address instead and replaces the current entry.
+/// opened from its address instead. The journal starts anew from it, because the browser stands at a position that
+/// the entries of the journal cannot be measured from any more.
 /// </para>
 /// </remarks>
 internal sealed class BrowserHistorySync : IDisposable
@@ -135,14 +136,13 @@ internal sealed class BrowserHistorySync : IDisposable
                 // The echo of a move that the application made itself, such as its own Back button
                 if (delta == 0) return;
 
+                // The journal follows inside the navigation that shows the page, so the change of the route is announced
+                // after the journal moved
+                var mode = delta < 0 ? NavigationMode.Back : NavigationMode.Forward;
                 var shown = await ShowAsync(
-                    () => navigation.ShowEntryAsync(entry, delta < 0 ? NavigationMode.Back : NavigationMode.Forward),
+                    () => navigation.ShowEntryAsync(entry, mode, () => WithoutMirroring(() => journal.TryMoveTo(entry.Id))),
                     entry.Path).ConfigureAwait(true);
-                if (shown)
-                {
-                    WithoutMirroring(() => journal.TryMoveTo(entry.Id));
-                }
-                else
+                if (!shown)
                 {
                     // The page could not be shown, so the browser returns to the entry that the journal still has
                     logger.LogWarning("The page {Path} could not be shown, so the browser returns to the current page", entry.Path);

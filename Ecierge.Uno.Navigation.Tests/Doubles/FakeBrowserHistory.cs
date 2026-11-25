@@ -107,11 +107,14 @@ internal sealed class FakeHistoryNavigation : IHistoryNavigation
     public Func<Task>? Delay { get; set; }
 
     /// <inheritdoc />
-    public async ValueTask<bool> ShowEntryAsync(JournalEntry entry, NavigationMode mode)
+    public async ValueTask<bool> ShowEntryAsync(JournalEntry entry, NavigationMode mode, Action onShown)
     {
         Shown.Add($"{mode} {entry.Path}");
         if (Delay is { } delay) await delay();
-        return CanShowEntry(entry);
+        if (!CanShowEntry(entry)) return false;
+
+        onShown();
+        return true;
     }
 
     /// <inheritdoc />

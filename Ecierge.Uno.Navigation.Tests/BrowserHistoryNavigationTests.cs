@@ -3,6 +3,7 @@ namespace Ecierge.Uno.Navigation.Tests;
 using Ecierge.Uno.Navigation;
 using Ecierge.Uno.Navigation.Tests.Doubles;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 
 /// <summary>
@@ -84,7 +85,7 @@ public class BrowserHistoryNavigationTests
     }
 
     [TestMethod]
-    public async Task An_entry_from_before_the_application_must_be_opened_from_its_address_and_take_the_place_of_the_current_entry()
+    public async Task An_entry_from_before_the_application_must_be_opened_from_its_address_and_start_the_history_anew()
     {
         var browser = new FakeBrowserHistory(("/Building/b1/Details/Floors", null));
         var (host, layout, _, sync) = await OpenMenuThenAssets(browser);
@@ -95,8 +96,46 @@ public class BrowserHistoryNavigationTests
         await sync.HandlePopAsync(browser.TakeNextPop());
 
         Assert.AreEqual("Building/b1/Details/Floors", host.Root.Journal.Current!.Path, "Expected the page of the address to be opened.");
+        Assert.HasCount(1, host.Root.Journal.Entries, "Expected the page of the address to be the only entry, as the browser moved over entries of unknown distance.");
         Assert.AreEqual("/Building/b1/Details/Floors", browser.Paths[browser.Index], "Expected the entry to keep its address, now with the token of the application.");
         Assert.AreEqual("Details", layout.Requests[^1].NameSegment.Name, "Expected the page of the address to be shown below the building.");
+    }
+
+    [TestMethod]
+    public async Task The_back_button_of_the_application_after_an_entry_from_before_it_must_keep_the_address_with_the_page()
+    {
+        var browser = new FakeBrowserHistory(("/Building/b1/Details/Floors", null));
+        var (host, _, _, sync) = await OpenMenuThenAssets(browser);
+        using var _h = host;
+        using var _s = sync;
+        browser.UserGoes(-2);
+        await sync.HandlePopAsync(browser.TakeNextPop());
+        var layout = (FakeNavigator)host.Root.ChildNavigator!;
+        await layout.NavigateRouteAsync(this, "Assets");
+
+        var first = await layout.GoBackAsync(this);
+        var addressAfterFirst = browser.Paths[browser.Index];
+        var second = await layout.GoBackAsync(this);
+
+        Assert.IsTrue(first.Success, "Expected the page that was opened from the address to be reached.");
+        Assert.AreEqual("/Building/b1/Details/Floors", addressAfterFirst, "Expected the browser to follow the button of the application.");
+        Assert.IsFalse(second.Success, "Expected no entry before the page that the browser started from, instead of a page that the browser cannot follow to.");
+        Assert.AreEqual("/Building/b1/Details/Floors", browser.Paths[browser.Index], "Expected the address to be that of the page that is shown.");
+    }
+
+    [TestMethod]
+    public async Task The_back_button_of_the_browser_must_announce_the_change_once_with_the_journal_already_moved()
+    {
+        var (host, _, browser, sync) = await OpenMenuThenAssets();
+        using var _h = host;
+        using var _s = sync;
+        var seen = new List<string?>();
+        host.Services.GetRequiredService<IRouteNotifier>().RouteChanged += (s, e) => seen.Add(host.Root.Journal.Current?.Path);
+
+        browser.UserGoes(-1);
+        await sync.HandlePopAsync(browser.TakeNextPop());
+
+        CollectionAssert.AreEqual(new[] { "Building/b1/Menu" }, seen, "Expected one announcement, which finds the entry of the page that is shown.");
     }
 
     [TestMethod]
