@@ -38,7 +38,9 @@ public sealed class NavigationRegionTests
     {
         var tree = await CreateTreeAsync();
         var first = await ShowInHostAsync(tree, new ContentControl());
+
         first.AttachRegion(MainSegment);
+
         var firstRegion = RegionOf(first);
         Assert.IsNotNull(firstRegion);
         Assert.AreSame(firstRegion, RegionOf(tree.Host), "AttachRegion marks the ancestors up to the boundary.");
@@ -94,7 +96,9 @@ public sealed class NavigationRegionTests
         tree.Panel.Children.Add(sibling);
         var first = await ShowInHostAsync(tree, new ContentControl());
         await UIHelper.WaitForLoaded(sibling);
+
         first.AttachRegion(MainSegment);
+
         Assert.AreSame(RegionOf(first), sibling.FindNavigationRegion(), "The sibling resolves to the region that marked the panel.");
 
         first.DetachRegion();
@@ -111,6 +115,7 @@ public sealed class NavigationRegionTests
         tree.Panel.Children.Add(popup);
         var first = await ShowInHostAsync(tree, new ContentControl());
         first.AttachRegion(MainSegment);
+
         popup.XamlRoot = tree.Root.XamlRoot;
         popup.IsOpen = true;
         try
