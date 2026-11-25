@@ -189,7 +189,11 @@ public sealed class NavigationJournal
     /// Records the route that was shown.
     /// </summary>
     /// <param name="route">The whole route from the root to the page.</param>
-    /// <param name="mode">What to do with the history.</param>
+    /// <param name="mode">
+    /// What to do with the history. <see cref="HistoryMode.Reset"/> removes the entries first, so that the route is the
+    /// only one: <see cref="Changed"/> is raised with <see cref="JournalChange.Cleared"/> and then with
+    /// <see cref="JournalChange.Pushed"/>.
+    /// </param>
     /// <returns>The entry of the route, or <see langword="null"/> if the history is not changed.</returns>
     public JournalEntry? Record(Routing.Route route, HistoryMode mode)
     {
@@ -199,8 +203,22 @@ public sealed class NavigationJournal
         var path = route.ToPath();
         JournalEntry entry;
         JournalChangedEventArgs args;
+        JournalChangedEventArgs? cleared = null;
         lock (gate)
         {
+            if (mode == HistoryMode.Reset)
+            {
+                // Nothing is left to replace, so the route is pushed as the first entry
+                if (entries.Count > 0)
+                {
+                    cleared = new JournalChangedEventArgs(JournalChange.Cleared, null, -1, currentIndex);
+                    entries.Clear();
+                    currentIndex = -1;
+                }
+
+                mode = HistoryMode.Push;
+            }
+
             var current = currentIndex >= 0 ? entries[currentIndex] : null;
             if (current is not null && string.Equals(current.Path, path, StringComparison.OrdinalIgnoreCase))
             {
@@ -238,6 +256,7 @@ public sealed class NavigationJournal
             }
         }
 
+        if (cleared is not null) Changed?.Invoke(this, cleared);
         Changed?.Invoke(this, args);
         return entry;
     }

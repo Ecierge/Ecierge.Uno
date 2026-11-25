@@ -15,7 +15,7 @@ A route can be written as text, and the same text is what the address bar of a b
 |`./Info`|Starts in the region inside the content of the navigator|
 |`../Menu`|Starts in the region that contains the navigator, one level per `../`|
 |`-`|Goes back in the history, one entry per `-`|
-|`-/Login`|Clears the history, then navigates, so that Back cannot return to what was before|
+|`-/Login`|Navigates, and clears the history once the page is shown, so that the page is its only entry and Back cannot return to what was before; a route that cannot be shown leaves the history as it was|
 
 `Route.ToPath()` writes a route as this text and `NavigatorExtensions.TryParseRoute` reads it, so a route survives a round trip through an address or a link. A segment that has a default nested segment is completed with it.
 
@@ -36,7 +36,7 @@ The pages below a data segment are created after the entity has loaded. The page
 
 Every window has one `NavigationJournal`, a list of the whole routes from the root to the page, and a position in it. A navigation of a route adds one entry, however many regions took part in it.
 
-- `HistoryMode.Push` adds an entry, `Replace` takes the place of the current one (for a redirect) and `Skip` records nothing. A route that is equal to the current entry does not add an entry.
+- `HistoryMode.Push` adds an entry, `Replace` takes the place of the current one (for a redirect), `Skip` records nothing and `Reset` clears the history so that the route is its only entry (the text `-/` uses it). A route that is equal to the current entry does not add an entry.
 - `GoBackAsync`, `GoForwardAsync` and `GoAsync` show the page of another entry. The shell and the layout that are already right stay, and only the pages that differ change. The position moves after the page was shown.
 - `NavigationMode` (`New`, `Back`, `Forward`, `Refresh`) tells a page why it is shown.
 - The history keeps `NavigationOptions.JournalCapacity` entries.

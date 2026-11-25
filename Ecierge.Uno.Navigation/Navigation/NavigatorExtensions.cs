@@ -229,7 +229,8 @@ public static class NavigatorExtensions
 
     /// <summary>
     /// Navigates to a route that is written as text. The text can say where the route starts (<c>/</c>, <c>./</c> or
-    /// <c>../</c>), go back in the history (<c>-</c>), or clear the history first (<c>-/</c>).
+    /// <c>../</c>), go back in the history (<c>-</c>), or show the route as the only entry of a cleared history
+    /// (<c>-/</c>, which makes <paramref name="historyMode"/> <see cref="HistoryMode.Reset"/>).
     /// </summary>
     /// <param name="navigator">The navigator whose region the route starts in, unless the text starts elsewhere.</param>
     /// <param name="initiator">The object that starts the navigation.</param>
@@ -250,12 +251,9 @@ public static class NavigatorExtensions
         if (path.Start == RoutePathStart.Back)
             return await navigator.GoBackAsync(initiator, path.Levels);
 
-        if (path.Start == RoutePathStart.ClearHistory)
-        {
-            // Nothing leads back to the pages before this one
-            navigator.Journal.Clear();
-            historyMode = HistoryMode.Replace;
-        }
+        // Nothing leads back to the pages before this one. The history is cleared when the route is recorded, so a text
+        // that cannot be read, a route that is refused or a navigation that fails does not lose it
+        if (path.Start == RoutePathStart.ClearHistory) historyMode = HistoryMode.Reset;
 
         var resolved = navigator.TryResolveRoute(route, navigationData, out var found, out var error)
             ? found
