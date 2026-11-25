@@ -45,6 +45,8 @@ Every window has one `NavigationJournal`, a list of the whole routes from the ro
 
 In XAML, `NavigateBackAction` and `NavigateForwardAction` go back and forward, and the attached properties `Navigation.CanGoBack` and `Navigation.CanGoForward` of the content of the window can enable a button. A `NavigationView` goes back from its own back button, whichever of `NavigationViewNavigator` and `NavigationViewContentNavigator` serves it; the button is enabled while the journal has an entry to go back to, and the view shows it when its `IsBackButtonVisible` says so.
 
+The `NavigationBar` of Uno Toolkit shows its back arrow in a page that is shown as a dialog, but it goes back through the `Frame` of the page, and a page of this library has none, so the arrow does nothing by itself. Give the bar a `MainCommand` button with `NavigateBackAction`, as `MainPage` of the sample application does: the bar still decides when the button shows, and the action goes back, which closes the dialog.
+
 ## Deep links
 
 `DeepLinkMapper.ToRoutePath` turns a link into the text of a route. A link of the custom scheme (`NavigationOptions.DeepLinkScheme`, for example `ecierge-console://Building/3f2a/Assets`) and a link of the web (`https://host/Building/3f2a/Assets`, under `NavigationOptions.BasePath`) name pages. Any other link does not. A link cannot carry the commands of the route text (`-`, `-/`, `/`, `../`, `./`), because it comes from outside.

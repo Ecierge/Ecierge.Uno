@@ -42,7 +42,19 @@
         <RowDefinition Height="Auto" />
         <RowDefinition />
       </Grid.RowDefinitions>
-      <utu:NavigationBar Content="{Binding Title}" />
+      <utu:NavigationBar Content="{Binding Title}">
+        <!-- The bar shows its back arrow in a dialog, but it goes back through the Frame of the page, which this page does
+             not have, so the arrow does nothing by itself. The button is the one that the bar creates, with the action. -->
+        <utu:NavigationBar.MainCommand>
+          <AppBarButton>
+            <i:Interaction.Behaviors>
+              <i:EventTriggerBehavior EventName="Click">
+                <nav:NavigateBackAction />
+              </i:EventTriggerBehavior>
+            </i:Interaction.Behaviors>
+          </AppBarButton>
+        </utu:NavigationBar.MainCommand>
+      </utu:NavigationBar>
 
       <StackPanel Grid.Row="1"
                   HorizontalAlignment="Center"
