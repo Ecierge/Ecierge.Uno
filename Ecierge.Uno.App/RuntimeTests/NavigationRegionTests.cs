@@ -21,7 +21,7 @@ using NavigationProperties = global::Ecierge.Uno.Navigation.Navigation;
 using Region = global::Ecierge.Uno.Navigation.Regions.NavigationRegion;
 
 /// <summary>
-/// Navigation region lookups in a live tree: the marks that <c>AttachRegion</c> puts on the ancestors, the lookups after a region detaches and the walks across gaps in the logical tree.
+/// Navigation region lookups in a live tree: the marks that <see cref="NavigationProperties.AttachRegion"/> puts on the ancestors, the lookups after a region detaches and the walks across gaps in the logical tree.
 /// </summary>
 /// <remarks>
 /// Every test builds root &gt; panel &gt; host under a root region with the routes of the sample app and attaches content of the host to the <c>Main</c> segment.
@@ -184,7 +184,7 @@ public sealed class NavigationRegionTests
     }
 
     /// <summary>
-    /// The wiring of <c>NavigationRegion.Attach</c>: attach on <c>Loaded</c>, detach on <c>Unloaded</c>; the exceptions are collected instead of thrown from the event handlers.
+    /// The wiring of the <see cref="global::Ecierge.Uno.Navigation.NavigationRegion.AttachProperty"/> attached property: attach on <see cref="FrameworkElement.Loaded"/>, detach on <see cref="FrameworkElement.Unloaded"/>; the exceptions are collected instead of thrown from the event handlers.
     /// </summary>
     private static ContentControl AttachOnLoaded(ContentControl element, string name, List<string> events, List<Exception> errors)
     {
