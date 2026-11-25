@@ -77,6 +77,19 @@ namespace Ecierge.Uno.Navigation
 
         }
 
+        /// <summary>
+        /// Builds the route that starts with this segment: its data segment, when it has one, and the default segments
+        /// below.
+        /// </summary>
+        /// <param name="serviceProvider">The services, which give the data map of the data segment.</param>
+        /// <param name="data">
+        /// The data of the segment: the value of the data segment, or the data of a whole route that holds the value
+        /// under the name of the data segment.
+        /// </param>
+        /// <returns>The route. A data segment that is not mandatory is left out when no data is given for it.</returns>
+        /// <exception cref="ArgumentNullException">The data segment is mandatory and <paramref name="data"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException">The data segment is mandatory and the data of the route has no value for it.</exception>
+        /// <exception cref="InvalidOperationException">The data segment has no data map.</exception>
         public Routing.Route BuildDefaultRoute(IServiceProvider serviceProvider, object? data = null)
         {
             var list = new List<RouteSegmentInstance> {
@@ -89,9 +102,7 @@ namespace Ecierge.Uno.Navigation
             INavigationData navigationData = data as INavigationData ?? NavigationData.Empty;
             if (DataSegment is { } dataSegment)
             {
-                if (data is null && dataSegment.IsMandatory)
-                    throw new ArgumentNullException(nameof(data), "Data is mandatory.");
-
+                // The data is the value of the segment, or the data of a whole route that has a value for the segment
                 if (data is not null && (data is not INavigationData given || given.ContainsKey(dataSegment.Name)))
                 {
                     // The route holds the handle of the entity, which is loaded when somebody needs the entity
@@ -103,6 +114,13 @@ namespace Ecierge.Uno.Navigation
                     navigationData = navigationData.SetItem(dataSegment.Name, entity);
                     list.Add(new DataSegmentInstance(dataSegment, entity.Primitive, null));
                     AddDefaultSegments(dataSegment);
+                }
+                else if (dataSegment.IsMandatory)
+                {
+                    // Only a segment whose data is optional is left out when there is no value for it
+                    throw data is null
+                        ? new ArgumentNullException(nameof(data), "Data is mandatory.")
+                        : new ArgumentException($"The data holds no value for the mandatory data segment '{dataSegment.Name}'.", nameof(data));
                 }
             }
             else
