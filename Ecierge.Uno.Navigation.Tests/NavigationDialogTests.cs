@@ -3,6 +3,8 @@ namespace Ecierge.Uno.Navigation.Tests;
 using Ecierge.Uno.Navigation;
 using Ecierge.Uno.Navigation.Tests.Doubles;
 
+using Microsoft.Extensions.DependencyInjection;
+
 /// <summary>
 /// Dialogs and the history. By default an open dialog is an entry of the history, so going back closes it; with
 /// <see cref="NavigationOptions.DialogsInHistory"/> off the history holds the page below the dialog.
@@ -57,6 +59,33 @@ public class NavigationDialogTests
         Assert.AreEqual(pagesBefore, layout.Requests.Count, "Expected the page below the dialog, which is right, not to be created again.");
         Assert.AreEqual(0, host.Root.Journal.CurrentIndex, "Expected the position to move to the page.");
         Assert.AreSame(layout, host.Root.LeafNavigator, "Expected the page to be the innermost region again.");
+    }
+
+    [TestMethod]
+    public async Task Going_back_over_a_dialog_must_announce_the_change_once_with_the_position_already_moved()
+    {
+        var (host, layout) = await OpenMenuWithDialog(true);
+        using var _ = host;
+        var seen = new List<string?>();
+        host.Services.GetRequiredService<IRouteNotifier>().RouteChanged += (s, e) => seen.Add(host.Root.Journal.Current?.Path);
+
+        await layout.GoBackAsync(this);
+
+        CollectionAssert.AreEqual(new[] { "Building/b1/Menu" }, seen, "Expected one announcement, although only the dialog closed, and the entry of the page to be current by then.");
+    }
+
+    [TestMethod]
+    public async Task NavigateToAsync_must_announce_a_route_that_only_closes_a_dialog()
+    {
+        var (host, _) = await OpenMenuWithDialog(true);
+        using var _ = host;
+        var announced = new List<string>();
+        host.Services.GetRequiredService<IRouteNotifier>().RouteChanged += (s, e) => announced.Add(host.Root.ActualRoute.ToPath());
+
+        var response = await host.Root.NavigateToAsync(this, host.Root.ParseRoute("Building/b1/Menu"));
+
+        Assert.IsTrue(response.Success, "Expected the dialog to close.");
+        CollectionAssert.AreEqual(new[] { "Building/b1/Menu" }, announced, "Expected one announcement, which finds the page and not the dialog.");
     }
 
     [TestMethod]

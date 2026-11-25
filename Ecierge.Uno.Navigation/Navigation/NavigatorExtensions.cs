@@ -456,6 +456,10 @@ public static class NavigatorExtensions
     /// Going back and forward, the browser buttons and the links use it: they know the route from the root to the page,
     /// not the navigator that has to change. A dialog that is open and not part of the route is closed first.
     /// </para>
+    /// <para>
+    /// Closing the dialogs and showing the rest of the route are one navigation, so the change of the route is announced
+    /// once, also when the route only closes a dialog. Nothing is announced when the route is shown already.
+    /// </para>
     /// </remarks>
     /// <param name="navigator">Any navigator of the window.</param>
     /// <param name="initiator">The object that starts the navigation.</param>
@@ -497,26 +501,74 @@ public static class NavigatorExtensions
             : target.Segments[lengthBefore..];
 
         // A dialog that is open must not stay over the pages that change
-        foreach (var dialog in chain.Skip(changed).OfType<IDialogNavigator>().Reverse().ToList())
-        {
-            await dialog.CloseNavigator();
-        }
+        var dialogs = chain.Skip(changed).OfType<IDialogNavigator>().Reverse().ToList();
 
-        if (tail.IsEmpty)
+        // The route is shown already, so nothing changes and nothing is announced
+        if (tail.IsEmpty && dialogs.Count == 0)
             return new NavigationSuccessfulResponse(root.ActualRoute, root) { Mode = mode };
 
         // When every navigator shows its step, or the navigator that has to change is a dialog that was closed, the
         // route goes on below the last page. Only a dialog can be shown there: the page has no region for another page.
         var hasNoRegion = changed >= chain.Count || chain[changed] is IDialogNavigator;
         var start = hasNoRegion ? chain[Math.Max(changed - 1, 0)] : chain[changed];
-        if (hasNoRegion && !tail[0].IsDialog)
-            return new NavigationFailedResponse(root.ActualRoute, root)
-            {
-                Mode = mode,
-                Errors = [$"The page '{start.Route.ToPath()}' has no region to show '{tail[0].Segment.Name}'"]
-            };
 
-        return await start.NavigateRouteAsync(initiator, new Routing.Route(tail, target.Data), historyMode, mode);
+        // Closing the dialogs and showing the rest are one navigation, also when only dialogs close: the change is
+        // announced once, after both
+        return await root.RunAsNavigationAsync(historyMode, mode, async () =>
+        {
+            foreach (var dialog in dialogs)
+            {
+                await dialog.CloseNavigator();
+            }
+
+            if (tail.IsEmpty)
+                return new NavigationSuccessfulResponse(root.ActualRoute, root) { Mode = mode };
+
+            if (hasNoRegion && !tail[0].IsDialog)
+                return new NavigationFailedResponse(root.ActualRoute, root)
+                {
+                    Mode = mode,
+                    Errors = [$"The page '{start.Route.ToPath()}' has no region to show '{tail[0].Segment.Name}'"]
+                };
+
+            return await start.NavigateRouteAsync(initiator, new Routing.Route(tail, target.Data), historyMode, mode);
+        });
+    }
+
+    /// <summary>
+    /// Runs the steps as one navigation of the window: the navigations that the steps start are part of it, so the
+    /// history is updated and the change of the route is announced once, after the last step.
+    /// </summary>
+    /// <param name="navigator">Any navigator of the window.</param>
+    /// <param name="historyMode">What the navigation does to the history.</param>
+    /// <param name="mode">How the navigation was started.</param>
+    /// <param name="steps">The steps, which give the response of the navigation.</param>
+    /// <returns>The response of the steps.</returns>
+    internal static async ValueTask<NavigationResponse> RunAsNavigationAsync(
+        this Navigator navigator,
+        HistoryMode historyMode,
+        NavigationMode mode,
+        Func<ValueTask<NavigationResponse>> steps)
+    {
+        var root = navigator.RootNavigator;
+        var navigation = root.ServiceProvider.GetRequiredService<IRouteUpdater>().StartNavigation(root, historyMode, mode);
+        NavigationResponse? response = null;
+        Exception? error = null;
+        try
+        {
+            response = await steps();
+            return response;
+        }
+        catch (Exception ex)
+        {
+            error = ex;
+            throw;
+        }
+        finally
+        {
+            response ??= new NavigationFailedResponse(root.ActualRoute, root) { Mode = mode, Error = error };
+            await navigation.CompleteAsync(response);
+        }
     }
 
     /// <summary>
@@ -541,7 +593,8 @@ public static class NavigatorExtensions
 
     /// <summary>
     /// Moves in the history of the window and shows the page of the entry that it reaches. The position moves only
-    /// after the page was shown, so a failure leaves the history where it was.
+    /// after the page was shown, so a failure leaves the history where it was, and the change of the route is announced
+    /// once, after the position moved.
     /// </summary>
     /// <param name="navigator">Any navigator of the window.</param>
     /// <param name="initiator">The object that starts the navigation.</param>
@@ -558,17 +611,23 @@ public static class NavigatorExtensions
             return new NavigationFailedResponse(root.ActualRoute, root) { Mode = mode, Errors = ["The history has no entry to go to"] };
 
         var entry = entries[index];
-        var response = await root.NavigateToAsync(initiator, entry.Route, HistoryMode.Skip, mode);
-        if (response.Success)
-        {
-            journal.TryMoveTo(entry.Id);
-        }
-        else if (response is NavigationFailedResponse failed)
-        {
-            response = failed with { Retry = () => navigator.GoAsync(initiator, delta) };
-        }
 
-        return response;
+        // The move of the position is part of the navigation, so the change of the route is announced once and after
+        // the move: whoever listens sees the entry of the page that is shown
+        return await root.RunAsNavigationAsync(HistoryMode.Skip, mode, async () =>
+        {
+            var response = await root.NavigateToAsync(initiator, entry.Route, HistoryMode.Skip, mode);
+            if (response.Success)
+            {
+                journal.TryMoveTo(entry.Id);
+            }
+            else if (response is NavigationFailedResponse failed)
+            {
+                response = failed with { Retry = () => navigator.GoAsync(initiator, delta) };
+            }
+
+            return response;
+        });
     }
 
     /// <summary>

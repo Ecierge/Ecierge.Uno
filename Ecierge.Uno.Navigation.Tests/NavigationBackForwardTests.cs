@@ -55,6 +55,39 @@ public class NavigationBackForwardTests
     }
 
     [TestMethod]
+    public async Task GoBackAsync_must_announce_the_change_once_with_the_position_already_moved()
+    {
+        var (host, layout) = await OpenMenuThenAssets();
+        using var _ = host;
+        var seen = new List<(string? Path, bool CanGoForward)>();
+        host.Services.GetRequiredService<IRouteNotifier>().RouteChanged += (s, e) =>
+            seen.Add((host.Root.Journal.Current?.Path, host.Root.Journal.CanGoForward));
+
+        await layout.GoBackAsync(this);
+
+        Assert.ContainsSingle(seen, "Expected one announcement for the move.");
+        Assert.AreEqual("Building/b1/Menu", seen[0].Path, "Expected the entry of the page that is shown to be current when the change is announced.");
+        Assert.IsTrue(seen[0].CanGoForward, "Expected the page that was left to be ahead when the change is announced.");
+    }
+
+    [TestMethod]
+    public async Task A_failed_back_navigation_must_announce_the_failure_once_and_not_move_the_position()
+    {
+        var (host, layout) = await OpenMenuThenAssets();
+        using var _ = host;
+        host.Plan.Intercept = (_, request) => request.NameSegment.Name == "Menu" ? new NavigationResult("The page cannot be shown") : null;
+        var seen = new List<(NavigationResponse? Response, int Index)>();
+        host.Services.GetRequiredService<IRouteNotifier>().RouteChanged += (s, e) =>
+            seen.Add((e.Response, host.Root.Journal.CurrentIndex));
+
+        await layout.GoBackAsync(this);
+
+        Assert.ContainsSingle(seen, "Expected one announcement for the failed move.");
+        Assert.IsFalse(seen[0].Response!.Success, "Expected the listeners to learn that the page was not shown.");
+        Assert.AreEqual(1, seen[0].Index, "Expected the position to stay where it was.");
+    }
+
+    [TestMethod]
     public async Task GoForwardAsync_must_return_to_the_page_that_back_left()
     {
         var (host, layout) = await OpenMenuThenAssets();
