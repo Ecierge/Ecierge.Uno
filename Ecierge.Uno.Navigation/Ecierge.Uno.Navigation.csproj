@@ -48,6 +48,10 @@
 
   </PropertyGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="Ecierge.Uno.Navigation.Tests" />
+  </ItemGroup>
+
   <Target Name="RemoveUnnecessaryImplicitUsings" BeforeTargets="BeforeBuild">
     <ItemGroup>
       <Using Remove="Uno.Extensions" />
