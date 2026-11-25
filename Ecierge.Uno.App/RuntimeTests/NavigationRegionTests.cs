@@ -34,7 +34,7 @@ public sealed class NavigationRegionTests
     private const string MainSegment = "Main";
 
     [TestMethod]
-    public async Task DetachingARegionMustRemoveItsMarksFromTheAncestors()
+    public async Task Detaching_a_region_must_remove_its_marks_from_the_ancestors()
     {
         var tree = await CreateTreeAsync();
         var first = await ShowInHostAsync(tree, new ContentControl());
@@ -52,7 +52,7 @@ public sealed class NavigationRegionTests
     }
 
     [TestMethod]
-    public async Task ContentAttachedAfterTheOldContentDetachedMustNestUnderTheRegionAboveTheHost()
+    public async Task Content_attached_after_the_old_content_detached_must_nest_under_the_region_above_the_host()
     {
         var tree = await CreateTreeAsync();
         var first = await ShowInHostAsync(tree, new ContentControl());
@@ -66,7 +66,7 @@ public sealed class NavigationRegionTests
     }
 
     [TestMethod]
-    public async Task ReplacedContentMustNestUnderTheRegionAboveTheHost()
+    public async Task Replaced_content_must_nest_under_the_region_above_the_host()
     {
         var tree = await CreateTreeAsync();
         var events = new List<string>();
@@ -87,7 +87,7 @@ public sealed class NavigationRegionTests
     }
 
     [TestMethod]
-    public async Task ElementThatFoundADetachedRegionMustSearchAgain()
+    public async Task Element_that_found_a_detached_region_must_search_again()
     {
         var tree = await CreateTreeAsync();
         var sibling = new Button();
@@ -103,7 +103,7 @@ public sealed class NavigationRegionTests
     }
 
     [TestMethod]
-    public async Task ChildOfAnOpenPopupMustFindTheRegionAroundThePopup()
+    public async Task Child_of_an_open_popup_must_find_the_region_around_the_popup()
     {
         var tree = await CreateTreeAsync();
         var popupChild = new Border { Width = 10, Height = 10 };
@@ -127,7 +127,7 @@ public sealed class NavigationRegionTests
     }
 
     [TestMethod]
-    public async Task TemplatePartMustAttachUnderTheRegionAroundTheTemplatedControl()
+    public async Task Template_part_must_attach_under_the_region_around_the_templated_control()
     {
         var tree = await CreateTreeAsync();
         var templated = new ContentControl
