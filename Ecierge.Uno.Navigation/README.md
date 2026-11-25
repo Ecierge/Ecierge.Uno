@@ -37,7 +37,7 @@ The pages below a data segment are created after the entity has loaded. The page
 Every window has one `NavigationJournal`, a list of the whole routes from the root to the page, and a position in it. A navigation of a route adds one entry, however many regions took part in it.
 
 - `HistoryMode.Push` adds an entry, `Replace` takes the place of the current one (for a redirect), `Skip` records nothing and `Reset` clears the history so that the route is its only entry (the text `-/` uses it). A route that is equal to the current entry does not add an entry.
-- `GoBackAsync`, `GoForwardAsync` and `GoAsync` show the page of another entry. The shell and the layout that are already right stay, and only the pages that differ change. The position moves after the page was shown.
+- `GoBackAsync`, `GoForwardAsync` and `GoAsync` show the page of another entry. The shell and the layout that are already right stay, and only the pages that differ change. The position moves after the page was shown, and `IRouteNotifier.RouteChanged` is raised once, after the move.
 - `NavigationMode` (`New`, `Back`, `Forward`, `Refresh`) tells a page why it is shown.
 - The history keeps `NavigationOptions.JournalCapacity` entries.
 - An open dialog is an entry of the history by default, so Back closes it and closing it with its own buttons moves the history back. `NavigationOptions.DialogsInHistory = false` keeps the page below the dialog in the history instead.

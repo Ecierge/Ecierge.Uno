@@ -126,6 +126,20 @@ public class NavigationHistoryTests
     }
 
     [TestMethod]
+    public async Task NavigateToAsync_must_not_announce_a_route_that_is_shown_already()
+    {
+        using var host = CreateHost();
+        await host.Root.NavigateRouteAsync(this, "Building/b1/Menu");
+        var announced = 0;
+        host.Services.GetRequiredService<IRouteNotifier>().RouteChanged += (_, _) => announced++;
+
+        var response = await host.Root.NavigateToAsync(this, host.Root.ParseRoute("Building/b1/Menu"));
+
+        Assert.IsTrue(response.Success, "Expected the route to count as shown.");
+        Assert.AreEqual(0, announced, "Expected nothing to be announced, as nothing changed.");
+    }
+
+    [TestMethod]
     public async Task RouteChanged_must_also_be_raised_when_the_navigation_failed()
     {
         using var host = CreateHost(new BuildingServer { IsDown = true });
