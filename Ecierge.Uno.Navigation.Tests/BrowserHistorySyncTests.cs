@@ -167,6 +167,38 @@ public class BrowserHistorySyncTests
     }
 
     [TestMethod]
+    public async Task A_page_that_throws_while_it_is_shown_must_return_the_browser_to_the_current_entry()
+    {
+        var browser = new FakeBrowserHistory();
+        using var sync = Start(browser);
+        Visit("A", "B", "C");
+        navigation.CanShowEntry = _ => throw new InvalidOperationException("The view cannot be created");
+
+        browser.UserGoes(-1);
+        await sync.HandlePopAsync(browser.TakeNextPop());
+        browser.DeliverPops();
+
+        Assert.AreEqual(2, journal.CurrentIndex, "Expected the journal to stay at the page that is shown.");
+        Assert.AreEqual(2, browser.Index, "Expected the browser to return to the page that is shown, as when the page is refused.");
+        Assert.ContainsSingle(navigation.Shown, "Expected the return not to be taken for a new move.");
+    }
+
+    [TestMethod]
+    public async Task A_page_of_an_address_that_throws_while_it_is_opened_must_restore_the_address_of_the_current_page()
+    {
+        var browser = new FakeBrowserHistory(("/Building/b1/Assets", null));
+        using var sync = Start(browser);
+        Visit("A");
+        navigation.CanShowPath = _ => throw new InvalidOperationException("The view cannot be created");
+
+        browser.UserGoes(-1);
+        await sync.HandlePopAsync(browser.TakeNextPop());
+
+        Assert.AreEqual("/A", browser.Paths[browser.Index], "Expected the address bar not to show a page that failed.");
+        Assert.AreEqual(0, journal.CurrentIndex, "Expected the journal not to move.");
+    }
+
+    [TestMethod]
     public void An_entry_the_application_did_not_make_must_be_opened_from_its_address()
     {
         var browser = new FakeBrowserHistory(("/Building/b1/Assets", null));

@@ -135,7 +135,9 @@ internal sealed class BrowserHistorySync : IDisposable
                 // The echo of a move that the application made itself, such as its own Back button
                 if (delta == 0) return;
 
-                var shown = await navigation.ShowEntryAsync(entry, delta < 0 ? NavigationMode.Back : NavigationMode.Forward).ConfigureAwait(true);
+                var shown = await ShowAsync(
+                    () => navigation.ShowEntryAsync(entry, delta < 0 ? NavigationMode.Back : NavigationMode.Forward),
+                    entry.Path).ConfigureAwait(true);
                 if (shown)
                 {
                     WithoutMirroring(() => journal.TryMoveTo(entry.Id));
@@ -158,7 +160,7 @@ internal sealed class BrowserHistorySync : IDisposable
                 return;
             }
 
-            if (!await navigation.ShowPathAsync(routePath).ConfigureAwait(true))
+            if (!await ShowAsync(() => navigation.ShowPathAsync(routePath), routePath).ConfigureAwait(true))
             {
                 logger.LogWarning("The page {Path} of the address could not be opened", routePath);
                 RestoreAddress();
@@ -168,6 +170,23 @@ internal sealed class BrowserHistorySync : IDisposable
         {
             pops.Release();
         }
+    }
+
+    // A page that throws while it is created is as good as a page that cannot be shown: the browser must not stay at its
+    // address, so the failure is answered like a refusal
+    private async Task<bool> ShowAsync(Func<ValueTask<bool>> show, string path)
+    {
+#pragma warning disable CA1031 // Do not catch general exception types
+        try
+        {
+            return await show().ConfigureAwait(true);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "The page {Path} failed while it was shown", path);
+            return false;
+        }
+#pragma warning restore CA1031 // Do not catch general exception types
     }
 
     // The browser shows an address that the application did not open, so the address bar would lie about the page
