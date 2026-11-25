@@ -131,6 +131,63 @@ public class NavigationJournalTests
     }
 
     [TestMethod]
+    public void Record_with_Reset_must_leave_only_the_new_entry()
+    {
+        var journal = new NavigationJournal();
+        journal.Record(RouteOf("A"), HistoryMode.Push);
+        journal.Record(RouteOf("B"), HistoryMode.Push);
+        journal.MoveTo(0);
+
+        var entry = journal.Record(RouteOf("Login"), HistoryMode.Reset);
+
+        CollectionAssert.AreEqual(new[] { "Login" }, journal.Entries.Select(e => e.Path).ToArray(), "Expected the pages before and after the position to be gone.");
+        Assert.AreSame(entry, journal.Current, "Expected the new entry to be current.");
+        Assert.AreEqual(0, journal.CurrentIndex, "Expected the new entry to be the first.");
+        Assert.IsFalse(journal.CanGoBack || journal.CanGoForward, "Expected nothing to go to.");
+    }
+
+    [TestMethod]
+    public void Record_with_Reset_must_announce_that_the_journal_was_cleared_and_then_the_new_entry()
+    {
+        var journal = new NavigationJournal();
+        journal.Record(RouteOf("A"), HistoryMode.Push);
+        journal.Record(RouteOf("B"), HistoryMode.Push);
+        var changes = Listen(journal);
+
+        journal.Record(RouteOf("Login"), HistoryMode.Reset);
+
+        CollectionAssert.AreEqual(new[] { JournalChange.Cleared, JournalChange.Pushed }, changes.Select(c => c.Change).ToArray(), "Expected what clearing and then pushing announce.");
+        Assert.AreEqual(1, changes[0].PreviousIndex, "Expected the position that the journal was cleared from.");
+        Assert.AreEqual(0, changes[1].Index, "Expected the new entry to be the first.");
+        Assert.AreEqual(-1, changes[1].PreviousIndex, "Expected nothing before the new entry.");
+    }
+
+    [TestMethod]
+    public void Record_with_Reset_must_only_push_into_an_empty_journal()
+    {
+        var journal = new NavigationJournal();
+        var changes = Listen(journal);
+
+        journal.Record(RouteOf("Login"), HistoryMode.Reset);
+
+        Assert.AreEqual(JournalChange.Pushed, changes.Single().Change, "Expected nothing to be cleared.");
+        Assert.HasCount(1, journal.Entries, "Expected the first entry.");
+    }
+
+    [TestMethod]
+    public void Record_with_Reset_must_make_a_new_entry_of_the_location_that_is_current()
+    {
+        var journal = new NavigationJournal();
+        var before = journal.Record(RouteOf("Login"), HistoryMode.Push);
+        var changes = Listen(journal);
+
+        var after = journal.Record(RouteOf("Login"), HistoryMode.Reset);
+
+        Assert.AreNotEqual(before!.Id, after!.Id, "Expected the entry of the browser history that was kept to find no entry of the new history.");
+        CollectionAssert.AreEqual(new[] { JournalChange.Cleared, JournalChange.Pushed }, changes.Select(c => c.Change).ToArray(), "Expected the same location not to be taken for the page that is shown.");
+    }
+
+    [TestMethod]
     public void Record_must_drop_the_entries_ahead_of_the_position()
     {
         var journal = new NavigationJournal();

@@ -3,6 +3,9 @@ namespace Ecierge.Uno.Navigation.Tests;
 using Ecierge.Uno.Navigation;
 using Ecierge.Uno.Navigation.Tests.Doubles;
 
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+
 /// <summary>
 /// Going back and forward in the history of the window: the shell and the layout that are right stay, the position
 /// moves only after the page was shown, and the history is not extended by the move.
@@ -170,7 +173,7 @@ public class NavigationBackForwardTests
     }
 
     [TestMethod]
-    public async Task The_route_text_minus_slash_must_clear_the_history_before_the_page_is_shown()
+    public async Task The_route_text_minus_slash_must_leave_the_page_as_the_only_entry_of_the_history()
     {
         var (host, layout) = await OpenMenuThenAssets();
         using var _ = host;
@@ -180,6 +183,55 @@ public class NavigationBackForwardTests
         CollectionAssert.AreEqual(new[] { "Login" }, Paths(host), "Expected nothing to lead back to the pages before the login.");
         Assert.IsFalse(host.Root.Journal.CanGoBack, "Expected Back to be unavailable.");
         Assert.AreEqual("Login", host.Root.Requests[^1].NameSegment.Name, "Expected the page to be shown.");
+    }
+
+    [TestMethod]
+    public async Task The_route_text_minus_slash_must_keep_the_history_when_the_route_cannot_be_read()
+    {
+        var (host, layout) = await OpenMenuThenAssets();
+        using var _ = host;
+        var before = Paths(host);
+
+        await Assert.ThrowsAsync<Routing.InvalidRouteException>(
+            async () => await host.Root.NavigateRouteAsync(this, "-/Nowhere"),
+            "Expected a segment that does not exist to be refused.");
+
+        CollectionAssert.AreEqual(before, Paths(host), "Expected the way back to stay, as no page took the place of the pages.");
+        Assert.AreEqual(1, host.Root.Journal.CurrentIndex, "Expected the position not to change.");
+    }
+
+    [TestMethod]
+    public async Task The_route_text_minus_slash_must_keep_the_history_when_the_rules_refuse_the_page()
+    {
+        using var host = TestRoutes.CreateHost(
+            new BuildingServer(),
+            services =>
+            {
+                services.RemoveAll<IAuthorizationService>();
+                services.AddSingleton<IAuthorizationService>(new PredicateAuthorizationService(route => route.ToPath() != "Login"));
+            });
+        await host.Root.NavigateRouteAsync(this, "Building/b1/Menu");
+        var before = Paths(host);
+
+        var response = await host.Root.NavigateRouteAsync(this, "-/Login");
+
+        Assert.IsInstanceOfType<NavigationDeniedResponse>(response, "Expected the rules to refuse the page.");
+        CollectionAssert.AreEqual(before, Paths(host), "Expected the user not to lose the way back for a page that was refused.");
+    }
+
+    [TestMethod]
+    public async Task The_route_text_minus_slash_must_keep_the_history_when_the_navigation_fails()
+    {
+        var server = new BuildingServer();
+        using var host = TestRoutes.CreateHost(server);
+        await host.Root.NavigateRouteAsync(this, "Building/b1/Menu");
+        var before = Paths(host);
+        server.IsDown = true;
+
+        var response = await host.Root.NavigateRouteAsync(this, "-/Building/b2/Menu");
+
+        Assert.IsInstanceOfType<NavigationFailedResponse>(response, "Expected the load of the building to fail.");
+        CollectionAssert.AreEqual(before, Paths(host), "Expected the way back to stay, as the page was not shown.");
     }
 
     [TestMethod]

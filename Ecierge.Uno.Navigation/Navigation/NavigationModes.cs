@@ -30,5 +30,12 @@ public enum HistoryMode
     Replace,
 
     /// <summary>The history is not changed. Going back and forward use it, as they move the position themselves.</summary>
-    Skip
+    Skip,
+
+    /// <summary>
+    /// The history is cleared and the route becomes its only entry, so that nothing leads back to the pages before it,
+    /// for example after the user signed out. The text of a route that starts with <c>-/</c> uses it. A navigation that
+    /// does not succeed leaves the history as it was.
+    /// </summary>
+    Reset
 }
