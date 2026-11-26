@@ -57,8 +57,8 @@ public class BreadcrumbTrailTests
     {
         var trail = TrailOf(BuildingRoute.Add(Details).Add(Floors));
 
-        CollectionAssert.AreEqual(new[] { "Building", "Details", "Floors" }, TitlesOf(trail), "Expected a breadcrumb for every level, named by the titles of the segments.");
-        CollectionAssert.AreEqual(new[] { false, false, true }, trail.Items.Select(item => item.IsCurrent).ToArray(), "Expected only the last breadcrumb to stand for the page that is shown.");
+        Assert.AreSequenceEqual(new[] { "Building", "Details", "Floors" }, TitlesOf(trail), "Expected a breadcrumb for every level, named by the titles of the segments.");
+        Assert.AreSequenceEqual(new[] { false, false, true }, trail.Items.Select(item => item.IsCurrent), "Expected only the last breadcrumb to stand for the page that is shown.");
         Assert.IsTrue(trail.IsShown, "Expected the bar to show the breadcrumbs.");
     }
 
@@ -67,7 +67,7 @@ public class BreadcrumbTrailTests
     {
         var trail = TrailOf(BuildingRoute.Add(Details), buildingName: "Sunset Tower");
 
-        CollectionAssert.AreEqual(new[] { "Sunset Tower", "Details" }, TitlesOf(trail), "Expected the name of the building in place of the segment and its id.");
+        Assert.AreSequenceEqual(new[] { "Sunset Tower", "Details" }, TitlesOf(trail), "Expected the name of the building in place of the segment and its id.");
     }
 
     [TestMethod]
@@ -75,7 +75,7 @@ public class BreadcrumbTrailTests
     {
         var trail = TrailOf(BuildingRoute.Add(Menu));
 
-        CollectionAssert.AreEqual(new[] { "Building", "Menu" }, TitlesOf(trail), "Expected the name of the segment that has no title.");
+        Assert.AreSequenceEqual(new[] { "Building", "Menu" }, TitlesOf(trail), "Expected the name of the segment that has no title.");
     }
 
     [TestMethod]
@@ -83,9 +83,9 @@ public class BreadcrumbTrailTests
     {
         var trail = TrailOf(BuildingRoute.Add(Details).Add(Floors));
 
-        CollectionAssert.AreEqual(
+        Assert.AreSequenceEqual(
             new[] { "Building/b1", "Building/b1/Details", "Building/b1/Details/Floors" },
-            trail.Items.Select(item => item.Route.ToPath()).ToArray(),
+            trail.Items.Select(item => item.Route.ToPath()),
             "Expected each breadcrumb to lead to its own level, the entity with its value.");
     }
 
@@ -94,7 +94,7 @@ public class BreadcrumbTrailTests
     {
         var trail = TrailOf(BuildingRoute.Add(Menu).Add(AddAsset));
 
-        CollectionAssert.AreEqual(new[] { "Building", "Menu" }, TitlesOf(trail), "Expected the breadcrumbs of the page under the dialog.");
+        Assert.AreSequenceEqual(new[] { "Building", "Menu" }, TitlesOf(trail), "Expected the breadcrumbs of the page under the dialog.");
         Assert.IsTrue(trail.Items[^1].IsCurrent, "Expected the page under the dialog to be the current breadcrumb.");
     }
 
@@ -113,11 +113,11 @@ public class BreadcrumbTrailTests
     {
         var trail = TrailOf(BuildingRoute.Add(Details).Add(LeftOut).Add(Floors));
 
-        CollectionAssert.AreEqual(new[] { "Building", "Details", "Floors" }, TitlesOf(trail), "Expected no breadcrumb for the segment that is left out.");
+        Assert.AreSequenceEqual(new[] { "Building", "Details", "Floors" }, TitlesOf(trail), "Expected no breadcrumb for the segment that is left out.");
         Assert.IsTrue(trail.IsShown, "Expected the bar to stay for the other levels.");
-        CollectionAssert.AreEqual(
+        Assert.AreSequenceEqual(
             new[] { "Building/b1", "Building/b1/Details", "Building/b1/Details/LeftOut/Floors" },
-            trail.Items.Select(item => item.Route.ToPath()).ToArray(),
+            trail.Items.Select(item => item.Route.ToPath()),
             "Expected the route of the next breadcrumb to lead through the segment that is left out.");
     }
 
@@ -126,7 +126,7 @@ public class BreadcrumbTrailTests
     {
         var trail = TrailOf(BuildingRoute.Add(Details).Add(LeftOut));
 
-        CollectionAssert.AreEqual(new[] { "Building", "Details" }, TitlesOf(trail), "Expected the levels above the segment that is left out.");
+        Assert.AreSequenceEqual(new[] { "Building", "Details" }, TitlesOf(trail), "Expected the levels above the segment that is left out.");
         Assert.IsTrue(trail.Items[^1].IsCurrent, "Expected the last breadcrumb that is shown to stand for the page that is shown.");
         Assert.IsFalse(trail.Items[0].IsCurrent, "Expected the level above not to be the current one.");
     }
@@ -136,7 +136,7 @@ public class BreadcrumbTrailTests
     {
         var trail = TrailOf(Routing.Route.Empty.Add(LeftOutData, "h1").Add(MyProperty), buildingName: "Left out name");
 
-        CollectionAssert.AreEqual(new[] { "My property" }, TitlesOf(trail), "Expected neither the segment nor its value to be a breadcrumb.");
+        Assert.AreSequenceEqual(new[] { "My property" }, TitlesOf(trail), "Expected neither the segment nor its value to be a breadcrumb.");
     }
 
     [TestMethod]
@@ -286,7 +286,7 @@ public class BreadcrumbTrailTests
         using var host = CreateHost(out _);
         await host.Root.NavigateRouteAsync(this, "Building/b1/Details/Floors");
 
-        CollectionAssert.AreEqual(new[] { "Building b1", "Details", "Floors" }, TitlesOf(TrailShownBy(host)), "Expected the name of the building that the route loaded.");
+        Assert.AreSequenceEqual(new[] { "Building b1", "Details", "Floors" }, TitlesOf(TrailShownBy(host)), "Expected the name of the building that the route loaded.");
     }
 
     [TestMethod]
@@ -300,7 +300,7 @@ public class BreadcrumbTrailTests
 
         Assert.AreEqual(BreadcrumbOutcome.Navigated, outcome, "Expected the level of the building to be opened.");
         Assert.AreEqual("Building/b1/MyProperty", host.Root.ActualRoute.ToPath(), "Expected the default page of the building.");
-        Assert.AreEqual(entries + 1, host.Root.Journal.Entries.Count, "Expected one entry in the history.");
+        Assert.HasCount(entries + 1, host.Root.Journal.Entries, "Expected one entry in the history.");
 
         await host.Root.GoBackAsync(this);
         Assert.AreEqual("Building/b1/Details/Floors", host.Root.ActualRoute.ToPath(), "Expected Back to return to the page of the click.");
@@ -317,7 +317,7 @@ public class BreadcrumbTrailTests
 
         Assert.AreEqual(BreadcrumbOutcome.Refreshed, outcome, "Expected the page to load its data again.");
         Assert.AreEqual(1, details.Command.Executions, "Expected the command of the page to run.");
-        Assert.AreEqual(entries, host.Root.Journal.Entries.Count, "Expected no entry in the history.");
+        Assert.HasCount(entries, host.Root.Journal.Entries, "Expected no entry in the history.");
     }
 
     [TestMethod]
@@ -332,8 +332,8 @@ public class BreadcrumbTrailTests
 
         Assert.AreEqual(BreadcrumbOutcome.Refreshed, outcome, "Expected the details, whose default tab is shown, to load again.");
         Assert.AreEqual(1, details.Command.Executions, "Expected the command of the page to run.");
-        Assert.AreEqual(requests, host.Plan.Navigated.Count, "Expected no navigation.");
-        Assert.AreEqual(entries, host.Root.Journal.Entries.Count, "Expected no entry in the history.");
+        Assert.HasCount(requests, host.Plan.Navigated, "Expected no navigation.");
+        Assert.HasCount(entries, host.Root.Journal.Entries, "Expected no entry in the history.");
     }
 
     [TestMethod]
@@ -358,7 +358,7 @@ public class BreadcrumbTrailTests
         var outcome = await BreadcrumbTrail.OpenAsync(host.Root, TrailShownBy(host).Items[1], this);
 
         Assert.AreEqual(BreadcrumbOutcome.NothingToOpen, outcome, "Expected nothing to open above the web page.");
-        Assert.AreEqual(requests, host.Plan.Navigated.Count, "Expected no navigation.");
+        Assert.HasCount(requests, host.Plan.Navigated, "Expected no navigation.");
         Assert.AreEqual("Building/b1/Web/Page1", host.Root.ActualRoute.ToPath(), "Expected the same page.");
     }
 }
