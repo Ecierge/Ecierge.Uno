@@ -59,7 +59,8 @@ public static class ServiceProviderExtensions
     /// <returns>The updated service provider with the scoped instance set.</returns>
     public static IServiceProvider SetScopedInstance(this IServiceProvider provider, Type serviceType, Func<object> instanceCreator)
      =>
-        provider.SetScopedInstance(serviceType, instanceCreator);
+        // The factory is stored as the instance, and created on first use. Without the cast the call binds to this method
+        provider.SetScopedInstance(serviceType, (object)instanceCreator);
 
     /// <summary>
     /// Sets a scoped instance on the service provider (overwrites any existing one).
@@ -107,7 +108,8 @@ public static class ServiceProviderExtensions
     /// <returns>The updated service provider with the singleton instance set.</returns>
     public static IServiceProvider SetSingletonInstance(this IServiceProvider provider, Type serviceType, Func<object> instanceCreator)
      =>
-        provider.SetSingletonInstance(serviceType, instanceCreator);
+        // The factory is stored as the instance, and created on first use. Without the cast the call binds to this method
+        provider.SetSingletonInstance(serviceType, (object)instanceCreator);
 
     /// <summary>
     /// Sets a singleton instance on the service provider (overwrites any existing one).
@@ -183,7 +185,7 @@ public static class ServiceProviderExtensions
     /// <returns>The updated service provider with the singleton instance removed.</returns>
     public static IServiceProvider RemoveSingletonInstance<T>(this IServiceProvider provider)
      =>
-        provider.RemoveScopedInstance(typeof(T));
+        provider.RemoveSingletonInstance(typeof(T));
 
     /// <summary>
     /// Removes a singleton instance of the specified type from the service provider.
@@ -298,12 +300,9 @@ public static class ServiceProviderExtensions
             return instance;
         }
 
-        if (value is T typedValue)
-        {
-            return typedValue;
-        }
-
-        return default;
+        // A factory that was set with a type is a Func<object>, which is not a Func<T>: the lookup by type creates and keeps
+        // its instance, as it returns a stored instance
+        return repository.GetRepositoryInstance(typeof(T)) is T stored ? stored : default;
     }
 
     #endregion Get instance from repository (internal)
