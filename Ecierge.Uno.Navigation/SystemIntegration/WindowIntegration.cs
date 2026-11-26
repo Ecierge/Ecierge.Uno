@@ -24,7 +24,34 @@ internal static class WindowIntegration
         var services = root.ServiceProvider;
         var options = services.GetRequiredService<IOptions<NavigationOptions>>().Value;
         var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger("Ecierge.Uno.Navigation.SystemIntegration");
+        AttachDeepLinks(root, options, logger);
         AttachBackButton(root, options, logger);
+    }
+
+    private static void AttachDeepLinks(Navigator root, NavigationOptions options, ILogger logger)
+    {
+        if (root.ServiceProvider.GetService<IDeepLinkSource>() is not { } source) return;
+
+        if (source.LaunchUri is { } launch && DeepLinkMapper.ToRoutePath(launch, options) is { } path)
+        {
+            root.ServiceProvider.GetRequiredService<IPendingNavigation>().Set(path);
+        }
+
+#pragma warning disable CA1031 // Do not catch general exception types
+        source.Received += async (_, link) =>
+        {
+            try
+            {
+                var response = await root.NavigateToLinkAsync(source, link).ConfigureAwait(true);
+                if (!response.Success)
+                    logger.LogWarning("The link {Link} could not be opened", link);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to open the link {Link}", link);
+            }
+        };
+#pragma warning restore CA1031 // Do not catch general exception types
     }
 
     private static void AttachBackButton(Navigator root, NavigationOptions options, ILogger logger)

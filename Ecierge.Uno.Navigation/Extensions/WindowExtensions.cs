@@ -67,13 +67,29 @@ public static partial class WindowExtensions
         }
         else
         {
-            await navigator.NavigateDefaultAsync(Application.Current, rootSegment);
+            await OpenFirstPageAsync(navigator, rootSegment).ConfigureAwait(true);
         }
 
         if (navRoot is LoadingView loadingView)
         {
             loadingView.Source = new LoadingTask(hostLifetime.ApplicationStarted, navRoot);
         }
+    }
+
+    /// <summary>
+    /// Opens the page that a link asked for, or the default page of the application when there is no link or the
+    /// link names no page.
+    /// </summary>
+    private static async Task OpenFirstPageAsync(Navigator navigator, RouteSegment rootSegment)
+    {
+        var pending = navigator.ServiceProvider.GetRequiredService<IPendingNavigation>();
+        if (pending.Consume() is { } path && navigator.TryParseRoute(path, null, out var route))
+        {
+            var response = await navigator.NavigateRouteAsync(Application.Current, route, HistoryMode.Replace).ConfigureAwait(true);
+            if (response.Success) return;
+        }
+
+        await navigator.NavigateDefaultAsync(Application.Current, rootSegment).ConfigureAwait(true);
     }
 
     public static Navigator GetRootNavigator([NotNull] this Window window)
