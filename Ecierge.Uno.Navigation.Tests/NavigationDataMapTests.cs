@@ -54,7 +54,7 @@ public class NavigationDataMapTests
         var handle = map.GetOrCreateEntity(RouteOfBuilding("b1"), RoomName, "r1");
         var room = await handle.GetAsync();
 
-        CollectionAssert.AreEqual(new[] { "b1/r1" }, requests, "Expected the room to be looked for in the building that the route names.");
+        Assert.AreSequenceEqual(new[] { "b1/r1" }, requests, "Expected the room to be looked for in the building that the route names.");
         Assert.AreEqual("b1", room.BuildingId, "Expected the loader to have found the building of the route.");
     }
 
@@ -69,7 +69,7 @@ public class NavigationDataMapTests
         Assert.IsTrue(handle.IsLoaded, "Expected the room that the route holds to be loaded without a request.");
         await handle.ReloadAsync();
 
-        CollectionAssert.AreEqual(new[] { "b2/r5" }, requests, "Expected the reload to look in the building of the route.");
+        Assert.AreSequenceEqual(new[] { "b2/r5" }, requests, "Expected the reload to look in the building of the route.");
     }
 
     [TestMethod]
@@ -81,7 +81,7 @@ public class NavigationDataMapTests
 
         await map.LoadEntityAsync(data, RoomName);
 
-        CollectionAssert.AreEqual(new[] { "b3/r7" }, requests, "Expected the value of the segment to be loaded inside the building of the route.");
+        Assert.AreSequenceEqual(new[] { "b3/r7" }, requests, "Expected the value of the segment to be loaded inside the building of the route.");
     }
 
     [TestMethod]
@@ -92,7 +92,7 @@ public class NavigationDataMapTests
         var building = await map.LoadEntityAsync("b9", NavigationData.Empty);
 
         Assert.AreEqual("b9", building.Id, "Expected a map that needs no data to load by the value.");
-        CollectionAssert.AreEqual(new[] { "b9" }, server.Requests, "Expected one request for the value.");
+        Assert.AreSequenceEqual(new[] { "b9" }, server.Requests, "Expected one request for the value.");
     }
 
     [TestMethod]
