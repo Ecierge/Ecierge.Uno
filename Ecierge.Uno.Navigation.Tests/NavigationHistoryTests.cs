@@ -25,7 +25,7 @@ public class NavigationHistoryTests
 
         await host.Root.NavigateRouteAsync(this, "Building/b1/Details/Floors");
 
-        CollectionAssert.AreEqual(new[] { "Building/b1/Details/Floors" }, Paths(host), "Expected one entry from the root to the last page.");
+        Assert.AreSequenceEqual(new[] { "Building/b1/Details/Floors" }, Paths(host), "Expected one entry from the root to the last page.");
     }
 
     [TestMethod]
@@ -35,7 +35,7 @@ public class NavigationHistoryTests
 
         await host.Root.NavigateRouteAsync(this, "Building/b1");
 
-        CollectionAssert.AreEqual(new[] { "Building/b1/MyProperty" }, Paths(host), "Expected the default page to be part of the location.");
+        Assert.AreSequenceEqual(new[] { "Building/b1/MyProperty" }, Paths(host), "Expected the default page to be part of the location.");
     }
 
     [TestMethod]
@@ -47,7 +47,7 @@ public class NavigationHistoryTests
         await host.Root.NavigateRouteAsync(this, "Building/b1/Menu");
         await ((FakeNavigator)host.Root.ChildNavigator!).NavigateRouteAsync(this, "Assets");
 
-        CollectionAssert.AreEqual(new[] { "Login", "Building/b1/Menu", "Building/b1/Assets" }, Paths(host), "Expected a page of a nested region to be recorded as the whole route.");
+        Assert.AreSequenceEqual(new[] { "Login", "Building/b1/Menu", "Building/b1/Assets" }, Paths(host), "Expected a page of a nested region to be recorded as the whole route.");
         Assert.AreEqual(2, host.Root.Journal.CurrentIndex, "Expected the last page to be current.");
     }
 
@@ -59,7 +59,7 @@ public class NavigationHistoryTests
 
         await host.Root.NavigateRouteAsync(this, "Login");
 
-        CollectionAssert.AreEqual(new[] { "Login" }, Paths(host), "Expected the same location not to be a new step of the history.");
+        Assert.AreSequenceEqual(new[] { "Login" }, Paths(host), "Expected the same location not to be a new step of the history.");
     }
 
     [TestMethod]
@@ -70,7 +70,7 @@ public class NavigationHistoryTests
 
         await host.Root.NavigateRouteAsync(this, "Building/b1/Menu", null, HistoryMode.Replace);
 
-        CollectionAssert.AreEqual(new[] { "Building/b1/Menu" }, Paths(host), "Expected Back not to lead to the login page.");
+        Assert.AreSequenceEqual(new[] { "Building/b1/Menu" }, Paths(host), "Expected Back not to lead to the login page.");
     }
 
     [TestMethod]
@@ -81,7 +81,7 @@ public class NavigationHistoryTests
 
         await host.Root.NavigateRouteAsync(this, "Building/b1/Menu", null, HistoryMode.Skip);
 
-        CollectionAssert.AreEqual(new[] { "Login" }, Paths(host), "Expected the history not to know about a page that is not kept.");
+        Assert.AreSequenceEqual(new[] { "Login" }, Paths(host), "Expected the history not to know about a page that is not kept.");
     }
 
     [TestMethod]
@@ -92,7 +92,7 @@ public class NavigationHistoryTests
 
         await host.Root.NavigateRouteAsync(this, "Building/b1/Menu");
 
-        CollectionAssert.AreEqual(new[] { "Login" }, Paths(host), "Expected the history to hold only what was shown.");
+        Assert.AreSequenceEqual(new[] { "Login" }, Paths(host), "Expected the history to hold only what was shown.");
     }
 
     [TestMethod]
@@ -110,7 +110,7 @@ public class NavigationHistoryTests
         var response = await host.Root.NavigateRouteAsync(this, "Building/b1/Menu");
 
         Assert.IsInstanceOfType<NavigationDeniedResponse>(response, "Expected the rules to refuse the page.");
-        CollectionAssert.AreEqual(new[] { "Login" }, Paths(host), "Expected a page that was refused not to be in the history.");
+        Assert.AreSequenceEqual(new[] { "Login" }, Paths(host), "Expected a page that was refused not to be in the history.");
     }
 
     [TestMethod]
@@ -122,7 +122,7 @@ public class NavigationHistoryTests
 
         await host.Root.NavigateRouteAsync(this, "Building/b1/Details/Floors");
 
-        CollectionAssert.AreEqual(new[] { "Building/b1/Details/Floors" }, seen, "Expected one announcement for the whole route, with the entry already in the history.");
+        Assert.AreSequenceEqual(new[] { "Building/b1/Details/Floors" }, seen, "Expected one announcement for the whole route, with the entry already in the history.");
     }
 
     [TestMethod]
@@ -148,7 +148,7 @@ public class NavigationHistoryTests
 
         await host.Root.NavigateRouteAsync(this, "Building/b1/Menu");
 
-        Assert.IsFalse(responses.Single()!.Success, "Expected listeners to learn that the route did not change as asked.");
+        Assert.IsFalse(Assert.ContainsSingle(responses)!.Success, "Expected listeners to learn that the route did not change as asked.");
     }
 
     [TestMethod]
@@ -168,7 +168,7 @@ public class NavigationHistoryTests
         Assert.AreEqual(0, announced, "Expected nothing to be announced while the outer navigation runs.");
         await outer.CompleteAsync(response);
 
-        CollectionAssert.AreEqual(new[] { "Login" }, Paths(host), "Expected the outermost navigation to decide what is recorded.");
+        Assert.AreSequenceEqual(new[] { "Login" }, Paths(host), "Expected the outermost navigation to decide what is recorded.");
         Assert.AreEqual(1, announced, "Expected one announcement for both navigations.");
     }
 
@@ -188,6 +188,6 @@ public class NavigationHistoryTests
         });
         await host.Root.NavigateRouteAsync(this, "Building/b1/Menu");
 
-        CollectionAssert.AreEqual(new[] { "Login", "Building/b1/Menu" }, Paths(host), "Expected the count of open navigations to return to zero, so that the next one is recorded.");
+        Assert.AreSequenceEqual(new[] { "Login", "Building/b1/Menu" }, Paths(host), "Expected the count of open navigations to return to zero, so that the next one is recorded.");
     }
 }

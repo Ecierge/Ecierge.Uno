@@ -34,7 +34,7 @@ public class RouteTests
         var route = BuildingRoute().Add(AddAsset);
 
         Assert.AreEqual("Building/3f2a/!AddAsset", route.ToPath(), "Expected the dialog to be written with its qualifier.");
-        Assert.IsTrue(route.Segments[^1] is DialogSegmentInstance, "Expected a dialog to be added as a dialog step.");
+        Assert.IsInstanceOfType<DialogSegmentInstance>(route.Segments[^1], "Expected a dialog to be added as a dialog step.");
     }
 
     [TestMethod]
@@ -58,7 +58,7 @@ public class RouteTests
         var route = new Routing.Route(ImmutableArray<RouteSegmentInstance>.Empty, null);
 
         Assert.IsNotNull(route.Data, "Expected a route without data to have empty data.");
-        Assert.AreEqual(0, route.Data.Count, "Expected the empty data to hold nothing.");
+        Assert.IsEmpty(route.Data, "Expected the empty data to hold nothing.");
     }
 
     [TestMethod]
@@ -90,7 +90,7 @@ public class RouteTests
 
         var taken = route.Take(1);
 
-        Assert.AreEqual(1, taken.Segments.Length, "Expected only the first step to be kept.");
+        Assert.HasCount(1, taken.Segments, "Expected only the first step to be kept.");
         Assert.IsFalse(taken.Data.ContainsKey("BuildingInfo"), "Expected the data of the dropped data segment to be dropped with it.");
     }
 
@@ -137,8 +137,13 @@ public class RouteTests
     [TestMethod]
     public void LastNamedSegment_must_skip_a_trailing_data_segment_and_name_a_dialog()
     {
-        Assert.AreEqual("Building", BuildingRoute().LastNamedSegment?.NameSegment.Name, "Expected the named segment of the data segment.");
-        Assert.AreEqual("AddAsset", BuildingRoute().Add(AddAsset).LastNamedSegment?.NameSegment.Name, "Expected a dialog to count as a named segment.");
+        var named = BuildingRoute().LastNamedSegment;
+        var dialog = BuildingRoute().Add(AddAsset).LastNamedSegment;
+
+        Assert.IsNotNull(named, "Expected a named segment before the data segment.");
+        Assert.AreEqual("Building", named.NameSegment.Name, "Expected the named segment of the data segment.");
+        Assert.IsNotNull(dialog, "Expected a dialog to count as a named segment.");
+        Assert.AreEqual("AddAsset", dialog.NameSegment.Name, "Expected a dialog to count as a named segment.");
         Assert.IsNull(Routing.Route.Empty.LastNamedSegment, "Expected an empty route to have no named segment.");
     }
 

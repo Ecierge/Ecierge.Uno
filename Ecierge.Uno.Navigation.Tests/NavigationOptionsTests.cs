@@ -145,9 +145,9 @@ public class NavigationOptionsTests
         await host.Root.NavigateRouteAsync(this, "Building/b1/Menu");
         await host.Root.NavigateRouteAsync(this, "Building/b2/Menu");
 
-        CollectionAssert.AreEqual(
+        Assert.AreSequenceEqual(
             new[] { "Building/b1/Menu", "Building/b2/Menu" },
-            host.Root.Journal.Entries.Select(e => e.Path).ToArray(),
+            host.Root.Journal.Entries.Select(e => e.Path),
             "Expected the oldest entry to be dropped when the capacity of the options is full.");
     }
 }

@@ -12,7 +12,7 @@ public class SpikeTests
     {
         var data = NavigationData.Empty.Add("building", "id-1");
 
-        Assert.AreEqual(1, data.Count, "Expected the data to hold the added item.");
+        Assert.HasCount(1, data, "Expected the data to hold the added item.");
     }
 
     [TestMethod]
@@ -20,7 +20,7 @@ public class SpikeTests
     {
         var route = Routing.Route.Empty;
 
-        Assert.AreEqual(0, route.Segments.Length, "Expected an empty route to have no segments.");
+        Assert.IsEmpty(route.Segments, "Expected an empty route to have no segments.");
     }
 
     [TestMethod]

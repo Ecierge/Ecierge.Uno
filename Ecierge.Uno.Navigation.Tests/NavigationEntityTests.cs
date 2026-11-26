@@ -105,7 +105,8 @@ public class NavigationEntityTests
         var reloaded = await handle.ReloadAsync();
 
         Assert.AreEqual("newer id-1", reloaded, "Expected the entity of the new attempt.");
-        Assert.IsTrue(handle.TryGetValue(out var value) && value == "newer id-1", "Expected the handle to hold the reloaded entity.");
+        Assert.IsTrue(handle.TryGetValue(out var value), "Expected the handle to hold an entity.");
+        Assert.AreEqual("newer id-1", value, "Expected the handle to hold the reloaded entity.");
         Assert.AreEqual(1, changes, "Expected the reload to be announced.");
     }
 
@@ -156,7 +157,8 @@ public class NavigationEntityTests
         await handle.LoadAsync();
 
         Assert.IsTrue(handle.IsLoaded, "Expected the entity to be loaded through the interface.");
-        Assert.IsTrue(handle.TryGetLoadedEntity(out var entity) && (string)entity == "entity id-1", "Expected the loaded entity as an object.");
+        Assert.IsTrue(handle.TryGetLoadedEntity(out var entity), "Expected the loaded entity through the interface.");
+        Assert.AreEqual("entity id-1", (string)entity, "Expected the loaded entity as an object.");
         Assert.AreEqual(typeof(string), handle.EntityType, "Expected the type of the entity.");
     }
 }

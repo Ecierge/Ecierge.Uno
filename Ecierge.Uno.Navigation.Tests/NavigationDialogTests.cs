@@ -40,7 +40,7 @@ public class NavigationDialogTests
         var (host, _) = await OpenMenuWithDialog(true);
         using var _ = host;
 
-        CollectionAssert.AreEqual(new[] { "Building/b1/Menu", "Building/b1/Menu/!AddAsset" }, Paths(host), "Expected the open dialog to be a step of the history.");
+        Assert.AreSequenceEqual(new[] { "Building/b1/Menu", "Building/b1/Menu/!AddAsset" }, Paths(host), "Expected the open dialog to be a step of the history.");
         Assert.IsTrue(Dialog(host).IsOpen, "Expected the dialog to be open.");
     }
 
@@ -56,7 +56,7 @@ public class NavigationDialogTests
 
         Assert.IsTrue(response.Success, "Expected going back to succeed.");
         Assert.AreEqual(1, dialog.CloseCount, "Expected the dialog to be closed once.");
-        Assert.AreEqual(pagesBefore, layout.Requests.Count, "Expected the page below the dialog, which is right, not to be created again.");
+        Assert.HasCount(pagesBefore, layout.Requests, "Expected the page below the dialog, which is right, not to be created again.");
         Assert.AreEqual(0, host.Root.Journal.CurrentIndex, "Expected the position to move to the page.");
         Assert.AreSame(layout, host.Root.LeafNavigator, "Expected the page to be the innermost region again.");
     }
@@ -71,7 +71,7 @@ public class NavigationDialogTests
 
         await layout.GoBackAsync(this);
 
-        CollectionAssert.AreEqual(new[] { "Building/b1/Menu" }, seen, "Expected one announcement, although only the dialog closed, and the entry of the page to be current by then.");
+        Assert.AreSequenceEqual(new[] { "Building/b1/Menu" }, seen, "Expected one announcement, although only the dialog closed, and the entry of the page to be current by then.");
     }
 
     [TestMethod]
@@ -85,7 +85,7 @@ public class NavigationDialogTests
         var response = await host.Root.NavigateToAsync(this, host.Root.ParseRoute("Building/b1/Menu"));
 
         Assert.IsTrue(response.Success, "Expected the dialog to close.");
-        CollectionAssert.AreEqual(new[] { "Building/b1/Menu" }, announced, "Expected one announcement, which finds the page and not the dialog.");
+        Assert.AreSequenceEqual(new[] { "Building/b1/Menu" }, announced, "Expected one announcement, which finds the page and not the dialog.");
     }
 
     [TestMethod]
@@ -123,7 +123,7 @@ public class NavigationDialogTests
 
         Dialog(host).CloseByUser();
 
-        CollectionAssert.AreEqual(new[] { "Login", "Building/b1/Menu" }, Paths(host), "Expected the entry of the dialog to show the page that is left.");
+        Assert.AreSequenceEqual(new[] { "Login", "Building/b1/Menu" }, Paths(host), "Expected the entry of the dialog to show the page that is left.");
         Assert.AreEqual(1, host.Root.Journal.CurrentIndex, "Expected the position to stay with the page that is shown, not to return to the login.");
         Assert.IsFalse(host.Root.Journal.CanGoForward, "Expected no entry ahead, as the dialog was replaced.");
     }
@@ -136,7 +136,7 @@ public class NavigationDialogTests
 
         Dialog(host).CloseByUser();
 
-        CollectionAssert.AreEqual(new[] { "Building/b1/Menu" }, Paths(host), "Expected the only entry not to keep the dialog that is closed.");
+        Assert.AreSequenceEqual(new[] { "Building/b1/Menu" }, Paths(host), "Expected the only entry not to keep the dialog that is closed.");
         Assert.AreEqual(0, host.Root.Journal.CurrentIndex, "Expected the position to stay.");
     }
 
@@ -159,7 +159,7 @@ public class NavigationDialogTests
         var (host, _) = await OpenMenuWithDialog(false);
         using var _ = host;
 
-        CollectionAssert.AreEqual(new[] { "Building/b1/Menu" }, Paths(host), "Expected the history to hold the page below the dialog.");
+        Assert.AreSequenceEqual(new[] { "Building/b1/Menu" }, Paths(host), "Expected the history to hold the page below the dialog.");
         Assert.IsTrue(Dialog(host).IsOpen, "Expected the dialog to be open all the same.");
     }
 
@@ -189,7 +189,7 @@ public class NavigationDialogTests
 
         Dialog(host).CloseByUser();
 
-        CollectionAssert.AreEqual(new[] { "Building/b1/Menu" }, Paths(host), "Expected the history not to change.");
+        Assert.AreSequenceEqual(new[] { "Building/b1/Menu" }, Paths(host), "Expected the history not to change.");
         Assert.AreEqual(0, host.Root.Journal.CurrentIndex, "Expected the position not to move.");
     }
 

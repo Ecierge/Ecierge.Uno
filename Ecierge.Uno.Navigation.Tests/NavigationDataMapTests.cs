@@ -135,7 +135,8 @@ public class NavigationDataMapTests
         await loaded.GetAsync();
         var failed = map.CreateEntity(Task.FromException<Building>(new HttpRequestException("down")), "b2");
 
-        Assert.IsTrue(map.TryGetEntity(DataWith(loaded), Name, out var entity) && entity!.Id == "b1", "Expected the entity of a handle that is loaded.");
+        Assert.IsTrue(map.TryGetEntity(DataWith(loaded), Name, out var entity), "Expected the entity of a handle that is loaded.");
+        Assert.AreEqual("b1", entity!.Id, "Expected the entity of that handle.");
         Assert.IsFalse(map.TryGetEntity(DataWith(failed), Name, out _), "Expected a failed handle to have no entity.");
         Assert.IsFalse(map.TryGetEntity(DataWith(map.CreateEntity("b3")), Name, out _), "Expected a handle that did not start loading to have no entity.");
         Assert.IsTrue(map.TryGetEntity(DataWith(new Building("b4", "Hall")), Name, out _), "Expected an entity in the data to be found.");
@@ -177,7 +178,7 @@ public class NavigationDataMapTests
 
         await map.GetEntityTask(DataWith("b7"), Name);
 
-        CollectionAssert.AreEqual(new[] { "b7" }, server.Requests, "Expected the building to be requested by its value.");
+        Assert.AreSequenceEqual(new[] { "b7" }, server.Requests, "Expected the building to be requested by its value.");
         Assert.ThrowsExactly<KeyNotFoundException>(() => map.GetEntityTask(NavigationData.Empty, Name), "Expected a missing name to be refused.");
     }
 }

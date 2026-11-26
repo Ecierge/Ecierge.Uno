@@ -38,8 +38,7 @@ public class NavigationJournalTests
         Assert.AreEqual("A", entry.Path, "Expected the entry to hold the text of the route.");
         Assert.AreSame(entry, journal.Current, "Expected the new entry to be current.");
         Assert.AreEqual(0, journal.CurrentIndex, "Expected the position of the first entry.");
-        Assert.ContainsSingle(changes, "Expected one change.");
-        Assert.AreEqual(JournalChange.Pushed, changes[0].Change, "Expected the change to be a push.");
+        Assert.AreEqual(JournalChange.Pushed, Assert.ContainsSingle(changes, "Expected one change.").Change, "Expected the change to be a push.");
         Assert.IsFalse(journal.CanGoBack, "Expected nothing before the first entry.");
     }
 
@@ -52,7 +51,7 @@ public class NavigationJournalTests
         journal.Record(RouteOf("B"), HistoryMode.Push);
         journal.Record(RouteOf("C"), HistoryMode.Push);
 
-        CollectionAssert.AreEqual(new[] { "A", "B", "C" }, journal.Entries.Select(e => e.Path).ToArray(), "Expected the oldest entry first.");
+        Assert.AreSequenceEqual(new[] { "A", "B", "C" }, journal.Entries.Select(e => e.Path), "Expected the oldest entry first.");
         Assert.AreEqual(2, journal.CurrentIndex, "Expected the last visit to be current.");
         Assert.IsTrue(journal.CanGoBack, "Expected entries before the current one.");
         Assert.IsFalse(journal.CanGoForward, "Expected no entries after the current one.");
@@ -98,9 +97,9 @@ public class NavigationJournalTests
 
         var entry = journal.Record(RouteOf("Home"), HistoryMode.Replace);
 
-        CollectionAssert.AreEqual(new[] { "Home" }, journal.Entries.Select(e => e.Path).ToArray(), "Expected the redirect to leave no trace of the page it replaced.");
+        Assert.AreSequenceEqual(new[] { "Home" }, journal.Entries.Select(e => e.Path), "Expected the redirect to leave no trace of the page it replaced.");
         Assert.AreSame(entry, journal.Current, "Expected the new entry to be current.");
-        Assert.AreEqual(JournalChange.Replaced, changes.Single().Change, "Expected the change to be a replacement.");
+        Assert.AreEqual(JournalChange.Replaced, Assert.ContainsSingle(changes).Change, "Expected the change to be a replacement.");
         Assert.IsFalse(journal.CanGoBack, "Expected Back not to return to the replaced page.");
     }
 
@@ -113,7 +112,7 @@ public class NavigationJournalTests
         journal.Record(RouteOf("Home"), HistoryMode.Replace);
 
         Assert.HasCount(1, journal.Entries, "Expected the first entry.");
-        Assert.AreEqual(JournalChange.Pushed, changes.Single().Change, "Expected a push, as there was nothing to replace.");
+        Assert.AreEqual(JournalChange.Pushed, Assert.ContainsSingle(changes).Change, "Expected a push, as there was nothing to replace.");
     }
 
     [TestMethod]
@@ -140,7 +139,7 @@ public class NavigationJournalTests
 
         var entry = journal.Record(RouteOf("Login"), HistoryMode.Reset);
 
-        CollectionAssert.AreEqual(new[] { "Login" }, journal.Entries.Select(e => e.Path).ToArray(), "Expected the pages before and after the position to be gone.");
+        Assert.AreSequenceEqual(new[] { "Login" }, journal.Entries.Select(e => e.Path), "Expected the pages before and after the position to be gone.");
         Assert.AreSame(entry, journal.Current, "Expected the new entry to be current.");
         Assert.AreEqual(0, journal.CurrentIndex, "Expected the new entry to be the first.");
         Assert.IsFalse(journal.CanGoBack || journal.CanGoForward, "Expected nothing to go to.");
@@ -156,7 +155,7 @@ public class NavigationJournalTests
 
         journal.Record(RouteOf("Login"), HistoryMode.Reset);
 
-        CollectionAssert.AreEqual(new[] { JournalChange.Cleared, JournalChange.Pushed }, changes.Select(c => c.Change).ToArray(), "Expected what clearing and then pushing announce.");
+        Assert.AreSequenceEqual(new[] { JournalChange.Cleared, JournalChange.Pushed }, changes.Select(c => c.Change), "Expected what clearing and then pushing announce.");
         Assert.AreEqual(1, changes[0].PreviousIndex, "Expected the position that the journal was cleared from.");
         Assert.AreEqual(0, changes[1].Index, "Expected the new entry to be the first.");
         Assert.AreEqual(-1, changes[1].PreviousIndex, "Expected nothing before the new entry.");
@@ -170,7 +169,7 @@ public class NavigationJournalTests
 
         journal.Record(RouteOf("Login"), HistoryMode.Reset);
 
-        Assert.AreEqual(JournalChange.Pushed, changes.Single().Change, "Expected nothing to be cleared.");
+        Assert.AreEqual(JournalChange.Pushed, Assert.ContainsSingle(changes).Change, "Expected nothing to be cleared.");
         Assert.HasCount(1, journal.Entries, "Expected the first entry.");
     }
 
@@ -184,7 +183,7 @@ public class NavigationJournalTests
         var after = journal.Record(RouteOf("Login"), HistoryMode.Reset);
 
         Assert.AreNotEqual(before!.Id, after!.Id, "Expected the entry of the browser history that was kept to find no entry of the new history.");
-        CollectionAssert.AreEqual(new[] { JournalChange.Cleared, JournalChange.Pushed }, changes.Select(c => c.Change).ToArray(), "Expected the same location not to be taken for the page that is shown.");
+        Assert.AreSequenceEqual(new[] { JournalChange.Cleared, JournalChange.Pushed }, changes.Select(c => c.Change), "Expected the same location not to be taken for the page that is shown.");
     }
 
     [TestMethod]
@@ -198,7 +197,7 @@ public class NavigationJournalTests
 
         journal.Record(RouteOf("D"), HistoryMode.Push);
 
-        CollectionAssert.AreEqual(new[] { "A", "D" }, journal.Entries.Select(e => e.Path).ToArray(), "Expected a new visit to cut off the forward history.");
+        Assert.AreSequenceEqual(new[] { "A", "D" }, journal.Entries.Select(e => e.Path), "Expected a new visit to cut off the forward history.");
         Assert.IsFalse(journal.CanGoForward, "Expected nothing to go forward to.");
     }
 
@@ -213,9 +212,9 @@ public class NavigationJournalTests
 
         journal.Record(RouteOf("D"), HistoryMode.Push);
 
-        CollectionAssert.AreEqual(new[] { "B", "C", "D" }, journal.Entries.Select(e => e.Path).ToArray(), "Expected the oldest entry to go.");
+        Assert.AreSequenceEqual(new[] { "B", "C", "D" }, journal.Entries.Select(e => e.Path), "Expected the oldest entry to go.");
         Assert.AreEqual(2, journal.CurrentIndex, "Expected the position to follow the entries that moved.");
-        Assert.AreEqual(1, changes.Single().PreviousIndex, "Expected the previous position to be where the previous page is now.");
+        Assert.AreEqual(1, Assert.ContainsSingle(changes).PreviousIndex, "Expected the previous position to be where the previous page is now.");
     }
 
     [TestMethod]
@@ -239,9 +238,10 @@ public class NavigationJournalTests
 
         journal.Record(RouteOf("B"), HistoryMode.Push);
 
-        Assert.AreEqual(1, changes.Single().Index, "Expected the position of the new entry.");
-        Assert.AreEqual(0, changes.Single().PreviousIndex, "Expected the position it came from.");
-        Assert.AreEqual("B", changes.Single().Entry!.Path, "Expected the new entry.");
+        var change = Assert.ContainsSingle(changes, "Expected one change to be announced.");
+        Assert.AreEqual(1, change.Index, "Expected the position of the new entry.");
+        Assert.AreEqual(0, change.PreviousIndex, "Expected the position it came from.");
+        Assert.AreEqual("B", change.Entry!.Path, "Expected the new entry.");
     }
 
     [TestMethod]
@@ -256,8 +256,9 @@ public class NavigationJournalTests
 
         Assert.AreEqual("A", journal.Current!.Path, "Expected the previous entry to be current.");
         Assert.IsTrue(journal.CanGoForward, "Expected the entry that was left to be ahead.");
-        Assert.AreEqual(JournalChange.Moved, changes.Single().Change, "Expected a move.");
-        Assert.AreEqual(1, changes.Single().PreviousIndex, "Expected the position it came from.");
+        var change = Assert.ContainsSingle(changes, "Expected one change to be announced.");
+        Assert.AreEqual(JournalChange.Moved, change.Change, "Expected a move.");
+        Assert.AreEqual(1, change.PreviousIndex, "Expected the position it came from.");
     }
 
     [TestMethod]
@@ -311,8 +312,9 @@ public class NavigationJournalTests
 
         Assert.IsEmpty(journal.Entries, "Expected no entries.");
         Assert.AreEqual(-1, journal.CurrentIndex, "Expected no position.");
-        Assert.AreEqual(JournalChange.Cleared, changes.Single().Change, "Expected one clear; clearing an empty journal changes nothing.");
-        Assert.IsNull(changes.Single().Entry, "Expected no current entry after the clear.");
+        var change = Assert.ContainsSingle(changes, "Expected one change; clearing an empty journal changes nothing.");
+        Assert.AreEqual(JournalChange.Cleared, change.Change, "Expected the change to be a clear.");
+        Assert.IsNull(change.Entry, "Expected no current entry after the clear.");
     }
 
     [TestMethod]

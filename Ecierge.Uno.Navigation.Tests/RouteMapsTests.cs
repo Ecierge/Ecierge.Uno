@@ -51,7 +51,7 @@ public class RouteMapsTests
             () => Segment(host, TestRoutes.Building).BuildDefaultRoute(host.Services, NavigationData.Empty),
             "Expected route data without the building to be refused like no data at all.");
 
-        StringAssert.Contains(error.Message, TestRoutes.BuildingData, "Expected the message to name the data segment that has no value.");
+        Assert.Contains(TestRoutes.BuildingData, error.Message, "Expected the message to name the data segment that has no value.");
     }
 
     [TestMethod]
@@ -63,7 +63,8 @@ public class RouteMapsTests
         var route = Segment(host, TestRoutes.Building).BuildDefaultRoute(host.Services, data);
 
         Assert.AreEqual("Building/b1/MyProperty", route.ToPath(), "Expected the value of the building and the default page.");
-        Assert.IsTrue(route.Data.TryGetValue(TestRoutes.BuildingData, out var held) && held is INavigationEntity, "Expected the route to hold the handle of the building.");
+        Assert.IsTrue(route.Data.TryGetValue(TestRoutes.BuildingData, out var held), "Expected the route to hold the building.");
+        Assert.IsInstanceOfType<INavigationEntity>(held, "Expected the route to hold the handle of the building.");
     }
 
     [TestMethod]
