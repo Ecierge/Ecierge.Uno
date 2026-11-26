@@ -34,8 +34,8 @@ public class BrowserHistoryNavigationTests
         using var _h = host;
         using var _s = sync;
 
-        CollectionAssert.AreEqual(new[] { "/Building/b1/Menu", "/Building/b1/Assets" }, browser.Paths, "Expected the address bar to follow the pages.");
-        CollectionAssert.AreEqual(new[] { "replace /Building/b1/Menu", "push /Building/b1/Assets" }, browser.Log, "Expected the first page to replace the entry of the load and the next to be added.");
+        Assert.AreSequenceEqual(new[] { "/Building/b1/Menu", "/Building/b1/Assets" }, browser.Paths, "Expected the address bar to follow the pages.");
+        Assert.AreSequenceEqual(new[] { "replace /Building/b1/Menu", "push /Building/b1/Assets" }, browser.Log, "Expected the first page to replace the entry of the load and the next to be added.");
     }
 
     [TestMethod]
@@ -48,7 +48,7 @@ public class BrowserHistoryNavigationTests
         browser.UserGoes(-1);
         await sync.HandlePopAsync(browser.TakeNextPop());
 
-        CollectionAssert.AreEqual(new[] { "Menu", "Assets", "Menu" }, layout.Requests.Select(r => r.NameSegment.Name).ToArray(), "Expected the previous page to be shown by the navigator of the building pages.");
+        Assert.AreSequenceEqual(new[] { "Menu", "Assets", "Menu" }, layout.Requests.Select(r => r.NameSegment.Name), "Expected the previous page to be shown by the navigator of the building pages.");
         Assert.ContainsSingle(host.Root.Requests, "Expected the building page not to be created again.");
         Assert.AreEqual(0, host.Root.Journal.CurrentIndex, "Expected the journal to follow the browser.");
         Assert.HasCount(2, host.Root.Journal.Entries, "Expected going back not to add an entry.");
@@ -81,7 +81,7 @@ public class BrowserHistoryNavigationTests
         await sync.HandlePopAsync(browser.TakeNextPop());
 
         Assert.AreEqual(0, browser.Index, "Expected the browser to follow the button of the application.");
-        CollectionAssert.AreEqual(new[] { "Menu", "Assets", "Menu" }, layout.Requests.Select(r => r.NameSegment.Name).ToArray(), "Expected the page to be shown once, by the button, not again by the echo of the browser.");
+        Assert.AreSequenceEqual(new[] { "Menu", "Assets", "Menu" }, layout.Requests.Select(r => r.NameSegment.Name), "Expected the page to be shown once, by the button, not again by the echo of the browser.");
     }
 
     [TestMethod]
@@ -135,7 +135,7 @@ public class BrowserHistoryNavigationTests
         browser.UserGoes(-1);
         await sync.HandlePopAsync(browser.TakeNextPop());
 
-        CollectionAssert.AreEqual(new[] { "Building/b1/Menu" }, seen, "Expected one announcement, which finds the entry of the page that is shown.");
+        Assert.AreSequenceEqual(new[] { "Building/b1/Menu" }, seen, "Expected one announcement, which finds the entry of the page that is shown.");
     }
 
     [TestMethod]

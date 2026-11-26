@@ -33,8 +33,8 @@ public class BrowserHistorySyncTests
 
         Visit("A");
 
-        CollectionAssert.AreEqual(new[] { "replace /A" }, browser.Log, "Expected the page the application starts with to take the place of the entry it was loaded at.");
-        CollectionAssert.AreEqual(new[] { "/A" }, browser.Paths, "Expected the browser to hold one entry.");
+        Assert.AreSequenceEqual(new[] { "replace /A" }, browser.Log, "Expected the page the application starts with to take the place of the entry it was loaded at.");
+        Assert.AreSequenceEqual(new[] { "/A" }, browser.Paths, "Expected the browser to hold one entry.");
     }
 
     [TestMethod]
@@ -45,7 +45,7 @@ public class BrowserHistorySyncTests
 
         Visit("A", "B", "C");
 
-        CollectionAssert.AreEqual(new[] { "/A", "/B", "/C" }, browser.Paths, "Expected an entry for every page, so that Back and Forward work.");
+        Assert.AreSequenceEqual(new[] { "/A", "/B", "/C" }, browser.Paths, "Expected an entry for every page, so that Back and Forward work.");
         Assert.AreEqual(2, browser.Index, "Expected the browser to be at the last page.");
     }
 
@@ -58,7 +58,7 @@ public class BrowserHistorySyncTests
 
         journal.Record(RouteOf("Home"), HistoryMode.Replace);
 
-        CollectionAssert.AreEqual(new[] { "/Home" }, browser.Paths, "Expected Back not to lead to the login page.");
+        Assert.AreSequenceEqual(new[] { "/Home" }, browser.Paths, "Expected Back not to lead to the login page.");
     }
 
     [TestMethod]
@@ -71,7 +71,7 @@ public class BrowserHistorySyncTests
         journal.Clear();
         journal.Record(RouteOf("Home"), HistoryMode.Replace);
 
-        CollectionAssert.AreEqual(new[] { "/A", "/Home" }, browser.Paths, "Expected the browser, which cannot forget entries, to replace the current one.");
+        Assert.AreSequenceEqual(new[] { "/A", "/Home" }, browser.Paths, "Expected the browser, which cannot forget entries, to replace the current one.");
     }
 
     [TestMethod]
@@ -84,7 +84,7 @@ public class BrowserHistorySyncTests
 
         journal.Record(Routing.Route.Empty.Add(data, "a b"), HistoryMode.Push);
 
-        CollectionAssert.AreEqual(new[] { "/console/Building/a%20b" }, browser.Paths, "Expected the address to be under the base path and the value to be escaped.");
+        Assert.AreSequenceEqual(new[] { "/console/Building/a%20b" }, browser.Paths, "Expected the address to be under the base path and the value to be escaped.");
     }
 
     [TestMethod]
@@ -113,7 +113,7 @@ public class BrowserHistorySyncTests
         browser.UserGoes(-1);
         browser.DeliverPops();
 
-        CollectionAssert.AreEqual(new[] { "Back B" }, navigation.Shown, "Expected the page of the entry to be shown.");
+        Assert.AreSequenceEqual(new[] { "Back B" }, navigation.Shown, "Expected the page of the entry to be shown.");
         Assert.AreEqual(1, journal.CurrentIndex, "Expected the journal to follow the browser.");
         Assert.IsEmpty(browser.Log, "Expected the move of the journal not to be written back to the browser.");
     }
@@ -131,7 +131,7 @@ public class BrowserHistorySyncTests
         browser.UserGoes(1);
         browser.DeliverPops();
 
-        CollectionAssert.AreEqual(new[] { "Forward B" }, navigation.Shown, "Expected the forward page to be shown.");
+        Assert.AreSequenceEqual(new[] { "Forward B" }, navigation.Shown, "Expected the forward page to be shown.");
         Assert.AreEqual(1, journal.CurrentIndex, "Expected the journal to follow the browser.");
     }
 
@@ -145,7 +145,7 @@ public class BrowserHistorySyncTests
         browser.UserGoes(-2);
         browser.DeliverPops();
 
-        CollectionAssert.AreEqual(new[] { "Back A" }, navigation.Shown, "Expected only the page that was reached to be shown.");
+        Assert.AreSequenceEqual(new[] { "Back A" }, navigation.Shown, "Expected only the page that was reached to be shown.");
         Assert.AreEqual(0, journal.CurrentIndex, "Expected the journal to follow the browser over both entries.");
     }
 
@@ -208,7 +208,7 @@ public class BrowserHistorySyncTests
         browser.UserGoes(-1);
         browser.DeliverPops();
 
-        CollectionAssert.AreEqual(new[] { "path Building/b1/Assets" }, navigation.Shown, "Expected the page of the address to be opened, as the journal knows nothing of the entry.");
+        Assert.AreSequenceEqual(new[] { "path Building/b1/Assets" }, navigation.Shown, "Expected the page of the address to be opened, as the journal knows nothing of the entry.");
     }
 
     [TestMethod]
@@ -221,7 +221,7 @@ public class BrowserHistorySyncTests
         browser.UserGoes(-1);
         browser.DeliverPops();
 
-        CollectionAssert.AreEqual(new[] { "path Building/b1/Menu" }, navigation.Shown, "Expected the entries of an earlier run to be told from the entries of this one.");
+        Assert.AreSequenceEqual(new[] { "path Building/b1/Menu" }, navigation.Shown, "Expected the entries of an earlier run to be told from the entries of this one.");
     }
 
     [TestMethod]
@@ -235,7 +235,7 @@ public class BrowserHistorySyncTests
         browser.UserGoes(-2);
         browser.DeliverPops();
 
-        CollectionAssert.AreEqual(new[] { "path A" }, navigation.Shown, "Expected an entry that the journal dropped to be opened from the address, not to fail.");
+        Assert.AreSequenceEqual(new[] { "path A" }, navigation.Shown, "Expected an entry that the journal dropped to be opened from the address, not to fail.");
     }
 
     [TestMethod]
@@ -250,7 +250,7 @@ public class BrowserHistorySyncTests
 
         Assert.IsEmpty(navigation.Shown, "Expected the root of the site, which names no page, not to be opened.");
         Assert.AreEqual(0, journal.CurrentIndex, "Expected the journal not to move.");
-        CollectionAssert.AreEqual(new[] { "/A" }, browser.Paths[^1..], "Expected the address bar to show the page that is shown again.");
+        Assert.AreSequenceEqual(new[] { "/A" }, browser.Paths[^1..], "Expected the address bar to show the page that is shown again.");
     }
 
     [TestMethod]
@@ -264,7 +264,7 @@ public class BrowserHistorySyncTests
         browser.UserGoes(-1);
         browser.DeliverPops();
 
-        CollectionAssert.AreEqual(new[] { "path Building/b1/Assets" }, navigation.Shown, "Expected the page of the address to be tried.");
+        Assert.AreSequenceEqual(new[] { "path Building/b1/Assets" }, navigation.Shown, "Expected the page of the address to be tried.");
         Assert.AreEqual("/A", browser.Paths[browser.Index], "Expected the address bar not to show a page that is not shown, for example one the rules refuse.");
         Assert.AreEqual(0, journal.CurrentIndex, "Expected the journal not to move.");
     }
@@ -286,7 +286,7 @@ public class BrowserHistorySyncTests
         release.SetResult();
         await Task.WhenAll(first, second);
 
-        CollectionAssert.AreEqual(new[] { "Back B", "Back A" }, navigation.Shown, "Expected the moves to be followed in the order they came.");
+        Assert.AreSequenceEqual(new[] { "Back B", "Back A" }, navigation.Shown, "Expected the moves to be followed in the order they came.");
         Assert.AreEqual(0, journal.CurrentIndex, "Expected the journal to end at the last entry the user reached.");
     }
 
