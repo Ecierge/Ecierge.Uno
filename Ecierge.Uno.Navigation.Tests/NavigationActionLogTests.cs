@@ -50,8 +50,8 @@ public class NavigationActionLogTests
 
         var entry = Assert.ContainsSingle(logs.Entries.Where(e => e.Level == LogLevel.Error), "Expected one error in the log.");
         Assert.AreSame(thrown, entry.Exception, "Expected the log to carry the exception.");
-        StringAssert.Contains(entry.Message, "TestAction", "Expected the log to name the action.");
-        StringAssert.Contains(entry.Message, "Tab2", "Expected the log to name what the action navigates to.");
+        Assert.Contains("TestAction", entry.Message, "Expected the log to name the action.");
+        Assert.Contains("Tab2", entry.Message, "Expected the log to name what the action navigates to.");
     }
 
     [TestMethod]

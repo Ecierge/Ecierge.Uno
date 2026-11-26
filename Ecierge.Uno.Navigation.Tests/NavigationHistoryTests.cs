@@ -206,7 +206,7 @@ public class NavigationHistoryTests
         host.Services.GetRequiredService<IRouteNotifier>().RouteChanged += (_, _) => announced++;
         await host.Root.NavigateRouteAsync(this, "Building/b1/Menu");
 
-        CollectionAssert.AreEqual(new[] { "Building/b1/Menu" }, Paths(host), "Expected the next navigation to be recorded: the one that failed was closed, so it does not hold the next one back.");
+        Assert.AreSequenceEqual(new[] { "Building/b1/Menu" }, Paths(host), "Expected the next navigation to be recorded: the one that failed was closed, so it does not hold the next one back.");
         Assert.AreEqual(1, announced, "Expected the next navigation to be announced.");
     }
 
@@ -225,7 +225,7 @@ public class NavigationHistoryTests
         host.Services.GetRequiredService<IRouteNotifier>().RouteChanged += (_, _) => announced++;
         await host.Root.NavigateRouteAsync(this, "Building/b1/Menu");
 
-        CollectionAssert.AreEqual(new[] { "Login", "Building/b1/Menu" }, Paths(host), "Expected the page that was shown to be recorded, and the next one too.");
+        Assert.AreSequenceEqual(new[] { "Login", "Building/b1/Menu" }, Paths(host), "Expected the page that was shown to be recorded, and the next one too.");
         Assert.AreEqual(1, announced, "Expected the next navigation to be announced.");
     }
 }

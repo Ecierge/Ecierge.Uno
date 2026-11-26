@@ -39,7 +39,7 @@ public class StaleNavigationTests
 
         await host.Root.NavigateRouteAsync(this, "Login");
 
-        CollectionAssert.AreEqual(new[] { "Login" }, Paths(host), "Expected the route to be recorded although an earlier navigation never ended.");
+        Assert.AreSequenceEqual(new[] { "Login" }, Paths(host), "Expected the route to be recorded although an earlier navigation never ended.");
         Assert.AreEqual(1, announced, "Expected the route to be announced.");
     }
 
@@ -58,7 +58,7 @@ public class StaleNavigationTests
         Assert.AreEqual(0, announced, "Expected nothing to be announced while the earlier navigation is open.");
         await slow.CompleteAsync(Success(host));
 
-        CollectionAssert.AreEqual(new[] { "Login" }, Paths(host), "Expected the route to be recorded when the earlier navigation has ended.");
+        Assert.AreSequenceEqual(new[] { "Login" }, Paths(host), "Expected the route to be recorded when the earlier navigation has ended.");
         Assert.AreEqual(1, announced, "Expected one announcement for both navigations.");
     }
 
@@ -90,7 +90,7 @@ public class StaleNavigationTests
         await slow.CompleteAsync(Success(host));
 
         Assert.AreEqual(3, announced, "Expected the late end to be announced as the state of the window.");
-        CollectionAssert.AreEqual(new[] { "Login", "Building/b1/Menu" }, Paths(host), "Expected the late end not to add an entry for the page that is shown already.");
+        Assert.AreSequenceEqual(new[] { "Login", "Building/b1/Menu" }, Paths(host), "Expected the late end not to add an entry for the page that is shown already.");
     }
 
     [TestMethod]
@@ -124,7 +124,7 @@ public class StaleNavigationTests
         await navigation.CompleteAsync(Success(host));
         await host.Root.NavigateRouteAsync(this, "Login");
 
-        CollectionAssert.AreEqual(new[] { "Login" }, Paths(host), "Expected the next navigation to be recorded.");
+        Assert.AreSequenceEqual(new[] { "Login" }, Paths(host), "Expected the next navigation to be recorded.");
         Assert.AreEqual(2, announced, "Expected one announcement for the navigation and one for the next, none for the repeated end.");
     }
 }
