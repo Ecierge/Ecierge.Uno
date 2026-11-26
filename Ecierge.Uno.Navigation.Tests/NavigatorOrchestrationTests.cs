@@ -24,10 +24,10 @@ public class NavigatorOrchestrationTests
         var response = await host.Root.NavigateRouteAsync(this, "A/B");
 
         Assert.IsTrue(response.Success, "Expected the route to be navigated.");
-        Assert.AreEqual("A", host.Root.Requests.Single().NameSegment.Name, "Expected the root navigator to navigate the first segment.");
+        Assert.AreEqual("A", Assert.ContainsSingle(host.Root.Requests).NameSegment.Name, "Expected the root navigator to navigate the first segment.");
         var child = host.Root.ChildNavigator as FakeNavigator;
         Assert.IsNotNull(child, "Expected the view of the first segment to have attached a region.");
-        Assert.AreEqual("B", child.Requests.Single().NameSegment.Name, "Expected the child navigator to navigate the second segment.");
+        Assert.AreEqual("B", Assert.ContainsSingle(child.Requests).NameSegment.Name, "Expected the child navigator to navigate the second segment.");
         Assert.AreEqual("A/B", host.Root.ActualRoute.ToPath(), "Expected the leaf navigator to hold the whole route.");
     }
 
@@ -47,6 +47,6 @@ public class NavigatorOrchestrationTests
 
         Assert.IsFalse(response.Success, "Expected a denied route to fail.");
         Assert.IsInstanceOfType<NavigationDeniedResponse>(response, "Expected the response to tell that the rules refused the route.");
-        Assert.AreEqual(0, host.Root.Requests.Count, "Expected the navigator not to be asked to show a denied segment.");
+        Assert.IsEmpty(host.Root.Requests, "Expected the navigator not to be asked to show a denied segment.");
     }
 }

@@ -46,7 +46,7 @@ public class NavigationRulesTests
         var result = await host.Root.IsAllowedToNavigateAsync(host.Root.ParseRoute("Login"));
 
         Assert.IsFalse(result.IsAllowed, "Expected the route to be denied.");
-        CollectionAssert.AreEqual(new[] { "No role", "No license" }, result.Reasons.ToArray(), "Expected the user to learn every reason.");
+        Assert.AreSequenceEqual(new[] { "No role", "No license" }, result.Reasons, "Expected the user to learn every reason.");
     }
 
     [TestMethod]
@@ -67,7 +67,7 @@ public class NavigationRulesTests
         var result = await host.Root.IsAllowedToNavigateAsync(host.Root.ParseRoute("Login"));
 
         Assert.IsFalse(result.IsAllowed, "Expected a route nobody could check not to be allowed.");
-        CollectionAssert.AreEqual(new[] { "All rule checkers crashed" }, result.Reasons.ToArray(), "Expected the reason to tell that the checks failed.");
+        Assert.AreSequenceEqual(new[] { "All rule checkers crashed" }, result.Reasons, "Expected the reason to tell that the checks failed.");
     }
 
     [TestMethod]
@@ -97,8 +97,8 @@ public class NavigationRulesTests
 
         var denied = response as NavigationDeniedResponse;
         Assert.IsNotNull(denied, "Expected the response to tell that the rules refused the route.");
-        CollectionAssert.AreEqual(new[] { "No access" }, denied.Reasons.ToArray(), "Expected the reasons of the rules.");
-        CollectionAssert.AreEqual(new[] { "No access" }, denied.Errors.ToArray(), "Expected the reasons to be listed as the errors of the failure too.");
+        Assert.AreSequenceEqual(new[] { "No access" }, denied.Reasons, "Expected the reasons of the rules.");
+        Assert.AreSequenceEqual(new[] { "No access" }, denied.Errors, "Expected the reasons to be listed as the errors of the failure too.");
         Assert.IsEmpty(host.Root.Requests, "Expected no navigator to be asked to show a page that is refused.");
         Assert.IsNull(denied.Error, "Expected a refusal not to be an exception.");
     }

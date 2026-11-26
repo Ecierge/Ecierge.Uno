@@ -37,7 +37,7 @@ public class NavigationBackForwardTests
 
         Assert.IsTrue(response.Success, "Expected the previous page to be shown.");
         Assert.AreEqual(NavigationMode.Back, response.Mode, "Expected pages to be able to tell back from a new navigation.");
-        CollectionAssert.AreEqual(new[] { "Menu", "Assets", "Menu" }, Names(layout), "Expected the previous page to be created again in the region of the building.");
+        Assert.AreSequenceEqual(new[] { "Menu", "Assets", "Menu" }, Names(layout), "Expected the previous page to be created again in the region of the building.");
         Assert.ContainsSingle(host.Root.Requests, "Expected the page of the building, which is right, not to be created again.");
     }
 
@@ -49,7 +49,7 @@ public class NavigationBackForwardTests
 
         await layout.GoBackAsync(this);
 
-        CollectionAssert.AreEqual(new[] { "Building/b1/Menu", "Building/b1/Assets" }, Paths(host), "Expected going back not to extend the history.");
+        Assert.AreSequenceEqual(new[] { "Building/b1/Menu", "Building/b1/Assets" }, Paths(host), "Expected going back not to extend the history.");
         Assert.AreEqual(0, host.Root.Journal.CurrentIndex, "Expected the previous entry to be current.");
         Assert.IsTrue(host.Root.Journal.CanGoForward, "Expected the page that was left to be ahead.");
     }
@@ -65,9 +65,9 @@ public class NavigationBackForwardTests
 
         await layout.GoBackAsync(this);
 
-        Assert.ContainsSingle(seen, "Expected one announcement for the move.");
-        Assert.AreEqual("Building/b1/Menu", seen[0].Path, "Expected the entry of the page that is shown to be current when the change is announced.");
-        Assert.IsTrue(seen[0].CanGoForward, "Expected the page that was left to be ahead when the change is announced.");
+        var announcement = Assert.ContainsSingle(seen, "Expected one announcement for the move.");
+        Assert.AreEqual("Building/b1/Menu", announcement.Path, "Expected the entry of the page that is shown to be current when the change is announced.");
+        Assert.IsTrue(announcement.CanGoForward, "Expected the page that was left to be ahead when the change is announced.");
     }
 
     [TestMethod]
@@ -82,9 +82,9 @@ public class NavigationBackForwardTests
 
         await layout.GoBackAsync(this);
 
-        Assert.ContainsSingle(seen, "Expected one announcement for the failed move.");
-        Assert.IsFalse(seen[0].Response!.Success, "Expected the listeners to learn that the page was not shown.");
-        Assert.AreEqual(1, seen[0].Index, "Expected the position to stay where it was.");
+        var announcement = Assert.ContainsSingle(seen, "Expected one announcement for the failed move.");
+        Assert.IsFalse(announcement.Response!.Success, "Expected the listeners to learn that the page was not shown.");
+        Assert.AreEqual(1, announcement.Index, "Expected the position to stay where it was.");
     }
 
     [TestMethod]
@@ -111,7 +111,7 @@ public class NavigationBackForwardTests
         var response = await host.Root.GoBackAsync(this);
 
         Assert.IsInstanceOfType<NavigationFailedResponse>(response, "Expected a failure when there is no page to go back to.");
-        CollectionAssert.AreEqual(new[] { "Login" }, Paths(host), "Expected the history not to change.");
+        Assert.AreSequenceEqual(new[] { "Login" }, Paths(host), "Expected the history not to change.");
         Assert.ContainsSingle(host.Root.Requests, "Expected no navigation.");
     }
 
@@ -136,7 +136,7 @@ public class NavigationBackForwardTests
 
         await layout.NavigateRouteAsync(this, "Details/Floors");
 
-        CollectionAssert.AreEqual(new[] { "Building/b1/Menu", "Building/b1/Details/Floors" }, Paths(host), "Expected the page that was left to be gone from the history.");
+        Assert.AreSequenceEqual(new[] { "Building/b1/Menu", "Building/b1/Details/Floors" }, Paths(host), "Expected the page that was left to be gone from the history.");
         Assert.IsFalse(host.Root.Journal.CanGoForward, "Expected nothing ahead.");
     }
 
@@ -188,7 +188,7 @@ public class NavigationBackForwardTests
         var forward = await host.Root.GoForwardAsync(this);
 
         Assert.IsTrue(back.Success && forward.Success, "Expected both moves to succeed.");
-        CollectionAssert.AreEqual(new[] { "b1", "b2" }, server.Requests, "Expected the entries of the history to hold the handles of the buildings, which are loaded, instead of ids to load.");
+        Assert.AreSequenceEqual(new[] { "b1", "b2" }, server.Requests, "Expected the entries of the history to hold the handles of the buildings, which are loaded, instead of ids to load.");
         Assert.AreEqual("Building/b2/Menu", host.Root.Journal.Current!.Path, "Expected the last building to be current again.");
     }
 
@@ -213,7 +213,7 @@ public class NavigationBackForwardTests
 
         await host.Root.NavigateRouteAsync(this, "-/Login");
 
-        CollectionAssert.AreEqual(new[] { "Login" }, Paths(host), "Expected nothing to lead back to the pages before the login.");
+        Assert.AreSequenceEqual(new[] { "Login" }, Paths(host), "Expected nothing to lead back to the pages before the login.");
         Assert.IsFalse(host.Root.Journal.CanGoBack, "Expected Back to be unavailable.");
         Assert.AreEqual("Login", host.Root.Requests[^1].NameSegment.Name, "Expected the page to be shown.");
     }
@@ -229,7 +229,7 @@ public class NavigationBackForwardTests
             async () => await host.Root.NavigateRouteAsync(this, "-/Nowhere"),
             "Expected a segment that does not exist to be refused.");
 
-        CollectionAssert.AreEqual(before, Paths(host), "Expected the way back to stay, as no page took the place of the pages.");
+        Assert.AreSequenceEqual(before, Paths(host), "Expected the way back to stay, as no page took the place of the pages.");
         Assert.AreEqual(1, host.Root.Journal.CurrentIndex, "Expected the position not to change.");
     }
 
@@ -249,7 +249,7 @@ public class NavigationBackForwardTests
         var response = await host.Root.NavigateRouteAsync(this, "-/Login");
 
         Assert.IsInstanceOfType<NavigationDeniedResponse>(response, "Expected the rules to refuse the page.");
-        CollectionAssert.AreEqual(before, Paths(host), "Expected the user not to lose the way back for a page that was refused.");
+        Assert.AreSequenceEqual(before, Paths(host), "Expected the user not to lose the way back for a page that was refused.");
     }
 
     [TestMethod]
@@ -264,7 +264,7 @@ public class NavigationBackForwardTests
         var response = await host.Root.NavigateRouteAsync(this, "-/Building/b2/Menu");
 
         Assert.IsInstanceOfType<NavigationFailedResponse>(response, "Expected the load of the building to fail.");
-        CollectionAssert.AreEqual(before, Paths(host), "Expected the way back to stay, as the page was not shown.");
+        Assert.AreSequenceEqual(before, Paths(host), "Expected the way back to stay, as the page was not shown.");
     }
 
     [TestMethod]

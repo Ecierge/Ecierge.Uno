@@ -29,14 +29,14 @@ public class DataGatingTests
         var navigation = host.Root.NavigateRouteAsync(this, "Building/b1/Menu").AsTask();
 
         Assert.IsFalse(navigation.IsCompleted, "Expected the navigation to wait for the building.");
-        Assert.AreEqual("Building", host.Root.Requests.Single().NameSegment.Name, "Expected the building page to be created at once, so that it can show its progress.");
+        Assert.AreEqual("Building", Assert.ContainsSingle(host.Root.Requests).NameSegment.Name, "Expected the building page to be created at once, so that it can show its progress.");
         Assert.IsEmpty(Layout(host).Requests, "Expected no page below the building before the building is loaded.");
 
         answer.SetResult(new Building("b1", "Hall"));
         var response = await navigation;
 
         Assert.IsTrue(response.Success, "Expected the navigation to succeed after the building loaded.");
-        Assert.AreEqual("Menu", Layout(host).Requests.Single().NameSegment.Name, "Expected the page to be created after the load.");
+        Assert.AreEqual("Menu", Assert.ContainsSingle(Layout(host).Requests).NameSegment.Name, "Expected the page to be created after the load.");
         Assert.ContainsSingle(server.Requests, "Expected one request for the building, whoever reads it.");
     }
 
@@ -100,7 +100,7 @@ public class DataGatingTests
 
         await host.Root.NavigateRouteAsync(this, "Building/b1/Menu");
 
-        CollectionAssert.AreEqual(new[] { "finished False", "failed The server is down" }, events, "Expected listeners to learn of the failure and its cause.");
+        Assert.AreSequenceEqual(new[] { "finished False", "failed The server is down" }, events, "Expected listeners to learn of the failure and its cause.");
     }
 
     [TestMethod]
@@ -115,7 +115,7 @@ public class DataGatingTests
 
         Assert.IsTrue(response.Success, "Expected the retry to succeed once the server is back.");
         Assert.AreEqual(NavigationMode.Refresh, response.Mode, "Expected the retry to be told apart from a new navigation.");
-        Assert.AreEqual("Menu", Layout(host).Requests.Single().NameSegment.Name, "Expected the page that failed to open to be created now.");
+        Assert.AreEqual("Menu", Assert.ContainsSingle(Layout(host).Requests).NameSegment.Name, "Expected the page that failed to open to be created now.");
         Assert.ContainsSingle(host.Root.Requests, "Expected the building page to stay as it was: the retry does not create it again.");
     }
 
@@ -137,7 +137,8 @@ public class DataGatingTests
         var menu = layout.Requests[0].Route.Data[BuildingInfo];
         var assets = layout.Requests[1].Route.Data[BuildingInfo];
         Assert.AreSame(menu, assets, "Expected both pages to receive the same handle of the building.");
-        Assert.IsTrue(((INavigationEntity)assets).TryGetLoadedEntity(out var loaded) && ((Building)loaded).Id == "b1", "Expected the page to receive the building that loaded after the recovery, not the failed attempt.");
+        Assert.IsTrue(((INavigationEntity)assets).TryGetLoadedEntity(out var loaded), "Expected the building to be loaded.");
+        Assert.AreEqual("b1", ((Building)loaded).Id, "Expected the page to receive the building that loaded after the recovery, not the failed attempt.");
     }
 
     [TestMethod]
@@ -154,7 +155,7 @@ public class DataGatingTests
 
         Assert.IsInstanceOfType<NavigationFailedResponse>(whileDown, "Expected the page not to open without the building.");
         Assert.IsTrue(afterRecovery.Success, "Expected the same navigation to succeed with no refresh of the building page: the handle loads itself again.");
-        Assert.AreEqual("Assets", layout.Requests.Single().NameSegment.Name, "Expected only the page that could be created to be navigated.");
+        Assert.AreEqual("Assets", Assert.ContainsSingle(layout.Requests).NameSegment.Name, "Expected only the page that could be created to be navigated.");
     }
 
     [TestMethod]
