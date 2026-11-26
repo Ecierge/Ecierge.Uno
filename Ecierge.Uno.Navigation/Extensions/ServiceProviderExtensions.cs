@@ -300,12 +300,9 @@ public static class ServiceProviderExtensions
             return instance;
         }
 
-        if (value is T typedValue)
-        {
-            return typedValue;
-        }
-
-        return default;
+        // A factory that was set with a type is a Func<object>, which is not a Func<T>: the lookup by type creates and keeps
+        // its instance, as it returns a stored instance
+        return repository.GetRepositoryInstance(typeof(T)) is T stored ? stored : default;
     }
 
     #endregion Get instance from repository (internal)

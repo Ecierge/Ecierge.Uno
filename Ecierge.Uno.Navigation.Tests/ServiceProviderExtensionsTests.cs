@@ -63,6 +63,48 @@ public class ServiceProviderExtensionsTests
     }
 
     [TestMethod]
+    public void A_scoped_factory_set_with_a_type_must_be_found_by_the_generic_lookup()
+    {
+        using var root = CreateProvider();
+        using var scope = root.CreateScope();
+        var created = 0;
+        Func<object> create = () =>
+        {
+            created++;
+            return new Widget();
+        };
+
+        scope.ServiceProvider.SetScopedInstance(typeof(Widget), create);
+
+        var first = scope.ServiceProvider.GetInstance<Widget>();
+        var second = scope.ServiceProvider.GetInstance<Widget>();
+        Assert.IsNotNull(first, "Expected the generic lookup to create the instance of a factory that was set with a type.");
+        Assert.AreSame(first, second, "Expected the instance that the factory created to be kept.");
+        Assert.AreEqual(1, created, "Expected the factory to run once.");
+    }
+
+    [TestMethod]
+    public void A_singleton_factory_set_with_a_type_must_be_found_by_the_generic_lookup()
+    {
+        using var root = CreateProvider();
+        using var scope = root.CreateScope();
+        var created = 0;
+        Func<object> create = () =>
+        {
+            created++;
+            return new Widget();
+        };
+
+        scope.ServiceProvider.SetSingletonInstance(typeof(Widget), create);
+
+        var first = scope.ServiceProvider.GetInstance<Widget>();
+        var second = scope.ServiceProvider.GetInstance<Widget>();
+        Assert.IsNotNull(first, "Expected the generic lookup to create the instance of a factory that was set with a type.");
+        Assert.AreSame(first, second, "Expected the instance that the factory created to be kept.");
+        Assert.AreEqual(1, created, "Expected the factory to run once.");
+    }
+
+    [TestMethod]
     public void Removing_the_singleton_instance_must_keep_the_scoped_instance_of_the_same_type()
     {
         using var root = CreateProvider();
