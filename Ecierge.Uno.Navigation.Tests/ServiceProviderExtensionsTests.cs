@@ -118,6 +118,19 @@ public class ServiceProviderExtensionsTests
         Assert.AreSame(scoped, scope.ServiceProvider.GetInstance<Widget>(), "Expected the scoped instance to stay when the singleton one is removed.");
     }
 
+    // The lookup asks the scoped repository first, so the test above cannot see whether the singleton instance is gone
+    [TestMethod]
+    public void Removing_the_singleton_instance_must_remove_it()
+    {
+        using var root = CreateProvider();
+        using var scope = root.CreateScope();
+        scope.ServiceProvider.SetSingletonInstance(new Widget());
+
+        scope.ServiceProvider.RemoveSingletonInstance<Widget>();
+
+        Assert.IsNull(scope.ServiceProvider.GetInstance<Widget>(), "Expected no instance once the singleton one is removed.");
+    }
+
     [TestMethod]
     public void Removing_the_scoped_instance_must_keep_the_singleton_instance_of_the_same_type()
     {
