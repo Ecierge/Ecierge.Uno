@@ -11,11 +11,15 @@ using Microsoft.UI.Xaml.Controls;
 [TestClass, UnitTestCategory, NavigationTestCategory]
 public class NavigationOptionsTests
 {
-    private static NavigationOptions OptionsOf(Func<NavigationOptions, NavigationOptions>? configure, IConfiguration? configuration = null)
+    private static NavigationOptions OptionsOf(
+        Func<NavigationOptions, NavigationOptions>? configure,
+        IConfiguration? configuration = null,
+        Func<NavigationOptions, bool>? validate = null)
     {
         var services = new ServiceCollection();
         services.AddLogging();
         if (configuration is not null) services.Configure<NavigationOptions>(configuration.GetSection(nameof(NavigationOptions)));
+        if (validate is not null) services.AddOptions<NavigationOptions>().Validate(validate, "The navigation options are not valid.");
         services.AddNavigation(configure);
         using var provider = services.BuildServiceProvider();
         return provider.GetRequiredService<IOptions<NavigationOptions>>().Value;
@@ -99,5 +103,23 @@ public class NavigationOptionsTests
         var options = OptionsOf(o => returned = o with { AddressBarUpdateEnabled = false });
 
         Assert.AreSame(returned, options, "Expected the options of the callback to be used as they are, not copied.");
+    }
+
+    // The options before the callback fail this validator, only the options the callback returns pass it
+    [TestMethod]
+    public void A_validator_must_accept_options_the_configure_callback_made_valid()
+    {
+        var options = OptionsOf(o => o with { UseNativeBackButton = true }, validate: o => o.UseNativeBackButton == true);
+
+        Assert.AreEqual(true, options.UseNativeBackButton, "Expected the validator to check the options the callback returned.");
+    }
+
+    // The options before the callback pass this validator, only the options the callback returns fail it
+    [TestMethod]
+    public void A_validator_must_reject_options_the_configure_callback_made_invalid()
+    {
+        Assert.ThrowsExactly<OptionsValidationException>(
+            () => OptionsOf(o => o with { UseNativeBackButton = true }, validate: o => o.UseNativeBackButton != true),
+            "Expected the validator to check the options the callback returned.");
     }
 }

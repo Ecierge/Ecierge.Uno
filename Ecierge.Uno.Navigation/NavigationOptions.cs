@@ -60,16 +60,23 @@ public record NavigationOptions
 }
 
 /// <summary>
-/// Hands the options that the factory of the options pattern created to the callback of <c>AddNavigation</c>, once the
-/// configuration was bound and the navigators of the library were added. What the callback returns is what the services
-/// get, so it has the last word and nothing is copied: the options are a record with init-only properties, which only a
-/// constructor, an object initializer or <c>with</c> can write.
+/// Hands the options that the factory of the options pattern created to the callback of
+/// <see cref="ServiceCollectionExtensions.AddNavigation"/>, once the configuration was bound and the navigators of the library
+/// were added, and validates what the callback returns. That is what the services get, so the callback has the last word and
+/// nothing is copied: the options are a record with init-only properties, which only a constructor, an object initializer or
+/// <c>with</c> can write.
 /// </summary>
+/// <param name="factory">Creates the options with the configuration bound and the navigators added, without validating them.</param>
+/// <param name="configure">The callback of <see cref="ServiceCollectionExtensions.AddNavigation"/>.</param>
+/// <param name="validations">The validators of the options, which check the options that the callback returned.</param>
 internal sealed class AdjustedNavigationOptionsFactory(
     IOptionsFactory<NavigationOptions> factory,
-    Func<NavigationOptions, NavigationOptions> configure) : IOptionsFactory<NavigationOptions>
+    Func<NavigationOptions, NavigationOptions> configure,
+    IEnumerable<IValidateOptions<NavigationOptions>> validations)
+    // Without setups and post-configurations of its own the base only validates the instance that CreateInstance gives it
+    : OptionsFactory<NavigationOptions>([], [], validations)
 {
-    public NavigationOptions Create(string name) => configure(factory.Create(name));
+    protected override NavigationOptions CreateInstance(string name) => configure(factory.Create(name));
 }
 
 internal class PostConfigureNavigationOptions(IEnumerable<Tuple<Type, Type>> navigators) : IPostConfigureOptions<NavigationOptions>

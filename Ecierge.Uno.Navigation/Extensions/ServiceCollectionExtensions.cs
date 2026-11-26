@@ -21,7 +21,8 @@ public static class ServiceCollectionExtensions
     /// <param name="services">The service collection to add navigation services to.</param>
     /// <param name="configure">
     /// Optional callback that gets the <see cref="NavigationOptions"/> once the configuration was bound and the navigators
-    /// of the library were added, and returns the options that the services get.
+    /// of the library were added, and returns the options that the services get. The validators of the options check what
+    /// it returns.
     /// </param>
     /// <param name="routeBuilder">Optional action to configure the view and route registries.</param>
     /// <param name="createViewRegistryBuilder">Optional factory to create a custom <see cref="IViewRegistryBuilder"/>.</param>
@@ -45,13 +46,14 @@ public static class ServiceCollectionExtensions
 
         if (configure is not null)
         {
-            // Wraps the factory that the options pattern would use, to hand its options to the callback (transient like that one)
+            // Wraps the factory that the options pattern would use, to hand its options to the callback (transient like that one);
+            // the wrapped factory does not validate, the validators run after the callback
             services.AddTransient<IOptionsFactory<NavigationOptions>>(provider => new AdjustedNavigationOptionsFactory(
                 new OptionsFactory<NavigationOptions>(
                     provider.GetServices<IConfigureOptions<NavigationOptions>>(),
-                    provider.GetServices<IPostConfigureOptions<NavigationOptions>>(),
-                    provider.GetServices<IValidateOptions<NavigationOptions>>()),
-                configure));
+                    provider.GetServices<IPostConfigureOptions<NavigationOptions>>()),
+                configure,
+                provider.GetServices<IValidateOptions<NavigationOptions>>()));
         }
 
         return
