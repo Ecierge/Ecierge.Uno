@@ -21,6 +21,11 @@
           <AppBarButton.Icon>
             <BitmapIcon UriSource="ms-appx:///Assets/Images/back.png" />
           </AppBarButton.Icon>
+          <i:Interaction.Behaviors>
+            <i:EventTriggerBehavior EventName="Click">
+              <nav:NavigateBackAction />
+            </i:EventTriggerBehavior>
+          </i:Interaction.Behaviors>
         </AppBarButton>
       </utu:NavigationBar.MainCommand>
     </utu:NavigationBar>
