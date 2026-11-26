@@ -17,6 +17,8 @@
     <GenerateLibraryLayout>true</GenerateLibraryLayout>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <!-- A nullable warning is a bug in the contract of the API, so it fails the build -->
+    <WarningsAsErrors>$(WarningsAsErrors);nullable</WarningsAsErrors>
 
     <!--
       If you encounter this error message:

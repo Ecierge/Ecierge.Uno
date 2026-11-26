@@ -56,6 +56,7 @@ public static partial class WindowExtensions
 
         var navigator = navigationScope.ServiceProvider.GetRequiredService<Navigator>();
         Navigation.SetRootNavigator(window.Content!, navigator);
+        ((FrameworkElement)window.Content!).TrackJournal(navigator.Journal);
         if (initialNavigate is not null)
         {
             await initialNavigate.Invoke(navigationScope.ServiceProvider, navigator).ConfigureAwait(true);
