@@ -30,8 +30,8 @@ public class NavigationOptionsTests
     {
         var options = OptionsOf(o => o with { AddressBarUpdateEnabled = false, UseNativeBackButton = true });
 
-        Assert.AreEqual(false, options.AddressBarUpdateEnabled, "Expected the callback to turn the update of the address bar off.");
-        Assert.AreEqual(true, options.UseNativeBackButton, "Expected the callback to turn the native back button on.");
+        Assert.IsFalse(options.AddressBarUpdateEnabled, "Expected the callback to turn the update of the address bar off.");
+        Assert.IsTrue(options.UseNativeBackButton, "Expected the callback to turn the native back button on.");
     }
 
     [TestMethod]
@@ -75,7 +75,7 @@ public class NavigationOptionsTests
     {
         var options = OptionsOf(o => o with { Navigators = new Dictionary<Type, Type>() });
 
-        Assert.AreEqual(0, options.Navigators.Count, "Expected the dictionary of the callback to be what the services get.");
+        Assert.IsEmpty(options.Navigators, "Expected the dictionary of the callback to be what the services get.");
     }
 
     [TestMethod]
@@ -92,7 +92,7 @@ public class NavigationOptionsTests
             return o;
         }, configuration);
 
-        Assert.AreEqual(true, seen, "Expected the callback to get the options after the configuration was bound.");
+        Assert.IsTrue(seen, "Expected the callback to get the options after the configuration was bound.");
     }
 
     [TestMethod]
@@ -111,7 +111,7 @@ public class NavigationOptionsTests
     {
         var options = OptionsOf(o => o with { UseNativeBackButton = true }, validate: o => o.UseNativeBackButton == true);
 
-        Assert.AreEqual(true, options.UseNativeBackButton, "Expected the validator to check the options the callback returned.");
+        Assert.IsTrue(options.UseNativeBackButton, "Expected the validator to check the options the callback returned.");
     }
 
     // The options before the callback pass this validator, only the options the callback returns fail it
