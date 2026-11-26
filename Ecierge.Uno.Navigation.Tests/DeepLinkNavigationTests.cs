@@ -28,8 +28,8 @@ public class DeepLinkNavigationTests
 
         Assert.IsTrue(response.Success, "Expected the page to open.");
         Assert.ContainsSingle(host.Root.Requests, "Expected the building page, which is right, to stay.");
-        CollectionAssert.AreEqual(new[] { "Menu", "Assets" }, layout.Requests.Select(r => r.NameSegment.Name).ToArray(), "Expected only the page below the building to change.");
-        CollectionAssert.AreEqual(new[] { "Building/b1/Menu", "Building/b1/Assets" }, host.Root.Journal.Entries.Select(e => e.Path).ToArray(), "Expected the link to be a step of the history.");
+        Assert.AreSequenceEqual(new[] { "Menu", "Assets" }, layout.Requests.Select(r => r.NameSegment.Name), "Expected only the page below the building to change.");
+        Assert.AreSequenceEqual(new[] { "Building/b1/Menu", "Building/b1/Assets" }, host.Root.Journal.Entries.Select(e => e.Path), "Expected the link to be a step of the history.");
     }
 
     [TestMethod]
@@ -51,7 +51,7 @@ public class DeepLinkNavigationTests
 
         await host.Root.NavigateToLinkAsync(this, new Uri("ecierge-console://Building/b1/Menu"), HistoryMode.Replace);
 
-        CollectionAssert.AreEqual(new[] { "Building/b1/Menu" }, host.Root.Journal.Entries.Select(e => e.Path).ToArray(), "Expected the page of the link to take the place of the login.");
+        Assert.AreSequenceEqual(new[] { "Building/b1/Menu" }, host.Root.Journal.Entries.Select(e => e.Path), "Expected the page of the link to take the place of the login.");
     }
 
     [TestMethod]
@@ -93,7 +93,7 @@ public class DeepLinkNavigationTests
 
         var denied = response as NavigationDeniedResponse;
         Assert.IsNotNull(denied, "Expected the rules to refuse the page of the link.");
-        CollectionAssert.AreEqual(new[] { "Sign in first" }, denied.Reasons.ToArray(), "Expected the reason, so that the application can send the user to sign in.");
+        Assert.AreSequenceEqual(new[] { "Sign in first" }, denied.Reasons, "Expected the reason, so that the application can send the user to sign in.");
     }
 
     [TestMethod]
