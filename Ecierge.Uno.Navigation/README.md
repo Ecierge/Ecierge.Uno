@@ -53,6 +53,16 @@ In XAML, `NavigateBackAction` and `NavigateForwardAction` go back and forward, a
 - `WindowExtensions.NavigateAsync` puts the page of the launch link into `IPendingNavigation`. When the application has no initial navigation of its own, it opens that page, replacing the first entry of the history. An application with its own initial navigation takes the route with `IPendingNavigation.Consume()`, for example after the user has signed in.
 - `Navigator.NavigateToLinkAsync` opens the page of a link at run time. The rules still decide, like for any other navigation.
 
+## Browser history (WebAssembly)
+
+On WebAssembly the history of the browser follows the journal in both directions, and the address bar shows the route under the base path.
+
+- A page that is added to the journal is added to the history of the browser. The first page takes the place of the entry the page was loaded with.
+- Back and Forward of the browser show the page of the entry through the navigators, and the journal follows once the page is shown. A page that cannot be shown returns the browser to the current entry.
+- An entry the application did not make, such as the entry of an earlier run after a reload, is opened from its address, and the history of the application starts anew from it, because the browser stands at a position that the entries of the application cannot be measured from any more.
+- The state of an entry is the object `{ ecierge: token }`, so it does not clash with the dummy entry that Uno keeps for the back button of the system. The library never makes that button visible on WebAssembly.
+- The host of the page has to serve the application for every path. Console does this with the rewrite rule of its static web app.
+
 ## Back button of the system
 
 On Android and iOS the back button of the system goes back in the journal while there is an entry to go back to, and leaves the application otherwise. `NavigationOptions.UseNativeBackButton` turns it on or off explicitly. It is never used on WebAssembly.
@@ -63,6 +73,7 @@ On Android and iOS the back button of the system goes back in the journal while 
 |:--|:--|:--|
 |`DialogsInHistory`|`true`|An open dialog is an entry of the history|
 |`JournalCapacity`|`100`|The number of entries the history keeps|
+|`AddressBarUpdateEnabled`|`true`|The browser history follows the journal (WebAssembly)|
 |`UseNativeBackButton`|`true` on Android and iOS|The back button of the system goes back in the journal|
 |`DeepLinkScheme`|none|The scheme of the links that open a page, such as `ecierge-console`|
 |`BasePath`|`/`|The path under which the application is hosted on the web|
@@ -82,4 +93,5 @@ dotnet build Ecierge.Uno.Navigation.Tests
 
 - A navigator that shows a page skips a navigation to the page that is already shown. A page that was created from an older load refreshes through its own refresh action, or takes `NavigationEntity<T>` and listens to `Changed`.
 - A link that reaches an application that is already running is not handed to it on Windows and on the desktop, where the system starts another process with the link.
+- A dialog is a step of the route, but the entries of the browser before the first page of a session cannot be removed, so Back of the browser can leave the application.
 - Navigation guards (a confirmation before the user leaves a page with unsaved changes) are not part of the library yet.
