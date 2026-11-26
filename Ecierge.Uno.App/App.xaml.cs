@@ -25,8 +25,8 @@ public partial class App : Application
         this.InitializeComponent();
     }
 
-    protected Window? MainWindow { get; private set; }
-    protected IHost? Host { get; private set; }
+    internal Window? MainWindow { get; private set; }
+    internal IHost? Host { get; private set; }
 
     protected async override void OnLaunched(LaunchActivatedEventArgs args)
     {
@@ -107,6 +107,10 @@ public partial class App : Application
 
         //},
         shell => shell.ContentControl);
+
+#if WINDOWS
+        await RuntimeTests.WindowsRuntimeTestsRunner.RunIfRequestedAsync(MainWindow);
+#endif
     }
 
     private static void RegisterRoutes(IViewRegistryBuilder views, INavigationDataRegistryBuilder data, IRouteRegistryBuilder routes)

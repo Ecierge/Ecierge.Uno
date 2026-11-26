@@ -84,6 +84,7 @@
     <PackageReference Include="CommunityToolkit.WinUI.Converters" />
     <PackageReference Include="CommunityToolkit.WinUI.DeveloperTools" />
     <PackageReference Include="CommunityToolkit.WinUI.Triggers" />
+    <PackageReference Include="Uno.UI.RuntimeTests.Engine" />
   </ItemGroup>
 
   <ItemGroup>

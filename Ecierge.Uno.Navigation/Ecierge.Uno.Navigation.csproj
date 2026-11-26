@@ -49,6 +49,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- The runtime tests of the sample app check the internal region lookups. -->
+    <InternalsVisibleTo Include="Ecierge.Uno.App" />
     <InternalsVisibleTo Include="Ecierge.Uno.Navigation.Tests" />
   </ItemGroup>
 
