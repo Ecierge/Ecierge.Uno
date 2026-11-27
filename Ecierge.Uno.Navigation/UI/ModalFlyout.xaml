@@ -4,7 +4,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:uen="using:Ecierge.Uno.Navigation.UI"
-        xmlns:utu="using:Uno.Toolkit.UI"
 
         xmlns:android="http:///umbrella/ui/android"
         xmlns:ios="http:///umbrella/ui/ios"
@@ -50,6 +49,11 @@
                         CornerRadius="{TemplateBinding CornerRadius}" />
         </Grid>
       </ControlTemplate>
+      <!--
+        The Uno Toolkit ships NativeFramePresenter for the native renderers of Android and iOS only. Uno renders those heads with Skia and skips
+        the android: and ios: markup there, so the only head that reaches the two templates below is Mac Catalyst, which has no NativeFramePresenter.
+        A ContentPresenter shows the content of the frame there.
+      -->
       <ios:ControlTemplate x:Key="MobileFrameTemplate" TargetType="Frame">
         <Grid>
           <VisualStateManager.VisualStateGroups>
@@ -67,7 +71,7 @@
               </VisualState>
             </VisualStateGroup>
           </VisualStateManager.VisualStateGroups>
-          <utu:NativeFramePresenter
+          <ContentPresenter
                         x:Name="FlyoutRoot"
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch" />
@@ -90,7 +94,7 @@
               </VisualState>
             </VisualStateGroup>
           </VisualStateManager.VisualStateGroups>
-          <utu:NativeFramePresenter
+          <ContentPresenter
                         x:Name="FlyoutRoot"
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch" />

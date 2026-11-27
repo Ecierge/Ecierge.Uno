@@ -13,6 +13,7 @@
     <Platforms>Any CPU;x64</Platforms>
 
     <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
     <UnoSingleProject>true</UnoSingleProject>
 
     <!-- Display name -->
