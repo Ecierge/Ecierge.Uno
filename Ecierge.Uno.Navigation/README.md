@@ -45,6 +45,8 @@ Every window has one `NavigationJournal`, a list of the whole routes from the ro
 
 In XAML, `NavigateBackAction` and `NavigateForwardAction` go back and forward, and the attached properties `Navigation.CanGoBack` and `Navigation.CanGoForward` of the content of the window can enable a button. A `NavigationView` goes back from its own back button, whichever of `NavigationViewNavigator` and `NavigationViewContentNavigator` serves it; the button is enabled while the journal has an entry to go back to, and the view shows it when its `IsBackButtonVisible` says so.
 
+The `NavigationBar` of Uno Toolkit shows its back arrow in a page that is shown as a dialog, but it goes back through the `Frame` of the page, and a page of this library has none, so the arrow does nothing by itself. Give the bar a `MainCommand` button with `NavigateBackAction`, as `MainPage` of the sample application does: the bar still decides when the button shows, and the action goes back, which closes the dialog.
+
 ## Deep links
 
 `DeepLinkMapper.ToRoutePath` turns a link into the text of a route. A link of the custom scheme (`NavigationOptions.DeepLinkScheme`, for example `ecierge-console://Building/3f2a/Assets`) and a link of the web (`https://host/Building/3f2a/Assets`, under `NavigationOptions.BasePath`) name pages. Any other link does not. A link cannot carry the commands of the route text (`-`, `-/`, `/`, `../`, `./`), because it comes from outside.
@@ -72,7 +74,10 @@ On Android and iOS the back button of the system goes back in the journal while 
 |Option|Default|Meaning|
 |:--|:--|:--|
 |`DialogsInHistory`|`true`|An open dialog is an entry of the history|
+|`DialogCloseButtonText`|`Close`|The close button of a dialog that is built around a view that is not a content dialog; without a text the dialog has no button|
+|`DialogBorderThickness`|`1`|The outline of such a dialog, in the outline color of the theme (Material `OutlineBrush`, Fluent `CardStrokeColorDefaultBrush`); `0` leaves the dialog as the theme draws it|
 |`JournalCapacity`|`100`|The number of entries the history keeps|
+|`StaleNavigationTimeout`|`30` seconds|A navigation that has been open for longer is left out by the navigations that start after it, so that one that never ends does not hold back the history and the announcements for ever|
 |`AddressBarUpdateEnabled`|`true`|The browser history follows the journal (WebAssembly)|
 |`UseNativeBackButton`|`true` on Android and iOS|The back button of the system goes back in the journal|
 |`DeepLinkScheme`|none|The scheme of the links that open a page, such as `ecierge-console`|
@@ -95,3 +100,4 @@ dotnet build Ecierge.Uno.Navigation.Tests
 - A link that reaches an application that is already running is not handed to it on Windows and on the desktop, where the system starts another process with the link.
 - A dialog is a step of the route, but the entries of the browser before the first page of a session cannot be removed, so Back of the browser can leave the application.
 - Navigation guards (a confirmation before the user leaves a page with unsaved changes) are not part of the library yet.
+- A navigation that shows a view waits until the view is loaded, so that the regions inside it exist before the rest of the route is navigated, but at most `VisualTreeTimeout` (5 seconds, a protected virtual property of `FactoryNavigator<T>`). When the view is still not loaded then, for example a dialog that the platform could not show, the navigation logs a warning and goes on without it. The history and the announcements of the routes that start while a navigation is open wait for it, so a slow navigation delays them, for at most `StaleNavigationTimeout`: a navigation that starts after that time leaves it out, and a navigation that was left out is recorded and announced when it ends, if no other navigation is open then.

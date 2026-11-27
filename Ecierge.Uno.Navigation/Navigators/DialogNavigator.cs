@@ -4,6 +4,8 @@ using System;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 using Windows.Foundation;
 
@@ -101,6 +103,12 @@ public abstract class DialogNavigator<TTarget, TResult> : FactoryNavigator<TTarg
 public class ContentDialogNavigator : DialogNavigator<ContentDialog, ContentDialogResult>
 {
     /// <summary>
+    /// The resources that hold the color of an outline, in the order they are tried: <c>OutlineBrush</c> of Material, then
+    /// <c>CardStrokeColorDefaultBrush</c> and <c>ControlStrokeColorDefaultBrush</c> of Fluent.
+    /// </summary>
+    private static readonly string[] OutlineBrushKeys = ["OutlineBrush", "CardStrokeColorDefaultBrush", "ControlStrokeColorDefaultBrush"];
+
+    /// <summary>
     /// Creates a navigator.
     /// </summary>
     /// <param name="serviceProvider">The services of the scope of the region.</param>
@@ -118,15 +126,16 @@ public class ContentDialogNavigator : DialogNavigator<ContentDialog, ContentDial
         var dialog = result.Result switch
         {
             ContentDialog contentDialog => contentDialog,
-            // TODO: Implement more dialog settings
-            FrameworkElement view => new ContentDialog { Content = view },
+            FrameworkElement view => CreateDialogAround(view),
             _ => throw new InvalidOperationException("Invalid dialog view")
         };
         ServiceProvider.SetScopedInstance<FrameworkElement>(dialog);
 
-#if WINDOWS
-        dialog.XamlRoot = ServiceProvider.GetRequiredService<Window>().Content!.XamlRoot;
-#endif
+        // A dialog is shown in the root of the window of the application; one without it is not shown on every platform
+        if (ServiceProvider.GetService<Window>()?.Content?.XamlRoot is { } xamlRoot)
+        {
+            dialog.XamlRoot = xamlRoot;
+        }
         // The region of the dialog is created before the dialog, so the dialog is its control from now on
         Region.Target = dialog;
         // To support navigation inside the dialog
@@ -146,6 +155,54 @@ public class ContentDialogNavigator : DialogNavigator<ContentDialog, ContentDial
         dialog.Closed += DialogClosed;
 
         var operation = dialog.ShowAsync();
+        // Nobody awaits the operation, so a dialog that could not be shown would fail without a trace
+        operation.Completed = (shown, status) =>
+        {
+            if (status == AsyncStatus.Error)
+            {
+                Logger.LogWarning(shown.ErrorCode, "The dialog of the segment '{SegmentName}' could not be shown", Region.Segment.Name);
+            }
+        };
         return new NavigationResult<IAsyncOperation<ContentDialogResult>>(request, operation);
+    }
+
+    /// <summary>
+    /// Builds the dialog around a view that is not a content dialog. The view has no buttons, so the dialog gets the
+    /// close button of <see cref="NavigationOptions.DialogCloseButtonText"/>: without a button nothing closes the dialog
+    /// on a platform where the escape key does not. It also gets the outline of <see cref="NavigationOptions.DialogBorderThickness"/>,
+    /// as a theme may draw a dialog without one.
+    /// </summary>
+    /// <param name="view">The view to show in the dialog.</param>
+    /// <returns>The dialog.</returns>
+    private ContentDialog CreateDialogAround(FrameworkElement view)
+    {
+        var options = ServiceProvider.GetService<IOptions<NavigationOptions>>()?.Value;
+        var dialog = new ContentDialog { Content = view };
+        if (!string.IsNullOrEmpty(options?.DialogCloseButtonText))
+        {
+            dialog.CloseButtonText = options.DialogCloseButtonText;
+            dialog.DefaultButton = ContentDialogButton.Close;
+        }
+        if (options is { DialogBorderThickness: > 0 } && FindOutlineBrush() is { } outline)
+        {
+            dialog.BorderThickness = new Thickness(options.DialogBorderThickness);
+            dialog.BorderBrush = outline;
+        }
+        return dialog;
+    }
+
+    /// <summary>
+    /// Finds the brush that the theme of the application draws an outline with.
+    /// </summary>
+    /// <returns>The brush, or <see langword="null"/> when the theme has none of the brushes the library knows.</returns>
+    private static Brush? FindOutlineBrush()
+    {
+        var resources = Application.Current?.Resources;
+        if (resources is null) return null;
+        foreach (var key in OutlineBrushKeys)
+        {
+            if (resources.TryGetValue(key, out var value) && value is Brush brush) return brush;
+        }
+        return null;
     }
 }

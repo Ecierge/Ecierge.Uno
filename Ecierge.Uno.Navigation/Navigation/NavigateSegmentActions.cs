@@ -87,7 +87,8 @@ public partial class NavigateLocalSegmentAction : NavigateSegmentActionBase, IAc
             // TODO: Consider not using this condition
             if (!navigationRegion.Segment.NestedAfterData.Any(s => s.Name == SegmentName) && navigationRegion.Parent is not null)
                 navigationRegion = navigationRegion.Parent!;
-            return navigationRegion.Navigator.NavigateLocalSegmentAsync(sender, SegmentName!, SegmentData);
+            var navigator = navigationRegion.Navigator;
+            return NavigationActionLog.Run(nameof(NavigateLocalSegmentAction), navigator, SegmentName, () => navigator.NavigateLocalSegmentAsync(sender, SegmentName!, SegmentData));
         }
         return null;
     }
@@ -109,7 +110,8 @@ public partial class NavigateNestedSegmentAction : NavigateSegmentActionBase, IA
         {
             var navigationRegion = element.FindNavigationRegion();
             if (navigationRegion is null) throw new NavigationRegionMissingException(element);
-            return navigationRegion.Navigator.NavigateNestedSegmentAsync(sender, SegmentName!, SegmentData);
+            var navigator = navigationRegion.Navigator;
+            return NavigationActionLog.Run(nameof(NavigateNestedSegmentAction), navigator, SegmentName, () => navigator.NavigateNestedSegmentAsync(sender, SegmentName!, SegmentData));
         }
         return null;
     }
@@ -130,7 +132,8 @@ public partial class NavigateDialogSegmentAction : NavigateSegmentActionBase, IA
         {
             var navigationRegion = element.FindNavigationRegion();
             if (navigationRegion is null) throw new NavigationRegionMissingException(element);
-            return navigationRegion.Navigator.NavigateDialogSegmentAsync(sender, SegmentName!, SegmentData);
+            var navigator = navigationRegion.Navigator;
+            return NavigationActionLog.Run(nameof(NavigateDialogSegmentAction), navigator, SegmentName, () => navigator.NavigateDialogSegmentAsync(sender, SegmentName!, SegmentData));
         }
         return null;
     }
