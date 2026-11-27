@@ -41,12 +41,14 @@ internal sealed class BuildingServer
     }
 }
 
-/// <summary>Loads a building from the server by its id, and writes it as its id.</summary>
+/// <summary>Loads a building from the server by its id, writes it as its id and names it by its name.</summary>
 internal sealed class BuildingMap(BuildingServer server) : NavigationDataMap<Building>
 {
     public override Task<Building> LoadEntityAsync(string primitive) => server.LoadAsync(primitive);
 
     protected override string ToPrimitive(Building entity) => entity.Id;
+
+    public override string? GetDisplayName(Building entity) => entity.Name;
 }
 
 /// <summary>The routes of the tests that need a building.</summary>

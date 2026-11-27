@@ -3,7 +3,6 @@ namespace Ecierge.Uno.App.Presentation;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Input;
 
 using Ecierge.Uno.Navigation;
 using Microsoft.UI.Xaml.Data;
@@ -13,7 +12,11 @@ public partial class MainViewModel : ObservableObject
     private Navigator navigator;
 
 #pragma warning disable MVVMTK0045 // Using [ObservableProperty] on fields is not AOT compatible for WinRT
+    // The buttons that open the second page and the page content control need a name: it is the id of the entity in the route
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(GoToSecond))]
+    [NotifyCanExecuteChangedFor(nameof(GoToPageContentControl))]
+    [NotifyPropertyChangedFor(nameof(HasName))]
     private string? name;
 
     [ObservableProperty]
@@ -29,8 +32,8 @@ public partial class MainViewModel : ObservableObject
         Title = "Main";
         Title += $" - {localizer["ApplicationName"]}";
         Title += $" - {appInfo?.Value?.Environment}";
-        GoToSecond = new AsyncRelayCommand(GoToSecondView);
-        GoToPageContentControl = new AsyncRelayCommand(GoToPageContentControlView);
+        GoToSecond = new AsyncRelayCommand(GoToSecondView, () => HasName);
+        GoToPageContentControl = new AsyncRelayCommand(GoToPageContentControlView, () => HasName);
 
         var groups = new List<(string, string)>();
         for(int i = 0; i < 5; i++)
@@ -50,18 +53,19 @@ public partial class MainViewModel : ObservableObject
     }
     public string? Title { get; }
 
-    public ICommand GoToSecond { get; }
-    public ICommand GoToPageContentControl { get; }
+    public bool HasName => !string.IsNullOrWhiteSpace(Name);
+
+    public IAsyncRelayCommand GoToSecond { get; }
+
+    public IAsyncRelayCommand GoToPageContentControl { get; }
 
     private async Task GoToSecondView()
     {
-        if (string.IsNullOrWhiteSpace(Name)) return;
-        await navigator.NavigateLocalSegmentAsync(this, "Second", new Entity(Name));
+        await navigator.NavigateLocalSegmentAsync(this, "Second", Entity.FromName(Name!));
     }
     private async Task GoToPageContentControlView()
     {
-        if (string.IsNullOrWhiteSpace(Name)) return;
-        await navigator.NavigateLocalSegmentAsync(this, "PageContentControl", new Entity(Name));
+        await navigator.NavigateLocalSegmentAsync(this, "PageContentControl", Entity.FromName(Name!));
     }
 
 }

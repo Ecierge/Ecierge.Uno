@@ -167,6 +167,12 @@ public abstract class Navigator
     public Routing.Route RequestedRoute { get; private set; } = Routing.Route.Empty;
 
     /// <summary>
+    /// Gets what the navigator shows in its region since its last navigation: the view of a page, or what a selector
+    /// selected. A navigation that was skipped keeps what was shown.
+    /// </summary>
+    internal object? Content { get; private set; }
+
+    /// <summary>
     /// Gets the route of the innermost navigator, which is the route that is shown.
     /// </summary>
     public Routing.Route ActualRoute => LeafNavigator.Route;
@@ -328,6 +334,12 @@ public abstract class Navigator
         }
         if (result.Success)
         {
+            // A skipped navigation leaves the content that is shown
+            if (!result.IsSkipped)
+            {
+                Content = result.Result;
+            }
+
             // If it is data requests save new request with data load task
             request = result.Request;
             if (Target is { } target)

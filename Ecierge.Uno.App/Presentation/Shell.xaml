@@ -5,11 +5,19 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:utu="using:Uno.Toolkit.UI"
+      xmlns:navc="using:Ecierge.Uno.Navigation.Controls"
       mc:Ignorable="d"
       d:DesignHeight="300"
       d:DesignWidth="400">
-  <Border Background="{ThemeResource BackgroundBrush}">
+  <Grid Background="{ThemeResource BackgroundBrush}">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+    <!-- Outside the region of the pages: the bar follows the root navigator of the window -->
+    <navc:NavigationBreadcrumbBar Padding="16,8,16,0" />
     <utu:ExtendedSplashScreen x:Name="Splash"
+                Grid.Row="1"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
                 HorizontalContentAlignment="Stretch"
@@ -32,5 +40,5 @@
         </DataTemplate>
       </utu:ExtendedSplashScreen.LoadingContentTemplate>
     </utu:ExtendedSplashScreen>
-  </Border>
+  </Grid>
 </UserControl>
