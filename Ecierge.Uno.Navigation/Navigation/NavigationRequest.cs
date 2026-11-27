@@ -75,6 +75,10 @@ public record DialogSegmentNavigationRequest : NavigationRequest
     public DialogSegment Segment { get; init; }
     public RouteSegment ParentSegment { get; init; }
 
+    /// <summary>Creates a request to open a dialog.</summary>
+    /// <exception cref="ArgumentException">
+    /// <paramref name="parentSegment"/> is a dialog segment, but dialogs are not nested.
+    /// </exception>
     public DialogSegmentNavigationRequest(
       object sender
     , DialogSegment segment
@@ -87,6 +91,10 @@ public record DialogSegmentNavigationRequest : NavigationRequest
         ParentSegment = parentSegment;
     }
 
+    /// <inheritdoc />
+    /// <exception cref="NotSupportedException">
+    /// The parent segment is neither a name segment nor a data segment.
+    /// </exception>
     public override NameSegment NameSegment => ParentSegment switch
     {
         NameSegment nameSegment => nameSegment,

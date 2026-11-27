@@ -84,6 +84,9 @@ public sealed class NavigationEntity<TEntity> : INavigationEntity
     /// </summary>
     /// <param name="primitive">The value of the entity as it is written in a route.</param>
     /// <param name="loader">Loads the entity from its value.</param>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="primitive"/> or <paramref name="loader"/> is <see langword="null"/>.
+    /// </exception>
     public NavigationEntity(string primitive, Func<string, Task<TEntity>> loader)
     {
         Primitive = primitive ?? throw new ArgumentNullException(nameof(primitive));
@@ -108,6 +111,9 @@ public sealed class NavigationEntity<TEntity> : INavigationEntity
     /// <param name="primitive">The value of the entity as it is written in a route.</param>
     /// <param name="task">The task that loads the entity.</param>
     /// <param name="loader">Loads the entity from its value when it is reloaded.</param>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="primitive"/>, <paramref name="task"/> or <paramref name="loader"/> is <see langword="null"/>.
+    /// </exception>
     public NavigationEntity(string primitive, Task<TEntity> task, Func<string, Task<TEntity>> loader)
         : this(primitive, loader)
     {

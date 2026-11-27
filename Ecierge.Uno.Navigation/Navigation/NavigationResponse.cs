@@ -34,6 +34,7 @@ public abstract record NavigationResponse
     /// </summary>
     /// <param name="route">The route of the response.</param>
     /// <param name="navigator">The navigator that the navigation was started on.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="navigator"/> is <see langword="null"/>.</exception>
     protected NavigationResponse(Routing.Route route, Navigator navigator)
     {
         Route = route;

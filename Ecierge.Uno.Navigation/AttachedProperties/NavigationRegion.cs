@@ -20,6 +20,8 @@ public sealed class NavigationRegion
 {
     private Navigator? navigator;
 
+    /// <summary>Creates the region of a scope.</summary>
+    /// <exception cref="ArgumentNullException"><paramref name="scope"/> is <see langword="null"/>.</exception>
     internal NavigationRegion(NavigationScope scope, NavigationRegion? parent, FrameworkElement? target, FrameworkElement? root)
     {
         Scope = scope ?? throw new ArgumentNullException(nameof(scope));
